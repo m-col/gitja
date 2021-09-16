@@ -1,5 +1,7 @@
 module Main where
 
+import Repositories
+
 main :: IO ()
 main = do
-  putStrLn "hello world"
+  getLog "."

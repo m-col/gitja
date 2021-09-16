@@ -16,5 +16,9 @@ extra-source-files:  README.rst
 executable gitserve
   hs-source-dirs:      src
   main-is:             Main.hs
+  other-modules:       Repositories
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
+                     , gitlib
+                     , gitlib-libgit2
+                     , tagged
