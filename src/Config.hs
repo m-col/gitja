@@ -1,6 +1,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module Config (
+    Config,
+    repoPaths,
     getConfig
 ) where
 

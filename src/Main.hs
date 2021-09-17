@@ -2,10 +2,7 @@
 module Main where
 
 import Config (getConfig)
-import Repositories
+import Repositories (run)
 
 main :: IO ()
-main = do
-    config <- getConfig "./config.dhall"
-    print config
-    getLog "."
+main = getConfig "./config.dhall" >>= run
