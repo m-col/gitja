@@ -20,6 +20,9 @@ gitserve is called again.
 Outputs
 -------
 
+A single index showing basic information about all repositories. Then, per
+repository:
+
 - Rendered markdown/rst readme (+ log in sidebar)
 - File index + page per file in the tree
 - Log index + page per commit
