@@ -1,22 +1,26 @@
 module Templates (
     Template,
+    templateGinger,
     templatePath,
-    templateContents,
     loadTemplates,
 ) where
 
 import Control.Monad (filterM, (<=<))
 import Data.Char (toLower)
+import Data.Either (rights)
 import Data.List (isSuffixOf)
+import Data.Maybe (catMaybes)
 import System.Directory (doesFileExist, getDirectoryContents)
 import System.FilePath ((</>), FilePath)
 import System.IO.Error (tryIOError)
+import qualified Text.Ginger.AST as G
+import qualified Text.Ginger.Parse as G
 
 import Config (Config, templateDirectory)
 
 data Template = Template
     { templatePath :: FilePath
-    , templateContents :: String
+    , templateGinger :: G.Template G.SourcePos
     }
 
 {-
@@ -26,17 +30,22 @@ the set of available templates loaded from files found in the template directory
 loadTemplates :: Config -> IO [Template]
 loadTemplates config = do
     files <- getFiles config
-    sequence $ loadTemplate <$> files
+    parsed <- sequence $ G.parseGingerFile resolver <$> files 
+    return $ Template <$> files <*> rights parsed
 
 ----------------------------------------------------------------------------------------
 
 {-
-This reads the contents of a file and stores it within a `Template` object.
+This is a Ginger `IncludeResolver` that will eventually be extended to enable caching of
+templates.
 -}
-loadTemplate :: FilePath -> IO Template
-loadTemplate path = do
-    contents <- readFile path
-    return $ Template path contents
+resolver :: FilePath -> IO (Maybe String)
+resolver path = tryIOError (readFile path) >>= \e ->
+    case e of
+        Right contents -> return $ Just contents
+        Left err -> do
+            print err
+            return Nothing
 
 {-
 This is used to filter files in the template directory so that we only try to load

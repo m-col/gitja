@@ -11,7 +11,7 @@ import Git
 import Git.Libgit2 (lgFactory)
 
 import Config (Config, repoPaths)
-import Templates (Template, templatePath, templateContents)
+import Templates (Template, templateGinger, templatePath)
 
 {-
 This is the entrypoint that receives the ``Config`` and uses it to map over our
