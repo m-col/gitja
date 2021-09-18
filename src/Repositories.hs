@@ -37,17 +37,18 @@ repository doesn't exist or is unreadable in any way we can forget about it and 
 processRepo :: [Template] -> FilePath -> FilePath -> IO ()
 processRepo templates outputDirectory path = withRepository lgFactory path $ do
     liftIO $ createDirectoryIfMissing True outPath
-    ref <- lookupReference "HEAD"
+    ref <- resolveReference "HEAD"
     case ref of
-        Just commitID -> liftIO $ processRepo' templates outPath commitID
+        Just commitID -> do
+            head <- lookupCommit (Tagged commitID)
+            nodes <- lookupTree (commitTree head) >>= listTreeEntries
+            liftIO $ processRepo' templates outPath
         _ -> liftIO . print $ "gitserve: " <> (takeFileName path) <> ": Failed to resolve HEAD."
   where
     outPath = outputDirectory </> (takeFileName path)
 
-processRepo' :: [Template] -> FilePath -> RefTarget LgRepo -> IO ()
-processRepo' templates outPath commitID = do
-    --headCommit <- lookupCommit (Tagged commitID)
-    liftIO $ print "hi"
+processRepo' :: [Template] -> FilePath -> IO ()
+processRepo' templates outPath = do
     return ()
 
     --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
