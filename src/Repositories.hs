@@ -21,7 +21,6 @@ run :: Config -> [Template] -> IO ()
 run config templates = foldMap processRepo . repoPaths $ config
 
 ----------------------------------------------------------------------------------------
--- Private
 
 {-
 This receives a file path to a single repository and tries to process it. If the

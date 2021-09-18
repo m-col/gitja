@@ -29,7 +29,6 @@ loadTemplates config = do
     sequence $ loadTemplate <$> files
 
 ----------------------------------------------------------------------------------------
--- Private
 
 {-
 This reads the contents of a file and stores it within a `Template` object.
