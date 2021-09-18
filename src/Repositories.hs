@@ -9,6 +9,8 @@ import Data.Foldable (foldMap)
 import Data.Tagged
 import Git
 import Git.Libgit2 (lgFactory)
+import System.FilePath (takeFileName)
+import Text.Ginger (easyRender)
 
 import Config (Config, repoPaths)
 import Templates (Template, templateGinger, templatePath)
@@ -35,8 +37,7 @@ processRepo templates path = withRepository lgFactory path $ do
         Just commitID -> do
             headCommit <- lookupCommit (Tagged commitID)
             liftIO $ print $ commitLog headCommit
-        _ -> liftIO (print "Couldn't resolve HEAD")
-
+        _ -> liftIO $ print $ "gitserve: " <> (takeFileName path) <> ": Failed to resolve HEAD."
 
 -- Variables:
 title = "gitserve"
