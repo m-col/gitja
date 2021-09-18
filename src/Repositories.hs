@@ -10,13 +10,14 @@ import Git
 import Git.Libgit2 (lgFactory)
 
 import Config (Config, repoPaths)
+import Templates (Template, templatePath, templateContents)
 
 {-
 This is the entrypoint that receives the ``Config`` and uses it to map over our
 repositories, reading from them and writing out their web pages.
 -}
-run :: Config -> IO ()
-run = mconcat . fmap processRepo . repoPaths
+run :: Config -> [Template] -> IO ()
+run config templates = mconcat . fmap processRepo . repoPaths $ config
 
 {-
 This receives a file path to a single repository and tries to process it. If the

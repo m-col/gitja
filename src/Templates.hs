@@ -19,31 +19,47 @@ data Template = Template
     , templateContents :: String
     }
 
---tryLoad :: FilePath -> IO (Maybe String)
---tryLoad path = do
---    e <- tryIOError $ readFile path
---    case e of
---        Right contents ->
---            return $ Just contents
---        Left error -> do
---            print error
---            return Nothing
+{-
+This is the main function of this module, which takes the session's `Config` and returns
+the set of available templates loaded from files found in the template directory.
+-}
+loadTemplates :: Config -> IO [Template]
+loadTemplates config = do
+    files <- getFiles config
+    sequence $ loadTemplate <$> files
 
+----------------------------------------------------------------------------------------
+-- Private
+
+{-
+This reads the contents of a file and stores it within a `Template` object.
+-}
 loadTemplate :: FilePath -> IO Template
 loadTemplate path = do
     contents <- readFile path
     return $ Template path contents
 
+{-
+This is used to filter files in the template directory so that we only try to load
+HTML/CSS/JS files.
+-}
 isTemplate :: FilePath -> IO Bool
 isTemplate path = ((&&) $ isTemplate' path) <$> (doesFileExist path)
-
-isTemplate' :: FilePath -> Bool
-isTemplate' path = isSuffixOf "html" p || isSuffixOf "css" p || isSuffixOf "js" p
   where
     p = map toLower path
+    isTemplate' :: FilePath -> Bool
+    isTemplate' path = isSuffixOf "html" p || isSuffixOf "css" p || isSuffixOf "js" p
 
+{-
+This wraps getDirectoryContents so that we get a list of fully qualified paths of the
+directory's contents.
+-}
 listTemplates :: FilePath -> IO [FilePath]
 listTemplates directory = fmap (directory </>) <$> getDirectoryContents directory
 
-loadTemplates :: Config -> IO [FilePath]
-loadTemplates = filterM isTemplate <=< listTemplates . templateDirectory
+{-
+getFiles will look inside the template directory and generate a list of paths to likely
+valid template files.
+-}
+getFiles :: Config -> IO [FilePath]
+getFiles = filterM isTemplate <=< listTemplates . templateDirectory

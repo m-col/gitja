@@ -9,5 +9,4 @@ main :: IO ()
 main = do
     config <- getConfig "./config.dhall"
     templates <- loadTemplates config
-    --run config templates
-    return ()
+    run config templates
