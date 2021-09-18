@@ -15,10 +15,11 @@ import Templates (Template, templatePath, templateContents)
 
 {-
 This is the entrypoint that receives the ``Config`` and uses it to map over our
-repositories, reading from them and writing out their web pages.
+repositories, reading from them and writing out their web pages using the given
+templates.
 -}
 run :: Config -> [Template] -> IO ()
-run config templates = foldMap processRepo . repoPaths $ config
+run config templates = foldMap (processRepo templates) . repoPaths $ config
 
 ----------------------------------------------------------------------------------------
 
@@ -27,8 +28,8 @@ This receives a file path to a single repository and tries to process it. If the
 repository doesn't exist or is unreadable in any way we can forget about it and move on
 (after informing the user of course).
 -}
-processRepo :: FilePath -> IO ()
-processRepo path = withRepository lgFactory path $ do
+processRepo :: [Template] -> FilePath -> IO ()
+processRepo templates path = withRepository lgFactory path $ do
     maybeObjID <- resolveReference "HEAD"
     case maybeObjID of
         Just commitID -> do
