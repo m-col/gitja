@@ -7,11 +7,14 @@ module Repositories (
 import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (foldMap)
 import Data.Tagged
+import Data.Text (unpack, Text)
 import Git
-import Git.Libgit2 (lgFactory)
+import Git.Types (RefTarget)
+import Git.Libgit2 (lgFactory, LgRepo)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath ((</>), takeFileName)
-import Text.Ginger (easyRender)
+import Text.Ginger (runGingerT, makeContextHtmlM, toGVal, GVal)
+import Text.Ginger.Html (htmlSource)
 
 import Config (Config, repoPaths, outputDirectory)
 import Templates (Template, templateGinger, templatePath)
@@ -33,18 +36,24 @@ repository doesn't exist or is unreadable in any way we can forget about it and 
 -}
 processRepo :: [Template] -> FilePath -> FilePath -> IO ()
 processRepo templates outputDirectory path = withRepository lgFactory path $ do
-    return $ createDirectoryIfMissing True outPath
-    maybeObjID <- resolveReference "HEAD"
-    case maybeObjID of
-        Just commitID -> do
-            headCommit <- lookupCommit (Tagged commitID)
-            liftIO $ print $ commitLog headCommit
-        _ -> liftIO $ print $ "gitserve: " <> (takeFileName path) <> ": Failed to resolve HEAD."
+    liftIO $ createDirectoryIfMissing True outPath
+    ref <- lookupReference "HEAD"
+    case ref of
+        Just commitID -> liftIO $ processRepo' templates outPath commitID
+        _ -> liftIO . print $ "gitserve: " <> (takeFileName path) <> ": Failed to resolve HEAD."
   where
     outPath = outputDirectory </> (takeFileName path)
 
+processRepo' :: [Template] -> FilePath -> RefTarget LgRepo -> IO ()
+processRepo' templates outPath commitID = do
+    --headCommit <- lookupCommit (Tagged commitID)
+    liftIO $ print "hi"
+    return ()
+
+    --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
+
 -- Variables:
-title = "gitserve"
-description = ""
-host = "http://localhost"
-path = ""
+--title = "gitserve"
+--description = ""
+--host = "http://localhost"
+--path = ""
