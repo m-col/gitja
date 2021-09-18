@@ -30,17 +30,17 @@ the set of available templates loaded from files found in the template directory
 loadTemplates :: Config -> IO [Template]
 loadTemplates config = do
     files <- getFiles config
-    parsed <- sequence $ G.parseGingerFile resolver <$> files 
+    parsed <- sequence $ G.parseGingerFile includeResolver <$> files 
     return $ Template <$> files <*> rights parsed
 
 ----------------------------------------------------------------------------------------
 
 {-
 This is a Ginger `IncludeResolver` that will eventually be extended to enable caching of
-templates.
+includes.
 -}
-resolver :: FilePath -> IO (Maybe String)
-resolver path = tryIOError (readFile path) >>= \e ->
+includeResolver :: FilePath -> IO (Maybe String)
+includeResolver path = tryIOError (readFile path) >>= \e ->
     case e of
         Right contents -> return $ Just contents
         Left err -> do
