@@ -1,4 +1,4 @@
-{-# Language OverloadedStrings #-}  -- Needed for resolvReference
+{-# Language OverloadedStrings #-}  -- Needed for resolveReference
 
 module Repositories (
     run
