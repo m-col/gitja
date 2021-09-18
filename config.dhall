@@ -12,6 +12,7 @@ let folders = [
 -- This is the configuration object that is used by gitserve
 let config =
     { repoPaths = folders
+    , templateDirectory = "./templates"
     , outputDirectory = "./output"
     }
 

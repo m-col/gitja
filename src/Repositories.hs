@@ -31,3 +31,10 @@ processRepo path = withRepository lgFactory path $ do
             headCommit <- lookupCommit (Tagged commitID)
             liftIO $ print $ commitLog headCommit
         _ -> liftIO (print "Couldn't resolve HEAD")
+
+
+-- Variables:
+title = "gitserve"
+description = ""
+host = "http://localhost"
+path = ""
