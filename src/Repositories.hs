@@ -5,6 +5,7 @@ module Repositories (
 ) where
 
 import Control.Monad.IO.Class (liftIO)
+import Data.Foldable (foldMap)
 import Data.Tagged
 import Git
 import Git.Libgit2 (lgFactory)
@@ -17,7 +18,10 @@ This is the entrypoint that receives the ``Config`` and uses it to map over our
 repositories, reading from them and writing out their web pages.
 -}
 run :: Config -> [Template] -> IO ()
-run config templates = mconcat . fmap processRepo . repoPaths $ config
+run config templates = foldMap processRepo . repoPaths $ config
+
+----------------------------------------------------------------------------------------
+-- Private
 
 {-
 This receives a file path to a single repository and tries to process it. If the
