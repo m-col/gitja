@@ -14,6 +14,7 @@ let config =
     { repoPaths = folders
     , templateDirectory = "./templates"
     , outputDirectory = "./output"
+    , host = "http://localhost"
     }
 
 in config

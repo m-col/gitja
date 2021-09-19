@@ -57,6 +57,3 @@ getDescription path = tryIOError (readFile path) >>= \e ->
     case e of
         Right contents -> return $ Just contents
         Left err -> return Nothing
-
--- Variables:
---host = "http://localhost"

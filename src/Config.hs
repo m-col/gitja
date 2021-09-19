@@ -14,6 +14,7 @@ data Config = Config
     { repoPaths :: [FilePath]
     , templateDirectory :: FilePath
     , outputDirectory :: FilePath
+    , host :: FilePath
     }
     deriving (Generic, Show)
 
