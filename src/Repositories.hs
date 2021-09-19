@@ -40,14 +40,15 @@ processRepo templates outputDirectory path = withRepository lgFactory path $ do
     liftIO $ createDirectoryIfMissing True outPath
     ref <- resolveReference "HEAD"
     case ref of
-        Nothing -> liftIO . print $ "gitserve: " <> (takeFileName path) <> ": Failed to resolve HEAD."
+        Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
         Just commitID -> do
             description <- liftIO $ getDescription $ outPath </> "description"
             head <- lookupCommit (Tagged commitID)
             nodes <- lookupTree (commitTree head) >>= listTreeEntries
             return ()
   where
-    outPath = outputDirectory </> (takeFileName path)
+    name = takeFileName path
+    outPath = outputDirectory </> name
 
     --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
 
@@ -58,7 +59,4 @@ getDescription path = tryIOError (readFile path) >>= \e ->
         Left err -> return Nothing
 
 -- Variables:
---title = "gitserve"
---description = ""
 --host = "http://localhost"
---path = ""
