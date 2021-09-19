@@ -13,6 +13,7 @@ import Git.Types (RefTarget)
 import Git.Libgit2 (lgFactory, LgRepo)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath ((</>), takeFileName)
+import System.IO.Error (tryIOError)
 import Text.Ginger (runGingerT, makeContextHtmlM, toGVal, GVal)
 import Text.Ginger.Html (htmlSource)
 
@@ -41,6 +42,7 @@ processRepo templates outputDirectory path = withRepository lgFactory path $ do
     case ref of
         Nothing -> liftIO . print $ "gitserve: " <> (takeFileName path) <> ": Failed to resolve HEAD."
         Just commitID -> do
+            description <- liftIO $ getDescription $ outPath </> "description"
             head <- lookupCommit (Tagged commitID)
             nodes <- lookupTree (commitTree head) >>= listTreeEntries
             return ()
@@ -48,6 +50,12 @@ processRepo templates outputDirectory path = withRepository lgFactory path $ do
     outPath = outputDirectory </> (takeFileName path)
 
     --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
+
+getDescription :: FilePath -> IO (Maybe String)
+getDescription path = tryIOError (readFile path) >>= \e ->
+    case e of
+        Right contents -> return $ Just contents
+        Left err -> return Nothing
 
 -- Variables:
 --title = "gitserve"
