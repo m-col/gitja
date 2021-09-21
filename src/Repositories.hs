@@ -62,8 +62,8 @@ processRepo' templates outputDirectory path = do
 
     --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
 
-getDescription :: FilePath -> IO (Maybe String)
+getDescription :: FilePath -> IO String
 getDescription path = tryIOError (readFile path) >>= \e ->
     case e of
-        Right contents -> return $ Just contents
-        Left err -> return Nothing
+        Right contents -> return contents
+        Left err -> return ""
