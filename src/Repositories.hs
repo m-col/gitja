@@ -50,17 +50,24 @@ processRepo' templates outputDirectory path = do
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
         Just commitID -> do
             description <- liftIO $ getDescription $ outPath </> "description"
-            headc <- lookupCommit $ Tagged commitID
-            obj <- runConduit $ sourceObjects Nothing (Tagged commitID) False .| sinkList
+            obj <- getCommits $ Tagged commitID
             --a <- loadObject . head $ obj
             --liftIO . print . loadObject <$> obj
-            nodes <- lookupTree (commitTree headc) >>= listTreeEntries
+            tree <- getTree $ Tagged commitID
             return ()
   where
     name = takeFileName path
     outPath = outputDirectory </> name
 
     --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
+
+getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [ObjectOid LgRepo]
+getCommits commitID = runConduit $ sourceObjects Nothing commitID False .| sinkList
+
+getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [(TreeFilePath, TreeEntry LgRepo)]
+getTree commitID = do
+    headc <- lookupCommit commitID
+    lookupTree (commitTree headc) >>= listTreeEntries
 
 getDescription :: FilePath -> IO String
 getDescription path = tryIOError (readFile path) >>= \e ->
