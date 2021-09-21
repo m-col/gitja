@@ -4,7 +4,9 @@ module Repositories (
     run
 ) where
 
+import Conduit (runConduit, (.|), sinkList)
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Reader (ReaderT)
 import Data.Foldable (foldMap)
 import Data.Tagged
 import Data.Text (unpack, Text)
@@ -36,15 +38,23 @@ repository doesn't exist or is unreadable in any way we can forget about it and 
 (after informing the user of course).
 -}
 processRepo :: [Template] -> FilePath -> FilePath -> IO ()
-processRepo templates outputDirectory path = withRepository lgFactory path $ do
+processRepo templates outputDirectory path = withRepository lgFactory path $
+    processRepo' templates outputDirectory path
+
+-- This is split out to make type reasoning a bit easier.
+processRepo' :: [Template] -> FilePath -> FilePath -> ReaderT LgRepo IO ()
+processRepo' templates outputDirectory path = do
     liftIO $ createDirectoryIfMissing True outPath
     ref <- resolveReference "HEAD"
     case ref of
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
         Just commitID -> do
             description <- liftIO $ getDescription $ outPath </> "description"
-            head <- lookupCommit (Tagged commitID)
-            nodes <- lookupTree (commitTree head) >>= listTreeEntries
+            headc <- lookupCommit $ Tagged commitID
+            obj <- runConduit $ sourceObjects Nothing (Tagged commitID) False .| sinkList
+            --a <- loadObject . head $ obj
+            --liftIO . print . loadObject <$> obj
+            nodes <- lookupTree (commitTree headc) >>= listTreeEntries
             return ()
   where
     name = takeFileName path
