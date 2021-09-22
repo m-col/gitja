@@ -70,7 +70,4 @@ getTree commitID = do
     lookupTree (commitTree headc) >>= listTreeEntries
 
 getDescription :: FilePath -> IO String
-getDescription path = tryIOError (readFile path) >>= \e ->
-    case e of
-        Right contents -> return contents
-        Left err -> return ""
+getDescription path = either (const "") id <$> tryIOError (readFile path)
