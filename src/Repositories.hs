@@ -5,6 +5,7 @@ module Repositories (
 ) where
 
 import Conduit (runConduit, (.|), sinkList)
+import Control.Monad ((<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Foldable (foldMap)
@@ -50,10 +51,9 @@ processRepo' templates outputDirectory path = do
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
         Just commitID -> do
             description <- liftIO $ getDescription $ outPath </> "description"
-            obj <- getCommits $ Tagged commitID
-            --a <- loadObject . head $ obj
-            --liftIO . print . loadObject <$> obj
-            tree <- getTree $ Tagged commitID
+            let head = Tagged commitID
+            commits <- getCommits head
+            tree <- getTree head
             return ()
   where
     name = takeFileName path
@@ -61,8 +61,12 @@ processRepo' templates outputDirectory path = do
 
     --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
 
-getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [ObjectOid LgRepo]
-getCommits commitID = runConduit $ sourceObjects Nothing commitID False .| sinkList
+getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
+getCommits commitID = sequence . fmap loadCommit <=<
+    runConduit $ sourceObjects Nothing commitID False .| sinkList
+
+loadCommit :: ObjectOid LgRepo -> ReaderT LgRepo IO (Commit LgRepo)
+loadCommit (CommitObjOid oid) = lookupCommit oid
 
 getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [(TreeFilePath, TreeEntry LgRepo)]
 getTree commitID = do
