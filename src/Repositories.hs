@@ -50,10 +50,19 @@ processRepo' templates outputDirectory path = do
     case ref of
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
         Just commitID -> do
-            description <- liftIO $ getDescription $ outPath </> "description"
             let head = Tagged commitID
+            -- Variables available in the ginger templates --
+
+            -- description: The description of the repository from repo/description, if
+            -- it exists
+            description <- liftIO $ getDescription $ outPath </> "description"
+
+            -- commits: A list of `Git.Commit` objects to HEAD.
             commits <- getCommits head
+
+            -- tree: A list of `(TreeFilePath, TreeEntry r)` objects at HEAD.
             tree <- getTree head
+
             return ()
   where
     name = takeFileName path
