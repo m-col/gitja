@@ -9,6 +9,7 @@ import Conduit (runConduit, (.|), sinkList)
 import Control.Monad ((<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
+import Data.Either (fromRight)
 import Data.Foldable (foldMap)
 import Data.Tagged
 import Data.Text (Text)
@@ -83,7 +84,7 @@ getTree commitID = do
     lookupTree (commitTree head) >>= listTreeEntries
 
 getDescription :: FilePath -> IO String
-getDescription path = either (const "") id <$> tryIOError (readFile path)
+getDescription path = fromRight "" <$> tryIOError (readFile path)
 
 package description commits tree = HashMap.fromList
     [ ("commits", "commits")
