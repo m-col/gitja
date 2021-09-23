@@ -2,11 +2,11 @@
 -- It uses the Dhall configuration language: dhall-lang.org
 
 -- This is a folder containing repositories.
-let root = "."
+let root = ".."
 
 -- And these are relative paths from root to those repositories.
-let folders = [
-    "${root}/"
+let folders =
+    [ "${root}/gitserve"
     ]
 
 -- This is the configuration object that is used by gitserve

@@ -1,18 +1,18 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="x-ua-compatible" content="ie=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>gitserve - {{ title }}</title>
-		<link rel="stylesheet" href="{{ host }}/style.css" />
-	</head>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ name }} -- {{ title }}</title>
+    <link rel="stylesheet" href="{{ host }}/style.css" />
+  </head>
 
-	<body>
-		<p>{{ title }}</p>
-		<hr>
-		<p>{{ description }}</p>
-		<p>git clone {{ host }}{{ path }}</p>
-		{{ title }}
-	</body>
+  <body>
+    <p>{{ name }}</p>
+    <hr>
+    <p>{{ description }}</p>
+    <p>git clone {{ host }}/{{ name }}</p>
+    {{ title }}
+  </body>
 </html>
