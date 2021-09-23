@@ -1,4 +1,5 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric #-}  -- Required by Dhall
+{-# LANGUAGE DerivingStrategies #-}
 
 module Config (
     Config,
@@ -16,7 +17,7 @@ data Config = Config
     , outputDirectory :: FilePath
     , host :: FilePath
     }
-    deriving (Generic, Show)
+    deriving stock (Generic, Show)
 
 instance FromDhall Config
 
