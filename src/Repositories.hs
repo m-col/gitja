@@ -1,3 +1,4 @@
+{-# Language LambdaCase #-}
 {-# Language OverloadedStrings #-}  -- Needed for resolveReference
 
 module Repositories (
@@ -45,8 +46,7 @@ processRepo templates outputDirectory path = withRepository lgFactory path $
 processRepo' :: [Template] -> FilePath -> FilePath -> ReaderT LgRepo IO ()
 processRepo' templates outputDirectory path = do
     liftIO $ createDirectoryIfMissing True outPath
-    ref <- resolveReference "HEAD"
-    case ref of
+    resolveReference "HEAD" >>= \case
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
         Just commitID -> do
             let head = Tagged commitID

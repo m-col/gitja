@@ -1,3 +1,5 @@
+{-# Language LambdaCase #-}
+
 module Templates (
     Template,
     templateGinger,
@@ -45,12 +47,11 @@ This is a Ginger `IncludeResolver` that will eventually be extended to enable ca
 includes.
 -}
 includeResolver :: FilePath -> IO (Maybe String)
-includeResolver path = tryIOError (readFile path) >>= \e ->
-    case e of
-        Right contents -> return $ Just contents
-        Left err -> do
-            print err
-            return Nothing
+includeResolver path = tryIOError (readFile path) >>= \case
+    Right contents -> return $ Just contents
+    Left err -> do
+        print err
+        return Nothing
 
 {-
 This is used to filter files in the template directory so that we only try to load
