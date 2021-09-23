@@ -64,14 +64,14 @@ processRepo' templates outputDirectory path = do
 
             -- Run the generator --
             let repo = package description commits tree
-            liftIO . sequence . map (generate repo) $ templates
+            liftIO . mapM (generate repo) $ templates
             return ()
   where
     name = takeFileName path
     outPath = outputDirectory </> name
 
 getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
-getCommits commitID = sequence . fmap loadCommit <=<
+getCommits commitID = mapM loadCommit <=<
     runConduit $ sourceObjects Nothing commitID False .| sinkList
 
 loadCommit :: ObjectOid LgRepo -> ReaderT LgRepo IO (Commit LgRepo)
