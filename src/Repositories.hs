@@ -20,7 +20,7 @@ import System.FilePath ((</>), takeFileName)
 import System.IO.Error (tryIOError)
 import qualified Data.HashMap.Strict as HashMap
 
-import Config (Config, repoPaths, outputDirectory)
+import Config (Config, repoPaths, outputDirectory, host)
 import Templates (Template, generate)
 
 {-
@@ -29,7 +29,7 @@ repositories, reading from them and writing out their web pages using the given
 templates.
 -}
 run :: Config -> [Template] -> IO ()
-run config templates = foldMap (processRepo templates $ outputDirectory config) . repoPaths $ config
+run config templates = foldMap (processRepo templates config) . repoPaths $ config
 
 ----------------------------------------------------------------------------------------
 
@@ -38,13 +38,13 @@ This receives a file path to a single repository and tries to process it. If the
 repository doesn't exist or is unreadable in any way we can forget about it and move on
 (after informing the user of course).
 -}
-processRepo :: [Template] -> FilePath -> FilePath -> IO ()
-processRepo templates directory path = withRepository lgFactory path $
-    processRepo' templates directory path
+processRepo :: [Template] -> Config -> FilePath -> IO ()
+processRepo templates config path = withRepository lgFactory path $
+    processRepo' templates config path
 
 -- This is split out to make type reasoning a bit easier.
-processRepo' :: [Template] -> FilePath -> FilePath -> ReaderT LgRepo IO ()
-processRepo' templates directory path = do
+processRepo' :: [Template] -> Config -> FilePath -> ReaderT LgRepo IO ()
+processRepo' templates config path = do
     liftIO $ createDirectoryIfMissing True outPath
     resolveReference "HEAD" >>= \case
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
@@ -63,12 +63,12 @@ processRepo' templates directory path = do
             tree <- getTree gitHead
 
             -- Run the generator --
-            let repo = package description commits tree
+            let repo = package config name description commits tree
             liftIO . mapM (generate repo) $ templates
             return ()
   where
     name = takeFileName path
-    outPath = directory </> name
+    outPath = outputDirectory config </> name
 
 {-
 The role of the function above is to gather information about a git repository and
@@ -77,13 +77,17 @@ Ginger templates. `package` takes these pieces of information and places it all 
 hashmap which Ginger can use to look up variables.
 -}
 package
-    :: Text
+    :: Config
+    -> FilePath
+    -> Text
     -> [Commit LgRepo]
     -> [(TreeFilePath, TreeEntry r)]
     -> HashMap.HashMap Text Text
-package description commits tree = HashMap.fromList
-    [ ("commits", "commits")
+package config name description commits tree = HashMap.fromList
+    [ ("host", host config)
+    , ("name", pack name)
     , ("description", description)
+    , ("commits", "commits")
     , ("tree", "tree")
     ]
 

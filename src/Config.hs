@@ -6,7 +6,8 @@ module Config (
     repoPaths,
     templateDirectory,
     getConfig,
-    outputDirectory
+    outputDirectory,
+    host
 ) where
 
 import Dhall
@@ -15,7 +16,7 @@ data Config = Config
     { repoPaths :: [FilePath]
     , templateDirectory :: FilePath
     , outputDirectory :: FilePath
-    , host :: FilePath
+    , host :: Text
     }
     deriving stock (Generic, Show)
 
