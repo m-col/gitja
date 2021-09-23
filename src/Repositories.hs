@@ -70,6 +70,23 @@ processRepo' templates directory path = do
     name = takeFileName path
     outPath = directory </> name
 
+{-
+The role of the function above is to gather information about a git repository and
+package it all together in such a way that various parts can be accessed and used by
+Ginger templates. `package` takes these pieces of information and places it all into a
+hashmap which Ginger can use to look up variables.
+-}
+package
+    :: Text
+    -> [Commit LgRepo]
+    -> [(TreeFilePath, TreeEntry r)]
+    -> HashMap.HashMap Text Text
+package description commits tree = HashMap.fromList
+    [ ("commits", "commits")
+    , ("description", description)
+    , ("tree", "tree")
+    ]
+
 getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
 getCommits commitID =
     sequence . mapMaybe loadCommit <=<
@@ -84,14 +101,3 @@ getTree commitID = lookupCommit commitID >>= lookupTree . commitTree >>= listTre
 
 getDescription :: FilePath -> IO Text
 getDescription path = fromRight "" <$> tryIOError (pack <$> readFile path)
-
-package
-    :: Text
-    -> [Commit LgRepo]
-    -> [(TreeFilePath, TreeEntry r)]
-    -> HashMap.HashMap Text Text
-package description commits tree = HashMap.fromList
-    [ ("commits", "commits")
-    , ("description", description)
-    , ("tree", "tree")
-    ]
