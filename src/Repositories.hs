@@ -80,9 +80,7 @@ loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
 loadCommit _ = Nothing
 
 getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [(TreeFilePath, TreeEntry LgRepo)]
-getTree commitID = do
-    gitHead <- lookupCommit commitID
-    lookupTree (commitTree gitHead) >>= listTreeEntries
+getTree commitID = lookupCommit commitID >>= lookupTree . commitTree >>= listTreeEntries
 
 getDescription :: FilePath -> IO Text
 getDescription path = fromRight "" <$> tryIOError (pack <$> readFile path)
