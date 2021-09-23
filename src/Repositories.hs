@@ -10,18 +10,17 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Foldable (foldMap)
 import Data.Tagged
-import Data.Text (unpack, Text)
+import Data.Text (Text)
 import Git
 import Git.Types (RefTarget)
 import Git.Libgit2 (lgFactory, LgRepo)
+import qualified Data.HashMap.Strict as HashMap
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath ((</>), takeFileName)
 import System.IO.Error (tryIOError)
-import Text.Ginger (runGingerT, makeContextHtmlM, toGVal, GVal)
-import Text.Ginger.Html (htmlSource)
 
 import Config (Config, repoPaths, outputDirectory)
-import Templates (Template, templateGinger, templatePath)
+import Templates (Template, generate)
 
 {-
 This is the entrypoint that receives the ``Config`` and uses it to map over our
@@ -63,12 +62,13 @@ processRepo' templates outputDirectory path = do
             -- tree: A list of `(TreeFilePath, TreeEntry r)` objects at HEAD.
             tree <- getTree head
 
+            -- Run the generator --
+            let repo = package description commits tree
+            liftIO . sequence . map (generate repo) $ templates
             return ()
   where
     name = takeFileName path
     outPath = outputDirectory </> name
-
-    --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
 
 getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
 getCommits commitID = sequence . fmap loadCommit <=<
@@ -79,8 +79,14 @@ loadCommit (CommitObjOid oid) = lookupCommit oid
 
 getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [(TreeFilePath, TreeEntry LgRepo)]
 getTree commitID = do
-    headc <- lookupCommit commitID
-    lookupTree (commitTree headc) >>= listTreeEntries
+    head <- lookupCommit commitID
+    lookupTree (commitTree head) >>= listTreeEntries
 
 getDescription :: FilePath -> IO String
 getDescription path = either (const "") id <$> tryIOError (readFile path)
+
+package description commits tree = HashMap.fromList
+    [ ("commits", "commits")
+    , ("description", "description")
+    , ("tree", "tree")
+    ]

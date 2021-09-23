@@ -1,20 +1,25 @@
 module Templates (
     Template,
     templateGinger,
-    templatePath,
     loadTemplates,
+    generate,
 ) where
 
 import Control.Monad (filterM, (<=<))
 import Data.Char (toLower)
-import Data.Either (rights)
+import Data.Either (rights, Either)
 import Data.List (isSuffixOf)
 import Data.Maybe (catMaybes)
+import Data.Text (unpack, Text)
+import qualified Data.HashMap.Strict as HashMap
 import System.Directory (doesFileExist, getDirectoryContents)
 import System.FilePath ((</>), FilePath)
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
 import qualified Text.Ginger.Parse as G
+import Text.Ginger.GVal (toGVal, GVal, ToGVal)
+import Text.Ginger.Html (htmlSource, Html)
+import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
 
 import Config (Config, templateDirectory)
 
@@ -71,3 +76,17 @@ valid template files.
 -}
 getFiles :: Config -> IO [FilePath]
 getFiles = filterM isTemplate <=< listTemplates . templateDirectory
+
+{-
+This function gets the output HTML data and is responsible for saving it to file.
+-}
+writeTo :: Html -> IO ()
+writeTo = putStr . unpack . htmlSource
+
+{-
+This is the generator function that receives repository-specific variables and uses
+Ginger to render templates using them.
+-}
+generate :: HashMap.HashMap Text Text -> Template ->
+    IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
+generate context template = easyRenderM writeTo context (templateGinger template)
