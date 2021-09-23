@@ -58,7 +58,7 @@ This is used to filter files in the template directory so that we only try to lo
 HTML/CSS/JS files.
 -}
 isTemplate :: FilePath -> IO Bool
-isTemplate path = ((&&) $ isTemplate' path) <$> (doesFileExist path)
+isTemplate path = (&&) (isTemplate' path) <$> doesFileExist path
   where
     p = map toLower path
     isTemplate' :: FilePath -> Bool
