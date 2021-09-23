@@ -6,12 +6,13 @@ module Repositories (
 ) where
 
 import Conduit (runConduit, (.|), sinkList)
+import Control.Monad ((<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Either (fromRight)
 import Data.Tagged
 import Data.Text (pack, Text)
-import Data.Maybe (catMaybes)
+import Data.Maybe (mapMaybe)
 import Git
 import Git.Libgit2 (lgFactory, LgRepo)
 import System.Directory (createDirectoryIfMissing)
@@ -70,9 +71,9 @@ processRepo' templates directory path = do
     outPath = directory </> name
 
 getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
-getCommits commitID = do
-    oids <- runConduit $ sourceObjects Nothing commitID False .| sinkList
-    sequence . catMaybes $ loadCommit <$> oids
+getCommits commitID =
+    sequence . mapMaybe loadCommit <=<
+    runConduit $ sourceObjects Nothing commitID False .| sinkList
 
 loadCommit :: ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Commit LgRepo))
 loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
