@@ -1,5 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Main where
+
+module Main (
+    main
+) where
 
 import Config (getConfig)
 import Repositories (run)

@@ -5,8 +5,8 @@ module Config (
     Config,
     repoPaths,
     templateDirectory,
-    outputDirectory,
-    getConfig
+    getConfig,
+    outputDirectory
 ) where
 
 import Dhall

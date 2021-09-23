@@ -9,17 +9,16 @@ module Templates (
 
 import Control.Monad (filterM, (<=<))
 import Data.Char (toLower)
-import Data.Either (rights, Either)
+import Data.Either (rights)
 import Data.List (isSuffixOf)
-import Data.Maybe (catMaybes)
 import Data.Text (unpack, Text)
 import qualified Data.HashMap.Strict as HashMap
 import System.Directory (doesFileExist, getDirectoryContents)
-import System.FilePath ((</>), FilePath)
+import System.FilePath ((</>))
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
 import qualified Text.Ginger.Parse as G
-import Text.Ginger.GVal (toGVal, GVal, ToGVal)
+import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (htmlSource, Html)
 import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
 
@@ -58,11 +57,10 @@ This is used to filter files in the template directory so that we only try to lo
 HTML/CSS/JS files.
 -}
 isTemplate :: FilePath -> IO Bool
-isTemplate path = (&&) (isTemplate' path) <$> doesFileExist path
+isTemplate path = (&&) (isTemplate' (map toLower path)) <$> doesFileExist path
   where
-    p = map toLower path
     isTemplate' :: FilePath -> Bool
-    isTemplate' path = isSuffixOf "html" p || isSuffixOf "css" p || isSuffixOf "js" p
+    isTemplate' p = isSuffixOf "html" p || isSuffixOf "css" p || isSuffixOf "js" p
 
 {-
 This wraps getDirectoryContents so that we get a list of fully qualified paths of the
