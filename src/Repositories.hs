@@ -94,7 +94,7 @@ package config name description commits tree = HashMap.fromList
     , ("name", toGVal $ pack name)
     , ("description", toGVal description)
     , ("commits", toGVal commits)
-    , ("tree", toGVal ("tree" :: String))
+    , ("tree", toGVal tree)
     ]
 
 getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
@@ -121,8 +121,6 @@ getDescription path = fromRight "" <$> tryIOError (pack <$> readFile path)
 
 {-
 Here we define how commits can be accessed and represented in Ginger templates.
-
-This is an orphan instance but we can let it slide.
 -}
 instance ToGVal m (Commit LgRepo) where
     toGVal :: Commit LgRepo -> GVal m
@@ -144,4 +142,21 @@ commitAsLookup commit = \case
     "authored" -> Just . toGVal . show . signatureWhen . commitAuthor $ commit
     "committed" -> Just . toGVal . show . signatureWhen . commitCommitter $ commit
     "encoding" -> Just . toGVal . strip . commitEncoding $ commit
+    _ -> Nothing
+
+
+{-
+Here we define how files in the tree can be accessed by Ginger templates.
+-}
+instance ToGVal m TreeFile where
+    toGVal :: TreeFile -> GVal m
+    toGVal treefile = def
+        { asHtml = html . pack . show . treeFilePath $ treefile
+        , asText = pack . show . treeFilePath $ treefile
+        , asLookup = Just . treeAsLookup $ treefile
+        }
+
+treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
+treeAsLookup treefile = \case
+    "path" -> Just . toGVal . treeFilePath $ treefile
     _ -> Nothing
