@@ -5,6 +5,7 @@ module Config (
     Config,
     repoPaths,
     templateDirectory,
+    indexTemplate,
     getConfig,
     outputDirectory,
     host
@@ -15,6 +16,7 @@ import Dhall
 data Config = Config
     { repoPaths :: [FilePath]
     , templateDirectory :: FilePath
+    , indexTemplate :: FilePath
     , outputDirectory :: FilePath
     , host :: Text
     }

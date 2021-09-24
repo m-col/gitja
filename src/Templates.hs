@@ -4,6 +4,7 @@ module Templates (
     Template,
     templateGinger,
     loadTemplates,
+    loadIndexTemplate,
     generate,
 ) where
 
@@ -22,7 +23,7 @@ import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (htmlSource, Html)
 import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
 
-import Config (Config, templateDirectory)
+import Config (Config, templateDirectory, indexTemplate)
 
 data Template = Template
     { templatePath :: FilePath
@@ -30,14 +31,28 @@ data Template = Template
     }
 
 {-
-This is the main function of this module, which takes the session's `Config` and returns
-the set of available templates loaded from files found in the template directory.
+This takes the session's `Config` and returns the set of available templates loaded from
+files found in the template directory, excluding the index template if it is in the same
+directory.
 -}
 loadTemplates :: Config -> IO [Template]
 loadTemplates config = do
     files <- getFiles config
     parsed <- sequence $ parseGingerFile includeResolver <$> files
     return $ Template <$> files <*> rights parsed
+
+{-
+This takes the session's `Config` and maybe returns a loaded template for the
+``indexTemplate`` setting.
+-}
+loadIndexTemplate :: Config -> IO (Maybe Template)
+loadIndexTemplate config = parseGingerFile includeResolver file >>= \case
+    Right parsed -> return . Just . Template file $ parsed
+    Left err -> do
+        print err
+        return Nothing
+  where
+    file = indexTemplate config
 
 ----------------------------------------------------------------------------------------
 
