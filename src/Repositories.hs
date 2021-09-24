@@ -2,6 +2,7 @@
 {-# Language OverloadedStrings #-}  -- Needed for resolveReference
 {-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
 {-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
+{-# Language InstanceSigs #-}  -- Needed for toGVal type signature
 
 module Repositories (
     run
@@ -14,14 +15,14 @@ import Control.Monad.Trans.Reader (ReaderT)
 import Data.Default (def)
 import Data.Either (fromRight)
 import Data.Tagged
-import Data.Text (pack, Text)
+import Data.Text (pack, Text, strip)
 import Data.Maybe (mapMaybe)
 import Git
 import Git.Libgit2 (lgFactory, LgRepo)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath ((</>), takeFileName)
 import System.IO.Error (tryIOError)
-import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml)
+import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup)
 import Text.Ginger.Html (Html, html)
 import Text.Ginger.Run (Run)
 import Text.Ginger.Parse (SourcePos)
@@ -113,8 +114,20 @@ getTree commitID = lookupCommit commitID >>= lookupTree . commitTree >>= listTre
 getDescription :: FilePath -> IO Text
 getDescription path = fromRight "" <$> tryIOError (pack <$> readFile path)
 
+{-
+Here we define how commits can be accessed and represented in Ginger templates.
+
+This is an orphan instance but we can let it slide.
+-}
 instance ToGVal m (Commit LgRepo) where
-    toGVal x = def
-        { asHtml = html . pack . show . commitLog $ x
-        , asText = pack . show . commitLog $ x
+    toGVal :: Commit LgRepo -> GVal m
+    toGVal commit = def
+        { asHtml = html . pack . show . commitLog $ commit
+        , asText = pack . show . commitLog $ commit
+        , asLookup = Just . commitAsLookup $ commit
         }
+
+commitAsLookup :: Commit LgRepo -> Text -> Maybe (GVal m)
+commitAsLookup commit = \case
+    "message" -> Just . toGVal . strip . commitLog $ commit
+    _ -> Nothing

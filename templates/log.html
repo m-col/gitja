@@ -14,7 +14,7 @@
     <p>{{- description }}</p>
     <p>git clone {{ host }}/{{- name }}</p>
     {% for commit in commits %}
-    <p>{{- commit }}</p>
+    <p>{{- commit.message }}</p>
     {% endfor %}
   </body>
 </html>
