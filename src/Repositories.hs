@@ -87,7 +87,7 @@ package
     -> FilePath
     -> Text
     -> [Commit LgRepo]
-    -> [(TreeFilePath, TreeEntry r)]
+    -> [TreeFile]
     -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
 package config name description commits tree = HashMap.fromList
     [ ("host", toGVal $ host config)
@@ -106,8 +106,15 @@ loadCommit :: ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Commit LgRepo))
 loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
 loadCommit _ = Nothing
 
-getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [(TreeFilePath, TreeEntry LgRepo)]
-getTree commitID = lookupCommit commitID >>= lookupTree . commitTree >>= listTreeEntries
+data TreeFile = TreeFile
+    { treeFilePath :: TreeFilePath
+    , treeEntry :: TreeEntry LgRepo
+    }
+
+getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
+getTree commitID = do
+    entries <- listTreeEntries =<< lookupTree . commitTree =<< lookupCommit commitID
+    return $ uncurry TreeFile <$> entries
 
 getDescription :: FilePath -> IO Text
 getDescription path = fromRight "" <$> tryIOError (pack <$> readFile path)
