@@ -132,4 +132,11 @@ commitAsLookup commit = \case
     "title" -> Just . toGVal . strip . fst . breakOn "\n" . commitLog $ commit
     "body" -> Just . toGVal . strip . snd . breakOn "\n" . commitLog $ commit
     "message" -> Just . toGVal . strip . commitLog $ commit
+    "author" -> Just . toGVal . strip . signatureName . commitAuthor $ commit
+    "committer" -> Just . toGVal . strip . signatureName . commitCommitter $ commit
+    "author_email" -> Just . toGVal . strip . signatureEmail . commitAuthor $ commit
+    "committer_email" -> Just . toGVal . strip . signatureEmail . commitCommitter $ commit
+    "authored" -> Just . toGVal . show . signatureWhen . commitAuthor $ commit
+    "committed" -> Just . toGVal . show . signatureWhen . commitCommitter $ commit
+    "encoding" -> Just . toGVal . strip . commitEncoding $ commit
     _ -> Nothing
