@@ -10,7 +10,7 @@ module Templates (
 
 import Control.Monad (filterM, (<=<))
 import Data.Char (toLower)
-import Data.Either (rights, either)
+import Data.Either (rights)
 import Data.List (isSuffixOf)
 import Data.Text (unpack, Text)
 import qualified Data.HashMap.Strict as HashMap
@@ -62,7 +62,7 @@ This is a Ginger `IncludeResolver` that will eventually be extended to enable ca
 includes.
 -}
 includeResolver :: FilePath -> IO (Maybe String)
-includeResolver path = return . either (const Nothing) Just =<< tryIOError (readFile path)
+includeResolver path = either (const Nothing) Just <$> tryIOError (readFile path)
 
 {-
 This is used to filter files in the template directory so that we only try to load
