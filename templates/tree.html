@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ name }} -- log</title>
+    <title>{{ name }} -- tree</title>
     <link rel="stylesheet" href="{{- host }}/style.css" />
   </head>
 
@@ -13,8 +13,8 @@
     <hr>
     <p>{{- description }}</p>
     <p>git clone {{ host }}/{{- name }}</p>
-    {% for commit in commits %}
-    <p>{{- commit.title }}</p>
+    {% for file in tree %}
+    <p>{{- file.path }}</p>
     {% endfor %}
   </body>
 </html>
