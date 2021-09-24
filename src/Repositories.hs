@@ -54,7 +54,8 @@ processRepo templates config path = withRepository lgFactory path $
 processRepo' :: [Template] -> Config -> FilePath -> ReaderT LgRepo IO ()
 processRepo' templates config path = do
     let name = takeFileName path
-    liftIO $ createDirectoryIfMissing True $ outputDirectory config </> name
+    let output = outputDirectory config </> name
+    liftIO $ createDirectoryIfMissing True output
     resolveReference "HEAD" >>= \case
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
         Just commitID -> do
@@ -73,7 +74,7 @@ processRepo' templates config path = do
 
             -- Run the generator --
             let repo = package config name description commits tree
-            liftIO . mapM (generate repo) $ templates
+            liftIO . mapM (generate output repo) $ templates
             return ()
 
 {-

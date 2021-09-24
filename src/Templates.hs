@@ -15,7 +15,7 @@ import Data.List (isSuffixOf)
 import Data.Text (unpack, Text)
 import qualified Data.HashMap.Strict as HashMap
 import System.Directory (doesFileExist, getDirectoryContents)
-import System.FilePath ((</>))
+import System.FilePath ((</>), takeFileName)
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
 import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
@@ -91,15 +91,18 @@ getFiles = filterM isTemplate <=< listTemplates . templateDirectory
 {-
 This function gets the output HTML data and is responsible for saving it to file.
 -}
-writeTo :: Html -> IO ()
-writeTo = putStr . unpack . htmlSource
+writeTo :: FilePath -> Html -> IO ()
+writeTo path html = appendFile path . unpack . htmlSource $ html
 
 {-
 This is the generator function that receives repository-specific variables and uses
 Ginger to render templates using them.
 -}
 generate
-    :: HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+    :: FilePath
+    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
     -> Template
     -> IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
-generate context template = easyRenderM writeTo context (templateGinger template)
+generate output context template = easyRenderM writeToPath context (templateGinger template)
+  where
+    writeToPath = writeTo $ output </> (takeFileName . templatePath $ template)
