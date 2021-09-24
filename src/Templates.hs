@@ -86,6 +86,8 @@ writeTo = putStr . unpack . htmlSource
 This is the generator function that receives repository-specific variables and uses
 Ginger to render templates using them.
 -}
-generate :: HashMap.HashMap Text Text -> Template ->
-    IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
+generate
+    :: HashMap.HashMap Text Text
+    -> Template
+    -> IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
 generate context template = easyRenderM writeTo context (templateGinger template)
