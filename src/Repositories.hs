@@ -53,7 +53,8 @@ processRepo templates config path = withRepository lgFactory path $
 -- This is split out to make type reasoning a bit easier.
 processRepo' :: [Template] -> Config -> FilePath -> ReaderT LgRepo IO ()
 processRepo' templates config path = do
-    liftIO $ createDirectoryIfMissing True outPath
+    let name = takeFileName path
+    liftIO $ createDirectoryIfMissing True $ outputDirectory config </> name
     resolveReference "HEAD" >>= \case
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
         Just commitID -> do
@@ -62,7 +63,7 @@ processRepo' templates config path = do
 
             -- description: The description of the repository from repo/description, if
             -- it exists.
-            description <- liftIO $ getDescription $ outPath </> "description"
+            description <- liftIO $ getDescription $ path </> "description"
 
             -- commits: A list of `Git.Commit` objects to HEAD.
             commits <- getCommits gitHead
@@ -74,9 +75,6 @@ processRepo' templates config path = do
             let repo = package config name description commits tree
             liftIO . mapM (generate repo) $ templates
             return ()
-  where
-    name = takeFileName path
-    outPath = outputDirectory config </> name
 
 {-
 The role of the function above is to gather information about a git repository and
