@@ -3,7 +3,8 @@ gitserve
 
 This is all a work in progress and so nothing is implemented.
 
-gitserve generates pretty web pages from your git repositories.
+gitserve generates pretty web pages from your git repositories using custom
+HTML templates.
 
 It has two modes of operations:
 
@@ -28,3 +29,15 @@ repository:
 - Log index + page per commit
 - Refs + tags index
 - atom xml for repository
+
+
+Template variables
+------------------
+
+There are two variable scopes. Only one is available in a given template:
+
+- *Repository scope*: This exposes information that pertains to a single
+  repository. Most templates are rendered once per configured repository.
+- *Index scope*: This exposes information about the whole set of repositories.
+  The index template is rendered once in total and uses this scope. This
+  template is specified in the ``indexTemplate`` setting.
