@@ -15,7 +15,7 @@ import Control.Monad.Trans.Reader (ReaderT)
 import Data.Default (def)
 import Data.Either (fromRight)
 import Data.Tagged
-import Data.Text (pack, Text, strip)
+import Data.Text (pack, Text, strip, breakOn)
 import Data.Maybe (mapMaybe)
 import Git
 import Git.Libgit2 (lgFactory, LgRepo)
@@ -129,5 +129,7 @@ instance ToGVal m (Commit LgRepo) where
 
 commitAsLookup :: Commit LgRepo -> Text -> Maybe (GVal m)
 commitAsLookup commit = \case
+    "title" -> Just . toGVal . strip . fst . breakOn "\n" . commitLog $ commit
+    "body" -> Just . toGVal . strip . snd . breakOn "\n" . commitLog $ commit
     "message" -> Just . toGVal . strip . commitLog $ commit
     _ -> Nothing
