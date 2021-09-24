@@ -1,5 +1,7 @@
 {-# Language LambdaCase #-}
 {-# Language OverloadedStrings #-}  -- Needed for resolveReference
+{-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
+{-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
 
 module Repositories (
     run
@@ -9,6 +11,7 @@ import Conduit (runConduit, (.|), sinkList)
 import Control.Monad ((<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
+import Data.Default (def)
 import Data.Either (fromRight)
 import Data.Tagged
 import Data.Text (pack, Text)
@@ -18,6 +21,10 @@ import Git.Libgit2 (lgFactory, LgRepo)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath ((</>), takeFileName)
 import System.IO.Error (tryIOError)
+import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml)
+import Text.Ginger.Html (Html, html)
+import Text.Ginger.Run (Run)
+import Text.Ginger.Parse (SourcePos)
 import qualified Data.HashMap.Strict as HashMap
 
 import Config (Config, repoPaths, outputDirectory, host)
@@ -82,13 +89,13 @@ package
     -> Text
     -> [Commit LgRepo]
     -> [(TreeFilePath, TreeEntry r)]
-    -> HashMap.HashMap Text Text
+    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
 package config name description commits tree = HashMap.fromList
-    [ ("host", host config)
-    , ("name", pack name)
-    , ("description", description)
-    , ("commits", "commits")
-    , ("tree", "tree")
+    [ ("host", toGVal $ host config)
+    , ("name", toGVal $ pack name)
+    , ("description", toGVal description)
+    , ("commits", toGVal commits)
+    , ("tree", toGVal ("tree" :: String))
     ]
 
 getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
@@ -105,3 +112,9 @@ getTree commitID = lookupCommit commitID >>= lookupTree . commitTree >>= listTre
 
 getDescription :: FilePath -> IO Text
 getDescription path = fromRight "" <$> tryIOError (pack <$> readFile path)
+
+instance ToGVal m (Commit LgRepo) where
+    toGVal x = def
+        { asHtml = html . pack . show . commitLog $ x
+        , asText = pack . show . commitLog $ x
+        }

@@ -17,7 +17,7 @@ import System.Directory (doesFileExist, getDirectoryContents)
 import System.FilePath ((</>))
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
-import qualified Text.Ginger.Parse as G
+import Text.Ginger.Parse (SourcePos, parseGingerFile)
 import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (htmlSource, Html)
 import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
@@ -26,7 +26,7 @@ import Config (Config, templateDirectory)
 
 data Template = Template
     { templatePath :: FilePath
-    , templateGinger :: G.Template G.SourcePos
+    , templateGinger :: G.Template SourcePos
     }
 
 {-
@@ -36,7 +36,7 @@ the set of available templates loaded from files found in the template directory
 loadTemplates :: Config -> IO [Template]
 loadTemplates config = do
     files <- getFiles config
-    parsed <- sequence $ G.parseGingerFile includeResolver <$> files 
+    parsed <- sequence $ parseGingerFile includeResolver <$> files
     return $ Template <$> files <*> rights parsed
 
 ----------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ This is the generator function that receives repository-specific variables and u
 Ginger to render templates using them.
 -}
 generate
-    :: HashMap.HashMap Text Text
+    :: HashMap.HashMap Text (GVal (Run SourcePos IO Html))
     -> Template
-    -> IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
+    -> IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
 generate context template = easyRenderM writeTo context (templateGinger template)
