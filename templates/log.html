@@ -5,13 +5,16 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>gitserve -- {{ name }}</title>
-    <link rel="stylesheet" href="{{ host }}/style.css" />
+    <link rel="stylesheet" href="{{- host }}/style.css" />
   </head>
 
   <body>
-    <p>{{ name }}</p>
+    <p>{{- name }}</p>
     <hr>
-    <p>{{ description }}</p>
-    <p>git clone {{ host }}/{{ name }}</p>
+    <p>{{- description }}</p>
+    <p>git clone {{ host }}/{{- name }}</p>
+    {% for commit in commits %}
+    <p>{{- commit }}</p>
+    {% endfor %}
   </body>
 </html>
