@@ -10,7 +10,7 @@ module Templates (
 
 import Control.Monad (filterM, (<=<))
 import Data.Char (toLower)
-import Data.Either (rights)
+import Data.Either (rights, either)
 import Data.List (isSuffixOf)
 import Data.Text (unpack, Text)
 import qualified Data.HashMap.Strict as HashMap
@@ -18,7 +18,7 @@ import System.Directory (doesFileExist, getDirectoryContents)
 import System.FilePath ((</>))
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
-import Text.Ginger.Parse (SourcePos, parseGingerFile)
+import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
 import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (htmlSource, Html)
 import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
@@ -38,8 +38,9 @@ directory.
 loadTemplates :: Config -> IO [Template]
 loadTemplates config = do
     files <- getFiles config
-    parsed <- sequence $ parseGingerFile includeResolver <$> files
-    return $ Template <$> files <*> rights parsed
+    let files' = filter ((/=) $ indexTemplate config) files
+    parsed <- sequence $ parseGingerFile includeResolver <$> files'
+    return $ Template <$> files' <*> rights parsed
 
 {-
 This takes the session's `Config` and maybe returns a loaded template for the
@@ -49,7 +50,7 @@ loadIndexTemplate :: Config -> IO (Maybe Template)
 loadIndexTemplate config = parseGingerFile includeResolver file >>= \case
     Right parsed -> return . Just . Template file $ parsed
     Left err -> do
-        print err
+        print . peErrorMessage $ err
         return Nothing
   where
     file = indexTemplate config
@@ -61,11 +62,7 @@ This is a Ginger `IncludeResolver` that will eventually be extended to enable ca
 includes.
 -}
 includeResolver :: FilePath -> IO (Maybe String)
-includeResolver path = tryIOError (readFile path) >>= \case
-    Right contents -> return $ Just contents
-    Left err -> do
-        print err
-        return Nothing
+includeResolver path = return . either (const Nothing) Just =<< tryIOError (readFile path)
 
 {-
 This is used to filter files in the template directory so that we only try to load
