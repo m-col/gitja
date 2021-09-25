@@ -40,7 +40,7 @@ loadTemplates config = do
     files <- getFiles config
     let files' = filter ((/=) $ indexTemplate config) files
     parsed <- sequence $ parseGingerFile includeResolver <$> files'
-    return $ Template <$> files' <*> rights parsed
+    return $ zipWith ($) (Template <$> files') (rights parsed)
 
 {-
 This takes the session's `Config` and maybe returns a loaded template for the
