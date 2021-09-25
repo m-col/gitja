@@ -103,6 +103,7 @@ generate
     -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
     -> Template
     -> IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
-generate output context template = easyRenderM writeToPath context (templateGinger template)
-  where
-    writeToPath = writeTo $ output </> (takeFileName . templatePath $ template)
+generate output context template = do
+    let target = (</>) output . takeFileName . templatePath $ template
+    writeFile target ""  -- Clear contents of file if it exists
+    easyRenderM (writeTo target) context . templateGinger $ template
