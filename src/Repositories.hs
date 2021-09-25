@@ -29,15 +29,17 @@ import Text.Ginger.Parse (SourcePos)
 import qualified Data.HashMap.Strict as HashMap
 
 import Config (Config, repoPaths, outputDirectory, host)
-import Templates (Template, generate)
+import Templates (Template, generate, templatePath)
 
 {-
 This is the entrypoint that receives the ``Config`` and uses it to map over our
 repositories, reading from them and writing out their web pages using the given
 templates.
 -}
-run :: Config -> [Template] -> IO ()
-run config templates = foldMap (processRepo templates config) . repoPaths $ config
+run :: Config -> [Template] -> Maybe Template -> IO ()
+run config templates index = do
+    foldMap (processRepo templates config) . repoPaths $ config
+    runIndex config index
 
 ----------------------------------------------------------------------------------------
 
@@ -160,4 +162,53 @@ instance ToGVal m TreeFile where
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
+    _ -> Nothing
+
+----------------------------------------------------------------------------------------
+
+{-
+This creates the main index file from the index template, using information from all
+configured respositories.
+-}
+runIndex :: Config -> Maybe Template -> IO ()
+runIndex config Nothing = return ()
+runIndex config (Just template) = do
+    let paths = repoPaths config
+    descriptions <- sequence . fmap (getDescription . flip (</>) "description") $ paths
+    let repos = zipWith ($) (Repo <$> takeFileName <$> paths) descriptions
+    let indexScope = packageIndex config repos
+    generate (outputDirectory config) indexScope (template { templatePath = "index.html" })
+    return ()
+
+packageIndex
+    :: Config
+    -> [Repo]
+    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+packageIndex config repos = HashMap.fromList
+    [ ("host", toGVal $ host config)
+    , ("repositories", toGVal repos)
+    ]
+
+{-
+The index template can access variables in the index scope. The primary variable here is
+the list of repositories, which can be looped over and each repo entry has some
+properties that can be accessed. These are defined here.
+-}
+data Repo = Repo
+    { repoName :: FilePath
+    , repoDescription :: Text
+    }
+
+instance ToGVal m Repo where
+    toGVal :: Repo -> GVal m
+    toGVal repo = def
+        { asHtml = html . pack . show . repoName $ repo
+        , asText = pack . show . repoName $ repo
+        , asLookup = Just . repoAsLookup $ repo
+        }
+
+repoAsLookup :: Repo -> Text -> Maybe (GVal m)
+repoAsLookup repo = \case
+    "name" -> Just . toGVal . repoName $ repo
+    "description" -> Just . toGVal . repoDescription $ repo
     _ -> Nothing

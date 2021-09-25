@@ -6,6 +6,7 @@ module Templates (
     loadTemplates,
     loadIndexTemplate,
     generate,
+    templatePath,
 ) where
 
 import Control.Monad (filterM, (<=<))

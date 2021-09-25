@@ -13,7 +13,7 @@ let folders =
 let config =
     { repoPaths = folders
     , templateDirectory = "./templates"
-    , indexTemplate = "./templates/main_index.html"
+    , indexTemplate = "./templates/index-main.html"
     , outputDirectory = "./output"
     , host = "http://localhost"
     }

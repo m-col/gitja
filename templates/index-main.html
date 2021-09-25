@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>gitserve</title>
+    <link rel="stylesheet" href="{{- host }}/style.css" />
+  </head>
+
+  <body>
+    <p>gitserve</p>
+    <hr>
+		<p>My git repositories - {{ host }}</p>
+    {% for repo in repositories %}
+		<p><a href="{{- host }}/{{- repo.name }}">{{- repo.name }}</a> -- {{ repo.description }}</p>
+    {% endfor %}
+  </body>
+</html>

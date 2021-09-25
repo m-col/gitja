@@ -13,4 +13,4 @@ main = do
     config <- getConfig "./config.dhall"
     templates <- loadTemplates config
     index <- loadIndexTemplate config
-    run config templates
+    run config templates index
