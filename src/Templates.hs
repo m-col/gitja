@@ -24,7 +24,7 @@ import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (htmlSource, Html)
 import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
 
-import Config (Config, templateDirectory, indexTemplate)
+import Config (Config, templateDirectory, indexTemplate, commitTemplate)
 
 data Template = Template
     { templatePath :: FilePath
@@ -76,6 +76,13 @@ isTemplate path = (&&) (isTemplate' (map toLower path)) <$> doesFileExist path
     isTemplate' p = isSuffixOf "html" p || isSuffixOf "css" p || isSuffixOf "js" p
 
 {-
+This is used to filter files in the template directory to exclude those specified by the
+config settings ``indexTemplate`` or ``commitTemplate``.
+-}
+isScoped :: Config -> FilePath -> Bool
+isScoped config path = path /= (indexTemplate config) && path /= (commitTemplate config)
+
+{-
 This wraps getDirectoryContents so that we get a list of fully qualified paths of the
 directory's contents.
 -}
@@ -87,7 +94,8 @@ getFiles will look inside the template directory and generate a list of paths to
 valid template files.
 -}
 getFiles :: Config -> IO [FilePath]
-getFiles = filterM isTemplate <=< listTemplates . templateDirectory
+getFiles config =
+    filter (isScoped config) <$> (filterM isTemplate <=< listTemplates . templateDirectory $ config)
 
 {-
 This function gets the output HTML data and is responsible for saving it to file.

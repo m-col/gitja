@@ -6,6 +6,7 @@ module Config (
     repoPaths,
     templateDirectory,
     indexTemplate,
+    commitTemplate,
     getConfig,
     outputDirectory,
     host
@@ -17,6 +18,7 @@ data Config = Config
     { repoPaths :: [FilePath]
     , templateDirectory :: FilePath
     , indexTemplate :: FilePath
+    , commitTemplate :: FilePath
     , outputDirectory :: FilePath
     , host :: Text
     }
