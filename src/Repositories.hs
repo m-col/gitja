@@ -96,7 +96,7 @@ package config name description commits tree = HashMap.fromList
     [ ("host", toGVal $ host config)
     , ("name", toGVal $ pack name)
     , ("description", toGVal description)
-    , ("commits", toGVal commits)
+    , ("commits", toGVal . reverse $ commits)  -- Could be optimised
     , ("tree", toGVal tree)
     ]
 
