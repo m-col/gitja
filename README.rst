@@ -18,19 +18,6 @@ Updates to the served git repositories are not reflected in the output until
 gitserve is called again.
 
 
-Outputs
--------
-
-A single index showing basic information about all repositories. Then, per
-repository:
-
-- Rendered markdown/rst readme (+ log in sidebar)
-- File index + page per file in the tree
-- Log index + page per commit
-- Refs + tags index
-- atom xml for repository
-
-
 Template variables
 ------------------
 
@@ -41,3 +28,15 @@ There are two variable scopes. Only one is available in a given template:
 - *Index scope*: This exposes information about the whole set of repositories.
   The index template is rendered once in total and uses this scope. This
   template is specified in the ``indexTemplate`` setting.
+
+
+To do
+-----
+
+[ ] Generate html file per commit with commit scope
+[ ] Generate html file per tree file with file scope
+[ ] Expose readme url in repo scope for convenient hyperlinking
+[ ] Expose license url in repo scope for convenient hyperlinking
+[ ] Expose repo branches and tags in repo scope
+[ ] Generate RSS?
+[ ] Write guide in readme
