@@ -4,7 +4,7 @@ module Templates (
     Template,
     templateGinger,
     loadTemplates,
-    loadIndexTemplate,
+    loadTemplate,
     generate,
     templatePath,
 ) where
@@ -47,14 +47,12 @@ loadTemplates config = do
 This takes the session's `Config` and maybe returns a loaded template for the
 ``indexTemplate`` setting.
 -}
-loadIndexTemplate :: Config -> IO (Maybe Template)
-loadIndexTemplate config = parseGingerFile includeResolver file >>= \case
-    Right parsed -> return . Just . Template file $ parsed
+loadTemplate :: FilePath -> IO (Maybe Template)
+loadTemplate path = parseGingerFile includeResolver path >>= \case
+    Right parsed -> return . Just . Template path $ parsed
     Left err -> do
         print . peErrorMessage $ err
         return Nothing
-  where
-    file = indexTemplate config
 
 ----------------------------------------------------------------------------------------
 
@@ -80,7 +78,7 @@ This is used to filter files in the template directory to exclude those specifie
 config settings ``indexTemplate`` or ``commitTemplate``.
 -}
 isScoped :: Config -> FilePath -> Bool
-isScoped config path = path /= (indexTemplate config) && path /= (commitTemplate config)
+isScoped config path = path /= indexTemplate config && path /= commitTemplate config
 
 {-
 This wraps getDirectoryContents so that we get a list of fully qualified paths of the
@@ -101,7 +99,7 @@ getFiles config =
 This function gets the output HTML data and is responsible for saving it to file.
 -}
 writeTo :: FilePath -> Html -> IO ()
-writeTo path html = appendFile path . unpack . htmlSource $ html
+writeTo path = appendFile path . unpack . htmlSource
 
 {-
 This is the generator function that receives repository-specific variables and uses

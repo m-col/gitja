@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>{{ name }} -- {{ commit.id[:7] }}</title>
+    <link rel="stylesheet" href="{{- host }}/style.css" />
+  </head>
+
+  <body>
+    <p>{{- name }}</p>
+    <hr>
+		<p>Commit <b>{{ commit.id }}</b></p>
+		<p><b>{{ commit.title }}</b></p>
+    <p>{{ commit.body }}</p>
+    <hr>
+		<p>Authored {{ commit.authored }} by: {{ commit.author }} ({{ commit.author_email }})</p>
+		<p>Committed {{ commit.committed }} by: {{ commit.committer }} ({{ commit.committer_email }})</p>
+    <hr>
+  </body>
+</html>

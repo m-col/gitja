@@ -14,6 +14,7 @@ let config =
     { repoPaths = folders
     , templateDirectory = "./templates"
     , indexTemplate = "./templates/index-main.html"
+    , commitTemplate = "./templates/commit.html"
     , outputDirectory = "./output"
     , host = "http://localhost"
     }
