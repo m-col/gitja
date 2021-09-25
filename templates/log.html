@@ -13,7 +13,7 @@
     <hr>
     <p>{{- description }}</p>
     <p>git clone {{ host }}/{{- name }}</p>
-    {% for commit in commits %}
+    {% for commit in commits[:50] %}
     <p>{{- commit.title }}</p>
     {% endfor %}
   </body>
