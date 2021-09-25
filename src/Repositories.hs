@@ -171,7 +171,7 @@ This creates the main index file from the index template, using information from
 configured respositories.
 -}
 runIndex :: Config -> Maybe Template -> IO ()
-runIndex config Nothing = return ()
+runIndex _ Nothing = return ()
 runIndex config (Just template) = do
     let paths = repoPaths config
     descriptions <- sequence . fmap (getDescription . flip (</>) "description") $ paths
