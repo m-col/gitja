@@ -15,7 +15,8 @@ import Control.Monad.Trans.Reader (ReaderT)
 import Data.Default (def)
 import Data.Either (fromRight)
 import Data.Tagged
-import Data.Text (pack, unpack, Text, strip, breakOn)
+import Data.Text (pack, unpack, Text, strip, breakOn, replace, append)
+import Data.Text.Encoding (decodeUtf8)
 import Data.Maybe (mapMaybe)
 import Git
 import Git.Libgit2 (lgFactory, LgRepo)
@@ -28,7 +29,7 @@ import Text.Ginger.Run (Run)
 import Text.Ginger.Parse (SourcePos)
 import qualified Data.HashMap.Strict as HashMap
 
-import Config (Config, repoPaths, outputDirectory, host, commitTemplate)
+import Config (Config, repoPaths, outputDirectory, host)
 import Templates (Template, generate, templatePath)
 
 {-
@@ -36,9 +37,15 @@ This is the entrypoint that receives the ``Config`` and uses it to map over our
 repositories, reading from them and writing out their web pages using the given
 templates.
 -}
-run :: Config -> [Template] -> Maybe Template -> Maybe Template -> IO ()
-run config templates indexT commitT = do
-    foldMap (processRepo config templates commitT) . repoPaths $ config
+run
+    :: Config
+    -> [Template]
+    -> Maybe Template
+    -> Maybe Template
+    -> Maybe Template
+    -> IO ()
+run config templates indexT commitT fileT = do
+    foldMap (processRepo config templates commitT fileT) . repoPaths $ config
     runIndex config indexT
 
 ----------------------------------------------------------------------------------------
@@ -48,13 +55,25 @@ This receives a file path to a single repository and tries to process it. If the
 repository doesn't exist or is unreadable in any way we can forget about it and move on
 (after informing the user of course).
 -}
-processRepo :: Config -> [Template] -> Maybe Template -> FilePath -> IO ()
-processRepo config templates commitT path = withRepository lgFactory path $
-    processRepo' config templates commitT path
+processRepo
+    :: Config
+    -> [Template]
+    -> Maybe Template
+    -> Maybe Template
+    -> FilePath
+    -> IO ()
+processRepo config templates commitT fileT path = withRepository lgFactory path $
+    processRepo' config templates commitT fileT path
 
 -- This is split out to make type reasoning a bit easier.
-processRepo' :: Config -> [Template] -> Maybe Template -> FilePath -> ReaderT LgRepo IO ()
-processRepo' config templates commitT path = do
+processRepo'
+    :: Config
+    -> [Template]
+    -> Maybe Template
+    -> Maybe Template
+    -> FilePath
+    -> ReaderT LgRepo IO ()
+processRepo' config templates commitT fileT path = do
     let name = takeFileName path
     let output = outputDirectory config </> name
     liftIO $ createDirectoryIfMissing True output
@@ -71,7 +90,7 @@ processRepo' config templates commitT path = do
             -- commits: A list of `Git.Commit` objects to HEAD.
             commits <- getCommits gitHead
 
-            -- tree: A list of `(TreeFilePath, TreeEntry r)` objects at HEAD.
+            -- tree: A list of `TreeFile` objects at HEAD.
             tree <- getTree gitHead
 
             -- Run the generator --
@@ -79,6 +98,8 @@ processRepo' config templates commitT path = do
             liftIO . mapM (generate output repo) $ templates
             let commitScope = packageCommit config name description
             liftIO . mapM (generateCommit config name commitScope commitT) $ commits
+            let fileScope = packageFile config name description
+            liftIO . mapM (generateFile config name fileScope fileT) $ tree
             return ()
 
 {-
@@ -165,6 +186,7 @@ instance ToGVal m TreeFile where
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
+    "href" -> Just . toGVal . flip append ".html" . replace "/" "." . decodeUtf8 . treeFilePath $ treefile
     _ -> Nothing
 
 ----------------------------------------------------------------------------------------
@@ -226,12 +248,12 @@ generateCommit
     -> Commit LgRepo
     -> IO ()
 generateCommit _ _ _ Nothing _ = return ()
-generateCommit config name commitScope (Just template) commit = do
-    let id = unpack . renderObjOid . commitOid $ commit
-    let template' = template { templatePath = id ++ ".html" }
+generateCommit config name scope (Just template) commit = do
+    let hash = unpack . renderObjOid . commitOid $ commit
+    let template' = template { templatePath = hash ++ ".html" }
     let output = outputDirectory config </> name </> "commits"
     liftIO $ createDirectoryIfMissing True output
-    generate output (commitScope commit) template'
+    generate output (scope commit) template'
     return ()
 
 packageCommit
@@ -245,4 +267,35 @@ packageCommit config name description commit = HashMap.fromList
     , ("name", toGVal $ pack name)
     , ("description", toGVal description)
     , ("commit", toGVal commit)
+    ]
+
+-- TODO: DRY
+
+generateFile
+    :: Config
+    -> FilePath
+    -> (TreeFile -> HashMap.HashMap Text (GVal (Run SourcePos IO Html)))
+    -> Maybe Template
+    -> TreeFile
+    -> IO ()
+generateFile _ _ _ Nothing _ = return ()
+generateFile config name scope (Just template) file = do
+    let path = unpack . replace "/" "." . decodeUtf8 . treeFilePath $ file
+    let template' = template { templatePath = path ++ ".html" }
+    let output = outputDirectory config </> name </> "files"
+    liftIO $ createDirectoryIfMissing True output
+    generate output (scope file) template'
+    return ()
+
+packageFile
+    :: Config
+    -> FilePath
+    -> Text
+    -> TreeFile
+    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+packageFile config name description file = HashMap.fromList
+    [ ("host", toGVal $ host config)
+    , ("name", toGVal $ pack name)
+    , ("description", toGVal description)
+    , ("file", toGVal file)
     ]

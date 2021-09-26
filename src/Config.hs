@@ -7,6 +7,7 @@ module Config (
     templateDirectory,
     indexTemplate,
     commitTemplate,
+    fileTemplate,
     getConfig,
     outputDirectory,
     host
@@ -19,6 +20,7 @@ data Config = Config
     , templateDirectory :: FilePath
     , indexTemplate :: FilePath
     , commitTemplate :: FilePath
+    , fileTemplate :: FilePath
     , outputDirectory :: FilePath
     , host :: Text
     }

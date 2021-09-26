@@ -24,7 +24,7 @@ import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (htmlSource, Html)
 import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
 
-import Config (Config, templateDirectory, indexTemplate, commitTemplate)
+import Config (Config, templateDirectory, indexTemplate, commitTemplate, fileTemplate)
 
 data Template = Template
     { templatePath :: FilePath
@@ -75,10 +75,13 @@ isTemplate path = (&&) (isTemplate' (map toLower path)) <$> doesFileExist path
 
 {-
 This is used to filter files in the template directory to exclude those specified by the
-config settings ``indexTemplate`` or ``commitTemplate``.
+config settings ``indexTemplate``, ``commitTemplate`` or ``fileTemplate``.
 -}
 isScoped :: Config -> FilePath -> Bool
-isScoped config path = path /= indexTemplate config && path /= commitTemplate config
+isScoped config path =
+    path /= indexTemplate config &&
+    path /= commitTemplate config &&
+    path /= fileTemplate config
 
 {-
 This wraps getDirectoryContents so that we get a list of fully qualified paths of the

@@ -4,7 +4,7 @@ module Main (
     main
 ) where
 
-import Config (getConfig, indexTemplate, commitTemplate)
+import Config (getConfig, indexTemplate, commitTemplate, fileTemplate)
 import Repositories (run)
 import Templates (loadTemplates, loadTemplate)
 
@@ -14,4 +14,5 @@ main = do
     templates <- loadTemplates config
     indexT <- loadTemplate $ indexTemplate config
     commitT <- loadTemplate $ commitTemplate config
-    run config templates indexT commitT
+    fileT <- loadTemplate $ fileTemplate config
+    run config templates indexT commitT fileT
