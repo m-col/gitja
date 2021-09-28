@@ -85,7 +85,7 @@ processRepo' config templates commitT fileT path = do
 
             -- description: The description of the repository from repo/description, if
             -- it exists.
-            description <- liftIO $ getDescription $ path </> "description"
+            description <- liftIO . getDescription $ path
 
             -- commits: A list of `Git.Commit` objects to HEAD.
             commits <- getCommits gitHead
@@ -142,8 +142,9 @@ getTree commitID = do
     entries <- listTreeEntries =<< lookupTree . commitTree =<< lookupCommit commitID
     return $ uncurry TreeFile <$> entries
 
+-- Pass the repository's folder, get its description.
 getDescription :: FilePath -> IO Text
-getDescription path = fromRight "" <$> tryIOError (pack <$> readFile path)
+getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . flip (</>) "description"
 
 {-
 Here we define how commits can be accessed and represented in Ginger templates.
@@ -199,7 +200,7 @@ runIndex :: Config -> Maybe Template -> IO ()
 runIndex _ Nothing = return ()
 runIndex config (Just template) = do
     let paths = repoPaths config
-    descriptions <- mapM (getDescription . flip (</>) "description") paths
+    descriptions <- mapM getDescription paths
     let repos = zipWith ($) (Repo . takeFileName <$> paths) descriptions
     let indexScope = packageIndex config repos
     generate (outputDirectory config) indexScope (template { templatePath = "index.html" })
