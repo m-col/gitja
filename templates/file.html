@@ -12,11 +12,8 @@
     <p>{{- name }}</p>
     <hr>
 		<p>File <b>{{ file.path }}</b></p>
-		<p><b>{{ commit.title }}</b></p>
-    <p>{{ commit.body }}</p>
     <hr>
-		<p>Authored {{ commit.authored }} by: {{ commit.author }} ({{ commit.author_email }})</p>
-		<p>Committed {{ commit.committed }} by: {{ commit.committer }} ({{ commit.committer_email }})</p>
+    {{ file.contents }}
     <hr>
   </body>
 </html>
