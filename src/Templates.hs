@@ -113,11 +113,12 @@ includeResolver path = either (const Nothing) Just <$> tryIOError (readFile path
 This is used to filter files in the template directory so that we only try to load
 HTML/CSS/JS files.
 -}
-isTemplate :: FilePath -> IO Bool
-isTemplate path = (&&) (isTemplate' (map toLower path)) <$> doesFileExist path
+isTemplate :: Config -> FilePath -> IO Bool
+isTemplate config path = (&&) (isTemplate' (map toLower path)) <$> doesFileExist path
   where
     isTemplate' :: FilePath -> Bool
-    isTemplate' p = isSuffixOf "html" p || isSuffixOf "css" p || isSuffixOf "js" p
+    isTemplate' p =
+        not (isScoped config p) && any id (flip isSuffixOf p <$> ["html", "css", "js"])
 
 {-
 This is used to filter files in the template directory to exclude those specified by the
@@ -141,8 +142,7 @@ getFiles will look inside the template directory and generate a list of paths to
 valid template files.
 -}
 getFiles :: Config -> IO [FilePath]
-getFiles config =
-    filter (isScoped config) <$> (filterM isTemplate <=< listTemplates . templateDirectory $ config)
+getFiles config = (filterM (isTemplate config) <=< listTemplates . templateDirectory $ config)
 
 {-
 This function gets the output HTML data and is responsible for saving it to file.
