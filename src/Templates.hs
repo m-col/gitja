@@ -1,12 +1,21 @@
 {-# Language LambdaCase #-}
 
 module Templates (
+    -- The Template data type and its constructors.
     Template,
-    templateGinger,
-    loadTemplates,
-    loadTemplate,
-    generate,
     templatePath,
+    templateGinger,
+    -- The Env data type and its constructors.
+    Env,
+    envConfig,
+    envTemplates,
+    envIndexTemplate,
+    envCommitTemplate,
+    envFileTemplate,
+    -- The entrypoint used by main.
+    loadTemplates,
+    -- The core functionality for which templates are used.
+    generate,
 ) where
 
 import Control.Monad (filterM, (<=<))
@@ -24,7 +33,19 @@ import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (htmlSource, Html)
 import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
 
-import Config (Config, templateDirectory, indexTemplate, commitTemplate, fileTemplate)
+import Config
+
+{-
+The Env data type represents all of the program's state, including user configuration
+and loaded template data. This can be accessed as immutable global state at any point.
+-}
+data Env = Env
+    { envConfig :: Config
+    , envTemplates :: [Template]
+    , envIndexTemplate :: Maybe Template
+    , envCommitTemplate :: Maybe Template
+    , envFileTemplate :: Maybe Template
+    }
 
 data Template = Template
     { templatePath :: FilePath
@@ -32,16 +53,43 @@ data Template = Template
     }
 
 {-
-This takes the session's `Config` and returns the set of available templates loaded from
-files found in the template directory, excluding the index template if it is in the same
-directory.
+This creates the runtime environment, collecting the config and loading template data
+from file.
 -}
-loadTemplates :: Config -> IO [Template]
+loadTemplates :: Config -> IO Env
 loadTemplates config = do
+    -- Custom templates
     files <- getFiles config
-    let files' = filter ((/=) $ indexTemplate config) files
-    parsed <- sequence $ parseGingerFile includeResolver <$> files'
-    return $ zipWith ($) (Template <$> files') (rights parsed)
+    parsed <- sequence $ parseGingerFile includeResolver <$> files
+    let templates = zipWith ($) (Template <$> files) (rights parsed)  -- TODO: lefts not filtered from files
+    -- Scoped templates
+    indexT <- loadTemplate $ indexTemplate config
+    commitT <- loadTemplate $ commitTemplate config
+    fileT <- loadTemplate $ fileTemplate config
+    -- Global environment
+    return Env { envConfig = config
+    , envTemplates = templates
+    , envIndexTemplate = indexT
+    , envCommitTemplate = commitT
+    , envFileTemplate = fileT
+    }
+
+{-
+This is the generator function that receives repository-specific variables and uses
+Ginger to render templates using them.
+-}
+generate
+    :: FilePath
+    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+    -> Template
+    -> IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
+generate output context template = do
+    let target = (</>) output . takeFileName . templatePath $ template
+    writeFile target ""  -- Clear contents of file if it exists
+    easyRenderM (writeTo target) context . templateGinger $ template
+
+----------------------------------------------------------------------------------------
+-- Private -----------------------------------------------------------------------------
 
 {-
 This takes the session's `Config` and maybe returns a loaded template for the
@@ -53,8 +101,6 @@ loadTemplate path = parseGingerFile includeResolver path >>= \case
     Left err -> do
         print . peErrorMessage $ err
         return Nothing
-
-----------------------------------------------------------------------------------------
 
 {-
 This is a Ginger `IncludeResolver` that will eventually be extended to enable caching of
@@ -103,17 +149,3 @@ This function gets the output HTML data and is responsible for saving it to file
 -}
 writeTo :: FilePath -> Html -> IO ()
 writeTo path = appendFile path . unpack . htmlSource
-
-{-
-This is the generator function that receives repository-specific variables and uses
-Ginger to render templates using them.
--}
-generate
-    :: FilePath
-    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-    -> Template
-    -> IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
-generate output context template = do
-    let target = (</>) output . takeFileName . templatePath $ template
-    writeFile target ""  -- Clear contents of file if it exists
-    easyRenderM (writeTo target) context . templateGinger $ template

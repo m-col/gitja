@@ -29,53 +29,34 @@ import Text.Ginger.Run (Run)
 import Text.Ginger.Parse (SourcePos)
 import qualified Data.HashMap.Strict as HashMap
 
-import Config (Config, repoPaths, outputDirectory, host)
-import Templates (Template, generate, templatePath)
+import Config
+import Templates
 
 {-
 This is the entrypoint that receives the ``Config`` and uses it to map over our
 repositories, reading from them and writing out their web pages using the given
 templates.
 -}
-run
-    :: Config
-    -> [Template]
-    -> Maybe Template
-    -> Maybe Template
-    -> Maybe Template
-    -> IO ()
-run config templates indexT commitT fileT = do
-    foldMap (processRepo config templates commitT fileT) . repoPaths $ config
-    runIndex config indexT
+run :: Env -> IO ()
+run env = do
+    foldMap (processRepo env) . repoPaths . envConfig $ env  -- TODO: make concurrent
+    runIndex (envConfig env) (envIndexTemplate env)
 
 ----------------------------------------------------------------------------------------
+-- Private -----------------------------------------------------------------------------
 
 {-
 This receives a file path to a single repository and tries to process it. If the
 repository doesn't exist or is unreadable in any way we can forget about it and move on
 (after informing the user of course).
 -}
-processRepo
-    :: Config
-    -> [Template]
-    -> Maybe Template
-    -> Maybe Template
-    -> FilePath
-    -> IO ()
-processRepo config templates commitT fileT path = withRepository lgFactory path $
-    processRepo' config templates commitT fileT path
+processRepo :: Env -> FilePath -> IO ()
+processRepo env path = withRepository lgFactory path $ processRepo' env path
 
--- This is split out to make type reasoning a bit easier.
-processRepo'
-    :: Config
-    -> [Template]
-    -> Maybe Template
-    -> Maybe Template
-    -> FilePath
-    -> ReaderT LgRepo IO ()
-processRepo' config templates commitT fileT path = do
+processRepo' :: Env -> FilePath -> ReaderT LgRepo IO ()
+processRepo' env path = do
     let name = takeFileName path
-    let output = outputDirectory config </> name
+    let output = outputDirectory (envConfig env) </> name
     liftIO $ createDirectoryIfMissing True output
     resolveReference "HEAD" >>= \case
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
@@ -94,12 +75,12 @@ processRepo' config templates commitT fileT path = do
             tree <- getTree gitHead
 
             -- Run the generator --
-            let repo = package config name description commits tree
-            liftIO . mapM (generate output repo) $ templates
-            let commitScope = packageCommit config name description
-            liftIO . mapM (generateCommit config name commitScope commitT) $ commits
-            let fileScope = packageFile config name description
-            liftIO . mapM (generateFile config name fileScope fileT) $ tree
+            let repo = package env name description commits tree
+            liftIO . mapM (generate output repo) $ envTemplates env
+            let commitScope = packageCommit env name description
+            liftIO . mapM (generateCommit output commitScope $ envCommitTemplate env) $ commits
+            let fileScope = packageFile env name description
+            liftIO . mapM (generateFile output fileScope $ envFileTemplate env) $ tree
             return ()
 
 {-
@@ -109,15 +90,15 @@ Ginger templates. `package` takes these pieces of information and places it all 
 hashmap which Ginger can use to look up variables.
 -}
 package
-    :: Config
+    :: Env
     -> FilePath
     -> Text
     -> [Commit LgRepo]
     -> [TreeFile]
     -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-package config name description commits tree = HashMap.fromList
-    [ ("host", toGVal $ host config)
-    , ("name", toGVal $ pack name)
+package env name description commits tree = HashMap.fromList
+    [ ("host", toGVal . host . envConfig $ env)
+    , ("name", toGVal . pack $ name)
     , ("description", toGVal description)
     , ("commits", toGVal . reverse $ commits)  -- Could be optimised
     , ("tree", toGVal tree)
@@ -242,30 +223,28 @@ repoAsLookup repo = \case
 ----------------------------------------------------------------------------------------
 
 generateCommit
-    :: Config
-    -> FilePath
+    :: FilePath
     -> (Commit LgRepo -> HashMap.HashMap Text (GVal (Run SourcePos IO Html)))
     -> Maybe Template
     -> Commit LgRepo
     -> IO ()
-generateCommit _ _ _ Nothing _ = return ()
-generateCommit config name scope (Just template) commit = do
+generateCommit _ _ Nothing _ = return ()
+generateCommit output scope (Just template) commit = do
     let hash = unpack . renderObjOid . commitOid $ commit
     let template' = template { templatePath = hash ++ ".html" }
-    let output = outputDirectory config </> name </> "commits"
-    liftIO $ createDirectoryIfMissing True output
-    generate output (scope commit) template'
+    liftIO $ createDirectoryIfMissing True (output </> "commits")
+    generate (output </> "commits") (scope commit) template'
     return ()
 
 packageCommit
-    :: Config
+    :: Env
     -> FilePath
     -> Text
     -> Commit LgRepo
     -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-packageCommit config name description commit = HashMap.fromList
-    [ ("host", toGVal $ host config)
-    , ("name", toGVal $ pack name)
+packageCommit env name description commit = HashMap.fromList
+    [ ("host", toGVal . host . envConfig $ env)
+    , ("name", toGVal . pack $ name)
     , ("description", toGVal description)
     , ("commit", toGVal commit)
     ]
@@ -273,30 +252,28 @@ packageCommit config name description commit = HashMap.fromList
 -- TODO: DRY
 
 generateFile
-    :: Config
-    -> FilePath
+    :: FilePath
     -> (TreeFile -> HashMap.HashMap Text (GVal (Run SourcePos IO Html)))
     -> Maybe Template
     -> TreeFile
     -> IO ()
-generateFile _ _ _ Nothing _ = return ()
-generateFile config name scope (Just template) file = do
+generateFile _ _ Nothing _ = return ()
+generateFile output scope (Just template) file = do
     let path = unpack . replace "/" "." . decodeUtf8 . treeFilePath $ file
     let template' = template { templatePath = path ++ ".html" }
-    let output = outputDirectory config </> name </> "files"
-    liftIO $ createDirectoryIfMissing True output
-    generate output (scope file) template'
+    liftIO $ createDirectoryIfMissing True (output </> "files")
+    generate (output </> "files") (scope file) template'
     return ()
 
 packageFile
-    :: Config
+    :: Env
     -> FilePath
     -> Text
     -> TreeFile
     -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-packageFile config name description file = HashMap.fromList
-    [ ("host", toGVal $ host config)
-    , ("name", toGVal $ pack name)
+packageFile env name description file = HashMap.fromList
+    [ ("host", toGVal . host . envConfig $ env)
+    , ("name", toGVal . pack $ name)
     , ("description", toGVal description)
     , ("file", toGVal file)
     ]
