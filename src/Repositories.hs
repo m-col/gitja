@@ -40,7 +40,7 @@ templates.
 run :: Env -> IO ()
 run env = do
     foldMap (processRepo env) . repoPaths . envConfig $ env  -- TODO: make concurrent
-    runIndex (envConfig env) (envIndexTemplate env)
+    runIndex env
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
@@ -177,15 +177,19 @@ treeAsLookup treefile = \case
 This creates the main index file from the index template, using information from all
 configured respositories.
 -}
-runIndex :: Config -> Maybe Template -> IO ()
-runIndex _ Nothing = return ()
-runIndex config (Just template) = do
-    let paths = repoPaths config
-    descriptions <- mapM getDescription paths
-    let repos = zipWith ($) (Repo . takeFileName <$> paths) descriptions
-    let indexScope = packageIndex config repos
-    generate (outputDirectory config) indexScope (template { templatePath = "index.html" })
-    return ()
+runIndex :: Env -> IO ()
+runIndex env =
+    case envIndexTemplate env of
+        Nothing ->
+            return ()
+        Just template -> do
+            let config = envConfig env
+            let paths = repoPaths config
+            descriptions <- mapM getDescription paths
+            let repos = zipWith ($) (Repo . takeFileName <$> paths) descriptions
+            let indexScope = packageIndex config repos
+            generate (outputDirectory config) indexScope (template { templatePath = "index.html" })
+            return ()
 
 packageIndex
     :: Config
