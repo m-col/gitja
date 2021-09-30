@@ -20,8 +20,8 @@ module Templates (
 
 import Control.Monad (filterM, (<=<), ap)
 import Data.Char (toLower)
-import Data.Either (rights)
 import Data.List (isSuffixOf)
+import Data.Maybe (catMaybes)
 import Data.Text (unpack, Text)
 import qualified Data.HashMap.Strict as HashMap
 import System.Directory (doesFileExist, getDirectoryContents)
@@ -60,15 +60,14 @@ loadTemplates :: Config -> IO Env
 loadTemplates config = do
     -- Custom templates
     files <- getFiles config
-    parsed <- sequence $ parseGingerFile includeResolver <$> files
-    let templates = zipWith ($) (Template <$> files) (rights parsed)  -- TODO: lefts not filtered from files
+    templates <- sequence . fmap loadTemplate $ files
     -- Scoped templates
-    indexT <- loadTemplate $ indexTemplate config
-    commitT <- loadTemplate $ commitTemplate config
-    fileT <- loadTemplate $ fileTemplate config
+    indexT <- loadTemplate . indexTemplate $ config
+    commitT <- loadTemplate . commitTemplate $ config
+    fileT <- loadTemplate . fileTemplate $ config
     -- Global environment
     return Env { envConfig = config
-    , envTemplates = templates
+    , envTemplates = catMaybes templates
     , envIndexTemplate = indexT
     , envCommitTemplate = commitT
     , envFileTemplate = fileT
