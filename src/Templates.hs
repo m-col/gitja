@@ -1,10 +1,6 @@
 {-# Language LambdaCase #-}
 
 module Templates (
-    -- The Template data type and its constructors.
-    Template,
-    templatePath,
-    templateGinger,
     -- The Env data type and its constructors.
     Env,
     envConfig,
@@ -12,6 +8,10 @@ module Templates (
     envIndexTemplate,
     envCommitTemplate,
     envFileTemplate,
+    -- The Template data type and its constructors.
+    Template,
+    templatePath,
+    templateGinger,
     -- The entrypoint used by main.
     loadTemplates,
     -- The core functionality for which templates are used.
