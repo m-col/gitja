@@ -18,7 +18,7 @@ module Templates (
     generate,
 ) where
 
-import Control.Monad (filterM, (<=<))
+import Control.Monad (filterM, (<=<), ap)
 import Data.Char (toLower)
 import Data.Either (rights)
 import Data.List (isSuffixOf)
@@ -135,7 +135,8 @@ This wraps getDirectoryContents so that we get a list of fully qualified paths o
 directory's contents.
 -}
 listTemplates :: FilePath -> IO [FilePath]
-listTemplates directory = fmap (directory </>) <$> getDirectoryContents directory
+-- ap :: m (a -> b) -> m a -> m b, where m is (->) r
+listTemplates = ap (fmap . fmap . (</>)) getDirectoryContents
 
 {-
 getFiles will look inside the template directory and generate a list of paths to likely
