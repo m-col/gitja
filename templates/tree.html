@@ -14,7 +14,7 @@
     <p>{{- description }}</p>
     <p>git clone {{ host }}/{{- name }}</p>
     {% for file in tree %}
-		<p><a href="{{ host }}/{{ name }}/files/{{ file.href }}">{{- file.path }}</a></p>
+		<p><a href="{{ host }}/{{ name }}/file/{{ file.href }}">{{- file.path }}</a></p>
     {% endfor %}
   </body>
 </html>

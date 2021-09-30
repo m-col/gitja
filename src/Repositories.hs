@@ -3,6 +3,7 @@
 {-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
 {-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
 {-# Language InstanceSigs #-}  -- Needed for toGVal type signature
+{-# Language FlexibleContexts #-}  -- Needed for the Target class type constraints
 
 module Repositories (
     run
@@ -77,8 +78,8 @@ processRepo' env path = do
             -- Run the generator --
             let scope = package env name description commits tree
             liftIO . mapM (generate output scope) $ envTemplates env
-            liftIO . mapM (generateCommit output scope $ envCommitTemplate env) $ commits
-            liftIO . mapM (generateFile output scope $ envFileTemplate env) $ tree
+            liftIO . mapM (genTarget output scope $ envCommitTemplate env) $ commits
+            liftIO . mapM (genTarget output scope $ envFileTemplate env) $ tree
             return ()
 
 {-
@@ -224,34 +225,29 @@ repoAsLookup repo = \case
 
 ----------------------------------------------------------------------------------------
 
-generateCommit
-    :: FilePath
+class ToGVal (Run SourcePos IO Html) a => Target a where
+    identify :: a -> String
+    category :: a -> FilePath
+
+instance Target (Commit LgRepo) where
+    identify = unpack . renderObjOid . commitOid 
+    category = const "commit"
+
+instance Target (TreeFile) where
+    identify = unpack . replace "/" "." . decodeUtf8 . treeFilePath
+    category = const "file"
+
+genTarget
+    :: Target a
+    => FilePath
     -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
     -> Maybe Template
-    -> Commit LgRepo
+    -> a
     -> IO ()
-generateCommit _ _ Nothing _ = return ()
-generateCommit output scope (Just template) commit = do
-    let hash = unpack . renderObjOid . commitOid $ commit
-    let template' = template { templatePath = hash ++ ".html" }
-    let scope' = scope <> HashMap.fromList [("commit", toGVal commit)]
-    liftIO $ createDirectoryIfMissing True (output </> "commits")
-    generate (output </> "commits") scope' template'
-    return ()
-
--- TODO: DRY
-
-generateFile
-    :: FilePath
-    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-    -> Maybe Template
-    -> TreeFile
-    -> IO ()
-generateFile _ _ Nothing _ = return ()
-generateFile output scope (Just template) file = do
-    let path = unpack . replace "/" "." . decodeUtf8 . treeFilePath $ file
-    let template' = template { templatePath = path ++ ".html" }
-    let scope' = scope <> HashMap.fromList [("file", toGVal file)]
-    liftIO $ createDirectoryIfMissing True (output </> "files")
-    generate (output </> "files") scope' template'
+genTarget _ _ Nothing _ = return ()
+genTarget output scope (Just template) target = do
+    let template' = template { templatePath = identify target ++ ".html" }
+    let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
+    liftIO $ createDirectoryIfMissing True (output </> category target)
+    generate (output </> category target) scope' template'
     return ()
