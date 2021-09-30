@@ -1,12 +1,13 @@
 {-# Language LambdaCase #-}
-{-# Language OverloadedStrings #-}  -- Needed for resolveReference
+{-# Language OverloadedStrings #-}
 {-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
 {-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
 {-# Language InstanceSigs #-}  -- Needed for toGVal type signature
 {-# Language FlexibleContexts #-}  -- Needed for the Target class type constraints
 
 module Repositories (
-    run
+    run,
+    getDescription  -- Used by Index.hs::runINdex
 ) where
 
 import Conduit (runConduit, (.|), sinkList)
@@ -41,7 +42,14 @@ templates.
 run :: Env -> IO ()
 run env = do
     foldMap (processRepo env) . repoPaths . envConfig $ env  -- TODO: make concurrent
-    runIndex env
+    return ()
+
+{-
+Pass the repository's folder, get its description. This is export so that Index.hs can
+use it too.
+-}
+getDescription :: FilePath -> IO Text
+getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . flip (</>) "description"
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
@@ -122,10 +130,6 @@ getTree commitID = do
     entries <- listTreeEntries =<< lookupTree . commitTree =<< lookupCommit commitID
     return $ uncurry TreeFile <$> entries
 
--- Pass the repository's folder, get its description.
-getDescription :: FilePath -> IO Text
-getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . flip (</>) "description"
-
 {-
 Here we define how commits can be accessed and represented in Ginger templates.
 -}
@@ -173,58 +177,12 @@ treeAsLookup treefile = \case
 ----------------------------------------------------------------------------------------
 
 {-
-This creates the main index file from the index template, using information from all
-configured respositories.
+A Target refers to a template scope and repository object whose information is available
+in that scope. For example, commits are a target as they each generate a scope
+containing that commit's information, and these scopes are each rendered in the
+commitTemplate. The Target class generalises how each target is represented so that
+genTarget can work on any target type.
 -}
-runIndex :: Env -> IO ()
-runIndex env =
-    case envIndexTemplate env of
-        Nothing ->
-            return ()
-        Just template -> do
-            let config = envConfig env
-            let paths = repoPaths config
-            descriptions <- mapM getDescription paths
-            let repos = zipWith ($) (Repo . takeFileName <$> paths) descriptions
-            let indexScope = packageIndex config repos
-            generate (outputDirectory config) indexScope (template { templatePath = "index.html" })
-            return ()
-
-packageIndex
-    :: Config
-    -> [Repo]
-    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-packageIndex config repos = HashMap.fromList
-    [ ("host", toGVal $ host config)
-    , ("repositories", toGVal repos)
-    ]
-
-{-
-The index template can access variables in the index scope. The primary variable here is
-the list of repositories, which can be looped over and each repo entry has some
-properties that can be accessed. These are defined here.
--}
-data Repo = Repo
-    { repoName :: FilePath
-    , repoDescription :: Text
-    }
-
-instance ToGVal m Repo where
-    toGVal :: Repo -> GVal m
-    toGVal repo = def
-        { asHtml = html . pack . show . repoName $ repo
-        , asText = pack . show . repoName $ repo
-        , asLookup = Just . repoAsLookup $ repo
-        }
-
-repoAsLookup :: Repo -> Text -> Maybe (GVal m)
-repoAsLookup repo = \case
-    "name" -> Just . toGVal . repoName $ repo
-    "description" -> Just . toGVal . repoDescription $ repo
-    _ -> Nothing
-
-----------------------------------------------------------------------------------------
-
 class ToGVal (Run SourcePos IO Html) a => Target a where
     identify :: a -> String
     category :: a -> FilePath

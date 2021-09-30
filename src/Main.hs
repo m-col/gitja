@@ -5,8 +5,12 @@ module Main (
 ) where
 
 import Config (getConfig)
+import Index (runIndex)
 import Templates (loadTemplates)
 import Repositories (run)
 
 main :: IO ()
-main = getConfig "./config.dhall" >>= loadTemplates >>= run
+main = do
+    env <- loadTemplates =<< getConfig "./config.dhall"
+    runIndex env
+    run env
