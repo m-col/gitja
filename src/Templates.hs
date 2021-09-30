@@ -149,4 +149,8 @@ getFiles config = (filterM (isTemplate config) <=< listTemplates . templateDirec
 This function gets the output HTML data and is responsible for saving it to file.
 -}
 writeTo :: FilePath -> Html -> IO ()
-writeTo path = appendFile path . unpack . htmlSource
+writeTo = flip $ goldfinch appendFile (unpack . htmlSource)
+
+-- G combinator - goldfinch.
+goldfinch :: (b -> c -> d) -> (a -> c) -> a -> b -> d
+goldfinch f g x y = f y (g x)
