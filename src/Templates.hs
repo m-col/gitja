@@ -18,7 +18,7 @@ module Templates (
     generate,
 ) where
 
-import Control.Monad (filterM, (<=<), ap)
+import Control.Monad (filterM)
 import Data.Char (toLower)
 import Data.List (isSuffixOf)
 import Data.Maybe (catMaybes)
@@ -134,15 +134,14 @@ This wraps getDirectoryContents so that we get a list of fully qualified paths o
 directory's contents.
 -}
 listTemplates :: FilePath -> IO [FilePath]
--- ap :: m (a -> b) -> m a -> m b, where m is (->) r
-listTemplates = ap (fmap . fmap . (</>)) getDirectoryContents
+listTemplates = (fmap . fmap . (</>)) <*> getDirectoryContents
 
 {-
 getFiles will look inside the template directory and generate a list of paths to likely
 valid template files.
 -}
 getFiles :: Config -> IO [FilePath]
-getFiles config = (filterM (isTemplate config) <=< listTemplates . templateDirectory $ config)
+getFiles = ((>>=) . listTemplates . templateDirectory) <*> (filterM  . isTemplate)
 
 {-
 This function gets the output HTML data and is responsible for saving it to file.
