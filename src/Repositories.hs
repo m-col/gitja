@@ -7,7 +7,7 @@
 
 module Repositories (
     run,
-    getDescription  -- Used by Index.hs::runINdex
+    getDescription  -- Used by Index.hs::runIndex
 ) where
 
 import Conduit (runConduit, (.|), sinkList)
