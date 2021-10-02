@@ -83,7 +83,7 @@ generate
     -> Template
     -> IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
 generate output context template = do
-    let target = (</>) output . takeFileName . templatePath $ template
+    let target = (output </>) . takeFileName . templatePath $ template
     writeFile target ""  -- Clear contents of file if it exists
     easyRenderM (writeTo target) context . templateGinger $ template
 

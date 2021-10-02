@@ -49,7 +49,7 @@ Pass the repository's folder, get its description. This is export so that Index.
 use it too.
 -}
 getDescription :: FilePath -> IO Text
-getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . flip (</>) "description"
+getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . (</> "description")
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
