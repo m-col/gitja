@@ -122,13 +122,20 @@ loadCommit _ = Nothing
 
 data TreeFile = TreeFile
     { treeFilePath :: TreeFilePath
-    , treeEntry :: TreeEntry LgRepo
+    , treeFileContents :: Text
     }
 
 getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
 getTree commitID = do
     entries <- listTreeEntries =<< lookupTree . commitTree =<< lookupCommit commitID
-    return $ uncurry TreeFile <$> entries
+    contents <- sequence . fmap (gvalTreeEntry . snd) $ entries
+    return $ zipWith TreeFile (fmap fst entries) contents
+
+gvalTreeEntry :: TreeEntry LgRepo -> ReaderT LgRepo IO Text
+gvalTreeEntry (BlobEntry oid _) = catBlobUtf8 $ oid
+gvalTreeEntry (TreeEntry _) = return "No contents"
+gvalTreeEntry (CommitEntry _) = return "No contents"
+
 
 {-
 Here we define how commits can be accessed and represented in Ginger templates.
@@ -172,6 +179,7 @@ treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
     "href" -> Just . toGVal . flip append ".html" . replace "/" "." . decodeUtf8 . treeFilePath $ treefile
+    "contents" -> Just . toGVal . treeFileContents $ treefile
     _ -> Nothing
 
 ----------------------------------------------------------------------------------------
