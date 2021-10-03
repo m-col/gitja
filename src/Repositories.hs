@@ -192,15 +192,15 @@ commitTemplate. The Target class generalises how each target is represented so t
 genTarget can work on any target type.
 -}
 class ToGVal (Run SourcePos IO Html) a => Target a where
-    identify :: a -> String
+    identify :: a -> FilePath
     category :: a -> FilePath
 
 instance Target (Commit LgRepo) where
-    identify = unpack . renderObjOid . commitOid 
+    identify = (++ ".html") . unpack . renderObjOid . commitOid 
     category = const "commit"
 
 instance Target (TreeFile) where
-    identify = unpack . replace "/" "." . decodeUtf8 . treeFilePath
+    identify = (++ ".html") . unpack . replace "/" "." . decodeUtf8 . treeFilePath
     category = const "file"
 
 genTarget
@@ -212,7 +212,7 @@ genTarget
     -> IO ()
 genTarget _ _ Nothing _ = return ()
 genTarget output scope (Just template) target = do
-    let template' = template { templatePath = identify target ++ ".html" }
+    let template' = template { templatePath = identify target }
     let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
     liftIO $ createDirectoryIfMissing True (output </> category target)
     generate (output </> category target) scope' template'
