@@ -224,7 +224,7 @@ instance Target (Commit LgRepo) where
     identify = (++ ".html") . show . commitOid
     category = const "commit"
 
-instance Target (TreeFile) where
+instance Target TreeFile where
     identify = unpack . treePathToHref . treeFilePath
     category = const "file"
 
