@@ -17,7 +17,7 @@ import Control.Monad.Trans.Reader (ReaderT)
 import Data.Default (def)
 import Data.Either (fromRight)
 import Data.Tagged
-import Data.Text (pack, unpack, Text, strip, takeWhile, replace, append)
+import Data.Text (pack, unpack, Text, strip)
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Data.Maybe (mapMaybe)
@@ -188,7 +188,7 @@ treeAsLookup treefile = \case
 Get the name of a tree file path's HTML file.
 -}
 treePathToHref :: TreeFilePath -> Text
-treePathToHref = flip append ".html" . replace "/" "." .  decodeUtf8With lenientDecode
+treePathToHref = flip T.append ".html" . T.replace "/" "." .  decodeUtf8With lenientDecode
 
 ----------------------------------------------------------------------------------------
 
