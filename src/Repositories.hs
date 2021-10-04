@@ -136,8 +136,8 @@ getTree commitID = do
     return $ zipWith TreeFile (fmap fst entries) contents
 
 gvalTreeEntry :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeFileContents
-gvalTreeEntry (BlobEntry oid _) = return . FileContents . decodeUtf8With lenientDecode =<< catBlob oid
-gvalTreeEntry (TreeEntry oid) = return . FolderContents . fmap fst =<< listTreeEntries =<< lookupTree oid
+gvalTreeEntry (BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode <$> catBlob oid
+gvalTreeEntry (TreeEntry oid) = FolderContents . fmap fst <$> (listTreeEntries =<< lookupTree oid)
 gvalTreeEntry (CommitEntry _) = return . FileContents $ "No contents"
 
 
