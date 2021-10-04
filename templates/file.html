@@ -4,16 +4,31 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>{{ name }} -- {{ file.path }}</title>
+    <title>{{ name }} -- {{ file.path }}</title>
     <link rel="stylesheet" href="{{- host }}/style.css" />
   </head>
 
   <body>
     <p>{{- name }}</p>
     <hr>
-		<p>File <b>{{ file.path }}</b></p>
+
+{% if file.is_directory %}
+    <p>Directory <b>{{ file.path }}</b></p>
     <hr>
-    {{ file.contents }}
+      <ul>
+{% for item in file.contents %}
+        <li><a href="{{- host }}/{{ item }}">{{ item }}</a></li>
+{% endfor %}
+      </ul>
+
+{% else %}
+
+    <p>File <b>{{ file.path }}</b></p>
+    <hr>
+{{ file.contents }}
+
+{% endif %}
+
     <hr>
   </body>
 </html>

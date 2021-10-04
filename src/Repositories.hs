@@ -26,7 +26,7 @@ import Git.Libgit2 (lgFactory, LgRepo)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath ((</>), takeFileName)
 import System.IO.Error (tryIOError)
-import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup)
+import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup, asList)
 import Text.Ginger.Html (Html, html)
 import Text.Ginger.Run (Run)
 import Text.Ginger.Parse (SourcePos)
@@ -122,9 +122,11 @@ loadCommit :: ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Commit LgRepo))
 loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
 loadCommit _ = Nothing
 
+data TreeFileContents = FileContents Text | FolderContents [TreeFilePath]
+
 data TreeFile = TreeFile
     { treeFilePath :: TreeFilePath
-    , treeFileContents :: Text
+    , treeFileContents :: TreeFileContents
     }
 
 getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
@@ -133,10 +135,10 @@ getTree commitID = do
     contents <- sequence . fmap (gvalTreeEntry . snd) $ entries
     return $ zipWith TreeFile (fmap fst entries) contents
 
-gvalTreeEntry :: TreeEntry LgRepo -> ReaderT LgRepo IO Text
-gvalTreeEntry (BlobEntry oid _) = return . decodeUtf8With lenientDecode =<< catBlob oid
-gvalTreeEntry (TreeEntry _) = return "No contents"
-gvalTreeEntry (CommitEntry _) = return "No contents"
+gvalTreeEntry :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeFileContents
+gvalTreeEntry (BlobEntry oid _) = return . FileContents . decodeUtf8With lenientDecode =<< catBlob oid
+gvalTreeEntry (TreeEntry oid) = return . FolderContents . fmap fst =<< listTreeEntries =<< lookupTree oid
+gvalTreeEntry (CommitEntry _) = return . FileContents $ "No contents"
 
 
 {-
@@ -177,12 +179,27 @@ instance ToGVal m TreeFile where
         , asLookup = Just . treeAsLookup $ treefile
         }
 
+instance ToGVal m TreeFileContents where
+    toGVal :: TreeFileContents -> GVal m
+    toGVal (FileContents text) = toGVal text
+    toGVal (FolderContents filePaths) = def
+        { asHtml = html . pack . show $ filePaths
+        , asText = pack . show $ filePaths
+        , asList = Just . fmap toGVal $ filePaths
+        }
+
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
     "href" -> Just . toGVal . treePathToHref . treeFilePath $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
+    "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile
     _ -> Nothing
+
+treeFileIsDirectory :: TreeFile -> Bool
+treeFileIsDirectory treefile = case treeFileContents treefile of
+    FileContents _ -> False
+    FolderContents _ -> True
 
 {-
 Get the name of a tree file path's HTML file.
