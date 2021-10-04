@@ -41,4 +41,3 @@ To do
 [ ] Output something useful for git submodules
 [ ] Generate RSS?
 [ ] Write guide in readme
-[ ] Remove targeted templates from general output

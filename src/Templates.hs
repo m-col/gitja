@@ -117,17 +117,17 @@ isTemplate config path = (&&) (isTemplate' (map toLower path)) <$> doesFileExist
   where
     isTemplate' :: FilePath -> Bool
     isTemplate' p =
-        not (isScoped config p) && or (flip isSuffixOf p <$> ["html", "css", "js"])
+        not (isTargeted config p) && or (flip isSuffixOf p <$> ["html", "css", "js"])
 
 {-
 This is used to filter files in the template directory to exclude those specified by the
 config settings ``indexTemplate``, ``commitTemplate`` or ``fileTemplate``.
 -}
-isScoped :: Config -> FilePath -> Bool
-isScoped config path =
-    path /= indexTemplate config &&
-    path /= commitTemplate config &&
-    path /= fileTemplate config
+isTargeted :: Config -> FilePath -> Bool
+isTargeted config path =
+    path == indexTemplate config ||
+    path == commitTemplate config ||
+    path == fileTemplate config
 
 {-
 This wraps getDirectoryContents so that we get a list of fully qualified paths of the
