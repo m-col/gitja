@@ -117,7 +117,7 @@ isTemplate config path = (&&) (isTemplate' (map toLower path)) <$> doesFileExist
   where
     isTemplate' :: FilePath -> Bool
     isTemplate' p =
-        not (isScoped config p) && any id (flip isSuffixOf p <$> ["html", "css", "js"])
+        not (isScoped config p) && or (flip isSuffixOf p <$> ["html", "css", "js"])
 
 {-
 This is used to filter files in the template directory to exclude those specified by the
