@@ -151,7 +151,7 @@ instance ToGVal m (Commit LgRepo) where
 
 commitAsLookup :: Commit LgRepo -> Text -> Maybe (GVal m)
 commitAsLookup commit = \case
-    "id" -> Just . toGVal . renderObjOid . commitOid $ commit
+    "id" -> Just . toGVal . show . commitOid $ commit
     "title" -> Just . toGVal . strip . fst . breakOn "\n" . commitLog $ commit
     "body" -> Just . toGVal . strip . snd . breakOn "\n" . commitLog $ commit
     "message" -> Just . toGVal . strip . commitLog $ commit
@@ -203,7 +203,7 @@ class ToGVal (Run SourcePos IO Html) a => Target a where
     category :: a -> FilePath
 
 instance Target (Commit LgRepo) where
-    identify = (++ ".html") . unpack . renderObjOid . commitOid 
+    identify = (++ ".html") . show . commitOid
     category = const "commit"
 
 instance Target (TreeFile) where
