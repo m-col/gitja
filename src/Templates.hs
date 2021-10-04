@@ -60,7 +60,7 @@ loadTemplates :: Config -> IO Env
 loadTemplates config = do
     -- Custom templates
     files <- getFiles config
-    templates <- sequence . fmap loadTemplate $ files
+    templates <- mapM loadTemplate files
     -- Scoped templates
     indexT <- loadTemplate . indexTemplate $ config
     commitT <- loadTemplate . commitTemplate $ config

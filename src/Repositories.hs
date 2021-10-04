@@ -132,7 +132,7 @@ data TreeFile = TreeFile
 getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
 getTree commitID = do
     entries <- listTreeEntries =<< lookupTree . commitTree =<< lookupCommit commitID
-    contents <- sequence . fmap (gvalTreeEntry . snd) $ entries
+    contents <- mapM (gvalTreeEntry . snd) entries
     return $ zipWith TreeFile (fmap fst entries) contents
 
 gvalTreeEntry :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeFileContents
