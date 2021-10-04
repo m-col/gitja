@@ -17,7 +17,7 @@ import Control.Monad.Trans.Reader (ReaderT)
 import Data.Default (def)
 import Data.Either (fromRight)
 import Data.Tagged
-import Data.Text (pack, unpack, Text, strip, breakOn, replace, append)
+import Data.Text (pack, unpack, Text, strip, takeWhile, replace, append)
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Data.Maybe (mapMaybe)
@@ -31,6 +31,7 @@ import Text.Ginger.Html (Html, html)
 import Text.Ginger.Run (Run)
 import Text.Ginger.Parse (SourcePos)
 import qualified Data.HashMap.Strict as HashMap
+import qualified Data.Text as T
 
 import Config
 import Templates
@@ -152,8 +153,8 @@ instance ToGVal m (Commit LgRepo) where
 commitAsLookup :: Commit LgRepo -> Text -> Maybe (GVal m)
 commitAsLookup commit = \case
     "id" -> Just . toGVal . show . commitOid $ commit
-    "title" -> Just . toGVal . strip . fst . breakOn "\n" . commitLog $ commit
-    "body" -> Just . toGVal . strip . snd . breakOn "\n" . commitLog $ commit
+    "title" -> Just . toGVal . strip . T.takeWhile (/= '\n') . commitLog $ commit
+    "body" -> Just . toGVal . strip . T.dropWhile (/= '\n') . commitLog $ commit
     "message" -> Just . toGVal . strip . commitLog $ commit
     "author" -> Just . toGVal . strip . signatureName . commitAuthor $ commit
     "committer" -> Just . toGVal . strip . signatureName . commitCommitter $ commit
