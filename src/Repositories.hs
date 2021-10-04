@@ -18,7 +18,8 @@ import Data.Default (def)
 import Data.Either (fromRight)
 import Data.Tagged
 import Data.Text (pack, unpack, Text, strip, breakOn, replace, append)
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text.Encoding (decodeUtf8With)
+import Data.Text.Encoding.Error (lenientDecode)
 import Data.Maybe (mapMaybe)
 import Git
 import Git.Libgit2 (lgFactory, LgRepo)
@@ -132,7 +133,7 @@ getTree commitID = do
     return $ zipWith TreeFile (fmap fst entries) contents
 
 gvalTreeEntry :: TreeEntry LgRepo -> ReaderT LgRepo IO Text
-gvalTreeEntry (BlobEntry oid _) = catBlobUtf8 $ oid
+gvalTreeEntry (BlobEntry oid _) = return . decodeUtf8With lenientDecode =<< catBlob oid
 gvalTreeEntry (TreeEntry _) = return "No contents"
 gvalTreeEntry (CommitEntry _) = return "No contents"
 
@@ -178,7 +179,8 @@ instance ToGVal m TreeFile where
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
-    "href" -> Just . toGVal . flip append ".html" . replace "/" "." . decodeUtf8 . treeFilePath $ treefile
+    "href" -> Just . toGVal . flip append ".html" . replace "/" "." .
+        decodeUtf8With lenientDecode . treeFilePath $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
     _ -> Nothing
 
@@ -200,7 +202,7 @@ instance Target (Commit LgRepo) where
     category = const "commit"
 
 instance Target (TreeFile) where
-    identify = (++ ".html") . unpack . replace "/" "." . decodeUtf8 . treeFilePath
+    identify = (++ ".html") . unpack . replace "/" "." . decodeUtf8With lenientDecode . treeFilePath
     category = const "file"
 
 genTarget
