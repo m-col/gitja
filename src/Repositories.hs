@@ -179,10 +179,15 @@ instance ToGVal m TreeFile where
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
-    "href" -> Just . toGVal . flip append ".html" . replace "/" "." .
-        decodeUtf8With lenientDecode . treeFilePath $ treefile
+    "href" -> Just . toGVal . treePathToHref . treeFilePath $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
     _ -> Nothing
+
+{-
+Get the name of a tree file path's HTML file.
+-}
+treePathToHref :: TreeFilePath -> Text
+treePathToHref = flip append ".html" . replace "/" "." .  decodeUtf8With lenientDecode
 
 ----------------------------------------------------------------------------------------
 
@@ -202,7 +207,7 @@ instance Target (Commit LgRepo) where
     category = const "commit"
 
 instance Target (TreeFile) where
-    identify = (++ ".html") . unpack . replace "/" "." . decodeUtf8With lenientDecode . treeFilePath
+    identify = unpack . treePathToHref . treeFilePath
     category = const "file"
 
 genTarget
