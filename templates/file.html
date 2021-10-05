@@ -4,29 +4,32 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ name }} -- {{ file.path }}</title>
-    <link rel="stylesheet" href="{{- host }}/style.css" />
+    <title>{{ name }} -- {{ file }}</title>
+    <link rel="stylesheet" href="{{ host }}/style.css" />
   </head>
 
   <body>
-    <p>{{- name }}</p>
+    <p><a href="{{ host }}">{{ host }} -- gitserve</a></p>
+    <hr>
+    <p><a href="{{ host }}/{{ name }}">{{ name }}</a></p>
+    <p>{{ description }}</p>
+    <hr>
+    <p>{{ file.mode }} <b>{{ file.path }}</b></p>
     <hr>
 
 {% if file.is_directory %}
-    <p>Directory <b>{{ file.path }}</b></p>
-    <hr>
-      <ul>
+    <table>
 {% for item in file.contents %}
-        <li><a href="{{ host }}/{{ name }}/file/{{ file }}.{{ item }}.html">{{ item }}</a></li>
+      <tr><a href="{{ host }}/{{ name }}/file/{{ file }}.{{ item }}.html">{{ item }}</a></tr>
 {% endfor %}
-      </ul>
+    </table>
 
 {% else %}
-
-    <p>File <b>{{ file.path }}</b></p>
-    <hr>
-{{ file.contents }}
-
+<pre>
+{% for line in split(file.contents, '\n') %}
+<a href="#l{{ loop.index }}" id="l{{ loop.index }}">{{ printf("%7v", loop.index) }}</a> {{ line }}
+{% endfor %}
+</pre>
 {% endif %}
 
     <hr>
