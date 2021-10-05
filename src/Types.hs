@@ -74,6 +74,13 @@ modeToOctal ModeExecutable = "00755"
 modeToOctal ModeSymlink = "20000"
 modeToOctal ModeSubmodule = "60000"
 
+modeToSymbolic :: TreeEntryMode -> String
+modeToSymbolic ModeDirectory = "drwxr-xr-x"
+modeToSymbolic ModePlain = "-rw-r--r--"
+modeToSymbolic ModeExecutable = "-rwxr-xr-x"
+modeToSymbolic ModeSymlink = "l---------"
+modeToSymbolic ModeSubmodule = "git-module"
+
 {-
 GVal implementations for data definitions above, allowing commits to be rendered in
 Ginger templates.
