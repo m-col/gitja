@@ -39,6 +39,6 @@ To do
 [ ] Expose license url in repo scope for convenient hyperlinking
 [ ] Expose repo branches and tags in repo scope
 [ ] Commit diffs
-[ ] Tree entry filemodes
+[x] Tree entry filemodes
 [ ] Generate RSS?
 [ ] Write guide in readme

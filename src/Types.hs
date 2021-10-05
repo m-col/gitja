@@ -1,3 +1,4 @@
+{-# Language DerivingStrategies #-}
 {-# Language LambdaCase #-}
 {-# Language OverloadedStrings #-}
 {-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
@@ -51,11 +52,16 @@ objects contained therein.
 data TreeFile = TreeFile
     { treeFilePath :: TreeFilePath
     , treeFileContents :: TreeFileContents
+    , treeFileMode :: TreeEntryMode
     }
 
-data TreeFileContents = FileContents (TreeEntryMode, Text) | FolderContents [TreeFilePath]
+data TreeFileContents = FileContents Text | FolderContents [TreeFilePath]
 
 data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
+    deriving stock Show
+
+showMode :: TreeEntryMode -> String
+showMode = drop 4 . show
 
 {-
 Some helper functions to convert from Haskell's LibGit2 BlobKind to our TreeEntryMode,
@@ -68,18 +74,18 @@ blobkindToMode ExecutableBlob = ModeExecutable
 blobkindToMode SymlinkBlob = ModeSymlink
 
 modeToOctal :: TreeEntryMode -> String
-modeToOctal ModeDirectory = "40000"
-modeToOctal ModePlain = "00644"
+modeToOctal ModeDirectory  = "40000"
+modeToOctal ModePlain      = "00644"
 modeToOctal ModeExecutable = "00755"
-modeToOctal ModeSymlink = "20000"
-modeToOctal ModeSubmodule = "60000"
+modeToOctal ModeSymlink    = "20000"
+modeToOctal ModeSubmodule  = "60000"
 
 modeToSymbolic :: TreeEntryMode -> String
-modeToSymbolic ModeDirectory = "drwxr-xr-x"
-modeToSymbolic ModePlain = "-rw-r--r--"
+modeToSymbolic ModeDirectory  = "drwxr-xr-x"
+modeToSymbolic ModePlain      = "-rw-r--r--"
 modeToSymbolic ModeExecutable = "-rwxr-xr-x"
-modeToSymbolic ModeSymlink = "l---------"
-modeToSymbolic ModeSubmodule = "git-module"
+modeToSymbolic ModeSymlink    = "l---------"
+modeToSymbolic ModeSubmodule  = "git-module"
 
 {-
 GVal implementations for data definitions above, allowing commits to be rendered in
@@ -95,7 +101,7 @@ instance ToGVal m TreeFile where
 
 instance ToGVal m TreeFileContents where
     toGVal :: TreeFileContents -> GVal m
-    toGVal (FileContents (_, text)) = toGVal text
+    toGVal (FileContents text) = toGVal text
     toGVal (FolderContents filePaths) = def
         { asHtml = html . pack . show $ filePaths
         , asText = pack . show $ filePaths
@@ -107,6 +113,9 @@ treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
     "href" -> Just . toGVal . treePathToHref . treeFilePath $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
+    "mode" -> Just . toGVal . show . treeFileMode $ treefile
+    "mode_octal" -> Just . toGVal . modeToOctal . treeFileMode $ treefile
+    "mode_symbolic" -> Just . toGVal . modeToSymbolic . treeFileMode $ treefile
     "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile
     _ -> Nothing
 

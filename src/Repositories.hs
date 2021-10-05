@@ -110,6 +110,9 @@ package env name description commits tree = HashMap.fromList
     , ("tree", toGVal tree)
     ]
 
+{-
+Collect commit information.
+-}
 getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
 getCommits commitID =
     sequence . mapMaybe loadCommit <=<
@@ -119,17 +122,25 @@ loadCommit :: ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Commit LgRepo))
 loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
 loadCommit _ = Nothing
 
+{-
+Collect tree information.
+-}
 getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
 getTree commitID = do
     entries <- listTreeEntries =<< lookupTree . commitTree =<< lookupCommit commitID
-    contents <- mapM (gvalTreeEntry . snd) entries
-    return $ zipWith TreeFile (fmap fst entries) contents
+    contents <- mapM (getEntryContents . snd) entries
+    modes <- mapM (getEntryModes . snd) entries
+    return $ zipWith3 TreeFile (fmap fst entries) contents modes
 
-gvalTreeEntry :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeFileContents
-gvalTreeEntry (BlobEntry oid kind) =
-    FileContents . (,) (blobkindToMode kind) . decodeUtf8With lenientDecode <$> catBlob oid
-gvalTreeEntry (TreeEntry oid) = FolderContents . fmap fst <$> (listTreeEntries =<< lookupTree oid)
-gvalTreeEntry (CommitEntry _) = return . FileContents $ (ModeSubmodule, "No contents")  -- TODO
+getEntryContents :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeFileContents
+getEntryContents (BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode <$> catBlob oid
+getEntryContents (TreeEntry oid) = FolderContents . fmap fst <$> (listTreeEntries =<< lookupTree oid)
+getEntryContents (CommitEntry oid) = return . FileContents . pack . show . untag $ oid
+
+getEntryModes :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
+getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
+getEntryModes (TreeEntry _) = return ModeDirectory
+getEntryModes (CommitEntry _) = return ModeSubmodule
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
