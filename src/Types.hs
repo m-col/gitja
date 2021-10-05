@@ -7,6 +7,7 @@
 
 module Types where
 
+import Data.ByteString.UTF8 (toString)
 import Data.Default (def)
 import Data.Tagged (untag)
 import Data.Text (pack, Text, strip)
@@ -94,7 +95,7 @@ Ginger templates.
 instance ToGVal m TreeFile where
     toGVal :: TreeFile -> GVal m
     toGVal treefile = def
-        { asHtml = html . pack . show . treeFilePath $ treefile
+        { asHtml = html . pack . toString . treeFilePath $ treefile
         , asText = pack . show . treeFilePath $ treefile
         , asLookup = Just . treeAsLookup $ treefile
         }

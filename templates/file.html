@@ -17,7 +17,7 @@
     <hr>
       <ul>
 {% for item in file.contents %}
-        <li><a href="{{- host }}/{{ item }}">{{ item }}</a></li>
+        <li><a href="{{ host }}/{{ name }}/file/{{ file }}.{{ item }}.html">{{ item }}</a></li>
 {% endfor %}
       </ul>
 

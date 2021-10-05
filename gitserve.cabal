@@ -31,3 +31,4 @@ executable gitserve
                      , text
                      , transformers
                      , unordered-containers
+                     , utf8-string
