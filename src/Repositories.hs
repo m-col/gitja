@@ -1,8 +1,6 @@
 {-# Language LambdaCase #-}
 {-# Language OverloadedStrings #-}
-{-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
-{-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
-{-# Language InstanceSigs #-}  -- Needed for toGVal type signature
+{-# Language FlexibleInstances #-}  -- Needed for the Target class type constraints
 {-# Language FlexibleContexts #-}  -- Needed for the Target class type constraints
 
 module Repositories (
@@ -14,10 +12,9 @@ import Conduit (runConduit, (.|), sinkList)
 import Control.Monad ((<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
-import Data.Default (def)
 import Data.Either (fromRight)
 import Data.Tagged
-import Data.Text (pack, unpack, Text, strip)
+import Data.Text (pack, unpack, Text)
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Data.Maybe (mapMaybe)
@@ -26,15 +23,15 @@ import Git.Libgit2 (lgFactory, LgRepo)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath ((</>), takeFileName)
 import System.IO.Error (tryIOError)
-import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup, asList)
-import Text.Ginger.Html (Html, html)
+import Text.Ginger.GVal (GVal, toGVal, ToGVal)
+import Text.Ginger.Html (Html)
 import Text.Ginger.Run (Run)
 import Text.Ginger.Parse (SourcePos)
 import qualified Data.HashMap.Strict as HashMap
-import qualified Data.Text as T
 
 import Config
 import Templates
+import Types
 
 {-
 This is the entrypoint that receives the ``Config`` and uses it to map over our
@@ -47,7 +44,7 @@ run env = do
     return ()
 
 {-
-Pass the repository's folder, get its description. This is export so that Index.hs can
+Pass the repository's folder, get its description. This is exported so that Index.hs can
 use it too.
 -}
 getDescription :: FilePath -> IO Text
@@ -122,28 +119,6 @@ loadCommit :: ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Commit LgRepo))
 loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
 loadCommit _ = Nothing
 
-{-
-Valid modes:
-040000 Directory
-100644 Regular non-executable file
-100755 Regular executable file
-120000 Symbolic link
-160000 Submodule
--}
-data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
-
-toMode :: BlobKind -> TreeEntryMode
-toMode PlainBlob = ModePlain
-toMode ExecutableBlob = ModeExecutable
-toMode SymlinkBlob = ModeSymlink
-
-data TreeFileContents = FileContents (TreeEntryMode, Text) | FolderContents [TreeFilePath]
-
-data TreeFile = TreeFile
-    { treeFilePath :: TreeFilePath
-    , treeFileContents :: TreeFileContents
-    }
-
 getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
 getTree commitID = do
     entries <- listTreeEntries =<< lookupTree . commitTree =<< lookupCommit commitID
@@ -152,78 +127,12 @@ getTree commitID = do
 
 gvalTreeEntry :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeFileContents
 gvalTreeEntry (BlobEntry oid kind) =
-    FileContents . (,) (toMode kind) . decodeUtf8With lenientDecode <$> catBlob oid
+    FileContents . (,) (blobkindToMode kind) . decodeUtf8With lenientDecode <$> catBlob oid
 gvalTreeEntry (TreeEntry oid) = FolderContents . fmap fst <$> (listTreeEntries =<< lookupTree oid)
 gvalTreeEntry (CommitEntry _) = return . FileContents $ (ModeSubmodule, "No contents")  -- TODO
 
-
-{-
-Here we define how commits can be accessed and represented in Ginger templates.
--}
-instance ToGVal m (Commit LgRepo) where
-    toGVal :: Commit LgRepo -> GVal m
-    toGVal commit = def
-        { asHtml = html . pack . show . commitLog $ commit
-        , asText = pack . show . commitLog $ commit
-        , asLookup = Just . commitAsLookup $ commit
-        }
-
-commitAsLookup :: Commit LgRepo -> Text -> Maybe (GVal m)
-commitAsLookup commit = \case
-    "id" -> Just . toGVal . show . untag . commitOid $ commit
-    "title" -> Just . toGVal . strip . T.takeWhile (/= '\n') . commitLog $ commit
-    "body" -> Just . toGVal . strip . T.dropWhile (/= '\n') . commitLog $ commit
-    "message" -> Just . toGVal . strip . commitLog $ commit
-    "author" -> Just . toGVal . strip . signatureName . commitAuthor $ commit
-    "committer" -> Just . toGVal . strip . signatureName . commitCommitter $ commit
-    "author_email" -> Just . toGVal . strip . signatureEmail . commitAuthor $ commit
-    "committer_email" -> Just . toGVal . strip . signatureEmail . commitCommitter $ commit
-    "authored" -> Just . toGVal . show . signatureWhen . commitAuthor $ commit
-    "committed" -> Just . toGVal . show . signatureWhen . commitCommitter $ commit
-    "encoding" -> Just . toGVal . strip . commitEncoding $ commit
-    _ -> Nothing
-
-
-{-
-Here we define how files in the tree can be accessed by Ginger templates.
--}
-instance ToGVal m TreeFile where
-    toGVal :: TreeFile -> GVal m
-    toGVal treefile = def
-        { asHtml = html . pack . show . treeFilePath $ treefile
-        , asText = pack . show . treeFilePath $ treefile
-        , asLookup = Just . treeAsLookup $ treefile
-        }
-
-instance ToGVal m TreeFileContents where
-    toGVal :: TreeFileContents -> GVal m
-    toGVal (FileContents (_, text)) = toGVal text
-    toGVal (FolderContents filePaths) = def
-        { asHtml = html . pack . show $ filePaths
-        , asText = pack . show $ filePaths
-        , asList = Just . fmap toGVal $ filePaths
-        }
-
-treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
-treeAsLookup treefile = \case
-    "path" -> Just . toGVal . treeFilePath $ treefile
-    "href" -> Just . toGVal . treePathToHref . treeFilePath $ treefile
-    "contents" -> Just . toGVal . treeFileContents $ treefile
-    "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile
-    _ -> Nothing
-
-treeFileIsDirectory :: TreeFile -> Bool
-treeFileIsDirectory treefile = case treeFileContents treefile of
-    FileContents _ -> False
-    FolderContents _ -> True
-
-{-
-Get the name of a tree file path's HTML file.
--}
-treePathToHref :: TreeFilePath -> Text
-treePathToHref = flip T.append ".html" . T.replace "/" "." .  decodeUtf8With lenientDecode
-
 ----------------------------------------------------------------------------------------
+-- Targets -----------------------------------------------------------------------------
 
 {-
 A Target refers to a template scope and repository object whose information is available
