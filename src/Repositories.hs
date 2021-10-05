@@ -122,7 +122,22 @@ loadCommit :: ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Commit LgRepo))
 loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
 loadCommit _ = Nothing
 
-data TreeFileContents = FileContents Text | FolderContents [TreeFilePath]
+{-
+Valid modes:
+040000 Directory
+100644 Regular non-executable file
+100755 Regular executable file
+120000 Symbolic link
+160000 Submodule
+-}
+data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
+
+toMode :: BlobKind -> TreeEntryMode
+toMode PlainBlob = ModePlain
+toMode ExecutableBlob = ModeExecutable
+toMode SymlinkBlob = ModeSymlink
+
+data TreeFileContents = FileContents (TreeEntryMode, Text) | FolderContents [TreeFilePath]
 
 data TreeFile = TreeFile
     { treeFilePath :: TreeFilePath
@@ -136,9 +151,10 @@ getTree commitID = do
     return $ zipWith TreeFile (fmap fst entries) contents
 
 gvalTreeEntry :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeFileContents
-gvalTreeEntry (BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode <$> catBlob oid
+gvalTreeEntry (BlobEntry oid kind) =
+    FileContents . (,) (toMode kind) . decodeUtf8With lenientDecode <$> catBlob oid
 gvalTreeEntry (TreeEntry oid) = FolderContents . fmap fst <$> (listTreeEntries =<< lookupTree oid)
-gvalTreeEntry (CommitEntry _) = return . FileContents $ "No contents"
+gvalTreeEntry (CommitEntry _) = return . FileContents $ (ModeSubmodule, "No contents")  -- TODO
 
 
 {-
@@ -181,7 +197,7 @@ instance ToGVal m TreeFile where
 
 instance ToGVal m TreeFileContents where
     toGVal :: TreeFileContents -> GVal m
-    toGVal (FileContents text) = toGVal text
+    toGVal (FileContents (_, text)) = toGVal text
     toGVal (FolderContents filePaths) = def
         { asHtml = html . pack . show $ filePaths
         , asText = pack . show $ filePaths
