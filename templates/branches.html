@@ -4,18 +4,18 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ name }}</title>
+    <title>{{ name }} -- tags</title>
     <link rel="stylesheet" href="{{- host }}/style.css" />
   </head>
 
   <body>
-    <p>{{- name }}</p>
+    <p>{{ name }}</p>
     <hr>
-    <p>{{- description }}</p>
-    <p>git clone {{ host }}/{{- name }}</p>
-		<p><a href="./log.html">Log</a></p>
-		<p><a href="./tree.html">Tree</a></p>
-		<p><a href="./tags.html">Tags</a></p>
-		<p><a href="./branches.html">Branches</a></p>
+    <p>{{ description }}</p>
+    <p>git clone {{ host }}/{{ name }}</p>
+    <hr>
+    {% for branch in branches %}
+		<p><b>{{ branch.name }}</b> {{ branch.id[:7] }} {{ branch.title }}</p>
+    {% endfor %}
   </body>
 </html>

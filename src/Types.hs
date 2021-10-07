@@ -130,3 +130,25 @@ Get the name of a tree file path's HTML file.
 -}
 treePathToHref :: TreeFilePath -> Text
 treePathToHref = flip T.append ".html" . T.replace "/" "." .  decodeUtf8With lenientDecode
+
+{-
+Data to store information about references: tags and branches.
+-}
+data Ref = Ref
+    { refName :: RefName
+    , refCommit :: Commit LgRepo
+    }
+
+instance ToGVal m Ref where
+    toGVal :: Ref -> GVal m
+    toGVal ref = def
+        { asHtml = html . refName $ ref
+        , asText = refName ref
+        , asLookup = Just . refAsLookup $ ref
+        }
+
+refAsLookup :: Ref -> Text -> Maybe (GVal m)
+refAsLookup ref = \case
+    "name" -> Just . toGVal . refName $ ref
+    "commit" -> Just . toGVal . refCommit $ ref
+    key -> commitAsLookup (refCommit ref) key

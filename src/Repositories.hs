@@ -14,10 +14,10 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Either (fromRight)
 import Data.Tagged
-import Data.Text (pack, unpack, Text)
+import Data.Text (pack, unpack, Text, isPrefixOf, stripPrefix)
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
-import Data.Maybe (mapMaybe)
+import Data.Maybe (mapMaybe, catMaybes, fromJust)
 import Git
 import Git.Libgit2 (lgFactory, LgRepo)
 import System.Directory (createDirectoryIfMissing)
@@ -50,6 +50,7 @@ use it too.
 getDescription :: FilePath -> IO Text
 getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . (</> "description")
 
+
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
 
@@ -76,14 +77,19 @@ processRepo' env path = do
             -- it exists.
             description <- liftIO . getDescription $ path
 
-            -- commits: A list of `Git.Commit` objects to HEAD.
+            -- commits: A list of `Commit` objects to HEAD.
             commits <- getCommits gitHead
 
             -- tree: A list of `TreeFile` objects at HEAD.
             tree <- getTree gitHead
 
+            -- tags and branches: Lists of `Ref` objects that wrap `Commit` and
+            -- `Refname` (Text).
+            tags <- getRefs "refs/tags/"
+            branches <- getRefs "refs/heads/"
+
             -- Run the generator --
-            let scope = package env name description commits tree
+            let scope = package env name description commits tree tags branches
             liftIO . mapM (generate output scope) $ envTemplates env
             liftIO . mapM (genTarget output scope $ envCommitTemplate env) $ commits
             liftIO . mapM (genTarget output scope $ envFileTemplate env) $ tree
@@ -101,13 +107,17 @@ package
     -> Text
     -> [Commit LgRepo]
     -> [TreeFile]
+    -> [Ref]
+    -> [Ref]
     -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-package env name description commits tree = HashMap.fromList
+package env name description commits tree tags branches = HashMap.fromList
     [ ("host", toGVal . host . envConfig $ env)
     , ("name", toGVal . pack $ name)
     , ("description", toGVal description)
     , ("commits", toGVal . reverse $ commits)  -- Could be optimised
     , ("tree", toGVal tree)
+    , ("tags", toGVal tags)
+    , ("branches", toGVal branches)
     ]
 
 {-
@@ -141,6 +151,30 @@ getEntryModes :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
 getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
 getEntryModes (TreeEntry _) = return ModeDirectory
 getEntryModes (CommitEntry _) = return ModeSubmodule
+
+{-
+Collect information about references. TODO: Find a more canonical way to split
+references into tags or branches rather than filtering the refnames.
+-}
+getRefs :: Text -> ReaderT LgRepo IO [Ref]
+getRefs ref = do
+    names <- filter (isPrefixOf ref) <$> listReferences
+    maybeOids <- mapM resolveReference names
+    let names' = catMaybes . zipWith dropName maybeOids $ names
+    objs <- mapM lookupObject . catMaybes $ maybeOids
+    maybeCommits <- mapM refObjToCommit objs
+    let names'' = map (fromJust . stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names'
+    return . zipWith Ref names'' . catMaybes $ maybeCommits
+
+  where
+    refObjToCommit :: Object r m -> ReaderT LgRepo IO (Maybe (Commit r))
+    refObjToCommit (CommitObj obj) = return . Just $ obj
+    refObjToCommit _ = return Nothing
+
+    dropName :: Maybe a -> RefName -> Maybe RefName
+    dropName (Just _) name = Just name
+    dropName Nothing _ = Nothing
+
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
