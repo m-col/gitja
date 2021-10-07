@@ -35,8 +35,8 @@ To do
 
 [x] Generate html file per commit with commit scope
 [x] Generate html file per tree file with file scope
-[ ] Expose readme url in repo scope for convenient hyperlinking
-[ ] Expose license url in repo scope for convenient hyperlinking
+[x] Expose readme url in repo scope for convenient hyperlinking
+[x] Expose license url in repo scope for convenient hyperlinking
 [x] Expose repo branches and tags in repo scope
 [ ] Commit diffs
 [x] Tree entry filemodes

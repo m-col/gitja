@@ -17,5 +17,14 @@
 		<p><a href="./tree.html">Tree</a></p>
 		<p><a href="./tags.html">Tags</a></p>
 		<p><a href="./branches.html">Branches</a></p>
+		{% if license %}
+		<p><a href="{{ host }}/{{ name }}/file/{{ license.href }}">License</a></p>
+		{% endif %}
+		{% if readme %}
+		<p><a href="{{ host }}/{{ name }}/file/{{ readme.href }}">Readme</a></p>
+		<pre>
+		{{ readme.contents }}
+		</pre>
+		{% endif %}
   </body>
 </html>

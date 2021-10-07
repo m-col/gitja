@@ -15,7 +15,7 @@ import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Git
 import Git.Libgit2 (LgRepo)
-import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup, asList)
+import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup, asList, asBoolean)
 import Text.Ginger.Html (html)
 import qualified Data.Text as T
 
@@ -98,6 +98,7 @@ instance ToGVal m TreeFile where
         { asHtml = html . pack . toString . treeFilePath $ treefile
         , asText = pack . show . treeFilePath $ treefile
         , asLookup = Just . treeAsLookup $ treefile
+        , asBoolean = True  -- Used for conditionally checking readme/license template variables.
         }
 
 instance ToGVal m TreeFileContents where

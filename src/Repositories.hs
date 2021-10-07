@@ -14,7 +14,7 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Either (fromRight)
 import Data.Tagged
-import Data.Text (pack, unpack, Text, isPrefixOf, stripPrefix)
+import Data.Text (pack, unpack, Text, isPrefixOf, stripPrefix, toLower)
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Data.Maybe (mapMaybe, catMaybes, fromJust)
@@ -118,6 +118,8 @@ package env name description commits tree tags branches = HashMap.fromList
     , ("tree", toGVal tree)
     , ("tags", toGVal tags)
     , ("branches", toGVal branches)
+    , ("readme", toGVal . findFile "readme" $ tree)
+    , ("license", toGVal . findFile "license" $ tree)
     ]
 
 {-
@@ -151,6 +153,16 @@ getEntryModes :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
 getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
 getEntryModes (TreeEntry _) = return ModeDirectory
 getEntryModes (CommitEntry _) = return ModeSubmodule
+
+{-
+Find a file in the tree starting with the specified prefix. The prefix is looked for on
+the full path, so will only find files in the top level directory.
+-}
+findFile :: Text -> [TreeFile] -> Maybe TreeFile
+findFile _ [] = Nothing
+findFile prefix (f:fs) = if (isReadme f) then (Just f) else (findFile prefix fs)
+  where
+    isReadme = isPrefixOf prefix . toLower . decodeUtf8With lenientDecode . treeFilePath
 
 {-
 Collect information about references. TODO: Find a more canonical way to split
