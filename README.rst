@@ -9,7 +9,7 @@ so if you like that style and don't want to edit templates, you may prefer to
 use that.
 
 \*The templating engine is not Jinja per se, but ginger_, an implementation of
-the Jinja language for Haskell.
+the Jinja language for Haskell. Please see their docs for any differences.
 
 Why?
 ----
@@ -23,7 +23,7 @@ Contributing
 
 If you've come across a bug feel free to `open an issue`_.
 
-Pull requests are also warmly welcome if you have an suggested improvements or
+Pull requests are also warmly welcome if you have any suggested improvements or
 fixes.
 
 Remaining tasks
