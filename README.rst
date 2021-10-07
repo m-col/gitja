@@ -1,44 +1,24 @@
 gitserve
 ========
 
-This is all a work in progress and so nothing is implemented.
+``gitserve`` generates pretty web pages from your git repositories using custom
+Jinja_\* HTML templates.
 
-gitserve generates pretty web pages from your git repositories using custom
-HTML templates.
+This was inspired by stagit_, which generates content with a hard-coded style,
+so if you like that style and don't want to edit templates, you may prefer to
+use that.
 
-It has two modes of operations:
+\* The templating engine is not Jinja_ per se, but ginger_, an implementation
+of the Jinja language for Haskell.
 
-*Dynamic mode*: In this mode, gitserve serves generated web pages in response
-to HTTP requests. Changes to the served git repositories are reflected
-immediately as gitserve will generate new pages when needed.
+Remaining tasks
+---------------
 
-*Static mode*: In this mode, gitserve will save generated web pages to file so
-that other software can serve the output from the filesystem as static files.
-Updates to the served git repositories are not reflected in the output until
-gitserve is called again.
+- Commit diffs
+- Write guide
+- Specify config on the command line
+- Improve performance
 
-
-Template variables
-------------------
-
-There are two variable scopes. Only one is available in a given template:
-
-- *Repository scope*: This exposes information that pertains to a single
-  repository. Most templates are rendered once per configured repository.
-- *Index scope*: This exposes information about the whole set of repositories.
-  The index template is rendered once in total and uses this scope. This
-  template is specified in the ``indexTemplate`` setting.
-
-
-To do
------
-
-[x] Generate html file per commit with commit scope
-[x] Generate html file per tree file with file scope
-[x] Expose readme url in repo scope for convenient hyperlinking
-[x] Expose license url in repo scope for convenient hyperlinking
-[x] Expose repo branches and tags in repo scope
-[ ] Commit diffs
-[x] Tree entry filemodes
-[ ] Generate RSS?
-[ ] Write guide in readme
+.. _Jinja: https://jinja.palletsprojects.com
+.. _stagit: https://codemadness.org/git/stagit
+.. _ginger: https://ginger.tobiasdammers.nl
