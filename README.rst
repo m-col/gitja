@@ -20,6 +20,14 @@ thoughts and creations, but often their code does not form part of this.
 your code however you want, and in a style consistent with your other web
 pages!
 
+Contributing
+------------
+
+If you've come across a bug feel free to `open an issue`_.
+
+Pull requests are also warmly welcome if you have an suggested improvements or
+fixes.
+
 Remaining tasks
 ---------------
 
@@ -31,3 +39,4 @@ Remaining tasks
 .. _Jinja: https://jinja.palletsprojects.com
 .. _stagit: https://codemadness.org/git/stagit
 .. _ginger: https://ginger.tobiasdammers.nl
+.. _`open an issue`: https://github.com/m-col/gitserver/issues/new
