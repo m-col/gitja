@@ -8,8 +8,17 @@ This was inspired by stagit_, which generates content with a hard-coded style,
 so if you like that style and don't want to edit templates, you may prefer to
 use that.
 
-\* The templating engine is not Jinja_ per se, but ginger_, an implementation
-of the Jinja language for Haskell.
+\*The templating engine is not Jinja per se, but ginger_, an implementation of
+the Jinja language for Haskell.
+
+Why?
+----
+
+It's fantastic to see more people running their own websites, hosting their
+thoughts and creations, but often their code does not form part of this.
+``gitserve`` complements your static site generator so that you can display
+your code however you want, and in a style consistent with your other web
+pages!
 
 Remaining tasks
 ---------------
