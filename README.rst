@@ -14,11 +14,9 @@ the Jinja language for Haskell.
 Why?
 ----
 
-It's fantastic to see more people running their own websites, hosting their
-thoughts and creations, but often their code does not form part of this.
 ``gitserve`` complements your static site generator so that you can display
-your code however you want, and in a style consistent with your other web
-pages!
+your code however you want, in a style consistent with the rest of your
+website!
 
 Contributing
 ------------
