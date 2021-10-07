@@ -39,9 +39,7 @@ repositories, reading from them and writing out their web pages using the given
 templates.
 -}
 run :: Env -> IO ()
-run env = do
-    foldMap (processRepo env) . repoPaths . envConfig $ env  -- TODO: make concurrent
-    return ()
+run env = mapM_ (processRepo env) (repoPaths . envConfig $ env)
 
 {-
 Pass the repository's folder, get its description. This is exported so that Index.hs can
@@ -90,9 +88,9 @@ processRepo' env path = do
 
             -- Run the generator --
             let scope = package env name description commits tree tags branches
-            liftIO . mapM (generate output scope) $ envTemplates env
-            liftIO . mapM (genTarget output scope $ envCommitTemplate env) $ commits
-            liftIO . mapM (genTarget output scope $ envFileTemplate env) $ tree
+            liftIO . mapM_ (generate output scope) $ envTemplates env
+            liftIO . mapM_ (genTarget output scope $ envCommitTemplate env) $ commits
+            liftIO . mapM_ (genTarget output scope $ envFileTemplate env) $ tree
             return ()
 
 {-
