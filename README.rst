@@ -36,6 +36,15 @@ Remaining tasks
 - Specify config on the command line
 - Improve performance
 
+Meta
+----
+
+Development hosted @ https://github.com/m-col/gitserve.
+
+Written by Matt Colligan - mcol@posteo.net
+
+Distributed under the MIT license. See ``LICENSE`` for more information.
+
 .. _Jinja: https://jinja.palletsprojects.com
 .. _stagit: https://codemadness.org/git/stagit
 .. _ginger: https://ginger.tobiasdammers.nl
