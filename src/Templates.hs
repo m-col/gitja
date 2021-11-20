@@ -45,6 +45,7 @@ data Env = Env
     , envIndexTemplate :: Maybe Template
     , envCommitTemplate :: Maybe Template
     , envFileTemplate :: Maybe Template
+    , envForce :: Bool
     }
 
 data Template = Template
@@ -56,8 +57,8 @@ data Template = Template
 This creates the runtime environment, collecting the config and loading template data
 from file.
 -}
-loadTemplates :: Config -> IO Env
-loadTemplates config = do
+loadTemplates :: Bool -> Config -> IO Env
+loadTemplates force config = do
     -- Custom templates
     files <- getFiles config
     templates <- mapM loadTemplate files
@@ -71,6 +72,7 @@ loadTemplates config = do
     , envIndexTemplate = indexT
     , envCommitTemplate = commitT
     , envFileTemplate = fileT
+    , envForce = force
     }
 
 {-

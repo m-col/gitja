@@ -31,7 +31,6 @@ Remaining tasks
 
 - Commit diffs
 - Write guide
-- Specify config on the command line
 - Improve performance
 
 Meta

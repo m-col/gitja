@@ -27,6 +27,7 @@ executable gitserve
                      , ginger >= 0.10.3
                      , gitlib
                      , gitlib-libgit2
+                     , optparse-applicative
                      , tagged
                      , text
                      , transformers
