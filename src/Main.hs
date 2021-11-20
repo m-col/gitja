@@ -52,7 +52,7 @@ Main logic
 main :: IO ()
 main = do
     options <- parser
-    if (version options)
+    if version options
         then
             putStrLn $ "Your gitserve version is: " <> currentVersion
         else do

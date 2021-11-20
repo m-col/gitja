@@ -158,7 +158,7 @@ the full path, so will only find files in the top level directory.
 -}
 findFile :: Text -> [TreeFile] -> Maybe TreeFile
 findFile _ [] = Nothing
-findFile prefix (f:fs) = if (isReadme f) then (Just f) else (findFile prefix fs)
+findFile prefix (f:fs) = if isReadme f then Just f else findFile prefix fs
   where
     isReadme = isPrefixOf prefix . toLower . decodeUtf8With lenientDecode . treeFilePath
 
