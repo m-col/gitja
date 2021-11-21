@@ -212,6 +212,6 @@ genTarget output scope force (Just template) target = do
     let output' = output </> category target </> identify target
     exists <- doesFileExist output'
     when (force || not exists) $ do
-        print output'
+        putStrLn $ "Writing " <> output'
         let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
         generate output' scope' template
