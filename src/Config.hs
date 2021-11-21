@@ -1,4 +1,5 @@
-{-# LANGUAGE DeriveGeneric #-}  -- Required by Dhall
+-- Required by Dhall
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
 
 module Config (
@@ -10,7 +11,7 @@ module Config (
     fileTemplate,
     getConfig,
     outputDirectory,
-    host
+    host,
 ) where
 
 import Dhall

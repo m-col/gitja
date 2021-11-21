@@ -1,30 +1,32 @@
-{-# Language LambdaCase #-}
-{-# Language OverloadedStrings #-}
-{-# Language FlexibleInstances #-}  -- Needed for the Target class type constraints
-{-# Language FlexibleContexts #-}  -- Needed for the Target class type constraints
+-- Needed for the Target class type constraints
+{-# LANGUAGE FlexibleContexts #-}
+-- Needed for the Target class type constraints
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Repositories (
     run,
 ) where
 
-import Conduit (runConduit, (.|), sinkList)
-import Control.Monad ((<=<), when)
+import Conduit (runConduit, sinkList, (.|))
+import Control.Monad (when, (<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
+import qualified Data.HashMap.Strict as HashMap
+import Data.Maybe (catMaybes, fromJust, mapMaybe)
 import Data.Tagged
-import Data.Text (pack, unpack, Text, isPrefixOf, stripPrefix, toLower)
+import Data.Text (Text, isPrefixOf, pack, stripPrefix, toLower, unpack)
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
-import Data.Maybe (mapMaybe, catMaybes, fromJust)
 import Git
-import Git.Libgit2 (lgFactory, LgRepo)
+import Git.Libgit2 (LgRepo, lgFactory)
 import System.Directory (createDirectoryIfMissing, doesFileExist)
-import System.FilePath ((</>), takeFileName)
-import Text.Ginger.GVal (GVal, toGVal, ToGVal)
+import System.FilePath (takeFileName, (</>))
+import Text.Ginger.GVal (GVal, ToGVal, toGVal)
 import Text.Ginger.Html (Html)
-import Text.Ginger.Run (Run)
 import Text.Ginger.Parse (SourcePos)
-import qualified Data.HashMap.Strict as HashMap
+import Text.Ginger.Run (Run)
 
 import Config
 import Index
@@ -37,7 +39,6 @@ their web pages using the loaded templates.
 -}
 run :: Env -> [Repo] -> IO ()
 run = mapM_ . processRepo
-
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
@@ -72,7 +73,7 @@ processRepo' env repo = do
             liftIO . createDirectoryIfMissing True $ output </> "commits"
             liftIO . createDirectoryIfMissing True $ output </> "files"
             liftIO . mapM_ (genTarget output scope force $ envCommitTemplate env) $ commits
-            liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree  -- TODO: detect file changes
+            liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree -- TODO: detect file changes
 
 {-
 The role of the function above is to gather information about a git repository and
@@ -80,34 +81,36 @@ package it all together in such a way that various parts can be accessed and use
 Ginger templates. `package` takes these pieces of information and places it all into a
 hashmap which Ginger can use to look up variables.
 -}
-package
-    :: Env
-    -> FilePath
-    -> Text
-    -> [Commit LgRepo]
-    -> [TreeFile]
-    -> [Ref]
-    -> [Ref]
-    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-package env name description commits tree tags branches = HashMap.fromList
-    [ ("host", toGVal . host . envConfig $ env)
-    , ("name", toGVal . pack $ name)
-    , ("description", toGVal description)
-    , ("commits", toGVal . reverse $ commits)  -- Could be optimised
-    , ("tree", toGVal tree)
-    , ("tags", toGVal tags)
-    , ("branches", toGVal branches)
-    , ("readme", toGVal . findFile "readme" $ tree)
-    , ("license", toGVal . findFile "license" $ tree)
-    ]
+package ::
+    Env ->
+    FilePath ->
+    Text ->
+    [Commit LgRepo] ->
+    [TreeFile] ->
+    [Ref] ->
+    [Ref] ->
+    HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+package env name description commits tree tags branches =
+    HashMap.fromList
+        [ ("host", toGVal . host . envConfig $ env)
+        , ("name", toGVal . pack $ name)
+        , ("description", toGVal description)
+        , ("commits", toGVal . reverse $ commits) -- Could be optimised
+        , ("tree", toGVal tree)
+        , ("tags", toGVal tags)
+        , ("branches", toGVal branches)
+        , ("readme", toGVal . findFile "readme" $ tree)
+        , ("license", toGVal . findFile "license" $ tree)
+        ]
 
 {-
 Collect commit information.
 -}
 getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
 getCommits commitID =
-    sequence . mapMaybe loadCommit <=<
-    runConduit $ sourceObjects Nothing commitID False .| sinkList
+    sequence . mapMaybe loadCommit
+        <=< runConduit
+        $ sourceObjects Nothing commitID False .| sinkList
 
 loadCommit :: ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Commit LgRepo))
 loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
@@ -139,7 +142,7 @@ the full path, so will only find files in the top level directory.
 -}
 findFile :: Text -> [TreeFile] -> Maybe TreeFile
 findFile _ [] = Nothing
-findFile prefix (f:fs) = if isReadme f then Just f else findFile prefix fs
+findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
   where
     isReadme = isPrefixOf prefix . toLower . decodeUtf8With lenientDecode . treeFilePath
 
@@ -156,7 +159,6 @@ getRefs ref = do
     maybeCommits <- mapM refObjToCommit objs
     let names'' = map (fromJust . stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names'
     return . zipWith Ref names'' . catMaybes $ maybeCommits
-
   where
     refObjToCommit :: Object r m -> ReaderT LgRepo IO (Maybe (Commit r))
     refObjToCommit (CommitObj obj) = return . Just $ obj
@@ -166,11 +168,11 @@ getRefs ref = do
     dropName (Just _) name = Just name
     dropName Nothing _ = Nothing
 
-genRepo
-    :: FilePath
-    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-    -> Template
-    -> IO ()
+genRepo ::
+    FilePath ->
+    HashMap.HashMap Text (GVal (Run SourcePos IO Html)) ->
+    Template ->
+    IO ()
 genRepo output scope template = generate output' scope template
   where
     output' = (</>) output . takeFileName . templatePath $ template
@@ -197,14 +199,14 @@ instance Target TreeFile where
     identify = unpack . treePathToHref . treeFilePath
     category = const "file"
 
-genTarget
-    :: Target a
-    => FilePath
-    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-    -> Bool
-    -> Maybe Template
-    -> a
-    -> IO ()
+genTarget ::
+    Target a =>
+    FilePath ->
+    HashMap.HashMap Text (GVal (Run SourcePos IO Html)) ->
+    Bool ->
+    Maybe Template ->
+    a ->
+    IO ()
 genTarget _ _ _ Nothing _ = return ()
 genTarget output scope force (Just template) target = do
     let output' = output </> category target </> identify target

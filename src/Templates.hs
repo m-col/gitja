@@ -1,4 +1,4 @@
-{-# Language LambdaCase #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Templates (
     -- The Env data type and its constructors.
@@ -21,18 +21,18 @@ module Templates (
 
 import Control.Monad (filterM, void)
 import Data.Char (toLower)
+import qualified Data.HashMap.Strict as HashMap
 import Data.List (isSuffixOf)
 import Data.Maybe (catMaybes)
-import Data.Text (unpack, Text)
-import qualified Data.HashMap.Strict as HashMap
+import Data.Text (Text, unpack)
 import System.Directory (doesFileExist, getDirectoryContents)
 import System.FilePath ((</>))
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
-import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
 import Text.Ginger.GVal (GVal)
-import Text.Ginger.Html (htmlSource, Html)
-import Text.Ginger.Run (easyRenderM, Run)
+import Text.Ginger.Html (Html, htmlSource)
+import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
+import Text.Ginger.Run (Run, easyRenderM)
 
 import Config
 
@@ -68,25 +68,27 @@ loadTemplates force config = do
     commitT <- loadTemplate . commitTemplate $ config
     fileT <- loadTemplate . fileTemplate $ config
     -- Global environment
-    return Env { envConfig = config
-    , envTemplates = catMaybes templates
-    , envIndexTemplate = indexT
-    , envCommitTemplate = commitT
-    , envFileTemplate = fileT
-    , envForce = force
-    }
+    return
+        Env
+            { envConfig = config
+            , envTemplates = catMaybes templates
+            , envIndexTemplate = indexT
+            , envCommitTemplate = commitT
+            , envFileTemplate = fileT
+            , envForce = force
+            }
 
 {-
 This is the generator function that receives repository-specific variables and uses
 Ginger to render templates using them.
 -}
-generate
-    :: FilePath
-    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-    -> Template
-    -> IO ()
+generate ::
+    FilePath ->
+    HashMap.HashMap Text (GVal (Run SourcePos IO Html)) ->
+    Template ->
+    IO ()
 generate output context template = do
-    writeFile output ""  -- Clear contents of file if it exists
+    writeFile output "" -- Clear contents of file if it exists
     void $ easyRenderM (writeTo output) context . templateGinger $ template
 
 ----------------------------------------------------------------------------------------
@@ -97,11 +99,12 @@ This takes the session's `Config` and maybe returns a loaded template for the
 ``indexTemplate`` setting.
 -}
 loadTemplate :: FilePath -> IO (Maybe Template)
-loadTemplate path = parseGingerFile includeResolver path >>= \case
-    Right parsed -> return . Just . Template path $ parsed
-    Left err -> do
-        print . peErrorMessage $ err
-        return Nothing
+loadTemplate path =
+    parseGingerFile includeResolver path >>= \case
+        Right parsed -> return . Just . Template path $ parsed
+        Left err -> do
+            print . peErrorMessage $ err
+            return Nothing
 
 {-
 This is a Ginger `IncludeResolver` that will eventually be extended to enable caching of
@@ -127,9 +130,9 @@ config settings ``indexTemplate``, ``commitTemplate`` or ``fileTemplate``.
 -}
 isTargeted :: Config -> FilePath -> Bool
 isTargeted config path =
-    path == indexTemplate config ||
-    path == commitTemplate config ||
-    path == fileTemplate config
+    path == indexTemplate config
+        || path == commitTemplate config
+        || path == fileTemplate config
 
 {-
 This wraps getDirectoryContents so that we get a list of fully qualified paths of the
@@ -143,7 +146,7 @@ getFiles will look inside the template directory and generate a list of paths to
 valid template files.
 -}
 getFiles :: Config -> IO [FilePath]
-getFiles = ((>>=) . listTemplates . templateDirectory) <*> (filterM  . isTemplate)
+getFiles = ((>>=) . listTemplates . templateDirectory) <*> (filterM . isTemplate)
 
 {-
 This function gets the output HTML data and is responsible for saving it to file.

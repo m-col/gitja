@@ -1,8 +1,11 @@
-{-# Language LambdaCase #-}
-{-# Language OverloadedStrings #-}
-{-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
-{-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
-{-# Language InstanceSigs #-}  -- Needed for toGVal type signature
+-- Needed for `instance ToGVal`
+{-# LANGUAGE FlexibleInstances #-}
+-- Needed for toGVal type signature
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE LambdaCase #-}
+-- Needed for `instance ToGVal`
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Index (
     runIndex,
@@ -14,15 +17,15 @@ module Index (
 
 import Data.Default (def)
 import Data.Either (fromRight)
-import Data.Text (pack, Text)
+import qualified Data.HashMap.Strict as HashMap
+import Data.Text (Text, pack)
 import System.Directory (createDirectoryIfMissing)
-import System.FilePath ((</>), takeFileName)
+import System.FilePath (takeFileName, (</>))
 import System.IO.Error (tryIOError)
-import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup)
+import Text.Ginger.GVal (GVal, ToGVal, asHtml, asLookup, asText, toGVal)
 import Text.Ginger.Html (Html, html)
 import Text.Ginger.Parse (SourcePos)
 import Text.Ginger.Run (Run)
-import qualified Data.HashMap.Strict as HashMap
 
 import Config
 import Templates
@@ -58,11 +61,12 @@ data Repo = Repo
 
 instance ToGVal m Repo where
     toGVal :: Repo -> GVal m
-    toGVal repo = def
-        { asHtml = html . pack . show . takeFileName . repoPath $ repo
-        , asText = pack . show . takeFileName . repoPath $ repo
-        , asLookup = Just . repoAsLookup $ repo
-        }
+    toGVal repo =
+        def
+            { asHtml = html . pack . show . takeFileName . repoPath $ repo
+            , asText = pack . show . takeFileName . repoPath $ repo
+            , asLookup = Just . repoAsLookup $ repo
+            }
 
 repoAsLookup :: Repo -> Text -> Maybe (GVal m)
 repoAsLookup repo = \case
@@ -70,21 +74,21 @@ repoAsLookup repo = \case
     "description" -> Just . toGVal . repoDescription $ repo
     _ -> Nothing
 
-
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
 
 {-
 This packages the variables that are available inside the index template.
 -}
-packageIndex
-    :: Config
-    -> [Repo]
-    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
-packageIndex config repos = HashMap.fromList
-    [ ("host", toGVal $ host config)
-    , ("repositories", toGVal repos)
-    ]
+packageIndex ::
+    Config ->
+    [Repo] ->
+    HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+packageIndex config repos =
+    HashMap.fromList
+        [ ("host", toGVal $ host config)
+        , ("repositories", toGVal repos)
+        ]
 
 {-
 Get paths along with their descriptions.

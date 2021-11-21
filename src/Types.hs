@@ -1,23 +1,26 @@
-{-# Language DerivingStrategies #-}
-{-# Language LambdaCase #-}
-{-# Language OverloadedStrings #-}
-{-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
-{-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
-{-# Language InstanceSigs #-}  -- Needed for toGVal type signature
+{-# LANGUAGE DerivingStrategies #-}
+-- Needed for `instance ToGVal`
+{-# LANGUAGE FlexibleInstances #-}
+-- Needed for toGVal type signature
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE LambdaCase #-}
+-- Needed for `instance ToGVal`
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Types where
 
 import Data.ByteString.UTF8 (toString)
 import Data.Default (def)
 import Data.Tagged (untag)
-import Data.Text (pack, Text, strip)
+import Data.Text (Text, pack, strip)
+import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Git
 import Git.Libgit2 (LgRepo)
-import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup, asList, asBoolean)
+import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
 import Text.Ginger.Html (html)
-import qualified Data.Text as T
 
 {-
 GVal implementation for `Git.Commit r`, allowing commits to be rendered in Ginger
@@ -25,11 +28,12 @@ templates.
 -}
 instance ToGVal m (Commit LgRepo) where
     toGVal :: Commit LgRepo -> GVal m
-    toGVal commit = def
-        { asHtml = html . pack . show . commitLog $ commit
-        , asText = pack . show . commitLog $ commit
-        , asLookup = Just . commitAsLookup $ commit
-        }
+    toGVal commit =
+        def
+            { asHtml = html . pack . show . commitLog $ commit
+            , asText = pack . show . commitLog $ commit
+            , asLookup = Just . commitAsLookup $ commit
+            }
 
 commitAsLookup :: Commit LgRepo -> Text -> Maybe (GVal m)
 commitAsLookup commit = \case
@@ -59,7 +63,7 @@ data TreeFile = TreeFile
 data TreeFileContents = FileContents Text | FolderContents [TreeFilePath]
 
 data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
-    deriving stock Show
+    deriving stock (Show)
 
 showMode :: TreeEntryMode -> String
 showMode = drop 4 . show
@@ -75,18 +79,18 @@ blobkindToMode ExecutableBlob = ModeExecutable
 blobkindToMode SymlinkBlob = ModeSymlink
 
 modeToOctal :: TreeEntryMode -> String
-modeToOctal ModeDirectory  = "40000"
-modeToOctal ModePlain      = "00644"
+modeToOctal ModeDirectory = "40000"
+modeToOctal ModePlain = "00644"
 modeToOctal ModeExecutable = "00755"
-modeToOctal ModeSymlink    = "20000"
-modeToOctal ModeSubmodule  = "60000"
+modeToOctal ModeSymlink = "20000"
+modeToOctal ModeSubmodule = "60000"
 
 modeToSymbolic :: TreeEntryMode -> String
-modeToSymbolic ModeDirectory  = "drwxr-xr-x"
-modeToSymbolic ModePlain      = "-rw-r--r--"
+modeToSymbolic ModeDirectory = "drwxr-xr-x"
+modeToSymbolic ModePlain = "-rw-r--r--"
 modeToSymbolic ModeExecutable = "-rwxr-xr-x"
-modeToSymbolic ModeSymlink    = "l---------"
-modeToSymbolic ModeSubmodule  = "git-module"
+modeToSymbolic ModeSymlink = "l---------"
+modeToSymbolic ModeSubmodule = "git-module"
 
 {-
 GVal implementations for data definitions above, allowing commits to be rendered in
@@ -94,21 +98,23 @@ Ginger templates.
 -}
 instance ToGVal m TreeFile where
     toGVal :: TreeFile -> GVal m
-    toGVal treefile = def
-        { asHtml = html . pack . toString . treeFilePath $ treefile
-        , asText = pack . show . treeFilePath $ treefile
-        , asLookup = Just . treeAsLookup $ treefile
-        , asBoolean = True  -- Used for conditionally checking readme/license template variables.
-        }
+    toGVal treefile =
+        def
+            { asHtml = html . pack . toString . treeFilePath $ treefile
+            , asText = pack . show . treeFilePath $ treefile
+            , asLookup = Just . treeAsLookup $ treefile
+            , asBoolean = True -- Used for conditionally checking readme/license template variables.
+            }
 
 instance ToGVal m TreeFileContents where
     toGVal :: TreeFileContents -> GVal m
     toGVal (FileContents text) = toGVal text
-    toGVal (FolderContents filePaths) = def
-        { asHtml = html . pack . show $ filePaths
-        , asText = pack . show $ filePaths
-        , asList = Just . fmap toGVal $ filePaths
-        }
+    toGVal (FolderContents filePaths) =
+        def
+            { asHtml = html . pack . show $ filePaths
+            , asText = pack . show $ filePaths
+            , asList = Just . fmap toGVal $ filePaths
+            }
 
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
@@ -130,7 +136,7 @@ treeFileIsDirectory treefile = case treeFileContents treefile of
 Get the name of a tree file path's HTML file.
 -}
 treePathToHref :: TreeFilePath -> Text
-treePathToHref = flip T.append ".html" . T.replace "/" "." .  decodeUtf8With lenientDecode
+treePathToHref = flip T.append ".html" . T.replace "/" "." . decodeUtf8With lenientDecode
 
 {-
 Data to store information about references: tags and branches.
@@ -142,11 +148,12 @@ data Ref = Ref
 
 instance ToGVal m Ref where
     toGVal :: Ref -> GVal m
-    toGVal ref = def
-        { asHtml = html . refName $ ref
-        , asText = refName ref
-        , asLookup = Just . refAsLookup $ ref
-        }
+    toGVal ref =
+        def
+            { asHtml = html . refName $ ref
+            , asText = refName ref
+            , asLookup = Just . refAsLookup $ ref
+            }
 
 refAsLookup :: Ref -> Text -> Maybe (GVal m)
 refAsLookup ref = \case
