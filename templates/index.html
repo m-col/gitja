@@ -1,25 +1,27 @@
-{% include "template.html.include" %}
+{% extends "template.html.include" %}
 
-{% block title %}{{ description }}{% endblock %}
+{%- block title -%}
+{{ description }}
+{%- endblock -%}
 
 {% block body %}
 {% include "repo-table-header.html.include" %}
 
 <div id="content">
-	<table id="log">
-		<thead>
-			<tr>
-				<td><b>Date</b></td>
-				<td><b>Commit message</b></td>
-				<td><b>Author</b></td>
-			</tr>
-		</thead>
+  <table id="log">
+    <thead>
+      <tr>
+        <td><b>Date</b></td>
+        <td><b>Commit message</b></td>
+        <td><b>Author</b></td>
+      </tr>
+    </thead>
 
-		<tbody>
-			{% for commit in commits[:50] %}
-			<tr><td>{{ commit.authored[:16] }}</td><td><a href="commits/{{ commit.id }}.html">{{ commit.title }}</a></td><td>{{ commit.author }}</td></tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <tbody>
+      {% for commit in commits[:50] %}
+      <tr><td>{{ commit.authored[:16] }}</td><td><a href="commit/{{ commit.id }}.html">{{ commit.title }}</a></td><td>{{ commit.author }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}

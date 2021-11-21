@@ -1,26 +1,28 @@
-{% include "template.html.include" %}
+{% extends "template.html.include" %}
 
-{% block title %}{% endblock %}
+{%- block title -%}
+gitserve - Index
+{%- endblock -%}
 
 {% block body %}
 <table id="head">
-	<tr><td width="32px" rowspan="2"><a href="{{ host }}"><img src="{{ host }}/avatar.png" id="avatar"/></a></td>
-		<td rowspan="2"><a href="{{ host }}">{{ host }}</a> / <a href="{{ host }}">code</a></td><td class="link"><a href="{{ host }}/posts.html">posts</a></td></tr><tr><td class="link"><a href="{{ host }}/about.html">about</a></td></tr>
+  <tr><td width="32px" rowspan="2"><a href="{{ host }}"><img src="{{ host }}/avatar.png" id="avatar"/></a></td>
+    <td rowspan="2"><a href="{{ host }}">{{ host }}</a> / <a href="{{ host }}">code</a></td><td class="link"><a href="{{ host }}/posts.html">posts</a></td></tr><tr><td class="link"><a href="{{ host }}/about.html">about</a></td></tr>
 </table>
 
 <hr>
 
 <div id="content">
-	<table id="index">
-		<thead>
-			<tr><td><b>Name</b></td><td><b>Description</b></td><td><b>Last commit</b></td></tr>
-		</thead>
+  <table id="index">
+    <thead>
+      <tr><td><b>Name</b></td><td><b>Description</b></td><td><b>Last commit</b></td></tr>
+    </thead>
 
-		<tbody>
-			{% for repo in repositories %}
-			<tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.updated }}</td></tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <tbody>
+      {% for repo in repositories %}
+      <tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.updated }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}

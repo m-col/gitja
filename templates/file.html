@@ -1,37 +1,39 @@
-{% include "template.html.include" %}
+{% extends "template.html.include" %}
 
-{% block title %}{{ file }}{% endblock %}
+{%- block title -%}
+{{ name }} - {{ file }}
+{%- endblock -%}
 
 {% block body %}
 {% include "repo-table-header.html.include" %}
 
 <div id="content">
-	<p>{{ file }} {{ file.mode_symbolic }}</p><hr>
+  <p>{{ file }} {{ file.mode_symbolic }}</p><hr>
 
 {% if file.is_directory %}
-	<table id="files">
-		<thead>
-			<tr>
-				<td><b>Mode</b></td>
-				<td><b>Name</b></td>
-			</tr>
-		</thead>
+  <table id="files">
+    <thead>
+      <tr>
+        <td><b>Mode</b></td>
+        <td><b>Name</b></td>
+      </tr>
+    </thead>
 
-		<tbody>
-			{% for child in file.contents %}
-			<tr>
-				<td>{{ child.mode_symbolic }}</td>
-				<td><a href="{{ host }}/{{ name }}/file/{{ child.href }}">{{ child.path }}</a></td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <tbody>
+      {% for child in file.contents %}
+      <tr>
+        <td>{{ child.mode_symbolic }}</td>
+        <td><a href="{{ host }}/{{ name }}/file/{{ child.href }}">{{ child.path }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% else %}
-	<pre id="blob">
+  <pre id="blob">
 {% for line in split(file.contents, '\n') %}
 <a href="#l{{ loop.index }}" class="line" id="l{{ loop.index }}">{{ printf("%7v", loop.index) }}</a> {{ line }}
 {% endfor %}
 {% endif %}
-	</pre>
+  </pre>
 </div>
 {% endblock %}
