@@ -62,4 +62,4 @@ main = do
             run env repos
 
 currentVersion :: String
-currentVersion = "0.0.0"
+currentVersion = "0.1.0"
