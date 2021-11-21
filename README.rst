@@ -26,13 +26,6 @@ If you've come across a bug feel free to `open an issue`_.
 Pull requests are also warmly welcome if you have any suggested improvements or
 fixes.
 
-Remaining tasks
----------------
-
-- Commit diffs
-- Write guide
-- Improve performance
-
 Meta
 ----
 
