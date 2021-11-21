@@ -21,4 +21,7 @@ let config =
     , host = "http://localhost:8000"
     }
 
+-- Note: The host is available verbatim in templates.
+-- Port 8000 is appended here for easier testing with `python -m http.server`.
+
 in config
