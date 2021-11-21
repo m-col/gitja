@@ -4,7 +4,10 @@ module Main (
     main
 ) where
 
+import Paths_gitserve (version)
+
 import Data.Text (Text)
+import Data.Version (showVersion)
 import qualified Options.Applicative as O
 
 import Config (getConfig)
@@ -18,7 +21,7 @@ Command line options
 data Options = Options
     { config :: Text
     , force :: Bool
-    , version :: Bool
+    , printVersion :: Bool
     }
 
 opts :: O.Parser Options
@@ -52,14 +55,11 @@ Main logic
 main :: IO ()
 main = do
     options <- parser
-    if version options
+    if printVersion options
         then
-            putStrLn $ "Your gitserve version is: " <> currentVersion
+            putStrLn $ "Your gitserve version is: " <> showVersion version
         else do
             conf <- getConfig (config options)
             env <- loadTemplates (force options) conf
             repos <- runIndex env
             run env repos
-
-currentVersion :: String
-currentVersion = "0.1.0"
