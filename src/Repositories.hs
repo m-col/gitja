@@ -67,11 +67,13 @@ processRepo' env repo = do
             branches <- getRefs "refs/heads/"
             let scope = package env name (repoDescription repo) commits tree tags branches
 
+            -- Create the destination folders
+            liftIO . createDirectoryIfMissing True $ output </> "commit"
+            liftIO . createDirectoryIfMissing True $ output </> "file"
+
             -- Run the generator --
-            liftIO . mapM_ (genRepo output scope) $ envTemplates env
             let force = envForce env
-            liftIO . createDirectoryIfMissing True $ output </> "commits"
-            liftIO . createDirectoryIfMissing True $ output </> "files"
+            liftIO . mapM_ (genRepo output scope) $ envTemplates env
             liftIO . mapM_ (genTarget output scope force $ envCommitTemplate env) $ commits
             liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree -- TODO: detect file changes
 
