@@ -42,7 +42,7 @@ runIndex env =
         Just template -> do
             let config = envConfig env
             createDirectoryIfMissing True $ outputDirectory config
-            let output = (outputDirectory config) </> "index.html"
+            let output = outputDirectory config </> "index.html"
             repos <- loadRepos config
             let scope = packageIndex config repos
             generate output scope template
