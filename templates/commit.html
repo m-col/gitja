@@ -1,26 +1,18 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ name }} - {{ commit.title }}</title>
-    <link rel="stylesheet" type="text/css" href="{{ host }}/style.css" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-  </head>
+{% include "template.html.include" %}
 
-  <body>
-    {% include "repo-table-header.html.include" %}
+{% block title %}{{ commit.title }}{% endblock %}
 
-    <div id="content">
-      <pre><b>commit</b> <a href="{{ host }}/{{ name }}/commits/{{ commit.href }}">{{ commit.id }}</a>
-      <b>Author:</b> {{ commit.author }} &lt;<a href="mailto:{{ commit.author_email }}">{{ commit.author_email }}</a>&gt;
-      <b>Date:</b> {{ commit.authored }}
-      <b>Committer:</b> {{ commit.committer }} &lt;<a href="mailto:{{ commit.committer_email }}">{{ commit.committer_email }}</a>&gt;
-      <b>Committed:</b> {{ commit.committed }}
+{% block body %}
+{% include "repo-table-header.html.include" %}
 
-      {{ commit.message }}
-      </pre>
-    </div>
-  </body>
-</html>
+<div id="content">
+	<pre><b>commit</b> <a href="{{ host }}/{{ name }}/commits/{{ commit.href }}">{{ commit.id }}</a>
+	<b>Author:</b> {{ commit.author }} &lt;<a href="mailto:{{ commit.author_email }}">{{ commit.author_email }}</a>&gt;
+	<b>Date:</b> {{ commit.authored }}
+	<b>Committer:</b> {{ commit.committer }} &lt;<a href="mailto:{{ commit.committer_email }}">{{ commit.committer_email }}</a>&gt;
+	<b>Committed:</b> {{ commit.committed }}
+
+	{{ commit.message }}
+	</pre>
+</div>
+{% endblock %}

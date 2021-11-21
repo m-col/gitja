@@ -1,34 +1,26 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ host }} / code</title>
-    <link rel="stylesheet" type="text/css" href="{{ host }}/style.css" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-  </head>
+{% include "template.html.include" %}
 
-  <body>
-    <table id="head">
-			<tr><td width="32px" rowspan="2"><a href="{{ host }}"><img src="{{ host }}/avatar.png" id="avatar"/></a></td>
-				<td rowspan="2"><a href="{{ host }}">{{ host }}</a> / <a href="{{ host }}">code</a></td><td class="link"><a href="{{ host }}/posts.html">posts</a></td></tr><tr><td class="link"><a href="{{ host }}/about.html">about</a></td></tr>
-    </table>
+{% block title %}{% endblock %}
 
-    <hr>
+{% block body %}
+<table id="head">
+	<tr><td width="32px" rowspan="2"><a href="{{ host }}"><img src="{{ host }}/avatar.png" id="avatar"/></a></td>
+		<td rowspan="2"><a href="{{ host }}">{{ host }}</a> / <a href="{{ host }}">code</a></td><td class="link"><a href="{{ host }}/posts.html">posts</a></td></tr><tr><td class="link"><a href="{{ host }}/about.html">about</a></td></tr>
+</table>
 
-    <div id="content">
-      <table id="index">
-        <thead>
-					<tr><td><b>Name</b></td><td><b>Description</b></td><td><b>Last commit</b></td></tr>
-        </thead>
+<hr>
 
-        <tbody>
-          {% for repo in repositories %}
-          <tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.updated }}</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </body>
-</html>
+<div id="content">
+	<table id="index">
+		<thead>
+			<tr><td><b>Name</b></td><td><b>Description</b></td><td><b>Last commit</b></td></tr>
+		</thead>
+
+		<tbody>
+			{% for repo in repositories %}
+			<tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.updated }}</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}

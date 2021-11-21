@@ -1,35 +1,27 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ name }} - Tree</title>
-    <link rel="stylesheet" type="text/css" href="{{ host }}/style.css" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-  </head>
+{% include "template.html.include" %}
 
-  <body>
-    {% include "repo-table-header.html.include" %}
+{% block title %}Tree{% endblock %}
 
-    <div id="content">
-      <table id="files">
-        <thead>
-          <tr>
-            <td><b>Mode</b></td>
-            <td><b>Name</b></td>
-          </tr>
-        </thead>
+{% block body %}
+{% include "repo-table-header.html.include" %}
 
-        <tbody>
-          {% for file in tree %}
-          <tr>
-            <td>{{ file.mode_symbolic }}</td>
-            <td><a href="{{ host }}/{{ name }}/file/{{ file.href }}">{{ file.path }}</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </body>
-</html>
+<div id="content">
+	<table id="files">
+		<thead>
+			<tr>
+				<td><b>Mode</b></td>
+				<td><b>Name</b></td>
+			</tr>
+		</thead>
+
+		<tbody>
+			{% for file in tree %}
+			<tr>
+				<td>{{ file.mode_symbolic }}</td>
+				<td><a href="{{ host }}/{{ name }}/file/{{ file.href }}">{{ file.path }}</a></td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}

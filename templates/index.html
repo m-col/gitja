@@ -1,33 +1,25 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ name }} - {{ description }}</title>
-    <link rel="stylesheet" type="text/css" href="{{ host }}/style.css" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-  </head>
+{% include "template.html.include" %}
 
-  <body>
-    {% include "repo-table-header.html.include" %}
+{% block title %}{{ description }}{% endblock %}
 
-    <div id="content">
-      <table id="log">
-        <thead>
-          <tr>
-            <td><b>Date</b></td>
-            <td><b>Commit message</b></td>
-            <td><b>Author</b></td>
-          </tr>
-        </thead>
+{% block body %}
+{% include "repo-table-header.html.include" %}
 
-        <tbody>
-          {% for commit in commits[:50] %}
-          <tr><td>{{ commit.authored[:16] }}</td><td><a href="commits/{{ commit.id }}.html">{{ commit.title }}</a></td><td>{{ commit.author }}</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </body>
-</html>
+<div id="content">
+	<table id="log">
+		<thead>
+			<tr>
+				<td><b>Date</b></td>
+				<td><b>Commit message</b></td>
+				<td><b>Author</b></td>
+			</tr>
+		</thead>
+
+		<tbody>
+			{% for commit in commits[:50] %}
+			<tr><td>{{ commit.authored[:16] }}</td><td><a href="commits/{{ commit.id }}.html">{{ commit.title }}</a></td><td>{{ commit.author }}</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}

@@ -1,47 +1,37 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ name }} - {{ file }}</title>
-    <link rel="stylesheet" type="text/css" href="{{ host }}/style.css"/>
-    <link rel="icon" type="image/png" href="/favicon.png"/>
-  </head>
+{% include "template.html.include" %}
 
-  <body>
-    {% include "repo-table-header.html.include" %}
+{% block title %}{{ file }}{% endblock %}
 
-    <div id="content">
-      <p>{{ file }} {{ file.mode_symbolic }}</p>
+{% block body %}
+{% include "repo-table-header.html.include" %}
 
-      <hr>
+<div id="content">
+	<p>{{ file }} {{ file.mode_symbolic }}</p><hr>
 
 {% if file.is_directory %}
-      <table id="files">
-        <thead>
-          <tr>
-            <td><b>Mode</b></td>
-            <td><b>Name</b></td>
-          </tr>
-        </thead>
+	<table id="files">
+		<thead>
+			<tr>
+				<td><b>Mode</b></td>
+				<td><b>Name</b></td>
+			</tr>
+		</thead>
 
-        <tbody>
-          {% for child in file.contents %}
-          <tr>
-            <td>{{ child.mode_symbolic }}</td>
-            <td><a href="{{ host }}/{{ name }}/file/{{ child.href }}">{{ child.path }}</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+		<tbody>
+			{% for child in file.contents %}
+			<tr>
+				<td>{{ child.mode_symbolic }}</td>
+				<td><a href="{{ host }}/{{ name }}/file/{{ child.href }}">{{ child.path }}</a></td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
 {% else %}
-      <pre id="blob">
+	<pre id="blob">
 {% for line in split(file.contents, '\n') %}
 <a href="#l{{ loop.index }}" class="line" id="l{{ loop.index }}">{{ printf("%7v", loop.index) }}</a> {{ line }}
 {% endfor %}
 {% endif %}
-      </pre>
-    </div>
-  </body>
-</html>
+	</pre>
+</div>
+{% endblock %}
