@@ -14,7 +14,10 @@ module Config (
     host,
 ) where
 
+import Control.Monad ((<=<))
+import Data.Text (pack)
 import Dhall
+import System.Directory (makeAbsolute)
 
 data Config = Config
     { repoPaths :: [FilePath]
@@ -29,5 +32,5 @@ data Config = Config
 
 instance FromDhall Config
 
-getConfig :: Text -> IO Config
-getConfig = input auto
+getConfig :: String -> IO Config
+getConfig = input auto . pack <=< makeAbsolute

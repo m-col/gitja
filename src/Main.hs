@@ -6,7 +6,6 @@ module Main (
 
 import Paths_gitserve (version)
 
-import Data.Text (Text)
 import Data.Version (showVersion)
 import qualified Options.Applicative as O
 
@@ -19,7 +18,7 @@ import Templates (loadTemplates)
 Command line options
 -}
 data Options = Options
-    { config :: Text
+    { config :: FilePath
     , force :: Bool
     , printVersion :: Bool
     }
