@@ -107,8 +107,7 @@ loadTemplate path =
             return Nothing
 
 {-
-This is a Ginger `IncludeResolver` that will eventually be extended to enable caching of
-includes.
+This resolves Ginger's template includes.
 -}
 includeResolver :: FilePath -> IO (Maybe String)
 includeResolver path = either (const Nothing) Just <$> tryIOError (readFile path)

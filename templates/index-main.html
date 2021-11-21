@@ -4,16 +4,30 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>gitserve</title>
-    <link rel="stylesheet" href="{{- host }}/style.css" />
+    <title>{{ host }} / code</title>
+    <link rel="stylesheet" type="text/css" href="{{ host }}/style.css" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
 
   <body>
-    <p>gitserve</p>
+    <table id="head">
+			<tr><td width="32px" rowspan="2"><a href="{{ host }}"><img src="/avatar.png" id="avatar"/></a></td>
+      <td rowspan="2"><a href="/">{{ host }}</a> / <a href="/code">code</a></td><td class="link"><a href="/posts.html">posts</a></td></tr><tr><td class="link"><a href="/about.html">about</a></td></tr>
+    </table>
+
     <hr>
-		<p>My git repositories - {{ host }}</p>
-    {% for repo in repositories %}
-		<p><a href="{{- host }}/{{- repo.name }}">{{- repo.name }}</a> -- {{ repo.description }}</p>
-    {% endfor %}
+
+    <div id="content">
+      <table id="index">
+        <thead>
+          <tr><td>Name</b></td><b>Description</b></td><td><b>Last commit</b></td></tr>
+        </thead>
+        <tbody>
+          {% for repo in repositories %}
+          <tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.updated }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </body>
 </html>

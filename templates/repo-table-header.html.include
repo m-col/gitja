@@ -1,0 +1,23 @@
+<table id="head">
+  <tr>
+    <td width="32px" rowspan="2"><a href="{{ host }}"><img src="{{ host }}/avatar.png" id="avatar"/></a></td>
+    <td rowspan="2"><a href="{{ host }}">{{ host }}</a> / <a href="{{ host }}/code">code</a> / <a href="{{ host }}/code/{{ name }}">{{ name }}</a></td>
+    <td class="link"><a href="{{ host }}/posts.html">posts</a></td>
+  </tr>
+  <tr>
+    <td class="link"><a href="{{ host }}/about.html">about</a></td>
+  </tr>
+</table>
+<hr>
+
+<table>
+  <tr><td><span class="desc">{{ description }}</span></td></tr>
+  <tr class="url"><td>git clone <href="{{ host }}/code/{{ name }}">{{ host }}/code/{{ name }}</a></td></tr>
+  <tr><td>
+    <a href="tree.html">Files</a> | <a href="refs.html">Refs</a>
+    {% if readme %} | <a href="{{ readme.href }}">Readme</a></td>{% endif %}
+    %{ if license %} | <a href="{{ license.href }}">License</a>{% endif %}
+  </td></tr>
+</table>
+<hr>
+
