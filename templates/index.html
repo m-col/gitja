@@ -4,27 +4,30 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ name }}</title>
-    <link rel="stylesheet" href="{{- host }}/style.css" />
+    <title>{{ name }} - {{ description }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ host }}/style.css" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
 
   <body>
-    <p>{{- name }}</p>
-    <hr>
-    <p>{{- description }}</p>
-    <p>git clone {{ host }}/{{- name }}</p>
-		<p><a href="./log.html">Log</a></p>
-		<p><a href="./tree.html">Tree</a></p>
-		<p><a href="./tags.html">Tags</a></p>
-		<p><a href="./branches.html">Branches</a></p>
-		{% if license %}
-		<p><a href="{{ host }}/{{ name }}/file/{{ license.href }}">License</a></p>
-		{% endif %}
-		{% if readme %}
-		<p><a href="{{ host }}/{{ name }}/file/{{ readme.href }}">Readme</a></p>
-		<pre>
-		{{ readme.contents }}
-		</pre>
-		{% endif %}
+    {% include "repo-table-header.html.include" %}
+
+    <div id="content">
+      <table id="log">
+        <thead>
+          <tr>
+            <td><b>Date</b></td>
+            <td><b>Commit message</b></td>
+            <td><b>Author</b></td>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for commit in commits[:50] %}
+          <tr><td>{{ commit.authored[:16] }}</td><td><a href="commits/{{ commit.id }}.html">{{ commit.title }}</a></td><td>{{ commit.author }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </body>
 </html>

@@ -18,7 +18,7 @@ let config =
     , commitTemplate = "./templates/commit.html"
     , fileTemplate = "./templates/file.html"
     , outputDirectory = "./output"
-    , host = "http://localhost"
+    , host = "http://localhost:8000"
     }
 
 in config

@@ -11,8 +11,8 @@
 
   <body>
     <table id="head">
-			<tr><td width="32px" rowspan="2"><a href="{{ host }}"><img src="/avatar.png" id="avatar"/></a></td>
-      <td rowspan="2"><a href="/">{{ host }}</a> / <a href="/code">code</a></td><td class="link"><a href="/posts.html">posts</a></td></tr><tr><td class="link"><a href="/about.html">about</a></td></tr>
+			<tr><td width="32px" rowspan="2"><a href="{{ host }}"><img src="{{ host }}/avatar.png" id="avatar"/></a></td>
+				<td rowspan="2"><a href="{{ host }}">{{ host }}</a> / <a href="{{ host }}">code</a></td><td class="link"><a href="{{ host }}/posts.html">posts</a></td></tr><tr><td class="link"><a href="{{ host }}/about.html">about</a></td></tr>
     </table>
 
     <hr>
@@ -20,8 +20,9 @@
     <div id="content">
       <table id="index">
         <thead>
-          <tr><td>Name</b></td><b>Description</b></td><td><b>Last commit</b></td></tr>
+					<tr><td><b>Name</b></td><td><b>Description</b></td><td><b>Last commit</b></td></tr>
         </thead>
+
         <tbody>
           {% for repo in repositories %}
           <tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.updated }}</td></tr>
