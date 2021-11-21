@@ -8,6 +8,7 @@ module Templates (
     envIndexTemplate,
     envCommitTemplate,
     envFileTemplate,
+    envForce,
     -- The Template data type and its constructors.
     Template,
     templatePath,
@@ -18,20 +19,20 @@ module Templates (
     generate,
 ) where
 
-import Control.Monad (filterM)
+import Control.Monad (filterM, void)
 import Data.Char (toLower)
 import Data.List (isSuffixOf)
 import Data.Maybe (catMaybes)
 import Data.Text (unpack, Text)
 import qualified Data.HashMap.Strict as HashMap
 import System.Directory (doesFileExist, getDirectoryContents)
-import System.FilePath ((</>), takeFileName)
+import System.FilePath ((</>))
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
 import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
 import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (htmlSource, Html)
-import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
+import Text.Ginger.Run (easyRenderM, Run)
 
 import Config
 
@@ -83,11 +84,10 @@ generate
     :: FilePath
     -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
     -> Template
-    -> IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
+    -> IO ()
 generate output context template = do
-    let target = (output </>) . takeFileName . templatePath $ template
-    writeFile target ""  -- Clear contents of file if it exists
-    easyRenderM (writeTo target) context . templateGinger $ template
+    writeFile output ""  -- Clear contents of file if it exists
+    void $ easyRenderM (writeTo output) context . templateGinger $ template
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------

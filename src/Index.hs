@@ -5,13 +5,19 @@
 {-# Language InstanceSigs #-}  -- Needed for toGVal type signature
 
 module Index (
-    runIndex
+    runIndex,
+    Repo,
+    repoAsLookup,
+    repoPath,
+    repoDescription,
 ) where
 
 import Data.Default (def)
+import Data.Either (fromRight)
 import Data.Text (pack, Text)
 import System.Directory (createDirectoryIfMissing)
-import System.FilePath (takeFileName)
+import System.FilePath ((</>), takeFileName)
+import System.IO.Error (tryIOError)
 import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup)
 import Text.Ginger.Html (Html, html)
 import Text.Ginger.Parse (SourcePos)
@@ -19,27 +25,51 @@ import Text.Ginger.Run (Run)
 import qualified Data.HashMap.Strict as HashMap
 
 import Config
-import Repositories
 import Templates
 
 {-
 This creates the main index file from the index template, using information from all
 configured respositories.
 -}
-runIndex :: Env -> IO ()
+runIndex :: Env -> IO [Repo]
 runIndex env =
     case envIndexTemplate env of
         Nothing ->
-            return ()
+            return []
         Just template -> do
             let config = envConfig env
             createDirectoryIfMissing True $ outputDirectory config
-            let paths = repoPaths config
-            descriptions <- mapM getDescription paths
-            let repos = zipWith ($) (Repo . takeFileName <$> paths) descriptions
+            let output = (outputDirectory config) </> "index.html"
+            repos <- loadRepos config
             let scope = packageIndex config repos
-            generate (outputDirectory config) scope (template { templatePath = "index.html" })
-            return ()
+            generate output scope template
+            return repos
+
+{-
+The unique variable in the index scope is the list of repositories, which can be looped
+over and each entry has some properties that can be accessed. Those are defined here.
+The type is exported so that within the scope of a single repository, its name and
+description is available.
+-}
+data Repo = Repo
+    { repoPath :: FilePath
+    , repoDescription :: Text
+    }
+
+instance ToGVal m Repo where
+    toGVal :: Repo -> GVal m
+    toGVal repo = def
+        { asHtml = html . pack . show . takeFileName . repoPath $ repo
+        , asText = pack . show . takeFileName . repoPath $ repo
+        , asLookup = Just . repoAsLookup $ repo
+        }
+
+repoAsLookup :: Repo -> Text -> Maybe (GVal m)
+repoAsLookup repo = \case
+    "name" -> Just . toGVal . takeFileName . repoPath $ repo
+    "description" -> Just . toGVal . repoDescription $ repo
+    _ -> Nothing
+
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
@@ -57,24 +87,15 @@ packageIndex config repos = HashMap.fromList
     ]
 
 {-
-The unique variable in the index scope is the list of repositories, which can be looped
-over and each entry has some properties that can be accessed. Those are defined here.
+Get paths along with their descriptions.
 -}
-data Repo = Repo
-    { repoName :: FilePath
-    , repoDescription :: Text
-    }
+loadRepos :: Config -> IO [Repo]
+loadRepos config = zipWith ($) (Repo <$> paths) <$> mapM getDescription paths
+  where
+    paths = repoPaths config
 
-instance ToGVal m Repo where
-    toGVal :: Repo -> GVal m
-    toGVal repo = def
-        { asHtml = html . pack . show . repoName $ repo
-        , asText = pack . show . repoName $ repo
-        , asLookup = Just . repoAsLookup $ repo
-        }
-
-repoAsLookup :: Repo -> Text -> Maybe (GVal m)
-repoAsLookup repo = \case
-    "name" -> Just . toGVal . repoName $ repo
-    "description" -> Just . toGVal . repoDescription $ repo
-    _ -> Nothing
+{-
+Pass the repository's folder, get its description.
+-}
+getDescription :: FilePath -> IO Text
+getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . (</> "description")

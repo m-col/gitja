@@ -5,14 +5,12 @@
 
 module Repositories (
     run,
-    getDescription  -- Used by Index.hs::runIndex
 ) where
 
 import Conduit (runConduit, (.|), sinkList)
-import Control.Monad ((<=<))
+import Control.Monad ((<=<), when)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
-import Data.Either (fromRight)
 import Data.Tagged
 import Data.Text (pack, unpack, Text, isPrefixOf, stripPrefix, toLower)
 import Data.Text.Encoding (decodeUtf8With)
@@ -20,9 +18,8 @@ import Data.Text.Encoding.Error (lenientDecode)
 import Data.Maybe (mapMaybe, catMaybes, fromJust)
 import Git
 import Git.Libgit2 (lgFactory, LgRepo)
-import System.Directory (createDirectoryIfMissing)
+import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.FilePath ((</>), takeFileName)
-import System.IO.Error (tryIOError)
 import Text.Ginger.GVal (GVal, toGVal, ToGVal)
 import Text.Ginger.Html (Html)
 import Text.Ginger.Run (Run)
@@ -30,23 +27,16 @@ import Text.Ginger.Parse (SourcePos)
 import qualified Data.HashMap.Strict as HashMap
 
 import Config
+import Index
 import Templates
 import Types
 
 {-
-This is the entrypoint that receives the ``Config`` and uses it to map over our
-repositories, reading from them and writing out their web pages using the given
-templates.
+This is the entrypoint maps over our repositories, reading from them and writing out
+their web pages using the loaded templates.
 -}
-run :: Env -> IO ()
-run env = mapM_ (processRepo env) (repoPaths . envConfig $ env)
-
-{-
-Pass the repository's folder, get its description. This is exported so that Index.hs can
-use it too.
--}
-getDescription :: FilePath -> IO Text
-getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . (</> "description")
+run :: Env -> [Repo] -> IO ()
+run = mapM_ . processRepo
 
 
 ----------------------------------------------------------------------------------------
@@ -57,41 +47,32 @@ This receives a file path to a single repository and tries to process it. If the
 repository doesn't exist or is unreadable in any way we can forget about it and move on
 (after informing the user of course).
 -}
-processRepo :: Env -> FilePath -> IO ()
-processRepo env path = withRepository lgFactory path $ processRepo' env path
+processRepo :: Env -> Repo -> IO ()
+processRepo env repo = withRepository lgFactory (Index.repoPath repo) $ processRepo' env repo
 
-processRepo' :: Env -> FilePath -> ReaderT LgRepo IO ()
-processRepo' env path = do
-    let name = takeFileName path
+processRepo' :: Env -> Repo -> ReaderT LgRepo IO ()
+processRepo' env repo = do
+    let name = takeFileName . Index.repoPath $ repo
     let output = outputDirectory (envConfig env) </> name
-    liftIO $ createDirectoryIfMissing True output
     resolveReference "HEAD" >>= \case
         Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
         Just commitID -> do
             let gitHead = Tagged commitID
-            -- Variables available in the ginger templates: --
 
-            -- description: The description of the repository from repo/description, if
-            -- it exists.
-            description <- liftIO . getDescription $ path
-
-            -- commits: A list of `Commit` objects to HEAD.
+            -- Collect variables available in the ginger templates --
             commits <- getCommits gitHead
-
-            -- tree: A list of `TreeFile` objects at HEAD.
             tree <- getTree gitHead
-
-            -- tags and branches: Lists of `Ref` objects that wrap `Commit` and
-            -- `Refname` (Text).
             tags <- getRefs "refs/tags/"
             branches <- getRefs "refs/heads/"
+            let scope = package env name (repoDescription repo) commits tree tags branches
 
             -- Run the generator --
-            let scope = package env name description commits tree tags branches
-            liftIO . mapM_ (generate output scope) $ envTemplates env
-            liftIO . mapM_ (genTarget output scope $ envCommitTemplate env) $ commits
-            liftIO . mapM_ (genTarget output scope $ envFileTemplate env) $ tree
-            return ()
+            liftIO . mapM_ (genRepo output scope) $ envTemplates env
+            let force = envForce env
+            liftIO . createDirectoryIfMissing True $ output </> "commits"
+            liftIO . createDirectoryIfMissing True $ output </> "files"
+            liftIO . mapM_ (genTarget output scope force $ envCommitTemplate env) $ commits
+            liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree  -- TODO: detect file changes
 
 {-
 The role of the function above is to gather information about a git repository and
@@ -185,6 +166,14 @@ getRefs ref = do
     dropName (Just _) name = Just name
     dropName Nothing _ = Nothing
 
+genRepo
+    :: FilePath
+    -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+    -> Template
+    -> IO ()
+genRepo output scope template = generate output' scope template
+  where
+    output' = (</>) output . takeFileName . templatePath $ template
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
@@ -212,13 +201,15 @@ genTarget
     :: Target a
     => FilePath
     -> HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+    -> Bool
     -> Maybe Template
     -> a
     -> IO ()
-genTarget _ _ Nothing _ = return ()
-genTarget output scope (Just template) target = do
-    let template' = template { templatePath = identify target }
-    let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
-    liftIO $ createDirectoryIfMissing True (output </> category target)
-    generate (output </> category target) scope' template'
-    return ()
+genTarget _ _ _ Nothing _ = return ()
+genTarget output scope force (Just template) target = do
+    let output' = output </> category target </> identify target
+    exists <- doesFileExist output'
+    when (force || not exists) $ do
+        print output'
+        let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
+        generate output' scope' template

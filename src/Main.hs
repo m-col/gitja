@@ -58,8 +58,8 @@ main = do
         else do
             conf <- getConfig (config options)
             env <- loadTemplates (force options) conf
-            runIndex env
-            run env
+            repos <- runIndex env
+            run env repos
 
 currentVersion :: String
 currentVersion = "0.0.0"
