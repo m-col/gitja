@@ -60,7 +60,7 @@ data TreeFile = TreeFile
     , treeFileMode :: TreeEntryMode
     }
 
-data TreeFileContents = FileContents Text | FolderContents [TreeFilePath]
+data TreeFileContents = FileContents Text | FolderContents [TreeFile]
 
 data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
     deriving stock (Show)
@@ -109,11 +109,11 @@ instance ToGVal m TreeFile where
 instance ToGVal m TreeFileContents where
     toGVal :: TreeFileContents -> GVal m
     toGVal (FileContents text) = toGVal text
-    toGVal (FolderContents filePaths) =
+    toGVal (FolderContents treeFiles) =
         def
-            { asHtml = html . pack . show $ filePaths
-            , asText = pack . show $ filePaths
-            , asList = Just . fmap toGVal $ filePaths
+            { asHtml = html . pack . show . fmap (toString . treeFilePath) $ treeFiles
+            , asText = pack . show . fmap (toString . treeFilePath) $ treeFiles
+            , asList = Just . fmap toGVal $ treeFiles
             }
 
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)

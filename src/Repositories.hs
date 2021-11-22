@@ -119,19 +119,28 @@ loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
 loadCommit _ = Nothing
 
 {-
-Collect tree information.
+Collect tree information for the given commit. Recurses on directories to list their
+contents.
 -}
 getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
-getTree commitID = do
-    entries <- listTreeEntries =<< lookupTree . commitTree =<< lookupCommit commitID
-    contents <- mapM (getEntryContents . snd) entries
-    modes <- mapM (getEntryModes . snd) entries
-    return $ zipWith3 TreeFile (fmap fst entries) contents modes
+getTree = getTree' "" . commitTree <=< lookupCommit
 
-getEntryContents :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeFileContents
-getEntryContents (BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode <$> catBlob oid
-getEntryContents (TreeEntry oid) = FolderContents . fmap fst <$> (listTreeEntries =<< lookupTree oid)
-getEntryContents (CommitEntry oid) = return . FileContents . pack . show . untag $ oid
+getTree' :: TreeFilePath -> TreeOid LgRepo -> ReaderT LgRepo IO [TreeFile]
+getTree' parent toid = do
+    entries <- listTreeEntries =<< lookupTree toid
+    let entries' = fmap (prependParent parent) entries
+    contents <- mapM getEntryContents entries'
+    modes <- mapM (getEntryModes . snd) entries'
+    return $ zipWith3 TreeFile (fmap fst entries') contents modes
+
+prependParent :: TreeFilePath -> (TreeFilePath, TreeEntry LgRepo) -> (TreeFilePath, TreeEntry LgRepo)
+prependParent "" pathentry = pathentry
+prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
+
+getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -> ReaderT LgRepo IO TreeFileContents
+getEntryContents (_, BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode <$> catBlob oid
+getEntryContents (path, TreeEntry oid) = FolderContents <$> getTree' path oid
+getEntryContents (_, CommitEntry oid) = return . FileContents . pack . show . untag $ oid
 
 getEntryModes :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
 getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
