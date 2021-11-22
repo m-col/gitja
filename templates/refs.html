@@ -11,11 +11,11 @@
   <h2>Branches</h2>
   <table id="branches">
     <thead>
-      <tr><td><b>Name</b></td><td><b>Last commit date</b></td><td><b>Last commit</b></td><td><b>Author</b></td></tr>
+      <tr><td><b>Name</b></td><td colspan="2"><b>Last commit</b></td><td><b>Author</b></td></tr>
     </thead>
     <tbody>
       {% for branch in branches %}
-      <tr><td>{{ branch.name }}</td><td>{{ branch.authored }}</td><td>{{ branch.title }}</td><td>{{ branch.author }}</td></tr>
+      <tr><td>{{ branch.name }}</td><td>{{ branch.authored[:16] }}</td><td>{{ branch.title }}</td><td>{{ branch.author }}</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -25,11 +25,11 @@
   <h2>Tags</h2>
   <table id="tags">
     <thead>
-      <tr><td><b>Name</b></td><td><b>Last commit date</b></td><td><b>Last commit</b></td><td><b>Author</b></td></tr>
+      <tr><td><b>Name</b></td><td colspan="2"><b>Last commit</b></td><td><b>Author</b></td></tr>
     </thead>
     <tbody>
       {% for tag in tags %}
-      <tr><td>{{ tag.name }}</td><td>{{ tag.authored }}</td><td>{{ tag.title }}</td><td>{{ tag.author }}</td></tr>
+      <tr><td>{{ tag.name }}</td><td>{{ tag.authored[:16] }}</td><td>{{ tag.title }}</td><td>{{ tag.author }}</td></tr>
       {% endfor %}
     </tbody>
   </table>
