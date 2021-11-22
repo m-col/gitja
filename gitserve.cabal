@@ -1,14 +1,15 @@
 name:                gitserve
 version:             0.1.0.0
--- synopsis:
-description:         Dynamic/static git web page server/generator
+synopsis:            🐙 Templated web page generator for your git repositories
+description:         🐙 Templated web page generator for your git repositories
 homepage:            https://github.com/m-col/gitserve#readme
+bug-reports:         https://github.com/m-col/gitserve/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Matt Colligan
 maintainer:          mcol@posteo.net
 copyright:           2021 Matt Colligan
-category:            Web
+category:            Web, Git
 build-type:          Simple
 cabal-version:       >=1.10
 extra-source-files:  README.rst
