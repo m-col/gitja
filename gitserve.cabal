@@ -28,6 +28,8 @@ executable gitserve
                      , gitlib
                      , gitlib-libgit2
                      , optparse-applicative
+                     , path
+                     , path-io
                      , tagged
                      , text
                      , transformers

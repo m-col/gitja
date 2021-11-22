@@ -1,0 +1,169 @@
+/*
+Credit to much of the styling here goes to stagit: https://codemadness.org/git/stagit/
+*/
+
+@viewport {
+    width: device-width;
+    zoom: 1.0;
+}
+
+html {
+    color: #000;
+    font-family: monospace;
+    font-size: 1em;
+}
+
+body {
+    max-width: 900px;
+}
+
+p {
+    margin: 15px 0;
+}
+
+li {
+    list-style-type: square;
+}
+
+h1, h2 {
+    font-size: 1em;
+    margin: 0;
+}
+
+h2 {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+::selection {
+    background: #5D479D;
+    color: #fff;
+}
+
+table td {
+    padding: 0 0.4em;
+}
+
+td.link {
+    text-align: right;
+}
+
+a:target {
+    background-color: #ddd;
+}
+
+#avatar {
+    width: 32px;
+    height: 32px;
+}
+
+a.d, a.h, a.i, a.line {
+    text-decoration: none;
+}
+
+#blob a, .desc {
+    color: #777;
+}
+
+#blob a:hover {
+    color: blue;
+    text-decoration: none;
+}
+
+table thead td {
+    font-weight: bold;
+}
+
+#content table td {
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+#head {
+    width: 100%;
+}
+
+#branches tr:hover td,
+#tags tr:hover td,
+#index tr:hover td,
+#log tr:hover td,
+#files tr:hover td {
+    background-color: #eee;
+}
+
+#index tr td:nth-child(2),
+#tags tr td:nth-child(3),
+#branches tr td:nth-child(3),
+#log tr td:nth-child(2) {
+    white-space: normal;
+}
+
+td.num {
+    text-align: right;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #777;
+    height: 1px;
+}
+
+pre a.h {
+    color: #00a;
+}
+
+.A,
+span.i,
+pre a.i {
+    color: #070;
+}
+
+.D,
+span.d,
+pre a.d {
+    color: #e00;
+}
+
+pre a.h:hover,
+pre a.i:hover,
+pre a.d:hover {
+    text-decoration: none;
+}
+
+.highlight, code {
+    background: #eeeeef;
+    color: black;
+}
+
+.highlight {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.c, .ch, .cm, .cp, .cpf, .c1, .gh, .gp
+{ color: #5D479D } /* comments */
+
+.err, .se, .o
+{ color: #a53c21 } /* dark red */
+
+.sh, .si, .sx, .sr, .s1, .ss, .cs, .gd, .dl,
+.s2, .nc, .vc, .vg, .vi, .vm, .nv, .sc, .s
+{ color: #8f4ff0 } /* bright pink */
+
+.kn, .nb, .mb, .mf, .mh, .mi, .mo, .bp, .il, .m
+{ color: #406794 } /* keywords (exit, eval) */
+
+.kt
+{ color: #3e3e73 } /* light grey */
+
+.kc, .k, .ow, .kp, .kr
+{ color: #406794 } /* key words */
+
+.esc, .l, .n, .x, .p, .gs, .ld, .na, .no, .ge
+.nd, .ni, .nf, .nl, .nn, .nx, .py, .nt, .w, .fm, .g
+{ color: black }
+
+.ne { color: #5fd75f }
+
+.gh, .gp, .cs, .gu, .ne, .cs
+{ font-weight: bold }

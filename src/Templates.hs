@@ -19,14 +19,15 @@ module Templates (
     generate,
 ) where
 
-import Control.Monad (filterM, void)
+import Control.Monad (void, (<=<))
 import Data.Char (toLower)
 import qualified Data.HashMap.Strict as HashMap
 import Data.List (isSuffixOf)
 import Data.Maybe (catMaybes)
 import Data.Text (Text, unpack)
-import System.Directory (doesFileExist, getDirectoryContents)
-import System.FilePath ((</>))
+import Path (Abs, Dir, File, Path, dirname, filename, parseAbsDir, toFilePath, (</>))
+import Path.IO (copyDirRecur, copyFile, ensureDir, listDir)
+import System.Directory (makeAbsolute)
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
 import Text.Ginger.GVal (GVal)
@@ -60,9 +61,9 @@ from file.
 -}
 loadTemplates :: Bool -> Config -> IO Env
 loadTemplates force config = do
-    -- Custom templates
-    files <- getFiles config
-    templates <- mapM loadTemplate files
+    -- Load files from template directory
+    templateFiles <- getFiles config
+    templates <- mapM loadTemplate (fmap toFilePath templateFiles)
     -- Scoped templates
     indexT <- loadTemplate . indexTemplate $ config
     commitT <- loadTemplate . commitTemplate $ config
@@ -113,39 +114,54 @@ includeResolver :: FilePath -> IO (Maybe String)
 includeResolver path = either (const Nothing) Just <$> tryIOError (readFile path)
 
 {-
-This is used to filter files in the template directory so that we only try to load
-HTML/CSS/JS files.
+getFiles will look inside the template directory and generate a list of paths to likely
+valid template files and another for static files.
+
+It's not very pretty, but we also copy the static files and folders from here because
+I'm too lazy to work with Path too much.
 -}
-isTemplate :: Config -> FilePath -> IO Bool
-isTemplate config path = (&&) (isTemplate' (map toLower path)) <$> doesFileExist path
+getFiles :: Config -> IO [Path Abs File]
+getFiles config = do
+    (dirs, files) <- ls . templateDirectory $ config
+    let files' = filter (not . isSuffixOf "include" . toFilePath) files
+    let templates = filter (isTemplate config) files'
+    let statics = filter (`notElem` templates) files'
+    output <- parseAbsDir <=< makeAbsolute . outputDirectory $ config
+    ensureDir output
+    copyStaticDirs output dirs
+    copyStaticFiles output statics
+    return templates
+  where
+    -- This gets fully qualified paths of the directory's contents
+    ls :: FilePath -> IO ([Path Abs Dir], [Path Abs File])
+    ls = listDir <=< parseAbsDir <=< makeAbsolute
+
+{-
+This is used to filter files in the template directory so that we only try to load HTML
+files.
+-}
+isTemplate :: Config -> Path Abs File -> Bool
+isTemplate config = isTemplate' . map toLower . toFilePath
   where
     isTemplate' :: FilePath -> Bool
-    isTemplate' p =
-        not (isTargeted config p) && or (flip isSuffixOf p <$> ["html", "css", "js"])
+    isTemplate' p = isSuffixOf "html" p && not (isTargeted config p)
+    isTargeted :: Config -> FilePath -> Bool
+    isTargeted c p = p `elem` [indexTemplate c, commitTemplate c, fileTemplate c]
 
 {-
-This is used to filter files in the template directory to exclude those specified by the
-config settings ``indexTemplate``, ``commitTemplate`` or ``fileTemplate``.
+These copies static files/folders into the output folder unchanged.
 -}
-isTargeted :: Config -> FilePath -> Bool
-isTargeted config path =
-    path == indexTemplate config
-        || path == commitTemplate config
-        || path == fileTemplate config
+copyStaticFiles :: Path Abs Dir -> [Path Abs File] -> IO ()
+copyStaticFiles output = mapM_ copy
+  where
+    copy :: Path Abs File -> IO ()
+    copy path = copyFile path $ output </> filename path
 
-{-
-This wraps getDirectoryContents so that we get a list of fully qualified paths of the
-directory's contents.
--}
-listTemplates :: FilePath -> IO [FilePath]
-listTemplates = (fmap . fmap . (</>)) <*> getDirectoryContents
-
-{-
-getFiles will look inside the template directory and generate a list of paths to likely
-valid template files.
--}
-getFiles :: Config -> IO [FilePath]
-getFiles = ((>>=) . listTemplates . templateDirectory) <*> (filterM . isTemplate)
+copyStaticDirs :: Path Abs Dir -> [Path Abs Dir] -> IO ()
+copyStaticDirs output = mapM_ copy
+  where
+    copy :: Path Abs Dir -> IO ()
+    copy path = copyDirRecur path $ output </> dirname path
 
 {-
 This function gets the output HTML data and is responsible for saving it to file.
