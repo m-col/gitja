@@ -13,11 +13,11 @@ lint: ## Check the source code
 	@hlint src
 
 .PHONY: format
-format: ## Check the source code
+format: ## Auto-format the source code
 	@fourmolu -m inplace src/*
 
 .PHONY: install
-install: ## Clean generated files
+install: ## Install the compiled executable
 	@stack install
 
 .PHONY: clean
