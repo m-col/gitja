@@ -47,6 +47,7 @@ repoAsLookup repo = \case
     "name" -> Just . toGVal . takeFileName . repositoryPath $ repo
     "description" -> Just . toGVal . repositoryDescription $ repo
     "head" -> Just . toGVal . repositoryHead $ repo
+    "updated" -> toGVal . show . signatureWhen . commitCommitter <$> repositoryHead repo
     _ -> Nothing
 
 {-
