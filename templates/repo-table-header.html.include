@@ -1,3 +1,5 @@
+{#- This block is rendered at the top of every page. -#}
+
 <table id="head">
   <tr>
     <td width="32px" rowspan="2"><a href="{{ host }}"><img src="{{ host }}/avatar.png" id="avatar"/></a></td>

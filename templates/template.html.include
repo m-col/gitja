@@ -1,3 +1,6 @@
+{#- This is the base template used for all pages. -#}
+{#- Style credit goes to stagit. -#}
+
 <!doctype html>
 <html lang="en">
   <head>
