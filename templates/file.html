@@ -8,7 +8,7 @@
 {% include "repo-table-header.html.include" %}
 
 <div id="content">
-  <p>{{ file }} {{ file.mode_symbolic }}</p><hr>
+  <p>{{ file.mode_symbolic }} {{ file }}</p><hr>
 
 {% if file.is_directory %}
   <table id="files">
