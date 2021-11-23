@@ -12,6 +12,7 @@ module Types where
 
 import Data.ByteString.UTF8 (toString)
 import Data.Default (def)
+import Data.Maybe (listToMaybe)
 import Data.Tagged (untag)
 import Data.Text (Text, pack, strip)
 import qualified Data.Text as T
@@ -76,6 +77,7 @@ commitAsLookup commit = \case
     "authored" -> Just . toGVal . show . signatureWhen . commitAuthor $ commit
     "committed" -> Just . toGVal . show . signatureWhen . commitCommitter $ commit
     "encoding" -> Just . toGVal . strip . commitEncoding $ commit
+    "parent" -> toGVal . show . untag <$> (listToMaybe . commitParents $ commit)
     _ -> Nothing
 
 {-
