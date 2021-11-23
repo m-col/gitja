@@ -1,8 +1,9 @@
 gitserve
 ========
 
-.. image:: https://img.shields.io/github/v/release/m-col/gitserve&color=904ff0
+.. image:: https://img.shields.io/github/v/release/m-col/gitserve?color=904ff0
    :alt: GitHub release (latest SemVer)
+
 
 ``gitserve`` generates pretty web pages from your git repositories using custom
 Jinja_\* HTML templates.
