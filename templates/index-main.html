@@ -20,7 +20,7 @@ gitserve - Index
 
     <tbody>
       {% for repo in repositories %}
-      <tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.updated }}</td></tr>
+      <tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.head.authored[:16] }}</td></tr>
       {% endfor %}
     </tbody>
   </table>

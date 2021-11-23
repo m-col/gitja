@@ -19,8 +19,35 @@ import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Git
 import Git.Libgit2 (LgRepo)
+import System.FilePath (takeFileName)
 import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
 import Text.Ginger.Html (html)
+
+{-
+GVal implementation for a repository, accessed in the scope of an individual repository,
+as well as in a list of all repositories in the index template.
+-}
+data Repo = Repo
+    { repositoryPath :: FilePath
+    , repositoryDescription :: Text
+    , repositoryHead :: Maybe (Commit LgRepo)
+    }
+
+instance ToGVal m Repo where
+    toGVal :: Repo -> GVal m
+    toGVal repo =
+        def
+            { asHtml = html . pack . show . takeFileName . repositoryPath $ repo
+            , asText = pack . show . takeFileName . repositoryPath $ repo
+            , asLookup = Just . repoAsLookup $ repo
+            }
+
+repoAsLookup :: Repo -> Text -> Maybe (GVal m)
+repoAsLookup repo = \case
+    "name" -> Just . toGVal . takeFileName . repositoryPath $ repo
+    "description" -> Just . toGVal . repositoryDescription $ repo
+    "head" -> Just . toGVal . repositoryHead $ repo
+    _ -> Nothing
 
 {-
 GVal implementation for `Git.Commit r`, allowing commits to be rendered in Ginger

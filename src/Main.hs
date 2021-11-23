@@ -8,8 +8,9 @@ import Paths_gitserve (version)
 
 import Data.Version (showVersion)
 import qualified Options.Applicative as O
+import System.Directory (createDirectoryIfMissing)
 
-import Config (getConfig)
+import Config (getConfig, outputDirectory)
 import Index (runIndex)
 import Repositories (run)
 import Templates (loadTemplates)
@@ -62,6 +63,6 @@ main = do
         then putStrLn $ "Your gitserve version is: " <> showVersion version
         else do
             conf <- getConfig (config options)
+            createDirectoryIfMissing True $ outputDirectory conf
             env <- loadTemplates (force options) conf
-            repos <- runIndex env
-            run env repos
+            runIndex env =<< run env

@@ -13,6 +13,7 @@ import Conduit (runConduit, sinkList, (.|))
 import Control.Monad (when, (<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
+import Data.Either (fromRight)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
 import Data.Tagged
@@ -23,13 +24,13 @@ import Git
 import Git.Libgit2 (LgRepo, lgFactory)
 import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.FilePath (takeFileName, (</>))
+import System.IO.Error (tryIOError)
 import Text.Ginger.GVal (GVal, ToGVal, toGVal)
 import Text.Ginger.Html (Html)
 import Text.Ginger.Parse (SourcePos)
 import Text.Ginger.Run (Run)
 
 import Config
-import Index
 import Templates
 import Types
 
@@ -37,26 +38,45 @@ import Types
 This is the entrypoint maps over our repositories, reading from them and writing out
 their web pages using the loaded templates.
 -}
-run :: Env -> [Repo] -> IO ()
-run = mapM_ . processRepo
+run :: Env -> IO [Repo]
+run env = mapM (processRepo env) =<< loadRepos env
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
+
+{-
+Get paths along with their descriptions.
+-}
+loadRepos :: Env -> IO [Repo]
+loadRepos env = do
+    descs <- mapM getDescription paths
+    return $ ($ Nothing) <$> zipWith Repo paths descs
+  where
+    paths = repoPaths . envConfig $ env
+
+{-
+Pass the repository's folder, get its description.
+-}
+getDescription :: FilePath -> IO Text
+getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . (</> "description")
 
 {-
 This receives a file path to a single repository and tries to process it. If the
 repository doesn't exist or is unreadable in any way we can forget about it and move on
 (after informing the user of course).
 -}
-processRepo :: Env -> Repo -> IO ()
-processRepo env repo = withRepository lgFactory (Index.repoPath repo) $ processRepo' env repo
+processRepo :: Env -> Repo -> IO Repo
+processRepo env repo = withRepository lgFactory (repositoryPath repo) $ processRepo' env repo
 
-processRepo' :: Env -> Repo -> ReaderT LgRepo IO ()
+processRepo' :: Env -> Repo -> ReaderT LgRepo IO Repo
 processRepo' env repo = do
-    let name = takeFileName . Index.repoPath $ repo
+    let name = takeFileName . repositoryPath $ repo
     let output = outputDirectory (envConfig env) </> name
+
     resolveReference "HEAD" >>= \case
-        Nothing -> liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
+        Nothing -> do
+            liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
+            return repo
         Just commitID -> do
             let gitHead = Tagged commitID
 
@@ -65,7 +85,7 @@ processRepo' env repo = do
             tree <- getTree gitHead
             tags <- getRefs "refs/tags/"
             branches <- getRefs "refs/heads/"
-            let scope = package env name (repoDescription repo) commits tree tags branches
+            let scope = package env name (repositoryDescription repo) commits tree tags branches
 
             -- Create the destination folders
             liftIO . createDirectoryIfMissing True $ output </> "commit"
@@ -76,6 +96,9 @@ processRepo' env repo = do
             liftIO . mapM_ (genRepo output scope) $ envTemplates env
             liftIO . mapM_ (genTarget output scope force $ envCommitTemplate env) $ commits
             liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree -- TODO: detect file changes
+
+            -- Return the repo with the head so the index page can use it. --
+            return $ repo{repositoryHead = Just . head $ commits}
 
 {-
 The role of the function above is to gather information about a git repository and
