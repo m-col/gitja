@@ -1,5 +1,5 @@
 name:                gitserve
-version:             0.1.0.0
+version:             0.2.0.0
 synopsis:            🐙 Templated web page generator for your git repositories
 description:         🐙 Templated web page generator for your git repositories
 homepage:            https://github.com/m-col/gitserve#readme
