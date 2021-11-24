@@ -28,6 +28,11 @@ import Text.Ginger.Parse (SourcePos)
 import Text.Ginger.Run (Run)
 
 {-
+Convenience type alias for the ginger run monad with git repo context.
+-}
+type RunRepo = Run SourcePos (ReaderT LgRepo IO) Html
+
+{-
 GVal implementation for a repository, accessed in the scope of an individual repository,
 as well as in a list of all repositories in the index template.
 -}
@@ -129,8 +134,8 @@ modeToSymbolic ModeSubmodule = "git-module"
 GVal implementations for data definitions above, allowing commits to be rendered in
 Ginger templates.
 -}
-instance ToGVal (Run SourcePos (ReaderT LgRepo IO) Html) TreeFile where
-    toGVal :: TreeFile -> GVal (Run SourcePos (ReaderT LgRepo IO) Html)
+instance ToGVal RunRepo TreeFile where
+    toGVal :: TreeFile -> GVal RunRepo
     toGVal treefile =
         def
             { asHtml = html . pack . toString . treeFilePath $ treefile
@@ -139,8 +144,8 @@ instance ToGVal (Run SourcePos (ReaderT LgRepo IO) Html) TreeFile where
             , asBoolean = True -- Used for conditionally checking readme/license template variables.
             }
 
-instance ToGVal (Run SourcePos (ReaderT LgRepo IO) Html) TreeFileContents where
-    toGVal :: TreeFileContents -> GVal (Run SourcePos (ReaderT LgRepo IO) Html)
+instance ToGVal RunRepo TreeFileContents where
+    toGVal :: TreeFileContents -> GVal RunRepo
     toGVal (FileContents text) = toGVal text
     toGVal (FolderContents treeFiles) =
         def
@@ -149,7 +154,7 @@ instance ToGVal (Run SourcePos (ReaderT LgRepo IO) Html) TreeFileContents where
             , asList = Just . fmap toGVal $ treeFiles
             }
 
-treeAsLookup :: TreeFile -> Text -> Maybe (GVal (Run SourcePos (ReaderT LgRepo IO) Html))
+treeAsLookup :: TreeFile -> Text -> Maybe (GVal RunRepo)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
     "href" -> Just . toGVal . treePathToHref . treeFilePath $ treefile
@@ -179,8 +184,8 @@ data Ref = Ref
     , refCommit :: Commit LgRepo
     }
 
-instance ToGVal m Ref where
-    toGVal :: Ref -> GVal m
+instance ToGVal RunRepo Ref where
+    toGVal :: Ref -> GVal RunRepo
     toGVal ref =
         def
             { asHtml = html . refName $ ref
@@ -188,7 +193,7 @@ instance ToGVal m Ref where
             , asLookup = Just . refAsLookup $ ref
             }
 
-refAsLookup :: Ref -> Text -> Maybe (GVal m)
+refAsLookup :: Ref -> Text -> Maybe (GVal RunRepo)
 refAsLookup ref = \case
     "name" -> Just . toGVal . refName $ ref
     "commit" -> Just . toGVal . refCommit $ ref

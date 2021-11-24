@@ -36,9 +36,10 @@ import qualified Text.Ginger.AST as G
 import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (Html, htmlSource)
 import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
-import Text.Ginger.Run (Run, easyContext, runGingerT)
+import Text.Ginger.Run (easyContext, runGingerT)
 
 import Config
+import Types
 
 {-
 The Env data type represents all of the program's state, including user configuration
@@ -88,7 +89,7 @@ Ginger to render templates using them.
 -}
 generate ::
     FilePath ->
-    HashMap.HashMap Text (GVal (Run SourcePos (ReaderT LgRepo IO) Html)) ->
+    HashMap.HashMap Text (GVal RunRepo) ->
     Template ->
     ReaderT LgRepo IO ()
 generate output context template = do

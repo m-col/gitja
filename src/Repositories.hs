@@ -26,9 +26,6 @@ import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.FilePath (takeFileName, (</>))
 import System.IO.Error (tryIOError)
 import Text.Ginger.GVal (GVal, ToGVal, toGVal)
-import Text.Ginger.Html (Html)
-import Text.Ginger.Parse (SourcePos)
-import Text.Ginger.Run (Run)
 
 import Config
 import Templates
@@ -114,7 +111,7 @@ package ::
     [TreeFile] ->
     [Ref] ->
     [Ref] ->
-    HashMap.HashMap Text (GVal (Run SourcePos (ReaderT LgRepo IO) Html))
+    HashMap.HashMap Text (GVal RunRepo)
 package env name description commits tree tags branches =
     HashMap.fromList
         [ ("host", toGVal . host . envConfig $ env)
@@ -194,7 +191,7 @@ getRefs ref = do
     let names'' = map (fromJust . stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names'
     return . zipWith Ref names'' . catMaybes $ maybeCommits
   where
-    refObjToCommit :: Object r m -> ReaderT LgRepo IO (Maybe (Commit r))
+    refObjToCommit :: Object r (ReaderT LgRepo IO) -> ReaderT LgRepo IO (Maybe (Commit r))
     refObjToCommit (CommitObj obj) = return . Just $ obj
     refObjToCommit _ = return Nothing
 
@@ -204,7 +201,7 @@ getRefs ref = do
 
 genRepo ::
     FilePath ->
-    HashMap.HashMap Text (GVal (Run SourcePos (ReaderT LgRepo IO) Html)) ->
+    HashMap.HashMap Text (GVal RunRepo) ->
     Template ->
     ReaderT LgRepo IO ()
 genRepo output scope template = generate output' scope template
@@ -221,7 +218,7 @@ containing that commit's information, and these scopes are each rendered in the
 commitTemplate. The Target class generalises how each target is represented so that
 genTarget can work on any target type.
 -}
-class ToGVal (Run SourcePos (ReaderT LgRepo IO) Html) a => Target a where
+class ToGVal RunRepo a => Target a where
     identify :: a -> FilePath
     category :: a -> FilePath
 
@@ -236,7 +233,7 @@ instance Target TreeFile where
 genTarget ::
     Target a =>
     FilePath ->
-    HashMap.HashMap Text (GVal (Run SourcePos (ReaderT LgRepo IO) Html)) ->
+    HashMap.HashMap Text (GVal RunRepo) ->
     Bool ->
     Maybe Template ->
     a ->
