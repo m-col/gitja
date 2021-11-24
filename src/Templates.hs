@@ -108,7 +108,7 @@ loadTemplate path =
     parseGingerFile includeResolver path >>= \case
         Right parsed -> return . Just . Template path $ parsed
         Left err -> do
-            print . peErrorMessage $ err
+            putStrLn . peErrorMessage $ err
             return Nothing
 
 {-

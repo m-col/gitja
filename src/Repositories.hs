@@ -72,7 +72,7 @@ processRepo' env repo = do
 
     resolveReference "HEAD" >>= \case
         Nothing -> do
-            liftIO . print $ "gitserve: " <> name <> ": Failed to resolve HEAD."
+            liftIO . putStrLn $ "gitserve: " <> name <> ": Failed to resolve HEAD."
             return repo
         Just commitID -> do
             let gitHead = Tagged commitID
@@ -243,6 +243,6 @@ genTarget output scope force (Just template) target = do
     let output' = output </> category target </> identify target
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
-        liftIO $ putStrLn $ "Writing " <> output'
+        liftIO . putStrLn $ "Writing " <> output'
         let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
         generate output' scope' template
