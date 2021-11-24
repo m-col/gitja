@@ -93,9 +93,9 @@ processRepo' env repo = do
 
             -- Run the generator --
             let force = envForce env
-            liftIO . mapM_ (genRepo output scope) $ envTemplates env
-            liftIO . mapM_ (genTarget output scope force $ envCommitTemplate env) $ commits
-            liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree -- TODO: detect file changes
+            mapM_ (genRepo output scope) $ envTemplates env
+            mapM_ (genTarget output scope force $ envCommitTemplate env) commits
+            mapM_ (genTarget output scope True $ envFileTemplate env) tree -- TODO: detect file changes
 
             -- Return the repo with the head so the index page can use it. --
             return $ repo{repositoryHead = Just . head $ commits}
@@ -114,7 +114,7 @@ package ::
     [TreeFile] ->
     [Ref] ->
     [Ref] ->
-    HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+    HashMap.HashMap Text (GVal (Run SourcePos (ReaderT LgRepo IO) Html))
 package env name description commits tree tags branches =
     HashMap.fromList
         [ ("host", toGVal . host . envConfig $ env)
@@ -204,9 +204,9 @@ getRefs ref = do
 
 genRepo ::
     FilePath ->
-    HashMap.HashMap Text (GVal (Run SourcePos IO Html)) ->
+    HashMap.HashMap Text (GVal (Run SourcePos (ReaderT LgRepo IO) Html)) ->
     Template ->
-    IO ()
+    ReaderT LgRepo IO ()
 genRepo output scope template = generate output' scope template
   where
     output' = (</>) output . takeFileName . templatePath $ template
@@ -221,7 +221,7 @@ containing that commit's information, and these scopes are each rendered in the
 commitTemplate. The Target class generalises how each target is represented so that
 genTarget can work on any target type.
 -}
-class ToGVal (Run SourcePos IO Html) a => Target a where
+class ToGVal (Run SourcePos (ReaderT LgRepo IO) Html) a => Target a where
     identify :: a -> FilePath
     category :: a -> FilePath
 
@@ -236,16 +236,16 @@ instance Target TreeFile where
 genTarget ::
     Target a =>
     FilePath ->
-    HashMap.HashMap Text (GVal (Run SourcePos IO Html)) ->
+    HashMap.HashMap Text (GVal (Run SourcePos (ReaderT LgRepo IO) Html)) ->
     Bool ->
     Maybe Template ->
     a ->
-    IO ()
+    ReaderT LgRepo IO ()
 genTarget _ _ _ Nothing _ = return ()
 genTarget output scope force (Just template) target = do
     let output' = output </> category target </> identify target
-    exists <- doesFileExist output'
+    exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
-        putStrLn $ "Writing " <> output'
+        liftIO $ putStrLn $ "Writing " <> output'
         let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
         generate output' scope' template

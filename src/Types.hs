@@ -10,6 +10,7 @@
 
 module Types where
 
+import Control.Monad.Trans.Reader (ReaderT)
 import Data.ByteString.UTF8 (toString)
 import Data.Default (def)
 import Data.Maybe (listToMaybe)
@@ -22,7 +23,9 @@ import Git
 import Git.Libgit2 (LgRepo)
 import System.FilePath (takeFileName)
 import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
-import Text.Ginger.Html (html)
+import Text.Ginger.Html (Html, html)
+import Text.Ginger.Parse (SourcePos)
+import Text.Ginger.Run (Run)
 
 {-
 GVal implementation for a repository, accessed in the scope of an individual repository,
@@ -126,8 +129,8 @@ modeToSymbolic ModeSubmodule = "git-module"
 GVal implementations for data definitions above, allowing commits to be rendered in
 Ginger templates.
 -}
-instance ToGVal m TreeFile where
-    toGVal :: TreeFile -> GVal m
+instance ToGVal (Run SourcePos (ReaderT LgRepo IO) Html) TreeFile where
+    toGVal :: TreeFile -> GVal (Run SourcePos (ReaderT LgRepo IO) Html)
     toGVal treefile =
         def
             { asHtml = html . pack . toString . treeFilePath $ treefile
@@ -136,8 +139,8 @@ instance ToGVal m TreeFile where
             , asBoolean = True -- Used for conditionally checking readme/license template variables.
             }
 
-instance ToGVal m TreeFileContents where
-    toGVal :: TreeFileContents -> GVal m
+instance ToGVal (Run SourcePos (ReaderT LgRepo IO) Html) TreeFileContents where
+    toGVal :: TreeFileContents -> GVal (Run SourcePos (ReaderT LgRepo IO) Html)
     toGVal (FileContents text) = toGVal text
     toGVal (FolderContents treeFiles) =
         def
@@ -146,7 +149,7 @@ instance ToGVal m TreeFileContents where
             , asList = Just . fmap toGVal $ treeFiles
             }
 
-treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
+treeAsLookup :: TreeFile -> Text -> Maybe (GVal (Run SourcePos (ReaderT LgRepo IO) Html))
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
     "href" -> Just . toGVal . treePathToHref . treeFilePath $ treefile

@@ -20,11 +20,14 @@ module Templates (
 ) where
 
 import Control.Monad (void, (<=<))
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Reader (ReaderT)
 import Data.Char (toLower)
 import qualified Data.HashMap.Strict as HashMap
 import Data.List (isSuffixOf)
 import Data.Maybe (catMaybes)
 import Data.Text (Text, unpack)
+import Git.Libgit2 (LgRepo)
 import Path (Abs, Dir, File, Path, dirname, filename, parseAbsDir, toFilePath, (</>))
 import Path.IO (copyDirRecur, copyFile, ensureDir, listDir)
 import System.Directory (makeAbsolute)
@@ -85,12 +88,12 @@ Ginger to render templates using them.
 -}
 generate ::
     FilePath ->
-    HashMap.HashMap Text (GVal (Run SourcePos IO Html)) ->
+    HashMap.HashMap Text (GVal (Run SourcePos (ReaderT LgRepo IO) Html)) ->
     Template ->
-    IO ()
+    ReaderT LgRepo IO ()
 generate output context template = do
-    writeFile output "" -- Clear contents of file if it exists
-    void $ runGingerT (easyContext (writeTo output) context) . templateGinger $ template
+    liftIO $ writeFile output "" -- Clear contents of file if it exists
+    void . runGingerT (easyContext (writeTo output) context) . templateGinger $ template
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
@@ -166,5 +169,5 @@ copyStaticDirs output = mapM_ copy
 {-
 This function gets the output HTML data and is responsible for saving it to file.
 -}
-writeTo :: FilePath -> Html -> IO ()
-writeTo path = appendFile path . unpack . htmlSource
+writeTo :: FilePath -> Html -> ReaderT LgRepo IO ()
+writeTo path = liftIO . appendFile path . unpack . htmlSource
