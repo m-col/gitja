@@ -28,3 +28,8 @@ clean: ## Clean generated files
 rebuild: ## Clean and then build
 	@stack clean
 	@stack build
+
+.PHONY: run
+run: ## Run gitserve on this repository into ./output/
+	rm -rf output
+	stack run
