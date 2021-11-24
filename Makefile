@@ -23,3 +23,8 @@ install: ## Install the compiled executable
 .PHONY: clean
 clean: ## Clean generated files
 	@stack clean
+
+.PHONY: rebuild
+rebuild: ## Clean and then build
+	@stack clean
+	@stack build
