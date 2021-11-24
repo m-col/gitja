@@ -27,6 +27,7 @@ runIndex env repos =
         Nothing ->
             return ()
         Just template -> do
+            putStrLn $ "Writing " <> output
             writeFile output "" -- Clear contents of file if it exists
             void $
                 easyRenderM
