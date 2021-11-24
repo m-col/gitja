@@ -33,7 +33,7 @@ import qualified Text.Ginger.AST as G
 import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (Html, htmlSource)
 import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
-import Text.Ginger.Run (Run, easyRenderM)
+import Text.Ginger.Run (Run, easyContext, runGingerT)
 
 import Config
 
@@ -90,7 +90,7 @@ generate ::
     IO ()
 generate output context template = do
     writeFile output "" -- Clear contents of file if it exists
-    void $ easyRenderM (writeTo output) context . templateGinger $ template
+    void $ runGingerT (easyContext (writeTo output) context) . templateGinger $ template
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
