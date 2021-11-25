@@ -1,25 +1,26 @@
 {% extends "template.html.include" %}
 
 {%- block title -%}
-{{ description }}
+gitserve - Index
 {%- endblock -%}
 
 {% block body %}
-{% include "repo-table-header.html.include" %}
+<table id="head">
+  <tr><td width="32px" rowspan="2"><a href="{{ host }}"><img src="{{ host }}/avatar.png" id="avatar"/></a></td>
+    <td rowspan="2"><a href="{{ host }}">{{ host }}</a> / <a href="{{ host }}">code</a></td><td class="link"><a href="{{ host }}/posts.html">posts</a></td></tr><tr><td class="link"><a href="{{ host }}/about.html">about</a></td></tr>
+</table>
+
+<hr>
 
 <div id="content">
-  <table id="log">
+  <table id="index">
     <thead>
-      <tr>
-        <td><b>Date</b></td>
-        <td><b>Commit message</b></td>
-        <td><b>Author</b></td>
-      </tr>
+      <tr><td><b>Name</b></td><td><b>Description</b></td><td><b>Last commit</b></td></tr>
     </thead>
 
     <tbody>
-      {% for commit in commits[:50] %}
-      <tr><td>{{ commit.authored[:16] }}</td><td><a href="commit/{{ commit.id }}.html">{{ commit.title }}</a></td><td>{{ commit.author }}</td></tr>
+      {% for repo in repositories %}
+      <tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.updated[:16] }}</td></tr>
       {% endfor %}
     </tbody>
   </table>

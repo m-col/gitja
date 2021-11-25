@@ -22,13 +22,13 @@ import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Git
 import Git.Libgit2 (LgRepo, lgFactory)
-import System.Directory (createDirectoryIfMissing, doesFileExist)
-import System.FilePath (takeFileName, (</>))
+import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (</>))
+import Path.IO (doesFileExist, ensureDir)
+import qualified System.FilePath as FP
 import System.IO.Error (tryIOError)
 import Text.Ginger.GVal (GVal, ToGVal, toGVal)
 
-import Config
-import Templates
+import Templates (Env (..), Template (..), generate)
 import Types
 
 {-
@@ -46,16 +46,15 @@ Get paths along with their descriptions.
 -}
 loadRepos :: Env -> IO [Repo]
 loadRepos env = do
+    let paths = envRepoPaths env
     descs <- mapM getDescription paths
-    return $ ($ Nothing) <$> zipWith Repo paths descs
-  where
-    paths = repoPaths . envConfig $ env
+    return . fmap ($ Nothing) . zipWith Repo paths $ descs
 
 {-
 Pass the repository's folder, get its description.
 -}
-getDescription :: FilePath -> IO Text
-getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . (</> "description")
+getDescription :: Path Abs Dir -> IO Text
+getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . flip FP.combine "description" . toFilePath
 
 {-
 This receives a file path to a single repository and tries to process it. If the
@@ -63,16 +62,16 @@ repository doesn't exist or is unreadable in any way we can forget about it and 
 (after informing the user of course).
 -}
 processRepo :: Env -> Repo -> IO Repo
-processRepo env repo = withRepository lgFactory (repositoryPath repo) $ processRepo' env repo
+processRepo env repo = withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo' env repo
 
 processRepo' :: Env -> Repo -> ReaderT LgRepo IO Repo
 processRepo' env repo = do
-    let name = takeFileName . repositoryPath $ repo
-    let output = outputDirectory (envConfig env) </> name
+    let name = dirname . repositoryPath $ repo
+    let output = envOutputDirectory env </> name
 
     resolveReference "HEAD" >>= \case
         Nothing -> do
-            liftIO . putStrLn $ "gitserve: " <> name <> ": Failed to resolve HEAD."
+            liftIO . putStrLn $ "gitserve: " <> show name <> ": Failed to resolve HEAD."
             return repo
         Just commitID -> do
             let gitHead = Tagged commitID
@@ -85,12 +84,14 @@ processRepo' env repo = do
             let scope = package env name (repositoryDescription repo) commits tree tags branches
 
             -- Create the destination folders
-            liftIO . createDirectoryIfMissing True $ output </> "commit"
-            liftIO . createDirectoryIfMissing True $ output </> "file"
+            commitDir <- liftIO . parseRelDir $ "commit"
+            fileDir <- liftIO . parseRelDir $ "file"
+            liftIO . ensureDir $ output </> commitDir
+            liftIO . ensureDir $ output </> fileDir
 
             -- Run the generator --
             let force = envForce env
-            mapM_ (genRepo output scope) $ envTemplates env
+            mapM_ (genRepo output scope) $ envRepoTemplates env
             mapM_ (genTarget output scope force $ envCommitTemplate env) commits
             mapM_ (genTarget output scope True $ envFileTemplate env) tree -- TODO: detect file changes
 
@@ -105,7 +106,7 @@ hashmap which Ginger can use to look up variables.
 -}
 package ::
     Env ->
-    FilePath ->
+    Path Rel Dir ->
     Text ->
     [Commit LgRepo] ->
     [TreeFile] ->
@@ -114,8 +115,8 @@ package ::
     HashMap.HashMap Text (GVal RunRepo)
 package env name description commits tree tags branches =
     HashMap.fromList
-        [ ("host", toGVal . host . envConfig $ env)
-        , ("name", toGVal . pack $ name)
+        [ ("host", toGVal . envHost $ env)
+        , ("name", toGVal . pack . init . toFilePath $ name)
         , ("description", toGVal description)
         , ("commits", toGVal . reverse $ commits) -- Could be optimised
         , ("tree", toGVal tree)
@@ -200,13 +201,13 @@ getRefs ref = do
     dropName Nothing _ = Nothing
 
 genRepo ::
-    FilePath ->
+    Path Abs Dir ->
     HashMap.HashMap Text (GVal RunRepo) ->
     Template ->
     ReaderT LgRepo IO ()
 genRepo output scope template = generate output' scope template
   where
-    output' = (</>) output . takeFileName . templatePath $ template
+    output' = output </> templatePath template
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
@@ -221,6 +222,11 @@ genTarget can work on any target type.
 class ToGVal RunRepo a => Target a where
     identify :: a -> FilePath
     category :: a -> FilePath
+    dest :: a -> IO (Path Rel File)
+    dest t = do
+        dir <- parseRelDir . category $ t
+        file <- parseRelFile . identify $ t
+        return $ dir </> file
 
 instance Target (Commit LgRepo) where
     identify = (++ ".html") . show . untag . commitOid
@@ -232,7 +238,7 @@ instance Target TreeFile where
 
 genTarget ::
     Target a =>
-    FilePath ->
+    Path Abs Dir ->
     HashMap.HashMap Text (GVal RunRepo) ->
     Bool ->
     Maybe Template ->
@@ -240,9 +246,10 @@ genTarget ::
     ReaderT LgRepo IO ()
 genTarget _ _ _ Nothing _ = return ()
 genTarget output scope force (Just template) target = do
-    let output' = output </> category target </> identify target
+    outFile <- liftIO . dest $ target
+    let output' = output </> outFile
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
-        liftIO . putStrLn $ "Writing " <> output'
+        liftIO . putStrLn $ "Writing " <> toFilePath output'
         let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
         generate output' scope' template

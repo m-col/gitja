@@ -1,36 +1,25 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Templates (
-    -- The Env data type and its constructors.
-    Env,
-    envConfig,
-    envTemplates,
-    envIndexTemplate,
-    envCommitTemplate,
-    envFileTemplate,
-    envForce,
-    -- The Template data type and its constructors.
-    Template,
-    templatePath,
-    templateGinger,
-    -- The entrypoint used by main.
-    loadTemplates,
-    -- The core functionality for which templates are used.
+    Env (..),
+    Template (..),
+    loadEnv,
     generate,
 ) where
 
-import Control.Monad (void, (<=<))
+import Control.Monad (join, void, (<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
-import Data.Char (toLower)
 import qualified Data.HashMap.Strict as HashMap
-import Data.List (isSuffixOf)
+import Data.List (find)
 import Data.Maybe (catMaybes)
 import Data.Text (Text, unpack)
 import Git.Libgit2 (LgRepo)
-import Path (Abs, Dir, File, Path, dirname, filename, parseAbsDir, toFilePath, (</>))
-import Path.IO (copyDirRecur, copyFile, ensureDir, listDir)
-import System.Directory (makeAbsolute)
+import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (</>))
+import Path.IO (copyDirRecur, copyFile, doesDirExist, ensureDir, listDir)
+import System.Directory (canonicalizePath)
+import qualified System.FilePath as FP
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
 import Text.Ginger.GVal (GVal)
@@ -38,7 +27,7 @@ import Text.Ginger.Html (Html, htmlSource)
 import Text.Ginger.Parse (ParserError (..), SourcePos, parseGingerFile)
 import Text.Ginger.Run (easyContext, runGingerT)
 
-import Config
+import Config (Config (..))
 import Types
 
 {-
@@ -47,136 +36,116 @@ and loaded template data. This can be accessed as immutable global state at any 
 -}
 data Env = Env
     { envConfig :: Config
-    , envTemplates :: [Template]
-    , envIndexTemplate :: Maybe Template
+    , envIndexTemplates :: [Template]
     , envCommitTemplate :: Maybe Template
     , envFileTemplate :: Maybe Template
+    , envRepoTemplates :: [Template]
+    , envOutputDirectory :: Path Abs Dir
+    , envRepoPaths :: [Path Abs Dir]
+    , envHost :: Text
     , envForce :: Bool
     }
 
 data Template = Template
-    { templatePath :: FilePath
+    { templatePath :: Path Rel File
     , templateGinger :: G.Template SourcePos
     }
 
 {-
 This creates the runtime environment, collecting the config and loading template data
-from file.
+from the template directory.
 -}
-loadTemplates :: Bool -> Config -> IO Env
-loadTemplates force config = do
+loadEnv :: Bool -> Config -> IO Env
+loadEnv force config = do
+    -- First ensure that the output directory exists
+    output <- parseAbsDir <=< canonicalizePath . outputDirectory $ config
+    ensureDir output
+
+    -- Parse repos for env
+    repoPaths' <- mapM (parseAbsDir <=< canonicalizePath) . repoPaths $ config
+
+    -- Find template files, copying the static files as is
+    (dirs, files) <- ls . templateDirectory $ config
+    (_, filesRepo) <- ls $ templateDirectory config FP.</> "repo"
+    copyStaticDirs output dirs
+    copyStaticFiles output files
+
     -- Load files from template directory
-    templateFiles <- getFiles config
-    templates <- mapM loadTemplate (fmap toFilePath templateFiles)
-    -- Scoped templates
-    indexT <- loadTemplate . indexTemplate $ config
-    commitT <- loadTemplate . commitTemplate $ config
-    fileT <- loadTemplate . fileTemplate $ config
+    indexT <- collectTemplates files
+    commitT <- fmap join . mapM loadTemplate . find ((==) "commit.html" . toFilePath . filename) $ filesRepo
+    fileT <- fmap join . mapM loadTemplate . find ((==) "file.html" . toFilePath . filename) $ filesRepo
+    repoT <- collectTemplates . filter (flip notElem ["commit.html", "file.html"] . toFilePath . filename) $ filesRepo
+
     -- Global environment
     return
         Env
             { envConfig = config
-            , envTemplates = catMaybes templates
-            , envIndexTemplate = indexT
+            , envIndexTemplates = indexT
             , envCommitTemplate = commitT
             , envFileTemplate = fileT
+            , envRepoTemplates = repoT
+            , envOutputDirectory = output
+            , envRepoPaths = repoPaths'
+            , envHost = host config
             , envForce = force
             }
+  where
+    collectTemplates :: [Path Abs File] -> IO [Template]
+    collectTemplates = fmap catMaybes . mapM loadTemplate . filter ((==) ".html" . FP.takeExtension . toFilePath)
+
+    ls :: FilePath -> IO ([Path Abs Dir], [Path Abs File])
+    ls dir = do
+        canon <- parseAbsDir =<< canonicalizePath dir
+        exists <- doesDirExist canon
+        if exists
+            then listDir canon
+            else return ([], [])
+
+    copyStaticDirs :: Path Abs Dir -> [Path Abs Dir] -> IO ()
+    copyStaticDirs output = mapM_ (\p -> copyDirRecur p (output </> dirname p)) . filterStaticDirs
+    filterStaticDirs = filter ((/=) "repo" . toFilePath)
+
+    copyStaticFiles :: Path Abs Dir -> [Path Abs File] -> IO ()
+    copyStaticFiles output = mapM_ (\p -> copyFile p (output </> filename p)) . filterStaticFiles
+    filterStaticFiles = filter (flip notElem [".html", ".include"] . FP.takeExtension . toFilePath)
 
 {-
 This is the generator function that receives repository-specific variables and uses
 Ginger to render templates using them.
 -}
 generate ::
-    FilePath ->
+    Path Abs File ->
     HashMap.HashMap Text (GVal RunRepo) ->
     Template ->
     ReaderT LgRepo IO ()
 generate output context template = do
-    liftIO $ writeFile output "" -- Clear contents of file if it exists
-    void . runGingerT (easyContext (writeTo output) context) . templateGinger $ template
-
-----------------------------------------------------------------------------------------
--- Private -----------------------------------------------------------------------------
+    let output' = toFilePath output
+    liftIO $ writeFile output' "" -- Clear contents of file if it exists
+    void . runGingerT (easyContext (writeTo output') context) . templateGinger $ template
+  where
+    -- This function gets the output HTML data and is responsible for saving it to file.
+    writeTo :: FilePath -> Html -> ReaderT LgRepo IO ()
+    writeTo path = liftIO . appendFile path . unpack . htmlSource
 
 {-
 This takes the session's `Config` and maybe returns a loaded template for the
 ``indexTemplate`` setting.
 -}
-loadTemplate :: FilePath -> IO (Maybe Template)
+loadTemplate :: Path Abs File -> IO (Maybe Template)
 loadTemplate path =
-    parseGingerFile includeResolver path >>= \case
-        Right parsed -> return . Just . Template path $ parsed
+    parseGingerFile includeResolver (toFilePath path) >>= \case
+        Right parsed -> return . Just . Template (filename path) $ parsed
         Left err -> do
-            informError err
+            informError (toFilePath path) err
             return Nothing
   where
     -- An attempt at pretty printing the error message.
-    informError :: ParserError -> IO ()
-    informError (ParserError msg Nothing) =
-        putStr $ "Template error: " <> path <> "\n" <> indent msg
-    informError (ParserError msg (Just pos)) =
-        putStrLn $ "Template error: " <> path <> "\n" <> indent (show pos <> "\n" <> msg)
+    informError p (ParserError msg Nothing) =
+        putStr $ "Template error: " <> p <> "\n" <> indent msg
+    informError p (ParserError msg (Just pos)) =
+        putStrLn $ "Template error: " <> p <> "\n" <> indent (show pos <> "\n" <> msg)
     indent = unlines . map (mappend "    ") . lines
 
-{-
-This resolves Ginger's template includes.
--}
-includeResolver :: FilePath -> IO (Maybe String)
-includeResolver path = either (const Nothing) Just <$> tryIOError (readFile path)
-
-{-
-getFiles will look inside the template directory and generate a list of paths to likely
-valid template files and another for static files.
-
-It's not very pretty, but we also copy the static files and folders from here because
-I'm too lazy to work with Path too much.
--}
-getFiles :: Config -> IO [Path Abs File]
-getFiles config = do
-    (dirs, files) <- ls . templateDirectory $ config
-    let files' = filter (not . isSuffixOf "include" . toFilePath) files
-    let templates = filter (isTemplate config) files'
-    let statics = filter (`notElem` templates) files'
-    output <- parseAbsDir <=< makeAbsolute . outputDirectory $ config
-    ensureDir output
-    copyStaticDirs output dirs
-    copyStaticFiles output statics
-    return templates
-  where
-    -- This gets fully qualified paths of the directory's contents
-    ls :: FilePath -> IO ([Path Abs Dir], [Path Abs File])
-    ls = listDir <=< parseAbsDir <=< makeAbsolute
-
-{-
-This is used to filter files in the template directory so that we only try to load HTML
-files.
--}
-isTemplate :: Config -> Path Abs File -> Bool
-isTemplate config = isTemplate' . map toLower . toFilePath
-  where
-    isTemplate' :: FilePath -> Bool
-    isTemplate' p = isSuffixOf "html" p && not (isTargeted config p)
-    isTargeted :: Config -> FilePath -> Bool
-    isTargeted c p = p `elem` [indexTemplate c, commitTemplate c, fileTemplate c]
-
-{-
-These copies static files/folders into the output folder unchanged.
--}
-copyStaticFiles :: Path Abs Dir -> [Path Abs File] -> IO ()
-copyStaticFiles output = mapM_ copy
-  where
-    copy :: Path Abs File -> IO ()
-    copy path = copyFile path $ output </> filename path
-
-copyStaticDirs :: Path Abs Dir -> [Path Abs Dir] -> IO ()
-copyStaticDirs output = mapM_ copy
-  where
-    copy :: Path Abs Dir -> IO ()
-    copy path = copyDirRecur path $ output </> dirname path
-
-{-
-This function gets the output HTML data and is responsible for saving it to file.
--}
-writeTo :: FilePath -> Html -> ReaderT LgRepo IO ()
-writeTo path = liftIO . appendFile path . unpack . htmlSource
+    -- This resolves template 'includes'.
+    includeResolver :: FilePath -> IO (Maybe String)
+    includeResolver p = either (const Nothing) Just <$> tryIOError (readFile p)

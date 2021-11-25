@@ -3,15 +3,8 @@
 {-# LANGUAGE DerivingStrategies #-}
 
 module Config (
-    Config,
-    repoPaths,
-    templateDirectory,
-    indexTemplate,
-    commitTemplate,
-    fileTemplate,
+    Config (..),
     getConfig,
-    outputDirectory,
-    host,
 ) where
 
 import Control.Monad ((<=<))
@@ -22,9 +15,6 @@ import System.Directory (makeAbsolute)
 data Config = Config
     { repoPaths :: [FilePath]
     , templateDirectory :: FilePath
-    , indexTemplate :: FilePath
-    , commitTemplate :: FilePath
-    , fileTemplate :: FilePath
     , outputDirectory :: FilePath
     , host :: Text
     }

@@ -21,7 +21,7 @@ import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Git
 import Git.Libgit2 (LgRepo)
-import System.FilePath (takeFileName)
+import Path (Abs, Dir, Path, dirname, toFilePath)
 import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
 import Text.Ginger.Html (Html, html)
 import Text.Ginger.Parse (SourcePos)
@@ -37,23 +37,27 @@ GVal implementation for a repository, accessed in the scope of an individual rep
 as well as in a list of all repositories in the index template.
 -}
 data Repo = Repo
-    { repositoryPath :: FilePath
+    { repositoryPath :: Path Abs Dir
     , repositoryDescription :: Text
     , repositoryHead :: Maybe (Commit LgRepo)
     }
+
+instance ToGVal m (Path b t) where
+    toGVal :: Path b t -> GVal m
+    toGVal = toGVal . toFilePath
 
 instance ToGVal m Repo where
     toGVal :: Repo -> GVal m
     toGVal repo =
         def
-            { asHtml = html . pack . show . takeFileName . repositoryPath $ repo
-            , asText = pack . show . takeFileName . repositoryPath $ repo
+            { asHtml = html . pack . show . dirname . repositoryPath $ repo
+            , asText = pack . show . dirname . repositoryPath $ repo
             , asLookup = Just . repoAsLookup $ repo
             }
 
 repoAsLookup :: Repo -> Text -> Maybe (GVal m)
 repoAsLookup repo = \case
-    "name" -> Just . toGVal . takeFileName . repositoryPath $ repo
+    "name" -> Just . toGVal . dirname . repositoryPath $ repo
     "description" -> Just . toGVal . repositoryDescription $ repo
     "head" -> Just . toGVal . repositoryHead $ repo
     "updated" -> toGVal . show . signatureWhen . commitCommitter <$> repositoryHead repo
