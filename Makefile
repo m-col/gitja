@@ -33,3 +33,7 @@ rebuild: ## Clean and then build
 run: ## Run gitserve on this repository into ./output/
 	rm -rf output
 	stack run
+
+.PHONY: test
+test: ## Run the "tests"
+	bash ./test/test.sh
