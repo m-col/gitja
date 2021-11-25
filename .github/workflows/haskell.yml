@@ -28,7 +28,7 @@ jobs:
 
     - name: Build
       run: |
-        stack --no-terminal build
+        stack --no-terminal --silent build
 
     - name: Test
       run: |
