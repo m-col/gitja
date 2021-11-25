@@ -1,5 +1,5 @@
 .stack-work/
 *~
 output
-test/output
+test/result
 dist-newstyle

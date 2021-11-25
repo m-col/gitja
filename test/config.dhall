@@ -1,7 +1,7 @@
 let config =
     { repoPaths = ["."]
     , templateDirectory = "./test/templates"
-    , outputDirectory = "./test/output"
+    , outputDirectory = "./test/result"
     , host = "https://github.com/m-col/gitserve"
     }
 
