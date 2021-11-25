@@ -16,7 +16,7 @@ import Data.List (find)
 import Data.Maybe (catMaybes)
 import Data.Text (Text, unpack)
 import Git.Libgit2 (LgRepo)
-import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (</>))
+import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (</>), dirname)
 import Path.IO (copyDirRecur, copyFile, doesDirExist, ensureDir, listDir)
 import System.Directory (canonicalizePath)
 import qualified System.FilePath as FP
@@ -105,7 +105,7 @@ loadEnv quiet force config = do
 
     copyStaticDirs :: Path Abs Dir -> [Path Abs Dir] -> IO ()
     copyStaticDirs output = mapM_ (\p -> copyDirRecur p (output </> dirname p)) . filterStaticDirs
-    filterStaticDirs = filter ((/=) "repo" . toFilePath)
+    filterStaticDirs = filter ((/=) "repo/" . toFilePath . dirname)
 
     copyStaticFiles :: Path Abs Dir -> [Path Abs File] -> IO ()
     copyStaticFiles output = mapM_ (\p -> copyFile p (output </> filename p)) . filterStaticFiles
