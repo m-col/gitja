@@ -18,9 +18,10 @@ import Templates (loadEnv)
 Command line options
 -}
 data Options = Options
-    { config :: FilePath
-    , force :: Bool
-    , printVersion :: Bool
+    { optConfig :: FilePath
+    , optQuiet :: Bool
+    , optForce :: Bool
+    , optVersion :: Bool
     }
 
 opts :: O.Parser Options
@@ -31,17 +32,22 @@ opts =
                 <> O.short 'c'
                 <> O.metavar "CONFIG"
                 <> O.value "./config.dhall"
-                <> O.help "Configuration file to use (Default: ./config.dhall)"
+                <> O.help "Configuration file to use (Default: ./config.dhall)."
+            )
+        <*> O.switch
+            ( O.long "quiet"
+                <> O.short 'q'
+                <> O.help "Suppress non-error output."
             )
         <*> O.switch
             ( O.long "force"
                 <> O.short 'f'
-                <> O.help "Force regeneration of all files"
+                <> O.help "Force regeneration of all files."
             )
         <*> O.switch
             ( O.long "version"
                 <> O.short 'v'
-                <> O.help "Print the gitserve's version"
+                <> O.help "Print the gitserve's version."
             )
 
 parser :: IO Options
@@ -58,9 +64,9 @@ Main logic
 main :: IO ()
 main = do
     options <- parser
-    if printVersion options
+    if optVersion options
         then putStrLn $ "Your gitserve version is: " <> showVersion version
         else do
-            conf <- getConfig (config options)
-            env <- loadEnv (force options) conf
+            conf <- getConfig (optConfig options)
+            env <- loadEnv (optQuiet options) (optForce options) conf
             runIndex env =<< run env

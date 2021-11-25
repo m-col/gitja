@@ -43,6 +43,7 @@ data Env = Env
     , envOutputDirectory :: Path Abs Dir
     , envRepoPaths :: [Path Abs Dir]
     , envHost :: Text
+    , envQuiet :: Bool
     , envForce :: Bool
     }
 
@@ -55,8 +56,8 @@ data Template = Template
 This creates the runtime environment, collecting the config and loading template data
 from the template directory.
 -}
-loadEnv :: Bool -> Config -> IO Env
-loadEnv force config = do
+loadEnv :: Bool -> Bool -> Config -> IO Env
+loadEnv quiet force config = do
     -- First ensure that the output directory exists
     output <- parseAbsDir <=< canonicalizePath . outputDirectory $ config
     ensureDir output
@@ -87,6 +88,7 @@ loadEnv force config = do
             , envOutputDirectory = output
             , envRepoPaths = repoPaths'
             , envHost = host config
+            , envQuiet = quiet
             , envForce = force
             }
   where

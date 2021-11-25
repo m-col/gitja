@@ -10,7 +10,7 @@ module Repositories (
 ) where
 
 import Conduit (runConduit, sinkList, (.|))
-import Control.Monad (when, (<=<))
+import Control.Monad (unless, when, (<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Either (fromRight)
@@ -71,7 +71,7 @@ processRepo' env repo = do
 
     resolveReference "HEAD" >>= \case
         Nothing -> do
-            liftIO . putStrLn $ "gitserve: " <> show name <> ": Failed to resolve HEAD."
+            liftIO . unless (envQuiet env) . putStrLn $ "gitserve: " <> show name <> ": Failed to resolve HEAD."
             return repo
         Just commitID -> do
             let gitHead = Tagged commitID
@@ -90,10 +90,11 @@ processRepo' env repo = do
             liftIO . ensureDir $ output </> fileDir
 
             -- Run the generator --
+            let quiet = envQuiet env
             let force = envForce env
             mapM_ (genRepo output scope) $ envRepoTemplates env
-            mapM_ (genTarget output scope force $ envCommitTemplate env) commits
-            mapM_ (genTarget output scope True $ envFileTemplate env) tree -- TODO: detect file changes
+            mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
+            mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
 
             -- Return the repo with the head so the index page can use it. --
             return $ repo{repositoryHead = Just . head $ commits}
@@ -241,15 +242,16 @@ genTarget ::
     Path Abs Dir ->
     HashMap.HashMap Text (GVal RunRepo) ->
     Bool ->
+    Bool ->
     Maybe Template ->
     a ->
     ReaderT LgRepo IO ()
-genTarget _ _ _ Nothing _ = return ()
-genTarget output scope force (Just template) target = do
+genTarget _ _ _ _ Nothing _ = return ()
+genTarget output scope quiet force (Just template) target = do
     outFile <- liftIO . dest $ target
     let output' = output </> outFile
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
-        liftIO . putStrLn $ "Writing " <> toFilePath output'
+        liftIO . unless quiet . putStrLn $ "Writing " <> toFilePath output'
         let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
         generate output' scope' template

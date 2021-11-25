@@ -4,7 +4,7 @@ module Index (
     runIndex,
 ) where
 
-import Control.Monad (void)
+import Control.Monad (unless, void)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Text (Text, unpack)
 import Path (toFilePath)
@@ -30,7 +30,7 @@ runIndex env repos = mapM_ (runIndexFile env repos) . envIndexTemplates $ env
 runIndexFile :: Env -> [Repo] -> Template -> IO ()
 runIndexFile env repos template = do
     let output = combine (toFilePath . envOutputDirectory $ env) . toFilePath . templatePath $ template
-    putStrLn $ "Writing " <> output
+    unless (envQuiet env) . putStrLn $ "Writing " <> output
     writeFile output "" -- Clear contents of file if it exists
     void $
         easyRenderM
