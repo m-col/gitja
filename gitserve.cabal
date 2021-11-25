@@ -25,7 +25,7 @@ executable gitserve
                      , dhall
                      , directory
                      , filepath
-                     , ginger >= 0.10.3
+                     , ginger >= 0.10.3.0
                      , gitlib
                      , gitlib-libgit2
                      , optparse-applicative
