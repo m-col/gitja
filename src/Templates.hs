@@ -35,7 +35,7 @@ import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
 import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (Html, htmlSource)
-import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
+import Text.Ginger.Parse (ParserError (..), SourcePos, parseGingerFile)
 import Text.Ginger.Run (easyContext, runGingerT)
 
 import Config
@@ -108,8 +108,16 @@ loadTemplate path =
     parseGingerFile includeResolver path >>= \case
         Right parsed -> return . Just . Template path $ parsed
         Left err -> do
-            putStrLn . peErrorMessage $ err
+            informError err
             return Nothing
+  where
+    -- An attempt at pretty printing the error message.
+    informError :: ParserError -> IO ()
+    informError (ParserError msg Nothing) =
+        putStr $ "Template error: " <> path <> "\n" <> indent msg
+    informError (ParserError msg (Just pos)) =
+        putStrLn $ "Template error: " <> path <> "\n" <> indent (show pos <> "\n" <> msg)
+    indent = unlines . map (mappend "    ") . lines
 
 {-
 This resolves Ginger's template includes.
