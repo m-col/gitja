@@ -15,7 +15,7 @@ Hopefully this will do until a "proper" test setup is needed.
 
 '
 
-set -u
+set -ue
 
 if [[ $(basename "$PWD") != gitserve ]]
 then
@@ -23,7 +23,7 @@ then
     exit 1
 fi
 
-let errors="0"
+let errors="0" "1"
 EXPECTED="test/expected"
 RESULT="test/result"
 
@@ -39,7 +39,7 @@ TESTS=(
 )
 
 rm -rf "$RESULT"
-stack run -- -c test/config.dhall -q || exit 1
+stack run -- -c test/config.dhall -q
 
 for test in "${TESTS[@]}"
 do
