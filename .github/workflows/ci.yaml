@@ -27,10 +27,10 @@ jobs:
         path: ~/.stack/
         key: ${{ runner.os }}-${{ hashFiles('**/stack.yaml.lock') }}
 
-    - name: Build (${{ runner.os }})
+    - name: Build
       run: |
         stack --no-terminal --silent build
 
-    - name: Test (${{ runner.os }})
+    - name: Test
       run: |
         bash test/test.sh
