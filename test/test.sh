@@ -48,6 +48,11 @@ do
 	}
 done
 
+test -f "$RESULT/title.html.include" && {
+    let errors+=1
+    echo "title.html.include found in results"
+}
+
 case "$errors" in
     0)
 	echo "All good!"
