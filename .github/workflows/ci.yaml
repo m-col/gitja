@@ -8,7 +8,10 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v1
@@ -21,13 +24,13 @@ jobs:
       env:
         cache-name: cache-stack-modules
       with:
-        path: /home/runner/.stack/
-        key: ${{ hashFiles('**/stack.yaml.lock') }}
+        path: ~/.stack/
+        key: ${{ runner.os }}-${{ hashFiles('**/stack.yaml.lock') }}
 
-    - name: Build
+    - name: Build (${{ runner.os }})
       run: |
         stack --no-terminal --silent build
 
-    - name: Test
+    - name: Test (${{ runner.os }})
       run: |
         bash test/test.sh
