@@ -50,21 +50,21 @@ instance ToGVal m Repo where
     toGVal :: Repo -> GVal m
     toGVal repo =
         def
-            { asHtml = html . pack . init . showNoQuote . dirname . repositoryPath $ repo
+            { asHtml = html . pack . init . unquote . show . dirname . repositoryPath $ repo
             , asText = pack . show . dirname . repositoryPath $ repo
             , asLookup = Just . repoAsLookup $ repo
             }
 
+unquote :: String -> String
+unquote = init . tail
+
 repoAsLookup :: Repo -> Text -> Maybe (GVal m)
 repoAsLookup repo = \case
-    "name" -> Just . toGVal . init . showNoQuote . dirname . repositoryPath $ repo
+    "name" -> Just . toGVal . init . unquote . show . dirname . repositoryPath $ repo
     "description" -> Just . toGVal . repositoryDescription $ repo
     "head" -> Just . toGVal . repositoryHead $ repo
     "updated" -> toGVal . show . signatureWhen . commitCommitter <$> repositoryHead repo
     _ -> Nothing
-
-showNoQuote :: Show a => a -> String
-showNoQuote = tail . init . show
 
 {-
 GVal implementation for `Git.Commit r`, allowing commits to be rendered in Ginger
@@ -110,9 +110,6 @@ data TreeFileContents = FileContents Text | FolderContents [TreeFile]
 data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
     deriving stock (Show)
 
-showMode :: TreeEntryMode -> String
-showMode = drop 4 . show
-
 {-
 Some helper functions to convert from Haskell's LibGit2 BlobKind to our TreeEntryMode,
 and then from that to Git's octal representation, as seen when calling `git ls-tree
@@ -153,7 +150,7 @@ instance ToGVal RunRepo TreeFile where
 
 instance ToGVal RunRepo TreeFileContents where
     toGVal :: TreeFileContents -> GVal RunRepo
-    toGVal (FileContents text) = toGVal text
+    toGVal (FileContents text) = toGVal . strip $ text
     toGVal (FolderContents treeFiles) =
         def
             { asHtml = html . pack . show . fmap (toString . treeFilePath) $ treeFiles
@@ -166,7 +163,7 @@ treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
     "href" -> Just . toGVal . treePathToHref . treeFilePath $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
-    "mode" -> Just . toGVal . show . treeFileMode $ treefile
+    "mode" -> Just . toGVal . drop 4 . show . treeFileMode $ treefile
     "mode_octal" -> Just . toGVal . modeToOctal . treeFileMode $ treefile
     "mode_symbolic" -> Just . toGVal . modeToSymbolic . treeFileMode $ treefile
     "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile

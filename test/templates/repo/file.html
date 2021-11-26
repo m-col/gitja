@@ -2,5 +2,14 @@
 {%- block title -%}{{ file.path }}{%- endblock -%}
 
 {% block body %}
-file
+scope: file
+file: {{ file }}
+file.path: {{ file.path }}
+file.href: {{ file.href }}
+file.contents: {{ file.contents }}
+file.mode: {{ file.mode }}
+file.mode_octal: {{ file.mode_octal }}
+file.mode_symbolic: {{ file.mode_symbolic }}
+if file.is_directory then "directory" else "file":
+	{%- if file.is_directory %} "directory"{% else %} "file"{% endif %}
 {% endblock %}
