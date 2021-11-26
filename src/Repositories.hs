@@ -36,7 +36,9 @@ This is the entrypoint maps over our repositories, reading from them and writing
 their web pages using the loaded templates.
 -}
 run :: Env -> IO [Repo]
-run env = mapM (processRepo env) =<< loadRepos env
+run env = do
+    repos <- loadRepos env
+    mapM (processRepo env repos) repos
 
 ----------------------------------------------------------------------------------------
 -- Private -----------------------------------------------------------------------------
@@ -61,11 +63,12 @@ This receives a file path to a single repository and tries to process it. If the
 repository doesn't exist or is unreadable in any way we can forget about it and move on
 (after informing the user of course).
 -}
-processRepo :: Env -> Repo -> IO Repo
-processRepo env repo = withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo' env repo
+processRepo :: Env -> [Repo] -> Repo -> IO Repo
+processRepo env repos repo =
+    withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo' env repos repo
 
-processRepo' :: Env -> Repo -> ReaderT LgRepo IO Repo
-processRepo' env repo = do
+processRepo' :: Env -> [Repo] -> Repo -> ReaderT LgRepo IO Repo
+processRepo' env repos repo = do
     let name = dirname . repositoryPath $ repo
     let output = envOutputDirectory env </> name
 
@@ -81,7 +84,7 @@ processRepo' env repo = do
             tree <- getTree gitHead
             tags <- getRefs "refs/tags/"
             branches <- getRefs "refs/heads/"
-            let scope = package env name (repositoryDescription repo) commits tree tags branches
+            let scope = package env repos name (repositoryDescription repo) commits tree tags branches
 
             -- Create the destination folders
             commitDir <- liftIO . parseRelDir $ "commit"
@@ -97,7 +100,8 @@ processRepo' env repo = do
             mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
 
             -- Return the repo with the head so the index page can use it. --
-            return $ repo{repositoryHead = Just . head $ commits}
+            return
+                repo{repositoryHead = Just . head $ commits}
 
 {-
 The role of the function above is to gather information about a git repository and
@@ -107,6 +111,7 @@ hashmap which Ginger can use to look up variables.
 -}
 package ::
     Env ->
+    [Repo] ->
     Path Rel Dir ->
     Text ->
     [Commit LgRepo] ->
@@ -114,9 +119,10 @@ package ::
     [Ref] ->
     [Ref] ->
     HashMap.HashMap Text (GVal RunRepo)
-package env name description commits tree tags branches =
+package env repos name description commits tree tags branches =
     HashMap.fromList
         [ ("host", toGVal . envHost $ env)
+        , ("repos", toGVal repos)
         , ("name", toGVal . pack . init . toFilePath $ name)
         , ("description", toGVal description)
         , ("commits", toGVal . reverse $ commits) -- Could be optimised
