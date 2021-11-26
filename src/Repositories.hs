@@ -17,7 +17,7 @@ import Data.Either (fromRight)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
 import Data.Tagged
-import Data.Text (Text, isPrefixOf, pack, stripPrefix, toLower, unpack)
+import Data.Text (Text, isPrefixOf, pack, strip, stripPrefix, toLower, unpack)
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Git
@@ -53,7 +53,7 @@ loadRepos env = do
 Pass the repository's folder, get its description.
 -}
 getDescription :: Path Abs Dir -> IO Text
-getDescription = fmap (fromRight "") . tryIOError . fmap pack . readFile . flip FP.combine "description" . toFilePath
+getDescription = fmap (fromRight "") . tryIOError . fmap (strip . pack) . readFile . flip FP.combine "description" . toFilePath
 
 {-
 This receives a file path to a single repository and tries to process it. If the

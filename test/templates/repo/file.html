@@ -12,4 +12,18 @@ file.mode_octal: {{ file.mode_octal }}
 file.mode_symbolic: {{ file.mode_symbolic }}
 if file.is_directory then "directory" else "file":
 	{%- if file.is_directory %} "directory"{% else %} "file"{% endif %}
+
+
+file scope also should have data from repo scope available:
+host: {{ host }}
+repos: {{ repos }}
+name: {{ name }}
+description: {{ description }}
+commits: (skipped)
+tree: (skipped)
+tags: (skipped)
+branches: {{ branches }}
+    branches[0].name: {{ branches[0].name }}
+readme.path: {{ readme.path }}
+license.path: {{ license.path }}
 {% endblock %}

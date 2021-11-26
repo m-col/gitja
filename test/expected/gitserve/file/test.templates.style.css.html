@@ -8,3 +8,16 @@ file.mode: Plain
 file.mode_octal: 00644
 file.mode_symbolic: -rw-r--r--
 if file.is_directory then "directory" else "file": "file"
+
+file scope also should have data from repo scope available:
+host: https://github.com/m-col/gitserve
+repos: gitserve
+name: gitserve
+description: 🐙 Templated web page generator for your git repositories
+commits: (skipped)
+tree: (skipped)
+tags: (skipped)
+branches: master
+    branches[0].name: master
+readme.path: README.rst
+license.path: LICENSE
