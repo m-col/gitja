@@ -40,9 +40,6 @@ run env = do
     repos <- loadRepos env
     mapM (processRepo env repos) repos
 
-----------------------------------------------------------------------------------------
--- Private -----------------------------------------------------------------------------
-
 {-
 Get paths along with their descriptions.
 -}

@@ -24,9 +24,6 @@ configured respositories.
 runIndex :: Env -> [Repo] -> IO ()
 runIndex env repos = mapM_ (runIndexFile env repos) . envIndexTemplates $ env
 
-----------------------------------------------------------------------------------------
--- Private -----------------------------------------------------------------------------
-
 runIndexFile :: Env -> [Repo] -> Template -> IO ()
 runIndexFile env repos template = do
     let output = combine (toFilePath . envOutputDirectory $ env) . toFilePath . templatePath $ template
