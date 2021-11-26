@@ -74,7 +74,7 @@ instance ToGVal m (Commit LgRepo) where
     toGVal :: Commit LgRepo -> GVal m
     toGVal commit =
         def
-            { asHtml = html . pack . show . commitLog $ commit
+            { asHtml = html . strip . T.takeWhile (/= '\n') . commitLog $ commit
             , asText = pack . show . commitLog $ commit
             , asLookup = Just . commitAsLookup $ commit
             }

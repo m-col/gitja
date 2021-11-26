@@ -1,6 +1,19 @@
 {% extends "../title.html.include" -%}
-{%- block title -%}{{ commit.id }}{%- endblock -%}
+{%- block title -%}{{ commit }}{%- endblock -%}
 
 {% block body %}
-commit
+scope: commit
+commit: {{ commit }}
+commit.id: {{ commit.id }}
+commit.title: {{ commit.title }}
+commit.body: {{ commit.body }}
+commit.message: {{ commit.message }}
+commit.author: {{ commit.author }}
+commit.committer: {{ commit.committer }}
+commit.author_email: {{ commit.author_email }}
+commit.committer_email: {{ commit.committer_email }}
+commit.authored: {{ commit.authored }}
+commit.committed: {{ commit.committed }}
+commit.encoding: {{ commit.encoding }}
+commit.parent: {{ commit.parent }}
 {% endblock %}
