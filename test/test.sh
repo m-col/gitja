@@ -37,7 +37,7 @@ TESTS=(
 )
 
 rm -rf "$RESULT"
-stack run -- -c test/config.dhall -q
+stack run -- -c test/config.dhall -q || exit 1
 
 for test in "${TESTS[@]}"
 do
