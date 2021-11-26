@@ -23,7 +23,7 @@ then
     exit 1
 fi
 
-let errors="0" "1"
+let errors="0"
 EXPECTED="test/expected"
 RESULT="test/result"
 rm -fr "$RESULT"
@@ -39,12 +39,7 @@ TESTS=(
     "gitserve/file/test.templates.style.css.html"
 )
 
-finish() {
-    rm -r "$RESULT"
-    exit $1
-}
-
-stack run -- -c test/config.dhall -q || finish 1
+stack run -- -c test/config.dhall -q || exit 1
 
 for test in "${TESTS[@]}"
 do
@@ -63,10 +58,11 @@ test -f "$RESULT/title.html.include" && {
 case "$errors" in
     0)
 	echo "All good!"
-	finish 0
 	;;
     *)
 	echo "Had this many errors: $errors"
-	finish $errors
 	;;
 esac
+
+rm -r "$RESULT"
+exit $errors
