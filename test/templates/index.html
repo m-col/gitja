@@ -1,5 +1,10 @@
 {% extends "title.html.include" %}
 {%- block title -%}{{ host }}{%- endblock -%}
 {% block body %}
-{{ repositories }}
+scope: index
+host: {{ host }}
+repositories: {{ repositories }}
+    repositories[0]: {{ repositories[0] }}
+    repositories[0].name: {{ repositories[0].name }}
+    repositories[0].description: {{ repositories[0].description }}
 {% endblock %}
