@@ -1,6 +1,17 @@
 {% extends "../title.html.include" -%}
-{%- block title -%}{{ repo.name }}{%- endblock -%}
+{%- block title -%}{{ name }}{%- endblock -%}
 
 {% block body %}
-repository
+scope: repository
+host: {{ host }}
+repos: {{ repos }}
+name: {{ name }}
+description: {{ description }}
+commits: (skipped)
+tree: (skipped)
+tags: (skipped)
+branches: {{ branches }}
+    branches[0].name: {{ branches[0].name }}
+readme.path: {{ readme.path }}
+license.path: {{ license.path }}
 {% endblock %}
