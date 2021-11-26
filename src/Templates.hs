@@ -16,7 +16,7 @@ import Data.List (find)
 import Data.Maybe (catMaybes)
 import Data.Text (Text, unpack)
 import Git.Libgit2 (LgRepo)
-import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (</>), dirname)
+import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (</>))
 import Path.IO (copyDirRecur, copyFile, doesDirExist, ensureDir, listDir)
 import System.Directory (canonicalizePath)
 import qualified System.FilePath as FP
