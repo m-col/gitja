@@ -32,7 +32,9 @@ TESTS=(
     "index.html"
     "style.css"
     "static/a_nice_file"
+    "gitserve/index.html"
     "gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html"
+    "gitserve/file/test.templates.html"
     "gitserve/file/test.templates.style.css.html"
 )
 
