@@ -43,7 +43,7 @@ stack run -- -c test/config.dhall -q
 
 for test in "${TESTS[@]}"
 do
-    diff --text --strip-trailing-cr --ignore-trailing-space \
+    diff --text --strip-trailing-cr \
 	"$EXPECTED/$test" "$RESULT/$test" || {
 	    let errors+=1
 	    echo "^ ERRORED ON: $test"
