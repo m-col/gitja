@@ -15,6 +15,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        # Fetch all branches and tags so the tests can see them.
+        fetch-depth: 0
 
     - uses: haskell/actions/setup@v1
       with:
