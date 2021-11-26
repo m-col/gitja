@@ -25,21 +25,20 @@ website!
 Contributing
 ------------
 
-If you've come across a bug feel free to `open an issue`_.
-
+If you've come across a bug or have a question feel free to `open an issue`_.
 Pull requests are also warmly welcome if you have any suggested improvements or
-fixes.
+fixes. Please format code with fourmolu_'s defaults, use hlint_, and make sure
+``test/test.sh`` is happy.
 
 Meta
 ----
 
-Development hosted @ https://github.com/m-col/gitserve.
-
-Written by Matt Colligan - mcol@posteo.net
-
-Distributed under the MIT license. See ``LICENSE`` for more information.
+Development hosted @ https://github.com/m-col/gitserve. Written by Matt
+Colligan and `licensed MIT<LICENSE>`_.
 
 .. _Jinja: https://jinja.palletsprojects.com
 .. _stagit: https://codemadness.org/git/stagit
 .. _ginger: https://ginger.tobiasdammers.nl
 .. _`open an issue`: https://github.com/m-col/gitserver/issues/new
+.. _fourmolu: https://github.com/fourmolu/fourmolu
+.. _hlint: https://github.com/ndmitchell/hlint
