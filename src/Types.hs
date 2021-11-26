@@ -50,18 +50,21 @@ instance ToGVal m Repo where
     toGVal :: Repo -> GVal m
     toGVal repo =
         def
-            { asHtml = html . pack . show . dirname . repositoryPath $ repo
+            { asHtml = html . pack . init . showNoQuote . dirname . repositoryPath $ repo
             , asText = pack . show . dirname . repositoryPath $ repo
             , asLookup = Just . repoAsLookup $ repo
             }
 
 repoAsLookup :: Repo -> Text -> Maybe (GVal m)
 repoAsLookup repo = \case
-    "name" -> Just . toGVal . dirname . repositoryPath $ repo
+    "name" -> Just . toGVal . init . showNoQuote . dirname . repositoryPath $ repo
     "description" -> Just . toGVal . repositoryDescription $ repo
     "head" -> Just . toGVal . repositoryHead $ repo
     "updated" -> toGVal . show . signatureWhen . commitCommitter <$> repositoryHead repo
     _ -> Nothing
+
+showNoQuote :: Show a => a -> String
+showNoQuote = tail . init . show
 
 {-
 GVal implementation for `Git.Commit r`, allowing commits to be rendered in Ginger
