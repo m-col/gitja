@@ -9,10 +9,10 @@ module Templates (
 ) where
 
 import Control.Monad (filterM, join, void, (<=<))
+import Control.Monad.Extra (findM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import qualified Data.HashMap.Strict as HashMap
-import Data.List (find)
 import Data.Maybe (catMaybes)
 import Data.Text (Text, unpack)
 import Git.Libgit2 (LgRepo)
@@ -79,11 +79,14 @@ loadEnv quiet force config = do
 
     -- Load files from template directory
     indexT <- collectTemplates files
-    commitT <- fmap join . mapM loadTemplate . find ((==) "commit.html" . toFilePath . filename) $ filesRepo
-    fileT <- fmap join . mapM loadTemplate . find ((==) "file.html" . toFilePath . filename) $ filesRepo
-    repoT <- collectTemplates . filter (flip notElem ["commit.html", "file.html"] . toFilePath . filename) $ filesRepo
+    commitT <- findTemplate "commit.html" filesRepo
+    fileT <- findTemplate "file.html" filesRepo
+    repoT <-
+        collectTemplates
+            . filter (flip notElem ["commit.html", "file.html"] . toFilePath . filename)
+            $ filesRepo
 
-    -- Global environment
+    -- App environment
     return
         Env
             { envConfig = config
@@ -98,9 +101,6 @@ loadEnv quiet force config = do
             , envForce = force
             }
   where
-    collectTemplates :: [Path Abs File] -> IO [Template]
-    collectTemplates = fmap catMaybes . mapM loadTemplate . filter ((==) ".html" . FP.takeExtension . toFilePath)
-
     ls :: FilePath -> IO ([Path Abs Dir], [Path Abs File])
     ls dir = do
         canon <- parseAbsDir =<< canonicalizePath dir
@@ -108,6 +108,20 @@ loadEnv quiet force config = do
         if exists
             then listDir canon
             else return ([], [])
+
+    collectTemplates :: [Path Abs File] -> IO [Template]
+    collectTemplates = fmap catMaybes . mapM loadTemplate <=< filterM isMatch
+      where
+        isMatch p = do
+            ((FP.takeExtension . toFilePath $ p) == ".html" &&)
+                <$> (fmap not . pathIsSymbolicLink . toFilePath $ p)
+
+    findTemplate :: FilePath -> [Path Abs File] -> IO (Maybe Template)
+    findTemplate name = fmap join . mapM loadTemplate <=< findM isMatch
+      where
+        isMatch p =
+            ((toFilePath . filename $ p) == name &&)
+                <$> (fmap not . pathIsSymbolicLink . toFilePath $ p)
 
 {-
 This is the generator function that receives repository-specific variables and uses

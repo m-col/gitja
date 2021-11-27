@@ -24,6 +24,7 @@ executable gitserve
                      , data-default
                      , dhall
                      , directory
+                     , extra
                      , filepath
                      , ginger >= 0.10.3.0
                      , gitlib
