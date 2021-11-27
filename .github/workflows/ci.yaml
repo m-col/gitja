@@ -32,6 +32,10 @@ jobs:
       run: |
         stack --no-terminal --silent build
 
-    - name: Test
+    - name: Run tests
       run: |
         bash test/test.sh
+
+    - name: Test docs generation
+      run: |
+        stack run -- -c ./config.dhall
