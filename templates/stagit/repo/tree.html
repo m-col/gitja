@@ -1,0 +1,29 @@
+{% extends "../template.html.include" %}
+
+{%- block title -%}
+{{ name }} - target
+{%- endblock -%}
+
+{% block body %}
+{% include "repo-table-header.html.include" %}
+
+<div id="content">
+  <table id="files">
+    <thead>
+      <tr>
+        <td><b>Mode</b></td>
+        <td><b>Name</b></td>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for file in tree %}
+      <tr>
+        <td>{{ file.mode_symbolic }}</td>
+        <td><a href="{{ host }}/{{ name }}/file/{{ file.href }}">{{ file.path }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

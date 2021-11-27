@@ -13,7 +13,7 @@ let folders =
 -- If copying, you may want to replace the relative paths for absolute paths.
 let config =
     { repoPaths = folders
-    , templateDirectory = "./templates"
+    , templateDirectory = "./templates/docs"
     , outputDirectory = "./output"
     , host = "http://localhost:8000"
     }

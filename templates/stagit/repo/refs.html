@@ -1,0 +1,37 @@
+{% extends "../template.html.include" %}
+
+{%- block title -%}
+{{ name }} - Refs
+{%- endblock -%}
+
+{% block body %}
+{% include  "repo-table-header.html.include" %}
+
+<div id="content">
+  <h2>Branches</h2>
+  <table id="branches">
+    <thead>
+      <tr><td><b>Name</b></td><td colspan="2"><b>Last commit</b></td><td><b>Author</b></td></tr>
+    </thead>
+    <tbody>
+      {% for branch in branches %}
+      <tr><td>{{ branch.name }}</td><td>{{ branch.authored[:16] }}</td><td>{{ branch.title }}</td><td>{{ branch.author }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <br>
+
+  <h2>Tags</h2>
+  <table id="tags">
+    <thead>
+      <tr><td><b>Name</b></td><td colspan="2"><b>Last commit</b></td><td><b>Author</b></td></tr>
+    </thead>
+    <tbody>
+      {% for tag in tags %}
+      <tr><td>{{ tag.name }}</td><td>{{ tag.authored[:16] }}</td><td>{{ tag.title }}</td><td>{{ tag.author }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

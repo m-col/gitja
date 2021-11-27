@@ -1,0 +1,19 @@
+{% extends "template.html.include" %}
+
+{%- block title -%}
+🐙 gitserve
+{%- endblock -%}
+
+{% block body %}
+<div id="content">
+	<h1>{{ repositories[0].name }} - {{ repositories[0].description }}</h2>
+
+	<img
+			alt="GitHub release (latest SemVer)"
+			src="https://img.shields.io/github/v/release/m-col/gitserve?color=904ff0"
+	>
+
+	TODO
+
+</div>
+{% endblock %}
