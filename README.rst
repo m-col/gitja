@@ -39,6 +39,6 @@ Colligan and `licensed MIT <LICENSE>`_.
 .. _Jinja: https://jinja.palletsprojects.com
 .. _stagit: https://codemadness.org/git/stagit
 .. _ginger: https://ginger.tobiasdammers.nl
-.. _`open an issue`: https://github.com/m-col/gitserver/issues/new
+.. _`open an issue`: https://github.com/m-col/gitserve/issues/new
 .. _fourmolu: https://github.com/fourmolu/fourmolu
 .. _hlint: https://github.com/ndmitchell/hlint
