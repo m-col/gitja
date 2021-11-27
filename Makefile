@@ -32,7 +32,7 @@ rebuild: ## Clean and then build
 .PHONY: run
 run: ## Run gitserve on this repository into ./output/
 	rm -rf output
-	stack run
+	stack run -- -q
 
 .PHONY: test
 test: ## Run the "tests"
