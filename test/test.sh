@@ -31,6 +31,7 @@ rm -fr "$RESULT"
 declare -a TESTS
 TESTS=(
     "index.html"
+    "link.html"
     "style.css"
     "static/a_nice_file"
     "gitserve/index.html"

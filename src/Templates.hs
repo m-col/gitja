@@ -8,7 +8,7 @@ module Templates (
     generate,
 ) where
 
-import Control.Monad (join, void, (<=<))
+import Control.Monad (filterM, join, void, (<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import qualified Data.HashMap.Strict as HashMap
@@ -18,7 +18,13 @@ import Data.Text (Text, unpack)
 import Git.Libgit2 (LgRepo)
 import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (</>))
 import Path.IO (copyDirRecur, copyFile, doesDirExist, ensureDir, listDir)
-import System.Directory (canonicalizePath)
+import System.Directory (
+    canonicalizePath,
+    createDirectoryLink,
+    createFileLink,
+    getSymbolicLinkTarget,
+    pathIsSymbolicLink,
+ )
 import qualified System.FilePath as FP
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
@@ -103,14 +109,6 @@ loadEnv quiet force config = do
             then listDir canon
             else return ([], [])
 
-    copyStaticDirs :: Path Abs Dir -> [Path Abs Dir] -> IO ()
-    copyStaticDirs output = mapM_ (\p -> copyDirRecur p (output </> dirname p)) . filterStaticDirs
-    filterStaticDirs = filter ((/=) "repo/" . toFilePath . dirname)
-
-    copyStaticFiles :: Path Abs Dir -> [Path Abs File] -> IO ()
-    copyStaticFiles output = mapM_ (\p -> copyFile p (output </> filename p)) . filterStaticFiles
-    filterStaticFiles = filter (flip notElem [".html", ".include"] . FP.takeExtension . toFilePath)
-
 {-
 This is the generator function that receives repository-specific variables and uses
 Ginger to render templates using them.
@@ -151,3 +149,55 @@ loadTemplate path =
     -- This resolves template 'includes'.
     includeResolver :: FilePath -> IO (Maybe String)
     includeResolver p = either (const Nothing) Just <$> tryIOError (readFile p)
+
+{-
+The logic for copying static files and folders. Any file or folder in the
+``templateDirectory`` is considered static if:
+
+- it is a symbolic link, or
+- it does not end in ".html" or ".include".
+
+Symbolic links are not followed and are copied as is. This means that a symbolic link
+from `templateDirectory/link.html` to `gitserve/index.html` will be copied, keeping the
+link intact, resulting in a symbolic link at `outputDirectory/link.html` essentially
+pointing to `outputDirectory/gitserve/index.html`.
+-}
+-- TODO: merge isStatic and copy so it's just one step
+copyStaticDirs :: Path Abs Dir -> [Path Abs Dir] -> IO ()
+copyStaticDirs output = mapM_ copy <=< filterM isStatic
+  where
+    isStatic :: Path Abs Dir -> IO Bool
+    isStatic p = do
+        let isRepo = (toFilePath . dirname $ p) == "repo/"
+        isLink <- pathIsSymbolicLink . toFilePath $ p
+        return $ not isRepo || isLink
+    copy :: Path Abs Dir -> IO ()
+    copy p = do
+        let output' = output </> dirname p
+        let fp = FP.dropTrailingPathSeparator . toFilePath $ p
+        isLink <- pathIsSymbolicLink fp
+        if isLink
+            then do
+                target <- getSymbolicLinkTarget fp
+                createDirectoryLink target . FP.dropTrailingPathSeparator . toFilePath $ output'
+            else copyDirRecur p output'
+
+copyStaticFiles :: Path Abs Dir -> [Path Abs File] -> IO ()
+copyStaticFiles output = mapM_ copy <=< filterM isStatic
+  where
+    isStatic :: Path Abs File -> IO Bool
+    isStatic p = do
+        let fp = toFilePath p
+        let isTemplate = FP.takeExtension fp `elem` [".html", ".include"]
+        isLink <- pathIsSymbolicLink fp
+        return $ not isTemplate || isLink
+    copy :: Path Abs File -> IO ()
+    copy p = do
+        let fp = toFilePath p
+        isLink <- pathIsSymbolicLink fp
+        let output' = output </> filename p
+        if isLink
+            then do
+                target <- getSymbolicLinkTarget fp
+                createFileLink target . toFilePath $ output'
+            else copyFile p output'
