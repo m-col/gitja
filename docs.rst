@@ -129,7 +129,7 @@ The variables available within each scope are listed here for reference:
 +--------+--------------+-----------------------------------------------------+
 |        | repositories | A list of all of the git repositories.              |
 +--------+--------------+-----------------------------------------------------+
-| Repo   | In addition to the variables from the index scope...               |
+| Repo   | *In addition to the variables from the index scope...*             |
 +--------+--------------+-----------------------------------------------------+
 |        | name         | The repository name, taken from its folder name.    |
 +--------+--------------+-----------------------------------------------------+
@@ -148,11 +148,11 @@ The variables available within each scope are listed here for reference:
 +--------+--------------+-----------------------------------------------------+
 |        | license      | The repository's license file, if it has one.       |
 +--------+--------------+-----------------------------------------------------+
-| File   | In addition to the variables from the Repo scope...                |
+| File   | *In addition to the variables from the Repo scope...*              |
 +--------+--------------+-----------------------------------------------------+
 |        | file         | A single file.                                      |
 +--------+--------------+-----------------------------------------------------+
-| Commit | In addition to the variables from the Repo scope...                |
+| Commit | *In addition to the variables from the Repo scope...*              |
 +--------+--------------+-----------------------------------------------------+
 |        | commit       | A single commit.                                    |
 +--------+--------------+-----------------------------------------------------+
@@ -230,6 +230,15 @@ Here is the reference of attributes available on the variables that have them:
 
 Note that some attributes point to other objects that have attributes. For
 example, ``branches[0].commit.parent`` will work as expected.
+
+
+Questions?
+==========
+
+If any of this is unclear or could be improved, please do feel free to post an
+issue on GitHub (or contact me another way). Contributions of code and docs are
+also warmly welcome.
+
 
 .. _dhall: https://dhall-lang.org
 .. _`example config`: https://github.com/m-col/gitserve/blob/master/config.dhall
