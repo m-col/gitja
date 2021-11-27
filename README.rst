@@ -34,7 +34,7 @@ Meta
 ----
 
 Development hosted @ https://github.com/m-col/gitserve. Written by Matt
-Colligan and `licensed MIT<LICENSE>`_.
+Colligan and `licensed MIT <LICENSE>`_.
 
 .. _Jinja: https://jinja.palletsprojects.com
 .. _stagit: https://codemadness.org/git/stagit
