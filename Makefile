@@ -37,3 +37,6 @@ run: ## Run gitserve on this repository into ./output/
 .PHONY: test
 test: ## Run the "tests"
 	bash ./test/test.sh
+
+.PHONY: all
+all: lint format rebuild test ## Lint, format, rebuild, test
