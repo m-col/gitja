@@ -119,7 +119,7 @@ package ::
 package env repos name description commits tree tags branches =
     HashMap.fromList
         [ ("host", toGVal . envHost $ env)
-        , ("repos", toGVal repos)
+        , ("repositories", toGVal repos)
         , ("name", toGVal . pack . init . toFilePath $ name)
         , ("description", toGVal description)
         , ("commits", toGVal . reverse $ commits) -- Could be optimised
