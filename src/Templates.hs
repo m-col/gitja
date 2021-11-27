@@ -8,7 +8,7 @@ module Templates (
     generate,
 ) where
 
-import Control.Monad (filterM, join, void, (<=<))
+import Control.Monad (filterM, join, void, when, (<=<))
 import Control.Monad.Extra (findM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
@@ -22,8 +22,10 @@ import System.Directory (
     canonicalizePath,
     createDirectoryLink,
     createFileLink,
+    doesPathExist,
     getSymbolicLinkTarget,
     pathIsSymbolicLink,
+    removeFile,
  )
 import qualified System.FilePath as FP
 import System.IO.Error (tryIOError)
@@ -213,5 +215,7 @@ copyStaticFiles output = mapM_ copy <=< filterM isStatic
         if isLink
             then do
                 target <- getSymbolicLinkTarget fp
+                exists <- doesPathExist . toFilePath $ output'
+                when exists . removeFile . toFilePath $ output'
                 createFileLink target . toFilePath $ output'
             else copyFile p output'
