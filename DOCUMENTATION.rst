@@ -116,6 +116,12 @@ this (if the only specified git repository is gitserve)::
                 ...
         ...
 
+Note: symbolic links are considered static and will be copied unchanged and
+unresolved from template to output. This means that, for example, a symlink at
+``templateDirectory/index.html`` pointing to ``gitserve/index.html`` will
+produce a symlink at ``outputDirectory/index.html`` with the same behaviour,
+with the effect that the served root index page will actually be the index page
+for the ``gitserve`` repository (if present).
 
 Scopes
 ------
