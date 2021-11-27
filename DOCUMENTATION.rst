@@ -2,8 +2,8 @@
 Documentation
 =============
 
-gitserve is a tool that reads from locally hosted or cloned git repositories
-and generates static HTML pages using their data.
+``gitserve`` is a tool that reads from locally hosted or cloned git
+repositories and generates static HTML pages using their data.
 
 
 Usage
