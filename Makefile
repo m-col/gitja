@@ -39,4 +39,4 @@ test: ## Run the "tests"
 	bash ./test/test.sh
 
 .PHONY: all
-all: lint format rebuild test ## Lint, format, rebuild, test
+all: lint format rebuild run test ## Lint, format, rebuild, run, test
