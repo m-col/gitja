@@ -73,13 +73,13 @@
 <a href="#l37" class="line" id="l37">   37</a>          bash test/test.sh
 <a href="#l38" class="line" id="l38">   38</a>  
 <a href="#l39" class="line" id="l39">   39</a>      - name: Generate docs
-<a href="#l40" class="line" id="l40">   40</a>        if: github.event_name == &apos;push&apos;
+<a href="#l40" class="line" id="l40">   40</a>        if: matrix.os == &apos;ubuntu-latest&apos; &amp;&amp; github.event_name == &apos;push&apos;
 <a href="#l41" class="line" id="l41">   41</a>        run: |
 <a href="#l42" class="line" id="l42">   42</a>          sed -i &apos;s/localhost:8000/gitserve.mcol.xyz/&apos; config.dhall
 <a href="#l43" class="line" id="l43">   43</a>          stack run -- -c ./config.dhall -q
 <a href="#l44" class="line" id="l44">   44</a>  
 <a href="#l45" class="line" id="l45">   45</a>      - name: Deploy docs
-<a href="#l46" class="line" id="l46">   46</a>        if: github.event_name == &apos;push&apos;
+<a href="#l46" class="line" id="l46">   46</a>        if: matrix.os == &apos;ubuntu-latest&apos; &amp;&amp; github.event_name == &apos;push&apos;
 <a href="#l47" class="line" id="l47">   47</a>        uses: JamesIves/github-pages-deploy-action@4.1.7
 <a href="#l48" class="line" id="l48">   48</a>        with:
 <a href="#l49" class="line" id="l49">   49</a>          branch: gh-pages
