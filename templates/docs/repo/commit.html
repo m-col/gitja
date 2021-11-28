@@ -5,8 +5,6 @@
 {%- endblock -%}
 
 {% block body %}
-{% include "repo-table-header.html.include" %}
-
 <div id="content">
   <pre><b>Commit</b> <a href="{{ host }}/{{ name }}/commit/{{ commit.id }}.html">{{ commit.id }}</a>
 <b>Parent:</b> <a href="{{ host }}/{{ name }}/commit/{{ commit.parent }}.html">{{ commit.parent }}</a>

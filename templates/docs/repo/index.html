@@ -1,27 +1,28 @@
 {% extends "../template.html.include" %}
 
 {%- block title -%}
-{{ description }}
+gitserve
 {%- endblock -%}
 
 {% block body %}
-{% include "repo-table-header.html.include" %}
+<h1>gitserve</h1>
+<h2>{{ description }}</h2>
 
-<div id="content">
-  <table id="log">
-    <thead>
-      <tr>
-        <td><b>Date</b></td>
-        <td><b>Commit message</b></td>
-        <td><b>Author</b></td>
-      </tr>
-    </thead>
 
-    <tbody>
-      {% for commit in commits[:50] %}
-      <tr><td>{{ commit.authored[:16] }}</td><td><a href="commit/{{ commit.id }}.html">{{ commit.title }}</a></td><td>{{ commit.author }}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div id="docs"></div>
+<div id="src" hidden>
+{% set docs = filter(tree, (f) -> f.path == "DOCUMENTATION.md")[0] %}
+{{ docs.contents }}
 </div>
+
+<script type="text/javascript" src="{{ host }}/showdown.min.js"></script>
+<script>
+	showdown.setFlavor('github');
+	var converter = new showdown.Converter(
+			{tables: true, tablesHeaderId: true, ghMentions: true, emoji: true, ellipsis: false}
+	);
+	document.getElementById('docs').innerHTML =
+		converter.makeHtml(document.getElementById('src').innerHTML);
+</script>
+
 {% endblock %}
