@@ -37,7 +37,9 @@ jobs:
         bash test/test.sh
 
     - name: Generate docs
+      if: github.event_name == 'push'
       run: |
+        sed -i 's/localhost:8000/gitserve.mcol.xyz/' config.dhall
         stack run -- -c ./config.dhall -q
 
     - name: Deploy docs
