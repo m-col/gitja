@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - Fix tests</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css"/>
+    <link rel="icon" type="image/png" href="/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="http://localhost:8000">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="http://localhost:8000">Home</a> |
+        <a href="http://localhost:8000/gitserve/log.html">Log</a> |
+        <a href="http://localhost:8000/gitserve/tree.html">Files</a> |
+        <a href="http://localhost:8000/gitserve/refs.html">Refs</a> |
+        <a href="http://localhost:8000/gitserve/file/README.rst.html">Readme</a> |
+        <a href="http://localhost:8000/gitserve/file/LICENSE.html">License</a>
+      </span>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="http://localhost:8000/gitserve/commit/db8f23aa8db5142276a60a5227a95a28de63558d.html">db8f23aa8db5142276a60a5227a95a28de63558d</a>
+<b>Parent:</b> <a href="http://localhost:8000/gitserve/commit/b6e820c57cb8101f56a2c42ef92c19f871690bd7.html">b6e820c57cb8101f56a2c42ef92c19f871690bd7</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-26 16:30:01 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-26 16:30:01 +0000
+
+Fix tests
+
+Some test files were not being checked
+
+Also removes branches from tests - the CI runs on a detached HEAD
+</pre>
+    </div>
+  </body>
+</html>

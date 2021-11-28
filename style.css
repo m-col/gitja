@@ -1,0 +1,114 @@
+@viewport {
+    width: device-width;
+    zoom: 1.0;
+}
+
+html {
+    color: #000;
+    font-family: monospace;
+    font-size: 1em;
+    background: #5d479d;
+}
+
+body {
+    margin: 0 auto;
+    max-width: 900px;
+    background: #fff;
+}
+
+header {
+    padding: 20px;
+    background-color: #fcfaff;
+}
+
+
+#heada:link,
+#heada:visited,
+#heada:hover,
+#heada:active {
+    text-decoration: none;
+    color: black;
+}
+
+#content {
+    padding: 20px;
+}
+
+p {
+    margin: 15px 0;
+}
+
+::selection {
+    background: #5D479D;
+    color: #fff;
+}
+
+#nav {
+    padding: 10px 20px 0;
+}
+
+#links {
+    float: right;
+}
+
+#docs h2 {
+    text-decoration: underline #333;
+    padding-top: 1.5em;
+}
+
+#docs h1 {
+    text-decoration: underline #333;
+}
+
+#docs h3 {
+    text-decoration: underline #aaa;
+    padding: 0.5em 0;
+}
+
+#docs p {
+    font-family: sans;
+}
+
+p code {
+    font-weight: bolder;
+}
+
+p code,
+#docs pre {
+    background: #eee;
+}
+
+pre {
+    padding: 0.6em;
+}
+
+td, th {
+    padding: 0.1em 1em;
+    text-align: left;
+}
+
+table {
+    margin: 3em auto;
+    width: 90%;
+    border-collapse: collapse;
+}
+
+
+th {
+    background-color: #fcfaff;
+    text-decoration: underline #aaa;
+}
+
+tr:nth-child(even) {
+    background-color: #fcfaff;
+}
+
+.line {
+    text-decoration: none;
+    color: #5d479d50;
+}
+
+.line:hover {
+    background-color: #5d479d50;
+    color: #333;
+}

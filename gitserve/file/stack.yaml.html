@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - stack.yaml</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css"/>
+    <link rel="icon" type="image/png" href="/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="http://localhost:8000">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="http://localhost:8000">Home</a> |
+        <a href="http://localhost:8000/gitserve/log.html">Log</a> |
+        <a href="http://localhost:8000/gitserve/tree.html">Files</a> |
+        <a href="http://localhost:8000/gitserve/refs.html">Refs</a> |
+        <a href="http://localhost:8000/gitserve/file/README.rst.html">Readme</a> |
+        <a href="http://localhost:8000/gitserve/file/LICENSE.html">License</a>
+      </span>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- stack.yaml</p><hr>
+
+  <pre id="blob">
+<a href="#l1" class="line" id="l1">    1</a>  resolver:
+<a href="#l2" class="line" id="l2">    2</a>    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/10.yaml
+<a href="#l3" class="line" id="l3">    3</a>  
+<a href="#l4" class="line" id="l4">    4</a>  packages:
+<a href="#l5" class="line" id="l5">    5</a>  - .
+<a href="#l6" class="line" id="l6">    6</a>  
+<a href="#l7" class="line" id="l7">    7</a>  extra-deps:
+<a href="#l8" class="line" id="l8">    8</a>  - gitlib-3.1.3@sha256:7e8f940b380f6155be3bf20be9f363c3bfd3285bd26e0368f406a1c431994598,2935
+<a href="#l9" class="line" id="l9">    9</a>  - gitlib-libgit2-3.1.2.1@sha256:36bc92f117158440ca69e32051aabdf9df75be8a3fb5f45dff8828898e615a0a,2354
+<a href="#l10" class="line" id="l10">   10</a>  
+<a href="#l11" class="line" id="l11">   11</a>  # These options are from the Kowainik style guide.
+<a href="#l12" class="line" id="l12">   12</a>  ghc-options:
+<a href="#l13" class="line" id="l13">   13</a>    &quot;$locals&quot;: -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+<a href="#l14" class="line" id="l14">   14</a>      -Wincomplete-record-updates -Wredundant-constraints -Wpartial-fields
+<a href="#l15" class="line" id="l15">   15</a>      -Wmissing-deriving-strategies -Wunused-packages -fno-warn-unused-do-bind
+<a href="#l16" class="line" id="l16">   16</a>      -fno-warn-orphans
+<a href="#l17" class="line" id="l17">   17</a>  
+<a href="#l18" class="line" id="l18">   18</a>  allow-newer: true
+</pre>
+    </div>
+  </body>
+</html>

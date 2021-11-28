@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - src/Types.hs</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css"/>
+    <link rel="icon" type="image/png" href="/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="http://localhost:8000">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="http://localhost:8000">Home</a> |
+        <a href="http://localhost:8000/gitserve/log.html">Log</a> |
+        <a href="http://localhost:8000/gitserve/tree.html">Files</a> |
+        <a href="http://localhost:8000/gitserve/refs.html">Refs</a> |
+        <a href="http://localhost:8000/gitserve/file/README.rst.html">Readme</a> |
+        <a href="http://localhost:8000/gitserve/file/LICENSE.html">License</a>
+      </span>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- src/Types.hs</p><hr>
+
+  <pre id="blob">
+<a href="#l1" class="line" id="l1">    1</a>  {-# LANGUAGE DerivingStrategies #-}
+<a href="#l2" class="line" id="l2">    2</a>  -- Needed for `instance ToGVal`
+<a href="#l3" class="line" id="l3">    3</a>  {-# LANGUAGE FlexibleInstances #-}
+<a href="#l4" class="line" id="l4">    4</a>  -- Needed for toGVal type signature
+<a href="#l5" class="line" id="l5">    5</a>  {-# LANGUAGE InstanceSigs #-}
+<a href="#l6" class="line" id="l6">    6</a>  {-# LANGUAGE LambdaCase #-}
+<a href="#l7" class="line" id="l7">    7</a>  -- Needed for `instance ToGVal`
+<a href="#l8" class="line" id="l8">    8</a>  {-# LANGUAGE MultiParamTypeClasses #-}
+<a href="#l9" class="line" id="l9">    9</a>  {-# LANGUAGE OverloadedStrings #-}
+<a href="#l10" class="line" id="l10">   10</a>  
+<a href="#l11" class="line" id="l11">   11</a>  module Types where
+<a href="#l12" class="line" id="l12">   12</a>  
+<a href="#l13" class="line" id="l13">   13</a>  import Control.Monad.Trans.Reader (ReaderT)
+<a href="#l14" class="line" id="l14">   14</a>  import Data.ByteString.UTF8 (toString)
+<a href="#l15" class="line" id="l15">   15</a>  import Data.Default (def)
+<a href="#l16" class="line" id="l16">   16</a>  import Data.Maybe (listToMaybe)
+<a href="#l17" class="line" id="l17">   17</a>  import Data.Tagged (untag)
+<a href="#l18" class="line" id="l18">   18</a>  import Data.Text (Text, pack, strip)
+<a href="#l19" class="line" id="l19">   19</a>  import qualified Data.Text as T
+<a href="#l20" class="line" id="l20">   20</a>  import Data.Text.Encoding (decodeUtf8With)
+<a href="#l21" class="line" id="l21">   21</a>  import Data.Text.Encoding.Error (lenientDecode)
+<a href="#l22" class="line" id="l22">   22</a>  import Git
+<a href="#l23" class="line" id="l23">   23</a>  import Git.Libgit2 (LgRepo)
+<a href="#l24" class="line" id="l24">   24</a>  import Path (Abs, Dir, Path, dirname, toFilePath)
+<a href="#l25" class="line" id="l25">   25</a>  import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
+<a href="#l26" class="line" id="l26">   26</a>  import Text.Ginger.Html (Html, html)
+<a href="#l27" class="line" id="l27">   27</a>  import Text.Ginger.Parse (SourcePos)
+<a href="#l28" class="line" id="l28">   28</a>  import Text.Ginger.Run (Run)
+<a href="#l29" class="line" id="l29">   29</a>  
+<a href="#l30" class="line" id="l30">   30</a>  {-
+<a href="#l31" class="line" id="l31">   31</a>  Convenience type alias for the ginger run monad with git repo context.
+<a href="#l32" class="line" id="l32">   32</a>  -}
+<a href="#l33" class="line" id="l33">   33</a>  type RunRepo = Run SourcePos (ReaderT LgRepo IO) Html
+<a href="#l34" class="line" id="l34">   34</a>  
+<a href="#l35" class="line" id="l35">   35</a>  {-
+<a href="#l36" class="line" id="l36">   36</a>  GVal implementation for a repository, accessed in the scope of an individual repository,
+<a href="#l37" class="line" id="l37">   37</a>  as well as in a list of all repositories in the index template.
+<a href="#l38" class="line" id="l38">   38</a>  -}
+<a href="#l39" class="line" id="l39">   39</a>  data Repo = Repo
+<a href="#l40" class="line" id="l40">   40</a>      { repositoryPath :: Path Abs Dir
+<a href="#l41" class="line" id="l41">   41</a>      , repositoryDescription :: Text
+<a href="#l42" class="line" id="l42">   42</a>      , repositoryHead :: Maybe (Commit LgRepo)
+<a href="#l43" class="line" id="l43">   43</a>      }
+<a href="#l44" class="line" id="l44">   44</a>  
+<a href="#l45" class="line" id="l45">   45</a>  instance ToGVal m (Path b t) where
+<a href="#l46" class="line" id="l46">   46</a>      toGVal :: Path b t -&gt; GVal m
+<a href="#l47" class="line" id="l47">   47</a>      toGVal = toGVal . toFilePath
+<a href="#l48" class="line" id="l48">   48</a>  
+<a href="#l49" class="line" id="l49">   49</a>  instance ToGVal m Repo where
+<a href="#l50" class="line" id="l50">   50</a>      toGVal :: Repo -&gt; GVal m
+<a href="#l51" class="line" id="l51">   51</a>      toGVal repo =
+<a href="#l52" class="line" id="l52">   52</a>          def
+<a href="#l53" class="line" id="l53">   53</a>              { asHtml = html . pack . init . unquote . show . dirname . repositoryPath $ repo
+<a href="#l54" class="line" id="l54">   54</a>              , asText = pack . show . dirname . repositoryPath $ repo
+<a href="#l55" class="line" id="l55">   55</a>              , asLookup = Just . repoAsLookup $ repo
+<a href="#l56" class="line" id="l56">   56</a>              }
+<a href="#l57" class="line" id="l57">   57</a>  
+<a href="#l58" class="line" id="l58">   58</a>  unquote :: String -&gt; String
+<a href="#l59" class="line" id="l59">   59</a>  unquote = init . tail
+<a href="#l60" class="line" id="l60">   60</a>  
+<a href="#l61" class="line" id="l61">   61</a>  repoAsLookup :: Repo -&gt; Text -&gt; Maybe (GVal m)
+<a href="#l62" class="line" id="l62">   62</a>  repoAsLookup repo = \case
+<a href="#l63" class="line" id="l63">   63</a>      &quot;name&quot; -&gt; Just . toGVal . init . unquote . show . dirname . repositoryPath $ repo
+<a href="#l64" class="line" id="l64">   64</a>      &quot;description&quot; -&gt; Just . toGVal . repositoryDescription $ repo
+<a href="#l65" class="line" id="l65">   65</a>      &quot;head&quot; -&gt; Just . toGVal . repositoryHead $ repo
+<a href="#l66" class="line" id="l66">   66</a>      &quot;updated&quot; -&gt; toGVal . show . signatureWhen . commitCommitter &lt;$&gt; repositoryHead repo
+<a href="#l67" class="line" id="l67">   67</a>      _ -&gt; Nothing
+<a href="#l68" class="line" id="l68">   68</a>  
+<a href="#l69" class="line" id="l69">   69</a>  {-
+<a href="#l70" class="line" id="l70">   70</a>  GVal implementation for `Git.Commit r`, allowing commits to be rendered in Ginger
+<a href="#l71" class="line" id="l71">   71</a>  templates.
+<a href="#l72" class="line" id="l72">   72</a>  -}
+<a href="#l73" class="line" id="l73">   73</a>  instance ToGVal m (Commit LgRepo) where
+<a href="#l74" class="line" id="l74">   74</a>      toGVal :: Commit LgRepo -&gt; GVal m
+<a href="#l75" class="line" id="l75">   75</a>      toGVal commit =
+<a href="#l76" class="line" id="l76">   76</a>          def
+<a href="#l77" class="line" id="l77">   77</a>              { asHtml = html . strip . T.takeWhile (/= &apos;\n&apos;) . commitLog $ commit
+<a href="#l78" class="line" id="l78">   78</a>              , asText = pack . show . commitLog $ commit
+<a href="#l79" class="line" id="l79">   79</a>              , asLookup = Just . commitAsLookup $ commit
+<a href="#l80" class="line" id="l80">   80</a>              }
+<a href="#l81" class="line" id="l81">   81</a>  
+<a href="#l82" class="line" id="l82">   82</a>  commitAsLookup :: Commit LgRepo -&gt; Text -&gt; Maybe (GVal m)
+<a href="#l83" class="line" id="l83">   83</a>  commitAsLookup commit = \case
+<a href="#l84" class="line" id="l84">   84</a>      &quot;id&quot; -&gt; Just . toGVal . show . untag . commitOid $ commit
+<a href="#l85" class="line" id="l85">   85</a>      &quot;title&quot; -&gt; Just . toGVal . strip . T.takeWhile (/= &apos;\n&apos;) . commitLog $ commit
+<a href="#l86" class="line" id="l86">   86</a>      &quot;body&quot; -&gt; Just . toGVal . strip . T.dropWhile (/= &apos;\n&apos;) . commitLog $ commit
+<a href="#l87" class="line" id="l87">   87</a>      &quot;message&quot; -&gt; Just . toGVal . strip . commitLog $ commit
+<a href="#l88" class="line" id="l88">   88</a>      &quot;author&quot; -&gt; Just . toGVal . strip . signatureName . commitAuthor $ commit
+<a href="#l89" class="line" id="l89">   89</a>      &quot;committer&quot; -&gt; Just . toGVal . strip . signatureName . commitCommitter $ commit
+<a href="#l90" class="line" id="l90">   90</a>      &quot;author_email&quot; -&gt; Just . toGVal . strip . signatureEmail . commitAuthor $ commit
+<a href="#l91" class="line" id="l91">   91</a>      &quot;committer_email&quot; -&gt; Just . toGVal . strip . signatureEmail . commitCommitter $ commit
+<a href="#l92" class="line" id="l92">   92</a>      &quot;authored&quot; -&gt; Just . toGVal . show . signatureWhen . commitAuthor $ commit
+<a href="#l93" class="line" id="l93">   93</a>      &quot;committed&quot; -&gt; Just . toGVal . show . signatureWhen . commitCommitter $ commit
+<a href="#l94" class="line" id="l94">   94</a>      &quot;encoding&quot; -&gt; Just . toGVal . strip . commitEncoding $ commit
+<a href="#l95" class="line" id="l95">   95</a>      &quot;parent&quot; -&gt; toGVal . show . untag &lt;$&gt; (listToMaybe . commitParents $ commit)
+<a href="#l96" class="line" id="l96">   96</a>      _ -&gt; Nothing
+<a href="#l97" class="line" id="l97">   97</a>  
+<a href="#l98" class="line" id="l98">   98</a>  {-
+<a href="#l99" class="line" id="l99">   99</a>  Next we have some data used to represent a repository&apos;s tree and the different kinds of
+<a href="#l100" class="line" id="l100">  100</a>  objects contained therein.
+<a href="#l101" class="line" id="l101">  101</a>  -}
+<a href="#l102" class="line" id="l102">  102</a>  data TreeFile = TreeFile
+<a href="#l103" class="line" id="l103">  103</a>      { treeFilePath :: TreeFilePath
+<a href="#l104" class="line" id="l104">  104</a>      , treeFileContents :: TreeFileContents
+<a href="#l105" class="line" id="l105">  105</a>      , treeFileMode :: TreeEntryMode
+<a href="#l106" class="line" id="l106">  106</a>      }
+<a href="#l107" class="line" id="l107">  107</a>  
+<a href="#l108" class="line" id="l108">  108</a>  data TreeFileContents = FileContents Text | FolderContents [TreeFile]
+<a href="#l109" class="line" id="l109">  109</a>  
+<a href="#l110" class="line" id="l110">  110</a>  data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
+<a href="#l111" class="line" id="l111">  111</a>      deriving stock (Show)
+<a href="#l112" class="line" id="l112">  112</a>  
+<a href="#l113" class="line" id="l113">  113</a>  {-
+<a href="#l114" class="line" id="l114">  114</a>  Some helper functions to convert from Haskell&apos;s LibGit2 BlobKind to our TreeEntryMode,
+<a href="#l115" class="line" id="l115">  115</a>  and then from that to Git&apos;s octal representation, as seen when calling `git ls-tree
+<a href="#l116" class="line" id="l116">  116</a>  &lt;tree-ish&gt;`
+<a href="#l117" class="line" id="l117">  117</a>  -}
+<a href="#l118" class="line" id="l118">  118</a>  blobkindToMode :: BlobKind -&gt; TreeEntryMode
+<a href="#l119" class="line" id="l119">  119</a>  blobkindToMode PlainBlob = ModePlain
+<a href="#l120" class="line" id="l120">  120</a>  blobkindToMode ExecutableBlob = ModeExecutable
+<a href="#l121" class="line" id="l121">  121</a>  blobkindToMode SymlinkBlob = ModeSymlink
+<a href="#l122" class="line" id="l122">  122</a>  
+<a href="#l123" class="line" id="l123">  123</a>  modeToOctal :: TreeEntryMode -&gt; String
+<a href="#l124" class="line" id="l124">  124</a>  modeToOctal ModeDirectory = &quot;40000&quot;
+<a href="#l125" class="line" id="l125">  125</a>  modeToOctal ModePlain = &quot;00644&quot;
+<a href="#l126" class="line" id="l126">  126</a>  modeToOctal ModeExecutable = &quot;00755&quot;
+<a href="#l127" class="line" id="l127">  127</a>  modeToOctal ModeSymlink = &quot;20000&quot;
+<a href="#l128" class="line" id="l128">  128</a>  modeToOctal ModeSubmodule = &quot;60000&quot;
+<a href="#l129" class="line" id="l129">  129</a>  
+<a href="#l130" class="line" id="l130">  130</a>  modeToSymbolic :: TreeEntryMode -&gt; String
+<a href="#l131" class="line" id="l131">  131</a>  modeToSymbolic ModeDirectory = &quot;drwxr-xr-x&quot;
+<a href="#l132" class="line" id="l132">  132</a>  modeToSymbolic ModePlain = &quot;-rw-r--r--&quot;
+<a href="#l133" class="line" id="l133">  133</a>  modeToSymbolic ModeExecutable = &quot;-rwxr-xr-x&quot;
+<a href="#l134" class="line" id="l134">  134</a>  modeToSymbolic ModeSymlink = &quot;l---------&quot;
+<a href="#l135" class="line" id="l135">  135</a>  modeToSymbolic ModeSubmodule = &quot;git-module&quot;
+<a href="#l136" class="line" id="l136">  136</a>  
+<a href="#l137" class="line" id="l137">  137</a>  {-
+<a href="#l138" class="line" id="l138">  138</a>  GVal implementations for data definitions above, allowing commits to be rendered in
+<a href="#l139" class="line" id="l139">  139</a>  Ginger templates.
+<a href="#l140" class="line" id="l140">  140</a>  -}
+<a href="#l141" class="line" id="l141">  141</a>  instance ToGVal RunRepo TreeFile where
+<a href="#l142" class="line" id="l142">  142</a>      toGVal :: TreeFile -&gt; GVal RunRepo
+<a href="#l143" class="line" id="l143">  143</a>      toGVal treefile =
+<a href="#l144" class="line" id="l144">  144</a>          def
+<a href="#l145" class="line" id="l145">  145</a>              { asHtml = html . pack . toString . treeFilePath $ treefile
+<a href="#l146" class="line" id="l146">  146</a>              , asText = pack . show . treeFilePath $ treefile
+<a href="#l147" class="line" id="l147">  147</a>              , asLookup = Just . treeAsLookup $ treefile
+<a href="#l148" class="line" id="l148">  148</a>              , asBoolean = True -- Used for conditionally checking readme/license template variables.
+<a href="#l149" class="line" id="l149">  149</a>              }
+<a href="#l150" class="line" id="l150">  150</a>  
+<a href="#l151" class="line" id="l151">  151</a>  instance ToGVal RunRepo TreeFileContents where
+<a href="#l152" class="line" id="l152">  152</a>      toGVal :: TreeFileContents -&gt; GVal RunRepo
+<a href="#l153" class="line" id="l153">  153</a>      toGVal (FileContents text) = toGVal . strip $ text
+<a href="#l154" class="line" id="l154">  154</a>      toGVal (FolderContents treeFiles) =
+<a href="#l155" class="line" id="l155">  155</a>          def
+<a href="#l156" class="line" id="l156">  156</a>              { asHtml = html . pack . show . fmap (toString . treeFilePath) $ treeFiles
+<a href="#l157" class="line" id="l157">  157</a>              , asText = pack . show . fmap (toString . treeFilePath) $ treeFiles
+<a href="#l158" class="line" id="l158">  158</a>              , asList = Just . fmap toGVal $ treeFiles
+<a href="#l159" class="line" id="l159">  159</a>              }
+<a href="#l160" class="line" id="l160">  160</a>  
+<a href="#l161" class="line" id="l161">  161</a>  treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal RunRepo)
+<a href="#l162" class="line" id="l162">  162</a>  treeAsLookup treefile = \case
+<a href="#l163" class="line" id="l163">  163</a>      &quot;path&quot; -&gt; Just . toGVal . treeFilePath $ treefile
+<a href="#l164" class="line" id="l164">  164</a>      &quot;href&quot; -&gt; Just . toGVal . treePathToHref . treeFilePath $ treefile
+<a href="#l165" class="line" id="l165">  165</a>      &quot;contents&quot; -&gt; Just . toGVal . treeFileContents $ treefile
+<a href="#l166" class="line" id="l166">  166</a>      &quot;mode&quot; -&gt; Just . toGVal . drop 4 . show . treeFileMode $ treefile
+<a href="#l167" class="line" id="l167">  167</a>      &quot;mode_octal&quot; -&gt; Just . toGVal . modeToOctal . treeFileMode $ treefile
+<a href="#l168" class="line" id="l168">  168</a>      &quot;mode_symbolic&quot; -&gt; Just . toGVal . modeToSymbolic . treeFileMode $ treefile
+<a href="#l169" class="line" id="l169">  169</a>      &quot;is_directory&quot; -&gt; Just . toGVal . treeFileIsDirectory $ treefile
+<a href="#l170" class="line" id="l170">  170</a>      _ -&gt; Nothing
+<a href="#l171" class="line" id="l171">  171</a>  
+<a href="#l172" class="line" id="l172">  172</a>  treeFileIsDirectory :: TreeFile -&gt; Bool
+<a href="#l173" class="line" id="l173">  173</a>  treeFileIsDirectory treefile = case treeFileContents treefile of
+<a href="#l174" class="line" id="l174">  174</a>      FileContents _ -&gt; False
+<a href="#l175" class="line" id="l175">  175</a>      FolderContents _ -&gt; True
+<a href="#l176" class="line" id="l176">  176</a>  
+<a href="#l177" class="line" id="l177">  177</a>  {-
+<a href="#l178" class="line" id="l178">  178</a>  Get the name of a tree file path&apos;s HTML file.
+<a href="#l179" class="line" id="l179">  179</a>  -}
+<a href="#l180" class="line" id="l180">  180</a>  treePathToHref :: TreeFilePath -&gt; Text
+<a href="#l181" class="line" id="l181">  181</a>  treePathToHref = flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; . decodeUtf8With lenientDecode
+<a href="#l182" class="line" id="l182">  182</a>  
+<a href="#l183" class="line" id="l183">  183</a>  {-
+<a href="#l184" class="line" id="l184">  184</a>  Data to store information about references: tags and branches.
+<a href="#l185" class="line" id="l185">  185</a>  -}
+<a href="#l186" class="line" id="l186">  186</a>  data Ref = Ref
+<a href="#l187" class="line" id="l187">  187</a>      { refName :: RefName
+<a href="#l188" class="line" id="l188">  188</a>      , refCommit :: Commit LgRepo
+<a href="#l189" class="line" id="l189">  189</a>      }
+<a href="#l190" class="line" id="l190">  190</a>  
+<a href="#l191" class="line" id="l191">  191</a>  instance ToGVal RunRepo Ref where
+<a href="#l192" class="line" id="l192">  192</a>      toGVal :: Ref -&gt; GVal RunRepo
+<a href="#l193" class="line" id="l193">  193</a>      toGVal ref =
+<a href="#l194" class="line" id="l194">  194</a>          def
+<a href="#l195" class="line" id="l195">  195</a>              { asHtml = html . refName $ ref
+<a href="#l196" class="line" id="l196">  196</a>              , asText = refName ref
+<a href="#l197" class="line" id="l197">  197</a>              , asLookup = Just . refAsLookup $ ref
+<a href="#l198" class="line" id="l198">  198</a>              }
+<a href="#l199" class="line" id="l199">  199</a>  
+<a href="#l200" class="line" id="l200">  200</a>  refAsLookup :: Ref -&gt; Text -&gt; Maybe (GVal RunRepo)
+<a href="#l201" class="line" id="l201">  201</a>  refAsLookup ref = \case
+<a href="#l202" class="line" id="l202">  202</a>      &quot;name&quot; -&gt; Just . toGVal . refName $ ref
+<a href="#l203" class="line" id="l203">  203</a>      &quot;commit&quot; -&gt; Just . toGVal . refCommit $ ref
+<a href="#l204" class="line" id="l204">  204</a>      key -&gt; commitAsLookup (refCommit ref) key
+</pre>
+    </div>
+  </body>
+</html>

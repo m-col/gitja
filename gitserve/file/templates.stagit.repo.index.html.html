@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - templates/stagit/repo/index.html</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css"/>
+    <link rel="icon" type="image/png" href="/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="http://localhost:8000">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="http://localhost:8000">Home</a> |
+        <a href="http://localhost:8000/gitserve/log.html">Log</a> |
+        <a href="http://localhost:8000/gitserve/tree.html">Files</a> |
+        <a href="http://localhost:8000/gitserve/refs.html">Refs</a> |
+        <a href="http://localhost:8000/gitserve/file/README.rst.html">Readme</a> |
+        <a href="http://localhost:8000/gitserve/file/LICENSE.html">License</a>
+      </span>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- templates/stagit/repo/index.html</p><hr>
+
+  <pre id="blob">
+<a href="#l1" class="line" id="l1">    1</a>  {% extends &quot;../template.html.include&quot; %}
+<a href="#l2" class="line" id="l2">    2</a>  
+<a href="#l3" class="line" id="l3">    3</a>  {%- block title -%}
+<a href="#l4" class="line" id="l4">    4</a>  {{ description }}
+<a href="#l5" class="line" id="l5">    5</a>  {%- endblock -%}
+<a href="#l6" class="line" id="l6">    6</a>  
+<a href="#l7" class="line" id="l7">    7</a>  {% block body %}
+<a href="#l8" class="line" id="l8">    8</a>  {% include &quot;repo-table-header.html.include&quot; %}
+<a href="#l9" class="line" id="l9">    9</a>  
+<a href="#l10" class="line" id="l10">   10</a>  &lt;div id=&quot;content&quot;&gt;
+<a href="#l11" class="line" id="l11">   11</a>    &lt;table id=&quot;log&quot;&gt;
+<a href="#l12" class="line" id="l12">   12</a>      &lt;thead&gt;
+<a href="#l13" class="line" id="l13">   13</a>        &lt;tr&gt;
+<a href="#l14" class="line" id="l14">   14</a>          &lt;td&gt;&lt;b&gt;Date&lt;/b&gt;&lt;/td&gt;
+<a href="#l15" class="line" id="l15">   15</a>          &lt;td&gt;&lt;b&gt;Commit message&lt;/b&gt;&lt;/td&gt;
+<a href="#l16" class="line" id="l16">   16</a>          &lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;
+<a href="#l17" class="line" id="l17">   17</a>        &lt;/tr&gt;
+<a href="#l18" class="line" id="l18">   18</a>      &lt;/thead&gt;
+<a href="#l19" class="line" id="l19">   19</a>  
+<a href="#l20" class="line" id="l20">   20</a>      &lt;tbody&gt;
+<a href="#l21" class="line" id="l21">   21</a>        {% for commit in commits[:50] %}
+<a href="#l22" class="line" id="l22">   22</a>        &lt;tr&gt;&lt;td&gt;{{ commit.authored[:16] }}&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;commit/{{ commit.id }}.html&quot;&gt;{{ commit.title }}&lt;/a&gt;&lt;/td&gt;&lt;td&gt;{{ commit.author }}&lt;/td&gt;&lt;/tr&gt;
+<a href="#l23" class="line" id="l23">   23</a>        {% endfor %}
+<a href="#l24" class="line" id="l24">   24</a>      &lt;/tbody&gt;
+<a href="#l25" class="line" id="l25">   25</a>    &lt;/table&gt;
+<a href="#l26" class="line" id="l26">   26</a>  &lt;/div&gt;
+<a href="#l27" class="line" id="l27">   27</a>  {% endblock %}
+</pre>
+    </div>
+  </body>
+</html>

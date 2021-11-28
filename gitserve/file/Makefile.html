@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - Makefile</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css"/>
+    <link rel="icon" type="image/png" href="/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="http://localhost:8000">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="http://localhost:8000">Home</a> |
+        <a href="http://localhost:8000/gitserve/log.html">Log</a> |
+        <a href="http://localhost:8000/gitserve/tree.html">Files</a> |
+        <a href="http://localhost:8000/gitserve/refs.html">Refs</a> |
+        <a href="http://localhost:8000/gitserve/file/README.rst.html">Readme</a> |
+        <a href="http://localhost:8000/gitserve/file/LICENSE.html">License</a>
+      </span>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- Makefile</p><hr>
+
+  <pre id="blob">
+<a href="#l1" class="line" id="l1">    1</a>  .DEFAULT_GOAL := build
+<a href="#l2" class="line" id="l2">    2</a>  
+<a href="#l3" class="line" id="l3">    3</a>  .PHONY: build
+<a href="#l4" class="line" id="l4">    4</a>  build: ## Compile the binary (Default)
+<a href="#l5" class="line" id="l5">    5</a>  	@stack build
+<a href="#l6" class="line" id="l6">    6</a>  
+<a href="#l7" class="line" id="l7">    7</a>  .PHONY: help
+<a href="#l8" class="line" id="l8">    8</a>  help: ## Show this help
+<a href="#l9" class="line" id="l9">    9</a>  	@awk &apos;BEGIN {FS = &quot;:.*?## &quot;} /^[a-zA-Z_-]+:.*?## / {printf &quot;\033[1m%-15s\033[0m %s\n&quot;, $$1, $$2}&apos; $(MAKEFILE_LIST)
+<a href="#l10" class="line" id="l10">   10</a>  
+<a href="#l11" class="line" id="l11">   11</a>  .PHONY: lint
+<a href="#l12" class="line" id="l12">   12</a>  lint: ## Check the source code
+<a href="#l13" class="line" id="l13">   13</a>  	@hlint src
+<a href="#l14" class="line" id="l14">   14</a>  
+<a href="#l15" class="line" id="l15">   15</a>  .PHONY: format
+<a href="#l16" class="line" id="l16">   16</a>  format: ## Auto-format the source code
+<a href="#l17" class="line" id="l17">   17</a>  	@fourmolu -m inplace src/*
+<a href="#l18" class="line" id="l18">   18</a>  
+<a href="#l19" class="line" id="l19">   19</a>  .PHONY: install
+<a href="#l20" class="line" id="l20">   20</a>  install: ## Install the compiled executable
+<a href="#l21" class="line" id="l21">   21</a>  	@stack install
+<a href="#l22" class="line" id="l22">   22</a>  
+<a href="#l23" class="line" id="l23">   23</a>  .PHONY: clean
+<a href="#l24" class="line" id="l24">   24</a>  clean: ## Clean generated files
+<a href="#l25" class="line" id="l25">   25</a>  	@stack clean
+<a href="#l26" class="line" id="l26">   26</a>  
+<a href="#l27" class="line" id="l27">   27</a>  .PHONY: rebuild
+<a href="#l28" class="line" id="l28">   28</a>  rebuild: ## Clean and then build
+<a href="#l29" class="line" id="l29">   29</a>  	@stack clean
+<a href="#l30" class="line" id="l30">   30</a>  	@stack build
+<a href="#l31" class="line" id="l31">   31</a>  
+<a href="#l32" class="line" id="l32">   32</a>  .PHONY: run
+<a href="#l33" class="line" id="l33">   33</a>  run: ## Run gitserve on this repository into ./output/
+<a href="#l34" class="line" id="l34">   34</a>  	rm -rf output
+<a href="#l35" class="line" id="l35">   35</a>  	stack run -- -q
+<a href="#l36" class="line" id="l36">   36</a>  
+<a href="#l37" class="line" id="l37">   37</a>  .PHONY: test
+<a href="#l38" class="line" id="l38">   38</a>  test: ## Run the &quot;tests&quot;
+<a href="#l39" class="line" id="l39">   39</a>  	bash ./test/test.sh
+<a href="#l40" class="line" id="l40">   40</a>  
+<a href="#l41" class="line" id="l41">   41</a>  .PHONY: all
+<a href="#l42" class="line" id="l42">   42</a>  all: lint format rebuild run test ## Lint, format, rebuild, run, test
+</pre>
+    </div>
+  </body>
+</html>

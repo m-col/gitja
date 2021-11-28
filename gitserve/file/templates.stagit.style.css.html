@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - templates/stagit/style.css</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css"/>
+    <link rel="icon" type="image/png" href="/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="http://localhost:8000">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="http://localhost:8000">Home</a> |
+        <a href="http://localhost:8000/gitserve/log.html">Log</a> |
+        <a href="http://localhost:8000/gitserve/tree.html">Files</a> |
+        <a href="http://localhost:8000/gitserve/refs.html">Refs</a> |
+        <a href="http://localhost:8000/gitserve/file/README.rst.html">Readme</a> |
+        <a href="http://localhost:8000/gitserve/file/LICENSE.html">License</a>
+      </span>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- templates/stagit/style.css</p><hr>
+
+  <pre id="blob">
+<a href="#l1" class="line" id="l1">    1</a>  /*
+<a href="#l2" class="line" id="l2">    2</a>  Credit to much of the styling here goes to stagit: https://codemadness.org/git/stagit/
+<a href="#l3" class="line" id="l3">    3</a>  */
+<a href="#l4" class="line" id="l4">    4</a>  
+<a href="#l5" class="line" id="l5">    5</a>  @viewport {
+<a href="#l6" class="line" id="l6">    6</a>      width: device-width;
+<a href="#l7" class="line" id="l7">    7</a>      zoom: 1.0;
+<a href="#l8" class="line" id="l8">    8</a>  }
+<a href="#l9" class="line" id="l9">    9</a>  
+<a href="#l10" class="line" id="l10">   10</a>  html {
+<a href="#l11" class="line" id="l11">   11</a>      color: #000;
+<a href="#l12" class="line" id="l12">   12</a>      font-family: monospace;
+<a href="#l13" class="line" id="l13">   13</a>      font-size: 1em;
+<a href="#l14" class="line" id="l14">   14</a>  }
+<a href="#l15" class="line" id="l15">   15</a>  
+<a href="#l16" class="line" id="l16">   16</a>  body {
+<a href="#l17" class="line" id="l17">   17</a>      max-width: 900px;
+<a href="#l18" class="line" id="l18">   18</a>  }
+<a href="#l19" class="line" id="l19">   19</a>  
+<a href="#l20" class="line" id="l20">   20</a>  p {
+<a href="#l21" class="line" id="l21">   21</a>      margin: 15px 0;
+<a href="#l22" class="line" id="l22">   22</a>  }
+<a href="#l23" class="line" id="l23">   23</a>  
+<a href="#l24" class="line" id="l24">   24</a>  li {
+<a href="#l25" class="line" id="l25">   25</a>      list-style-type: square;
+<a href="#l26" class="line" id="l26">   26</a>  }
+<a href="#l27" class="line" id="l27">   27</a>  
+<a href="#l28" class="line" id="l28">   28</a>  h1, h2 {
+<a href="#l29" class="line" id="l29">   29</a>      font-size: 1em;
+<a href="#l30" class="line" id="l30">   30</a>      margin: 0;
+<a href="#l31" class="line" id="l31">   31</a>  }
+<a href="#l32" class="line" id="l32">   32</a>  
+<a href="#l33" class="line" id="l33">   33</a>  h2 {
+<a href="#l34" class="line" id="l34">   34</a>      font-weight: bold;
+<a href="#l35" class="line" id="l35">   35</a>      text-decoration: underline;
+<a href="#l36" class="line" id="l36">   36</a>  }
+<a href="#l37" class="line" id="l37">   37</a>  
+<a href="#l38" class="line" id="l38">   38</a>  ::selection {
+<a href="#l39" class="line" id="l39">   39</a>      background: #5D479D;
+<a href="#l40" class="line" id="l40">   40</a>      color: #fff;
+<a href="#l41" class="line" id="l41">   41</a>  }
+<a href="#l42" class="line" id="l42">   42</a>  
+<a href="#l43" class="line" id="l43">   43</a>  table td {
+<a href="#l44" class="line" id="l44">   44</a>      padding: 0 0.4em;
+<a href="#l45" class="line" id="l45">   45</a>  }
+<a href="#l46" class="line" id="l46">   46</a>  
+<a href="#l47" class="line" id="l47">   47</a>  td.link {
+<a href="#l48" class="line" id="l48">   48</a>      text-align: right;
+<a href="#l49" class="line" id="l49">   49</a>  }
+<a href="#l50" class="line" id="l50">   50</a>  
+<a href="#l51" class="line" id="l51">   51</a>  a:target {
+<a href="#l52" class="line" id="l52">   52</a>      background-color: #ddd;
+<a href="#l53" class="line" id="l53">   53</a>  }
+<a href="#l54" class="line" id="l54">   54</a>  
+<a href="#l55" class="line" id="l55">   55</a>  #avatar {
+<a href="#l56" class="line" id="l56">   56</a>      width: 32px;
+<a href="#l57" class="line" id="l57">   57</a>      height: 32px;
+<a href="#l58" class="line" id="l58">   58</a>  }
+<a href="#l59" class="line" id="l59">   59</a>  
+<a href="#l60" class="line" id="l60">   60</a>  a.d, a.h, a.i, a.line {
+<a href="#l61" class="line" id="l61">   61</a>      text-decoration: none;
+<a href="#l62" class="line" id="l62">   62</a>  }
+<a href="#l63" class="line" id="l63">   63</a>  
+<a href="#l64" class="line" id="l64">   64</a>  #blob a, .desc {
+<a href="#l65" class="line" id="l65">   65</a>      color: #777;
+<a href="#l66" class="line" id="l66">   66</a>  }
+<a href="#l67" class="line" id="l67">   67</a>  
+<a href="#l68" class="line" id="l68">   68</a>  #blob a:hover {
+<a href="#l69" class="line" id="l69">   69</a>      color: blue;
+<a href="#l70" class="line" id="l70">   70</a>      text-decoration: none;
+<a href="#l71" class="line" id="l71">   71</a>  }
+<a href="#l72" class="line" id="l72">   72</a>  
+<a href="#l73" class="line" id="l73">   73</a>  table thead td {
+<a href="#l74" class="line" id="l74">   74</a>      font-weight: bold;
+<a href="#l75" class="line" id="l75">   75</a>  }
+<a href="#l76" class="line" id="l76">   76</a>  
+<a href="#l77" class="line" id="l77">   77</a>  #content table td {
+<a href="#l78" class="line" id="l78">   78</a>      vertical-align: top;
+<a href="#l79" class="line" id="l79">   79</a>      white-space: nowrap;
+<a href="#l80" class="line" id="l80">   80</a>  }
+<a href="#l81" class="line" id="l81">   81</a>  
+<a href="#l82" class="line" id="l82">   82</a>  #head {
+<a href="#l83" class="line" id="l83">   83</a>      width: 100%;
+<a href="#l84" class="line" id="l84">   84</a>  }
+<a href="#l85" class="line" id="l85">   85</a>  
+<a href="#l86" class="line" id="l86">   86</a>  #branches tr:hover td,
+<a href="#l87" class="line" id="l87">   87</a>  #tags tr:hover td,
+<a href="#l88" class="line" id="l88">   88</a>  #index tr:hover td,
+<a href="#l89" class="line" id="l89">   89</a>  #log tr:hover td,
+<a href="#l90" class="line" id="l90">   90</a>  #files tr:hover td {
+<a href="#l91" class="line" id="l91">   91</a>      background-color: #eee;
+<a href="#l92" class="line" id="l92">   92</a>  }
+<a href="#l93" class="line" id="l93">   93</a>  
+<a href="#l94" class="line" id="l94">   94</a>  #index tr td:nth-child(2),
+<a href="#l95" class="line" id="l95">   95</a>  #tags tr td:nth-child(3),
+<a href="#l96" class="line" id="l96">   96</a>  #branches tr td:nth-child(3),
+<a href="#l97" class="line" id="l97">   97</a>  #log tr td:nth-child(2) {
+<a href="#l98" class="line" id="l98">   98</a>      white-space: normal;
+<a href="#l99" class="line" id="l99">   99</a>  }
+<a href="#l100" class="line" id="l100">  100</a>  
+<a href="#l101" class="line" id="l101">  101</a>  td.num {
+<a href="#l102" class="line" id="l102">  102</a>      text-align: right;
+<a href="#l103" class="line" id="l103">  103</a>  }
+<a href="#l104" class="line" id="l104">  104</a>  
+<a href="#l105" class="line" id="l105">  105</a>  hr {
+<a href="#l106" class="line" id="l106">  106</a>      border: 0;
+<a href="#l107" class="line" id="l107">  107</a>      border-top: 1px solid #777;
+<a href="#l108" class="line" id="l108">  108</a>      height: 1px;
+<a href="#l109" class="line" id="l109">  109</a>  }
+<a href="#l110" class="line" id="l110">  110</a>  
+<a href="#l111" class="line" id="l111">  111</a>  pre a.h {
+<a href="#l112" class="line" id="l112">  112</a>      color: #00a;
+<a href="#l113" class="line" id="l113">  113</a>  }
+<a href="#l114" class="line" id="l114">  114</a>  
+<a href="#l115" class="line" id="l115">  115</a>  .A,
+<a href="#l116" class="line" id="l116">  116</a>  span.i,
+<a href="#l117" class="line" id="l117">  117</a>  pre a.i {
+<a href="#l118" class="line" id="l118">  118</a>      color: #070;
+<a href="#l119" class="line" id="l119">  119</a>  }
+<a href="#l120" class="line" id="l120">  120</a>  
+<a href="#l121" class="line" id="l121">  121</a>  .D,
+<a href="#l122" class="line" id="l122">  122</a>  span.d,
+<a href="#l123" class="line" id="l123">  123</a>  pre a.d {
+<a href="#l124" class="line" id="l124">  124</a>      color: #e00;
+<a href="#l125" class="line" id="l125">  125</a>  }
+<a href="#l126" class="line" id="l126">  126</a>  
+<a href="#l127" class="line" id="l127">  127</a>  pre a.h:hover,
+<a href="#l128" class="line" id="l128">  128</a>  pre a.i:hover,
+<a href="#l129" class="line" id="l129">  129</a>  pre a.d:hover {
+<a href="#l130" class="line" id="l130">  130</a>      text-decoration: none;
+<a href="#l131" class="line" id="l131">  131</a>  }
+<a href="#l132" class="line" id="l132">  132</a>  
+<a href="#l133" class="line" id="l133">  133</a>  .highlight, code {
+<a href="#l134" class="line" id="l134">  134</a>      background: #eeeeef;
+<a href="#l135" class="line" id="l135">  135</a>      color: black;
+<a href="#l136" class="line" id="l136">  136</a>  }
+<a href="#l137" class="line" id="l137">  137</a>  
+<a href="#l138" class="line" id="l138">  138</a>  .highlight {
+<a href="#l139" class="line" id="l139">  139</a>      white-space: pre-wrap;
+<a href="#l140" class="line" id="l140">  140</a>      word-wrap: break-word;
+<a href="#l141" class="line" id="l141">  141</a>  }
+<a href="#l142" class="line" id="l142">  142</a>  
+<a href="#l143" class="line" id="l143">  143</a>  .c, .ch, .cm, .cp, .cpf, .c1, .gh, .gp
+<a href="#l144" class="line" id="l144">  144</a>  { color: #5D479D } /* comments */
+<a href="#l145" class="line" id="l145">  145</a>  
+<a href="#l146" class="line" id="l146">  146</a>  .err, .se, .o
+<a href="#l147" class="line" id="l147">  147</a>  { color: #a53c21 } /* dark red */
+<a href="#l148" class="line" id="l148">  148</a>  
+<a href="#l149" class="line" id="l149">  149</a>  .sh, .si, .sx, .sr, .s1, .ss, .cs, .gd, .dl,
+<a href="#l150" class="line" id="l150">  150</a>  .s2, .nc, .vc, .vg, .vi, .vm, .nv, .sc, .s
+<a href="#l151" class="line" id="l151">  151</a>  { color: #8f4ff0 } /* bright pink */
+<a href="#l152" class="line" id="l152">  152</a>  
+<a href="#l153" class="line" id="l153">  153</a>  .kn, .nb, .mb, .mf, .mh, .mi, .mo, .bp, .il, .m
+<a href="#l154" class="line" id="l154">  154</a>  { color: #406794 } /* keywords (exit, eval) */
+<a href="#l155" class="line" id="l155">  155</a>  
+<a href="#l156" class="line" id="l156">  156</a>  .kt
+<a href="#l157" class="line" id="l157">  157</a>  { color: #3e3e73 } /* light grey */
+<a href="#l158" class="line" id="l158">  158</a>  
+<a href="#l159" class="line" id="l159">  159</a>  .kc, .k, .ow, .kp, .kr
+<a href="#l160" class="line" id="l160">  160</a>  { color: #406794 } /* key words */
+<a href="#l161" class="line" id="l161">  161</a>  
+<a href="#l162" class="line" id="l162">  162</a>  .esc, .l, .n, .x, .p, .gs, .ld, .na, .no, .ge
+<a href="#l163" class="line" id="l163">  163</a>  .nd, .ni, .nf, .nl, .nn, .nx, .py, .nt, .w, .fm, .g
+<a href="#l164" class="line" id="l164">  164</a>  { color: black }
+<a href="#l165" class="line" id="l165">  165</a>  
+<a href="#l166" class="line" id="l166">  166</a>  .ne { color: #5fd75f }
+<a href="#l167" class="line" id="l167">  167</a>  
+<a href="#l168" class="line" id="l168">  168</a>  .gh, .gp, .cs, .gu, .ne, .cs
+<a href="#l169" class="line" id="l169">  169</a>  { font-weight: bold }
+</pre>
+    </div>
+  </body>
+</html>

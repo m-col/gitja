@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - src/Main.hs</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css"/>
+    <link rel="icon" type="image/png" href="/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="http://localhost:8000">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="http://localhost:8000">Home</a> |
+        <a href="http://localhost:8000/gitserve/log.html">Log</a> |
+        <a href="http://localhost:8000/gitserve/tree.html">Files</a> |
+        <a href="http://localhost:8000/gitserve/refs.html">Refs</a> |
+        <a href="http://localhost:8000/gitserve/file/README.rst.html">Readme</a> |
+        <a href="http://localhost:8000/gitserve/file/LICENSE.html">License</a>
+      </span>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- src/Main.hs</p><hr>
+
+  <pre id="blob">
+<a href="#l1" class="line" id="l1">    1</a>  {-# LANGUAGE OverloadedStrings #-}
+<a href="#l2" class="line" id="l2">    2</a>  
+<a href="#l3" class="line" id="l3">    3</a>  module Main (
+<a href="#l4" class="line" id="l4">    4</a>      main,
+<a href="#l5" class="line" id="l5">    5</a>  ) where
+<a href="#l6" class="line" id="l6">    6</a>  
+<a href="#l7" class="line" id="l7">    7</a>  import Paths_gitserve (version)
+<a href="#l8" class="line" id="l8">    8</a>  
+<a href="#l9" class="line" id="l9">    9</a>  import Data.Version (showVersion)
+<a href="#l10" class="line" id="l10">   10</a>  import qualified Options.Applicative as O
+<a href="#l11" class="line" id="l11">   11</a>  
+<a href="#l12" class="line" id="l12">   12</a>  import Config (getConfig)
+<a href="#l13" class="line" id="l13">   13</a>  import Index (runIndex)
+<a href="#l14" class="line" id="l14">   14</a>  import Repositories (run)
+<a href="#l15" class="line" id="l15">   15</a>  import Templates (loadEnv)
+<a href="#l16" class="line" id="l16">   16</a>  
+<a href="#l17" class="line" id="l17">   17</a>  {-
+<a href="#l18" class="line" id="l18">   18</a>  Command line options
+<a href="#l19" class="line" id="l19">   19</a>  -}
+<a href="#l20" class="line" id="l20">   20</a>  data Options = Options
+<a href="#l21" class="line" id="l21">   21</a>      { optConfig :: FilePath
+<a href="#l22" class="line" id="l22">   22</a>      , optQuiet :: Bool
+<a href="#l23" class="line" id="l23">   23</a>      , optForce :: Bool
+<a href="#l24" class="line" id="l24">   24</a>      , optVersion :: Bool
+<a href="#l25" class="line" id="l25">   25</a>      }
+<a href="#l26" class="line" id="l26">   26</a>  
+<a href="#l27" class="line" id="l27">   27</a>  opts :: O.Parser Options
+<a href="#l28" class="line" id="l28">   28</a>  opts =
+<a href="#l29" class="line" id="l29">   29</a>      Options
+<a href="#l30" class="line" id="l30">   30</a>          &lt;$&gt; O.strOption
+<a href="#l31" class="line" id="l31">   31</a>              ( O.long &quot;config&quot;
+<a href="#l32" class="line" id="l32">   32</a>                  &lt;&gt; O.short &apos;c&apos;
+<a href="#l33" class="line" id="l33">   33</a>                  &lt;&gt; O.metavar &quot;CONFIG&quot;
+<a href="#l34" class="line" id="l34">   34</a>                  &lt;&gt; O.value &quot;./config.dhall&quot;
+<a href="#l35" class="line" id="l35">   35</a>                  &lt;&gt; O.help &quot;Configuration file to use (Default: ./config.dhall).&quot;
+<a href="#l36" class="line" id="l36">   36</a>              )
+<a href="#l37" class="line" id="l37">   37</a>          &lt;*&gt; O.switch
+<a href="#l38" class="line" id="l38">   38</a>              ( O.long &quot;quiet&quot;
+<a href="#l39" class="line" id="l39">   39</a>                  &lt;&gt; O.short &apos;q&apos;
+<a href="#l40" class="line" id="l40">   40</a>                  &lt;&gt; O.help &quot;Suppress non-error output.&quot;
+<a href="#l41" class="line" id="l41">   41</a>              )
+<a href="#l42" class="line" id="l42">   42</a>          &lt;*&gt; O.switch
+<a href="#l43" class="line" id="l43">   43</a>              ( O.long &quot;force&quot;
+<a href="#l44" class="line" id="l44">   44</a>                  &lt;&gt; O.short &apos;f&apos;
+<a href="#l45" class="line" id="l45">   45</a>                  &lt;&gt; O.help &quot;Force regeneration of all files.&quot;
+<a href="#l46" class="line" id="l46">   46</a>              )
+<a href="#l47" class="line" id="l47">   47</a>          &lt;*&gt; O.switch
+<a href="#l48" class="line" id="l48">   48</a>              ( O.long &quot;version&quot;
+<a href="#l49" class="line" id="l49">   49</a>                  &lt;&gt; O.short &apos;v&apos;
+<a href="#l50" class="line" id="l50">   50</a>                  &lt;&gt; O.help &quot;Print the gitserve&apos;s version.&quot;
+<a href="#l51" class="line" id="l51">   51</a>              )
+<a href="#l52" class="line" id="l52">   52</a>  
+<a href="#l53" class="line" id="l53">   53</a>  parser :: IO Options
+<a href="#l54" class="line" id="l54">   54</a>  parser =
+<a href="#l55" class="line" id="l55">   55</a>      O.execParser $
+<a href="#l56" class="line" id="l56">   56</a>          O.info
+<a href="#l57" class="line" id="l57">   57</a>              (opts O.&lt;**&gt; O.helper)
+<a href="#l58" class="line" id="l58">   58</a>              ( O.progDesc &quot;🐙 Templated web page generator for your git repositories&quot;
+<a href="#l59" class="line" id="l59">   59</a>              )
+<a href="#l60" class="line" id="l60">   60</a>  
+<a href="#l61" class="line" id="l61">   61</a>  {-
+<a href="#l62" class="line" id="l62">   62</a>  Main logic
+<a href="#l63" class="line" id="l63">   63</a>  -}
+<a href="#l64" class="line" id="l64">   64</a>  main :: IO ()
+<a href="#l65" class="line" id="l65">   65</a>  main = do
+<a href="#l66" class="line" id="l66">   66</a>      options &lt;- parser
+<a href="#l67" class="line" id="l67">   67</a>      if optVersion options
+<a href="#l68" class="line" id="l68">   68</a>          then putStrLn $ &quot;Your gitserve version is: &quot; &lt;&gt; showVersion version
+<a href="#l69" class="line" id="l69">   69</a>          else do
+<a href="#l70" class="line" id="l70">   70</a>              conf &lt;- getConfig (optConfig options)
+<a href="#l71" class="line" id="l71">   71</a>              env &lt;- loadEnv (optQuiet options) (optForce options) conf
+<a href="#l72" class="line" id="l72">   72</a>              runIndex env =&lt;&lt; run env
+</pre>
+    </div>
+  </body>
+</html>

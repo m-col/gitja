@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - config.dhall</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css"/>
+    <link rel="icon" type="image/png" href="/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="http://localhost:8000">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="http://localhost:8000">Home</a> |
+        <a href="http://localhost:8000/gitserve/log.html">Log</a> |
+        <a href="http://localhost:8000/gitserve/tree.html">Files</a> |
+        <a href="http://localhost:8000/gitserve/refs.html">Refs</a> |
+        <a href="http://localhost:8000/gitserve/file/README.rst.html">Readme</a> |
+        <a href="http://localhost:8000/gitserve/file/LICENSE.html">License</a>
+      </span>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- config.dhall</p><hr>
+
+  <pre id="blob">
+<a href="#l1" class="line" id="l1">    1</a>  -- This is an example configuration file for gitserve.
+<a href="#l2" class="line" id="l2">    2</a>  -- It uses the Dhall configuration language: dhall-lang.org
+<a href="#l3" class="line" id="l3">    3</a>  
+<a href="#l4" class="line" id="l4">    4</a>  -- This is a folder containing repositories.
+<a href="#l5" class="line" id="l5">    5</a>  let repos = &quot;..&quot;
+<a href="#l6" class="line" id="l6">    6</a>  
+<a href="#l7" class="line" id="l7">    7</a>  -- And these are relative paths from &apos;repos&apos; to those repositories.
+<a href="#l8" class="line" id="l8">    8</a>  let folders =
+<a href="#l9" class="line" id="l9">    9</a>      [ &quot;${repos}/gitserve&quot;
+<a href="#l10" class="line" id="l10">   10</a>      ]
+<a href="#l11" class="line" id="l11">   11</a>  
+<a href="#l12" class="line" id="l12">   12</a>  -- These are the configurable options that are used by gitserve.
+<a href="#l13" class="line" id="l13">   13</a>  -- If copying, you may want to replace the relative paths for absolute paths.
+<a href="#l14" class="line" id="l14">   14</a>  let config =
+<a href="#l15" class="line" id="l15">   15</a>      { repoPaths = folders
+<a href="#l16" class="line" id="l16">   16</a>      , templateDirectory = &quot;./templates/docs&quot;
+<a href="#l17" class="line" id="l17">   17</a>      , outputDirectory = &quot;./output&quot;
+<a href="#l18" class="line" id="l18">   18</a>      , host = &quot;http://localhost:8000&quot;
+<a href="#l19" class="line" id="l19">   19</a>      }
+<a href="#l20" class="line" id="l20">   20</a>  
+<a href="#l21" class="line" id="l21">   21</a>  -- Note: The host is available verbatim in templates.
+<a href="#l22" class="line" id="l22">   22</a>  -- Port 8000 is appended here for easier testing with `python -m http.server`.
+<a href="#l23" class="line" id="l23">   23</a>  
+<a href="#l24" class="line" id="l24">   24</a>  in config
+</pre>
+    </div>
+  </body>
+</html>
