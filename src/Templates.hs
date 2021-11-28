@@ -8,16 +8,28 @@ module Templates (
     generate,
 ) where
 
-import Control.Monad (filterM, join, void, when, (<=<))
+import Control.Monad (filterM, join, when, (<=<))
 import Control.Monad.Extra (findM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import qualified Data.HashMap.Strict as HashMap
+import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Maybe (catMaybes, fromMaybe)
-import Data.Text (Text, unpack)
+import qualified Data.Text as T
+import qualified Data.Text.Lazy.Builder as TB
+import qualified Data.Text.Lazy.IO as T
 import Git.Libgit2 (LgRepo)
 import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (</>))
-import Path.IO (copyDirRecur, copyFile, doesDirExist, ensureDir, forgivingAbsence, isSymlink, listDir)
+import Path.IO (
+    copyDirRecur,
+    copyFile,
+    doesDirExist,
+    ensureDir,
+    forgivingAbsence,
+    ignoringAbsence,
+    isSymlink,
+    listDir,
+ )
 import System.Directory (
     canonicalizePath,
     createDirectoryLink,
@@ -49,7 +61,7 @@ data Env = Env
     , envRepoTemplates :: [Template]
     , envOutputDirectory :: Path Abs Dir
     , envRepoPaths :: [Path Abs Dir]
-    , envHost :: Text
+    , envHost :: T.Text
     , envQuiet :: Bool
     , envForce :: Bool
     }
@@ -130,17 +142,20 @@ Ginger to render templates using them.
 -}
 generate ::
     Path Abs File ->
-    HashMap.HashMap Text (GVal RunRepo) ->
+    HashMap.HashMap T.Text (GVal RunRepo) ->
     Template ->
     ReaderT LgRepo IO ()
 generate output context template = do
     let output' = toFilePath output
-    liftIO $ writeFile output' "" -- Clear contents of file if it exists
-    void . runGingerT (easyContext (writeTo output') context) . templateGinger $ template
-  where
-    -- This function gets the output HTML data and is responsible for saving it to file.
-    writeTo :: FilePath -> Html -> ReaderT LgRepo IO ()
-    writeTo path = liftIO . appendFile path . unpack . htmlSource
+    liftIO . ignoringAbsence . removeFile $ output'
+    content <- liftIO . newIORef . TB.fromText $ ""
+
+    let emit :: Html -> ReaderT LgRepo IO ()
+        emit = liftIO . modifyIORef' content . flip mappend . TB.fromText . htmlSource
+
+    runGingerT (easyContext emit context) . templateGinger $ template
+    result <- liftIO . readIORef $ content
+    liftIO . T.writeFile output' . TB.toLazyText $ result
 
 {-
 This takes the session's `Config` and maybe returns a loaded template for the
