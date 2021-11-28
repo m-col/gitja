@@ -1,14 +1,8 @@
 {% extends "../template.html.include" %}
 
-{%- block title -%}
-gitserve
-{%- endblock -%}
+{%- block title %}docs{% endblock -%}
 
 {% block body %}
-<h1>gitserve</h1>
-<h2>{{ description }}</h2>
-
-
 <div id="docs"></div>
 <div id="src" hidden>
 {% set docs = filter(tree, (f) -> f.path == "DOCUMENTATION.md")[0] %}
@@ -17,12 +11,17 @@ gitserve
 
 <script type="text/javascript" src="{{ host }}/showdown.min.js"></script>
 <script>
-	showdown.setFlavor('github');
-	var converter = new showdown.Converter(
-			{tables: true, tablesHeaderId: true, ghMentions: true, emoji: true, ellipsis: false}
-	);
-	document.getElementById('docs').innerHTML =
-		converter.makeHtml(document.getElementById('src').innerHTML);
+  showdown.setFlavor('github');
+  var converter = new showdown.Converter({
+      tables: true,
+      tablesHeaderId: true,
+      ghCompatibleHeaderId: true,
+      ghMentions: true,
+      emoji: true,
+      ellipsis: false,
+      simpleLineBreaks: false,
+  });
+  document.getElementById('docs').innerHTML =
+    converter.makeHtml(document.getElementById('src').innerHTML);
 </script>
-
 {% endblock %}

@@ -1,12 +1,9 @@
 {% extends "../template.html.include" %}
 
-{%- block title -%}
-{{ name }} - {{ commit.title }}
-{%- endblock -%}
+{%- block title %}{{ commit.title }}{% endblock -%}
 
 {% block body %}
-<div id="content">
-  <pre><b>Commit</b> <a href="{{ host }}/{{ name }}/commit/{{ commit.id }}.html">{{ commit.id }}</a>
+<pre><b>Commit</b> <a href="{{ host }}/{{ name }}/commit/{{ commit.id }}.html">{{ commit.id }}</a>
 <b>Parent:</b> <a href="{{ host }}/{{ name }}/commit/{{ commit.parent }}.html">{{ commit.parent }}</a>
 <b>Author:</b> {{ commit.author }} &lt;<a href="mailto:{{ commit.author_email }}">{{ commit.author_email }}</a>&gt;
 <b>Date:</b> {{ commit.authored }}
@@ -15,5 +12,4 @@
 
 {{ commit.message }}
 </pre>
-</div>
 {% endblock %}
