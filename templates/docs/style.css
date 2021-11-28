@@ -44,7 +44,11 @@ p {
 }
 
 #nav {
-    padding: 0 20px;
+    padding: 10px 20px 0;
+}
+
+#links {
+    float: right;
 }
 
 #docs h2 {
@@ -84,9 +88,27 @@ td, th {
 }
 
 table {
+    margin: 3em auto;
+    width: 90%;
     border-collapse: collapse;
+}
+
+
+th {
+    background-color: #fcfaff;
+    text-decoration: underline #aaa;
 }
 
 tr:nth-child(even) {
     background-color: #fcfaff;
+}
+
+.line {
+    text-decoration: none;
+    color: #5d479d50;
+}
+
+.line:hover {
+    background-color: #5d479d50;
+    color: #333;
 }

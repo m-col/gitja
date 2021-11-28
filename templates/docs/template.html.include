@@ -19,13 +19,16 @@
 
     <div id="nav">
       {% set url = concat("https://github.com/m-col/", name) -%}
-      <p id="url">git clone <a href="{{ url }}">{{ url }}</a></p>
+      <span id="url">git clone <a href="{{ url }}">{{ url }}</a></span>
 
-      <a href="{{ host }}">Home</a> |
-      <a href="{{ host }}/{{ name }}/tree.html">Files</a> |
-      <a href="{{ host }}/{{ name }}/refs.html">Refs</a> |
-      <a href="{{ host }}/{{ name }}/file/{{ readme.href }}">Readme</a> |
-      <a href="{{ host }}/{{ name }}/file/{{ license.href }}">License</a>
+      <span id="links">
+        <a href="{{ host }}">Home</a> |
+        <a href="{{ host }}/{{ name }}/log.html">Log</a> |
+        <a href="{{ host }}/{{ name }}/tree.html">Files</a> |
+        <a href="{{ host }}/{{ name }}/refs.html">Refs</a> |
+        <a href="{{ host }}/{{ name }}/file/{{ readme.href }}">Readme</a> |
+        <a href="{{ host }}/{{ name }}/file/{{ license.href }}">License</a>
+      </span>
     </div>
 
     <div id="content">

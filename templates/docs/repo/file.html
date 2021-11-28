@@ -26,7 +26,7 @@
 {% else %}
   <pre id="blob">
 {% for line in split(file.contents, '\n') %}
-<a href="#l{{ loop.index }}" class="line" id="l{{ loop.index }}">{{ printf("%7v", loop.index) }}</a> {{ line }}
+<a href="#l{{ loop.index }}" class="line" id="l{{ loop.index }}">{{ printf("%5v", loop.index) }}</a>  {{ line }}
 {% endfor %}
 {% endif %}
 </pre>
