@@ -5,12 +5,12 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>🐙 gitserve - .github/workflows/ci.yaml</title>
-    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css"/>
+    <link rel="stylesheet" type="text/css" href="http://gitserve.mcol.xyz/style.css"/>
     <link rel="icon" type="image/png" href="/favicon.png"/>
   </head>
 
   <body>
-    <a id="heada" href="http://localhost:8000">
+    <a id="heada" href="http://gitserve.mcol.xyz">
       <header>
         <h1 id="title">gitserve</h1>
         <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
@@ -21,12 +21,12 @@
       <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
 
       <span id="links">
-        <a href="http://localhost:8000">Home</a> |
-        <a href="http://localhost:8000/gitserve/log.html">Log</a> |
-        <a href="http://localhost:8000/gitserve/tree.html">Files</a> |
-        <a href="http://localhost:8000/gitserve/refs.html">Refs</a> |
-        <a href="http://localhost:8000/gitserve/file/README.rst.html">Readme</a> |
-        <a href="http://localhost:8000/gitserve/file/LICENSE.html">License</a>
+        <a href="http://gitserve.mcol.xyz">Home</a> |
+        <a href="http://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="http://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="http://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="http://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="http://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
       </span>
     </div>
 
@@ -73,15 +73,17 @@
 <a href="#l37" class="line" id="l37">   37</a>          bash test/test.sh
 <a href="#l38" class="line" id="l38">   38</a>  
 <a href="#l39" class="line" id="l39">   39</a>      - name: Generate docs
-<a href="#l40" class="line" id="l40">   40</a>        run: |
-<a href="#l41" class="line" id="l41">   41</a>          stack run -- -c ./config.dhall -q
-<a href="#l42" class="line" id="l42">   42</a>  
-<a href="#l43" class="line" id="l43">   43</a>      - name: Deploy docs
-<a href="#l44" class="line" id="l44">   44</a>        if: github.event_name == &apos;push&apos;
-<a href="#l45" class="line" id="l45">   45</a>        uses: JamesIves/github-pages-deploy-action@4.1.7
-<a href="#l46" class="line" id="l46">   46</a>        with:
-<a href="#l47" class="line" id="l47">   47</a>          branch: gh-pages
-<a href="#l48" class="line" id="l48">   48</a>          folder: output
+<a href="#l40" class="line" id="l40">   40</a>        if: github.event_name == &apos;push&apos;
+<a href="#l41" class="line" id="l41">   41</a>        run: |
+<a href="#l42" class="line" id="l42">   42</a>          sed -i &apos;s/localhost:8000/gitserve.mcol.xyz/&apos; config.dhall
+<a href="#l43" class="line" id="l43">   43</a>          stack run -- -c ./config.dhall -q
+<a href="#l44" class="line" id="l44">   44</a>  
+<a href="#l45" class="line" id="l45">   45</a>      - name: Deploy docs
+<a href="#l46" class="line" id="l46">   46</a>        if: github.event_name == &apos;push&apos;
+<a href="#l47" class="line" id="l47">   47</a>        uses: JamesIves/github-pages-deploy-action@4.1.7
+<a href="#l48" class="line" id="l48">   48</a>        with:
+<a href="#l49" class="line" id="l49">   49</a>          branch: gh-pages
+<a href="#l50" class="line" id="l50">   50</a>          folder: output
 </pre>
     </div>
   </body>
