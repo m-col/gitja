@@ -36,6 +36,13 @@ jobs:
       run: |
         bash test/test.sh
 
-    - name: Test docs generation
+    - name: Generate docs
       run: |
-        stack run -- -c ./config.dhall
+        stack run -- -c ./config.dhall -q
+
+    - name: Deploy docs
+      if: github.event_name == 'push'
+      uses: JamesIves/github-pages-deploy-action@4.1.7
+      with:
+        branch: gh-pages
+        folder: output
