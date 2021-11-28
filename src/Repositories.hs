@@ -209,9 +209,8 @@ genRepo ::
     HashMap.HashMap Text (GVal RunRepo) ->
     Template ->
     ReaderT LgRepo IO ()
-genRepo output scope template = generate output' scope template
-  where
-    output' = output </> templatePath template
+genRepo output scope template =
+    generate (output </> templatePath template) scope template
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
