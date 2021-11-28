@@ -8,6 +8,10 @@ gitserve
 ``gitserve`` generates pretty web pages from your git repositories using custom
 Jinja_\* HTML templates.
 
+``gitserve`` complements your static site generator so that you can display
+your code however you want, in a style consistent with the rest of your
+website!
+
 This was inspired by stagit_, which generates content with a hard-coded style,
 so if you like that style and don't want to edit templates, you may prefer to
 use that.
@@ -15,12 +19,17 @@ use that.
 \*The templating engine is not Jinja per se, but ginger_, an implementation of
 the Jinja language for Haskell. Please see their docs for any differences.
 
-Why?
-----
+Getting Started
+---------------
 
-``gitserve`` complements your static site generator so that you can display
-your code however you want, in a style consistent with the rest of your
-website!
+Currently installation is only possible via source::
+
+    git clone https://github.com/m-col/gitserve
+    cd gitserve
+    stack install
+
+Documentation and a preview of the kind of pages ``gitserve`` can generate is
+available here_.
 
 Contributing
 ------------
@@ -42,3 +51,4 @@ Colligan and `licensed MIT <LICENSE>`_.
 .. _`open an issue`: https://github.com/m-col/gitserve/issues/new
 .. _fourmolu: https://github.com/fourmolu/fourmolu
 .. _hlint: https://github.com/ndmitchell/hlint
+.. _here: https://gitserve.mcol.xyz
