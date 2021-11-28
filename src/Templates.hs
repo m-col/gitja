@@ -13,16 +13,15 @@ import Control.Monad.Extra (findM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import qualified Data.HashMap.Strict as HashMap
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, fromMaybe)
 import Data.Text (Text, unpack)
 import Git.Libgit2 (LgRepo)
 import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (</>))
-import Path.IO (copyDirRecur, copyFile, doesDirExist, ensureDir, listDir)
+import Path.IO (copyDirRecur, copyFile, doesDirExist, ensureDir, forgivingAbsence, isSymlink, listDir)
 import System.Directory (
     canonicalizePath,
     createDirectoryLink,
     createFileLink,
-    doesPathExist,
     getSymbolicLinkTarget,
     pathIsSymbolicLink,
     removeFile,
@@ -215,7 +214,8 @@ copyStaticFiles output = mapM_ copy <=< filterM isStatic
         if isLink
             then do
                 target <- getSymbolicLinkTarget fp
-                exists <- doesPathExist . toFilePath $ output'
+                maybeExists <- forgivingAbsence . isSymlink $ output'
+                let exists = fromMaybe False maybeExists
                 when exists . removeFile . toFilePath $ output'
                 createFileLink target . toFilePath $ output'
             else copyFile p output'
