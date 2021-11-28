@@ -13,6 +13,7 @@ ghc-options:
   "$locals": -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
     -Wincomplete-record-updates -Wredundant-constraints -Wpartial-fields
     -Wmissing-deriving-strategies -Wunused-packages -fno-warn-unused-do-bind
-    -fno-warn-orphans
+    -fno-warn-orphans -threaded
 
+rebuild-ghc-options: true
 allow-newer: true
