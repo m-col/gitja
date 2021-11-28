@@ -37,13 +37,13 @@ jobs:
         bash test/test.sh
 
     - name: Generate docs
-      if: github.event_name == 'push'
+      if: matrix.os == 'ubuntu-latest' && github.event_name == 'push'
       run: |
         sed -i 's/localhost:8000/gitserve.mcol.xyz/' config.dhall
         stack run -- -c ./config.dhall -q
 
     - name: Deploy docs
-      if: github.event_name == 'push'
+      if: matrix.os == 'ubuntu-latest' && github.event_name == 'push'
       uses: JamesIves/github-pages-deploy-action@4.1.7
       with:
         branch: gh-pages
