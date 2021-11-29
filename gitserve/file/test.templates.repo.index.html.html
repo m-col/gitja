@@ -45,12 +45,11 @@
 <a href="#l9" class="line" id="l9">    9</a>  description: {{ description }}
 <a href="#l10" class="line" id="l10">   10</a>  commits: (skipped)
 <a href="#l11" class="line" id="l11">   11</a>  tree: (skipped)
-<a href="#l12" class="line" id="l12">   12</a>  tags: (skipped)
-<a href="#l13" class="line" id="l13">   13</a>  branches: {{ branches }}
-<a href="#l14" class="line" id="l14">   14</a>      branches[0].name: {{ branches[0].name }}
-<a href="#l15" class="line" id="l15">   15</a>  readme.path: {{ readme.path }}
-<a href="#l16" class="line" id="l16">   16</a>  license.path: {{ license.path }}
-<a href="#l17" class="line" id="l17">   17</a>  {% endblock %}
+<a href="#l12" class="line" id="l12">   12</a>  tags: {{ length(filter(tags, (t) -&gt; t.name == &quot;0.2.0&quot;)) }}
+<a href="#l13" class="line" id="l13">   13</a>  branches: {{ length(filter(branches, (b) -&gt; b.name == &quot;master&quot;)) }}
+<a href="#l14" class="line" id="l14">   14</a>  readme.path: {{ readme.path }}
+<a href="#l15" class="line" id="l15">   15</a>  license.path: {{ license.path }}
+<a href="#l16" class="line" id="l16">   16</a>  {% endblock %}
 </pre>
     </div>
   </body>
