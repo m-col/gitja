@@ -14,6 +14,7 @@ The templates and their descriptions:
 ============= ==========================================
 Template name Description
 ============= ==========================================
+base          This is placed into the current folder via ``gitserve -t``.
 docs          This is used for generating gitserve's docs website.
 stagit        This replicates much of stagit_'s style.
 ============= ==========================================

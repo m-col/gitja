@@ -14,7 +14,7 @@ lint: ## Check the source code
 
 .PHONY: format
 format: ## Auto-format the source code
-	@fourmolu -m inplace src/*
+	@fourmolu -m inplace src/*.hs
 
 .PHONY: install
 install: ## Install the compiled executable
