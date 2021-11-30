@@ -1,0 +1,23 @@
+{% extends "../template.html.include" %}
+
+{%- block title %}{{ name }} - Tree{% endblock -%}
+
+{% block content %}
+<table>
+  <thead>
+    <tr>
+      <td><b>Mode</b></td>
+      <td><b>Name</b></td>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for file in tree %}
+    <tr>
+      <td>{{ file.mode_symbolic }}</td>
+      <td><a href="{{ host }}/{{ name }}/file/{{ file.href }}">{{ file.path }}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

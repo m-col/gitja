@@ -1,1 +1,40 @@
-TODO
+{% extends "template.html.include" %}
+
+{%- block title %}My git repositories{% endblock %}
+
+{%- block head %}
+<h1>My git repositories</h1>
+
+<p>
+This is the base template for <code>gitserve</code>.
+</p>
+
+<p>
+The full documentation for <code>gitserve</code>, including how templates need
+to be organised and what variables are available within them, see <a
+href="https://gitserve.mcol.xyz">https://gitserve.mcol.xyz</a>.
+</p>
+{% endblock %}
+
+{%- block content %}
+<table>
+  <thead>
+    <tr>
+      <td><b>Name</b></td>
+      <td><b>Description</b></td>
+      <td colspan="2"><b>Last commit</b></td>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for repo in repositories %}
+    <tr>
+      <td><a href="{{ host }}/{{ repo.name }}">{{ repo.name }}</a></td>
+      <td>{{ repo.description }}</td>
+      <td>{{ repo.updated[:16] }}</td>
+      <td>{{ repo.head.title }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

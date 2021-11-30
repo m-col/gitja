@@ -1,8 +1,4 @@
-{#-
-This file is being used as a base template by all other files.
-
-They just need to define a 'title' block and a 'body' block.
--#}
+{# This file is being used as a base template by all other files. #}
 
 <!doctype html>
 <html>
@@ -14,7 +10,28 @@ They just need to define a 'title' block and a 'body' block.
   </head>
 
   <body>
-  {% block body %}
-  {% endblock %}
+    {# This head only really applies to a specify repository, so the index page overrides it. #}
+    {% block head %}
+    <span id="back"><a href="{{ host }}">Back to index</a></span>
+    <h1>{{ name }}</h1>
+    <p><b>{{ description }}</b></p>
+    <p>
+    <span id="clone"><b>git clone <a href="{{ host }}/{{ name }}">{{ host }}/{{ name }}</a></b></span>
+    <div class="links">
+      <a href="{{ host }}/{{ name }}/index.html">Log</a> |
+      <a href="{{ host }}/{{ name }}/tree.html">Files</a> |
+      <a href="{{ host }}/{{ name }}/refs.html">Refs</a>
+      {% if readme %}
+      | <a href="{{ host }}/{{ name }}/file/{{ readme.href }}">{{ readme.path }}</a>
+      {% endif %}
+      {% if license %}
+      | <a href="{{ host }}/{{ name }}/file/{{ license.href }}">{{ license.path }}</a>
+      {% endif %}
+    </div>
+    </p>
+    {% endblock %}
+
+    {% block content %}
+    {% endblock %}
   </body>
 </html>

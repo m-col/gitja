@@ -1,0 +1,31 @@
+{% extends "../template.html.include" %}
+
+{%- block title %}{{ name }} - Log{% endblock -%}
+
+{% block content %}
+<table>
+  <thead>
+    <tr>
+      <td><b>Date</b></td>
+      <td><b>Commit message</b></td>
+      <td><b>Author</b></td>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for commit in commits[:50] %}
+    <tr>
+      <td>{{ commit.authored[:16] }}</td>
+      <td><a href="{{ host }}/{{ name }}/commit/{{ commit.id }}.html">{{ commit.title }}</a></td>
+      <td>{{ commit.author }}</td>
+    </tr>
+    {% endfor %}
+
+    {% if length(commits) > 50 %}
+    <tr>
+      <td colspan="3">More commits not shown.</td>
+    </tr>
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}

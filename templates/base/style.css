@@ -15,4 +15,9 @@ everything in this top-level folder that is not one of:
 
 html {
     font-size: 1em;
+    margin: 25px;
+}
+
+#clone {
+    float: right;
 }
