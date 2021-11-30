@@ -18,6 +18,13 @@ packages:
       sha256: 47695cdeb7c1fb95a5c4bfd21bf46014554ccdd1e5059d5558a0348042044f39
   original:
     hackage: gitlib-libgit2-3.1.2.1@sha256:36bc92f117158440ca69e32051aabdf9df75be8a3fb5f45dff8828898e615a0a,2354
+- completed:
+    hackage: ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
+    pantry-tree:
+      size: 1430
+      sha256: c3d93b51ba0e76853b217debb662cdcf5eca78288d49c809f823be27a072bfbf
+  original:
+    hackage: ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
 snapshots:
 - completed:
     size: 586296
