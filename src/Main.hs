@@ -8,6 +8,7 @@ module Main (
 
 import Paths_gitserve (version)
 
+import Control.Monad (when)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.UTF8 as B
 import Data.FileEmbed (embedDir, embedFile)
@@ -95,11 +96,19 @@ makeTemplate = do
     tExists <- D.doesPathExist "./template"
     cExists <- D.doesPathExist "./config.dhall"
     if
-            | tExists -> putStrLn "Failed - './template' already exists."
-            | cExists -> putStrLn "Failed - './config.dhall' already exists."
+            | tExists -> putStrLn "Failed - ./template already exists."
+            | cExists -> putStrLn "Failed - ./config.dhall already exists."
             | otherwise -> do
                 mapM_ (uncurry place) base
                 B.writeFile "./config.dhall" config
+                putStrLn "A base template as been put at ./template."
+                putStrLn "A plain config has been put at ./config.dhall"
+                putStrLn "Add a local git repository to repoPaths in the config"
+                putStrLn "and run gitserve to generate HTML in ./output."
+                oExists <- D.doesPathExist "./output"
+                when oExists . putStrLn $
+                    "WARNING: ./output ALREADY EXISTS AND WILL BE OVERWRITTEN\n"
+                        <> "UNLESS YOU MOVE/RENAME IT OR CHANGE GITSERVE'S outputDirectory."
   where
     base :: [(FilePath, B.ByteString)]
     base = $(embedDir "templates/base")
