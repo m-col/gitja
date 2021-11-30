@@ -31,6 +31,10 @@ Currently installation is only possible via source::
 Documentation and a preview of the kind of pages ``gitserve`` can generate is
 available here_.
 
+If you like skipping the manual, running ``gitserve --template`` will create a
+base template and config in the current folder from which you can create your
+own.
+
 Contributing
 ------------
 

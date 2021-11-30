@@ -11,7 +11,8 @@ Usage
 
 gitserve is configured using a [dhall](https://dhall-lang.org) config file. The
 [example config](https://github.com/m-col/gitserve/blob/master/config.dhall) is
-a good place to start.
+a good place to start, or alternatively create one in the current folder by
+running `gitserve -t`.
 
 It requires the following settings:
 
@@ -28,13 +29,15 @@ Then, pass the config file to gitserve.
 
 See the CLI help message for usage:
 
-    Usage: gitserve [-c|--config CONFIG] [-q|--quiet] [-f|--force] [-v|--version]
+    Usage: gitserve [-c|--config CONFIG] [-q|--quiet] [-f|--force] [-t|--template] 
+                    [-v|--version]
       🐙 Templated web page generator for your git repositories
 
     Available options:
       -c,--config CONFIG       Configuration file to use (Default: ./config.dhall).
       -q,--quiet               Suppress non-error output.
       -f,--force               Force regeneration of all files.
+      -t,--template            Create a template and config in the current folder.
       -v,--version             Print the gitserve's version.
       -h,--help                Show this help text
 
@@ -44,6 +47,9 @@ would be needed if changes have been made to the template.
 
 Templates
 ---------
+
+A base template can be created in the current folder by running `gitserve -t`.
+This can be used as a starting point to creating your own template.
 
 ### Folder structure
 
