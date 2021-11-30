@@ -1,1 +1,18 @@
-TODO
+/*
+Static assets are copied unchanged into the output folder. This includes
+everything in this top-level folder that is not one of:
+
+- A folder named "repo".
+- A regular file ending in ".html".
+- A regular file ending in ".include".
+
+*/
+
+@viewport {
+    width: device-width;
+    zoom: 1.0;
+}
+
+html {
+    font-size: 1em;
+}
