@@ -28,7 +28,7 @@ executable gitserve
                      , extra
                      , file-embed
                      , filepath
-                     , ginger >= 0.10.3.0
+                     , ginger >= 0.10
                      , gitlib
                      , gitlib-libgit2
                      , optparse-applicative
