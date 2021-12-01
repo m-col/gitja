@@ -57,10 +57,10 @@
 <a href="#l22" class="line" id="l22">   22</a>        &lt;a href=&quot;{{ host }}/{{ name }}/tree.html&quot;&gt;Files&lt;/a&gt; |
 <a href="#l23" class="line" id="l23">   23</a>        &lt;a href=&quot;{{ host }}/{{ name }}/refs.html&quot;&gt;Refs&lt;/a&gt;
 <a href="#l24" class="line" id="l24">   24</a>        {% if readme %}
-<a href="#l25" class="line" id="l25">   25</a>        | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ readme.href }}&quot;&gt;{{ readme.path }}&lt;/a&gt;
+<a href="#l25" class="line" id="l25">   25</a>        | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ readme.href }}&quot;&gt;{{ readme.name }}&lt;/a&gt;
 <a href="#l26" class="line" id="l26">   26</a>        {% endif %}
 <a href="#l27" class="line" id="l27">   27</a>        {% if license %}
-<a href="#l28" class="line" id="l28">   28</a>        | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ license.href }}&quot;&gt;{{ license.path }}&lt;/a&gt;
+<a href="#l28" class="line" id="l28">   28</a>        | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ license.href }}&quot;&gt;{{ license.name }}&lt;/a&gt;
 <a href="#l29" class="line" id="l29">   29</a>        {% endif %}
 <a href="#l30" class="line" id="l30">   30</a>      &lt;/div&gt;
 <a href="#l31" class="line" id="l31">   31</a>      &lt;/p&gt;

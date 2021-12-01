@@ -209,24 +209,28 @@
 <a href="#l174" class="line" id="l174">  174</a>  |            | encoding         | The commit encoding.                                     |
 <a href="#l175" class="line" id="l175">  175</a>  |            | parent           | The SHA of the parent commit.                            |
 <a href="#l176" class="line" id="l176">  176</a>  | file       | path             | The path the file relative to the repository root.       |
-<a href="#l177" class="line" id="l177">  177</a>  |            | href             | The HTML output path relative to `outputDirectory`.      |
-<a href="#l178" class="line" id="l178">  178</a>  |            | contents         | The file&apos;s contents.                                     |
-<a href="#l179" class="line" id="l179">  179</a>  |            | mode             | Directory, Plain, Executable, Symlink or Submodule.      |
-<a href="#l180" class="line" id="l180">  180</a>  |            | mode\_octal      | Mode in octal form e.g. &quot;00644&quot; for plain files.         |
-<a href="#l181" class="line" id="l181">  181</a>  |            | mode\_symbolic   | Mode in symbolic form e.g. &quot;&quot;-rw-r--r--&quot; for plain files.|
-<a href="#l182" class="line" id="l182">  182</a>  |            | is\_directory    | A boolean, useful for ginger conditionals.               |
-<a href="#l183" class="line" id="l183">  183</a>  | ref        | name             | The tag or branch name.                                  |
-<a href="#l184" class="line" id="l184">  184</a>  |            | commit           | The commit pointed to by the tag or branch.              |
-<a href="#l185" class="line" id="l185">  185</a>  
-<a href="#l186" class="line" id="l186">  186</a>  Note that some attributes point to other objects that have attributes.  For
-<a href="#l187" class="line" id="l187">  187</a>  example, `branches[0].commit.parent` will work as expected.
+<a href="#l177" class="line" id="l177">  177</a>  |            | name             | The name of the file.                                    |
+<a href="#l178" class="line" id="l178">  178</a>  |            | href             | The HTML output path relative to `outputDirectory`.      |
+<a href="#l179" class="line" id="l179">  179</a>  |            | contents         | The file&apos;s contents.                                     |
+<a href="#l180" class="line" id="l180">  180</a>  |            | mode             | Directory, Plain, Executable, Symlink or Submodule.      |
+<a href="#l181" class="line" id="l181">  181</a>  |            | mode\_octal      | Mode in octal form e.g. &quot;00644&quot; for plain files.         |
+<a href="#l182" class="line" id="l182">  182</a>  |            | mode\_symbolic   | Mode in symbolic form e.g. &quot;&quot;-rw-r--r--&quot; for plain files.|
+<a href="#l183" class="line" id="l183">  183</a>  |            | is\_directory    | A boolean, useful for ginger conditionals.               |
+<a href="#l184" class="line" id="l184">  184</a>  | ref        | name             | The tag or branch name.                                  |
+<a href="#l185" class="line" id="l185">  185</a>  |            | commit           | The commit pointed to by the tag or branch.              |
+<a href="#l186" class="line" id="l186">  186</a>  
+<a href="#l187" class="line" id="l187">  187</a>  Note:
 <a href="#l188" class="line" id="l188">  188</a>  
-<a href="#l189" class="line" id="l189">  189</a>  Questions?
-<a href="#l190" class="line" id="l190">  190</a>  ----------
-<a href="#l191" class="line" id="l191">  191</a>  
-<a href="#l192" class="line" id="l192">  192</a>  If any of this is unclear or could be improved, please do feel free to post an
-<a href="#l193" class="line" id="l193">  193</a>  issue on GitHub (or contact me another way). Contributions of code and docs are
-<a href="#l194" class="line" id="l194">  194</a>  also warmly welcome.
+<a href="#l189" class="line" id="l189">  189</a>  - Some attributes point to other objects that have attributes. For example,
+<a href="#l190" class="line" id="l190">  190</a>    `branches[0].commit.parent` will work as expected.
+<a href="#l191" class="line" id="l191">  191</a>  - &quot;file&quot; includes directories and symbolic links.
+<a href="#l192" class="line" id="l192">  192</a>  
+<a href="#l193" class="line" id="l193">  193</a>  Questions?
+<a href="#l194" class="line" id="l194">  194</a>  ----------
+<a href="#l195" class="line" id="l195">  195</a>  
+<a href="#l196" class="line" id="l196">  196</a>  If any of this is unclear or could be improved, please do feel free to post an
+<a href="#l197" class="line" id="l197">  197</a>  issue on GitHub (or contact me another way). Contributions of code and docs are
+<a href="#l198" class="line" id="l198">  198</a>  also warmly welcome.
 </pre>
     </div>
   </body>
