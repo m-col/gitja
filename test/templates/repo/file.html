@@ -6,7 +6,8 @@ scope: file
 file: {{ file }}
 file.path: {{ file.path }}
 file.href: {{ file.href }}
-file.contents: {{ file.contents }}
+file.contents: {% if file.is_binary %}(binary){% else %}{{ file.contents }}{% endif %}
+
 file.mode: {{ file.mode }}
 file.mode_octal: {{ file.mode_octal }}
 file.mode_symbolic: {{ file.mode_symbolic }}

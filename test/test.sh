@@ -33,11 +33,13 @@ TESTS=(
     "index.html"
     "link.html"
     "style.css"
+    "so_called_binary_file"
     "static/a_nice_file"
     "gitserve/index.html"
     "gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html"
     "gitserve/file/test.expected.gitserve.file.html"
     "gitserve/file/test.templates.style.css.html"
+    "gitserve/file/test.templates.so_called_binary_file.html"
 )
 
 stack run -- -c test/config.dhall -q || exit 1

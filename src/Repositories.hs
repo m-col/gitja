@@ -163,7 +163,7 @@ prependParent "" pathentry = pathentry
 prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
 
 getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -> ReaderT LgRepo IO TreeFileContents
-getEntryContents (_, BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode <$> catBlob oid
+getEntryContents (_, BlobEntry oid _) = getBlobContents oid
 getEntryContents (path, TreeEntry oid) = FolderContents <$> getTree' path oid
 getEntryContents (_, CommitEntry oid) = return . FileContents . pack . show . untag $ oid
 

@@ -10,6 +10,10 @@
 
 module Types where
 
+import Bindings.Libgit2.Blob (c'git_blob_is_binary, c'git_blob_lookup)
+import Control.Monad (when)
+import Control.Monad.Catch (throwM)
+import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.ByteString.UTF8 (toString)
 import Data.Default (def)
@@ -19,8 +23,10 @@ import Data.Text (Text, pack, strip)
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
+import Foreign (peek)
+import Foreign.ForeignPtr (mallocForeignPtr, withForeignPtr)
 import Git
-import Git.Libgit2 (LgRepo)
+import Git.Libgit2 (LgRepo, getOid, repoObj)
 import Path (Abs, Dir, Path, dirname, toFilePath)
 import System.FilePath (takeFileName)
 import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
@@ -106,7 +112,7 @@ data TreeFile = TreeFile
     , treeFileMode :: TreeEntryMode
     }
 
-data TreeFileContents = FileContents Text | FolderContents [TreeFile]
+data TreeFileContents = BinaryContents | FileContents Text | FolderContents [TreeFile]
 
 data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
     deriving stock (Show)
@@ -136,6 +142,24 @@ modeToSymbolic ModeSymlink = "l---------"
 modeToSymbolic ModeSubmodule = "git-module"
 
 {-
+This
+-}
+getBlobContents :: BlobOid LgRepo -> ReaderT LgRepo IO TreeFileContents
+getBlobContents oid = do
+    repo <- getRepository
+    blobPtr <- liftIO mallocForeignPtr
+    isBinary <- liftIO . withForeignPtr (repoObj repo) $ \repoPtr ->
+        withForeignPtr blobPtr $ \blobPtr' ->
+            withForeignPtr (getOid . untag $ oid) $ \oidPtr -> do
+                r1 <- c'git_blob_lookup blobPtr' repoPtr oidPtr
+                when (r1 < 0) $ throwM (Git.BackendError "Could not lookup blob")
+                c'git_blob_is_binary =<< peek blobPtr'
+
+    if toEnum . fromEnum $ isBinary -- This reads weird, but it goes CInt, to Int, to Bool.
+        then return BinaryContents
+        else FileContents . decodeUtf8With lenientDecode <$> catBlob oid
+
+{-
 GVal implementations for data definitions above, allowing commits to be rendered in
 Ginger templates.
 -}
@@ -151,6 +175,7 @@ instance ToGVal RunRepo TreeFile where
 
 instance ToGVal RunRepo TreeFileContents where
     toGVal :: TreeFileContents -> GVal RunRepo
+    toGVal BinaryContents = def
     toGVal (FileContents text) = toGVal . strip $ text
     toGVal (FolderContents treeFiles) =
         def
@@ -168,13 +193,19 @@ treeAsLookup treefile = \case
     "mode" -> Just . toGVal . drop 4 . show . treeFileMode $ treefile
     "mode_octal" -> Just . toGVal . modeToOctal . treeFileMode $ treefile
     "mode_symbolic" -> Just . toGVal . modeToSymbolic . treeFileMode $ treefile
+    "is_binary" -> Just . toGVal . treeFileIsBinary $ treefile
     "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile
     _ -> Nothing
 
+treeFileIsBinary :: TreeFile -> Bool
+treeFileIsBinary treefile = case treeFileContents treefile of
+    BinaryContents -> True
+    _ -> False
+
 treeFileIsDirectory :: TreeFile -> Bool
 treeFileIsDirectory treefile = case treeFileContents treefile of
-    FileContents _ -> False
     FolderContents _ -> True
+    _ -> False
 
 {-
 Get the name of a tree file path's HTML file.

@@ -181,6 +181,7 @@ Here is the reference of attributes available on the variables that have them:
 |            | mode\_octal      | Mode in octal form e.g. "00644" for plain files.         |
 |            | mode\_symbolic   | Mode in symbolic form e.g. ""-rw-r--r--" for plain files.|
 |            | is\_directory    | A boolean, useful for ginger conditionals.               |
+|            | is\_binary       | A boolean, tells you if the contents can be rendered.    |
 | ref        | name             | The tag or branch name.                                  |
 |            | commit           | The commit pointed to by the tag or branch.              |
 
