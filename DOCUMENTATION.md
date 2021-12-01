@@ -174,6 +174,7 @@ Here is the reference of attributes available on the variables that have them:
 |            | encoding         | The commit encoding.                                     |
 |            | parent           | The SHA of the parent commit.                            |
 | file       | path             | The path the file relative to the repository root.       |
+|            | name             | The name of the file.                                    |
 |            | href             | The HTML output path relative to `outputDirectory`.      |
 |            | contents         | The file's contents.                                     |
 |            | mode             | Directory, Plain, Executable, Symlink or Submodule.      |
@@ -183,8 +184,11 @@ Here is the reference of attributes available on the variables that have them:
 | ref        | name             | The tag or branch name.                                  |
 |            | commit           | The commit pointed to by the tag or branch.              |
 
-Note that some attributes point to other objects that have attributes.  For
-example, `branches[0].commit.parent` will work as expected.
+Note:
+
+- Some attributes point to other objects that have attributes. For example,
+  `branches[0].commit.parent` will work as expected.
+- "file" includes directories and symbolic links.
 
 Questions?
 ----------

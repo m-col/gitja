@@ -22,6 +22,7 @@ import Data.Text.Encoding.Error (lenientDecode)
 import Git
 import Git.Libgit2 (LgRepo)
 import Path (Abs, Dir, Path, dirname, toFilePath)
+import System.FilePath (takeFileName)
 import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
 import Text.Ginger.Html (Html, html)
 import Text.Ginger.Parse (SourcePos)
@@ -161,6 +162,7 @@ instance ToGVal RunRepo TreeFileContents where
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal RunRepo)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
+    "name" -> Just . toGVal . takeFileName . toString . treeFilePath $ treefile
     "href" -> Just . toGVal . treePathToHref . treeFilePath $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
     "mode" -> Just . toGVal . drop 4 . show . treeFileMode $ treefile

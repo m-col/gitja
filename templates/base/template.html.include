@@ -22,10 +22,10 @@
       <a href="{{ host }}/{{ name }}/tree.html">Files</a> |
       <a href="{{ host }}/{{ name }}/refs.html">Refs</a>
       {% if readme %}
-      | <a href="{{ host }}/{{ name }}/file/{{ readme.href }}">{{ readme.path }}</a>
+      | <a href="{{ host }}/{{ name }}/file/{{ readme.href }}">{{ readme.name }}</a>
       {% endif %}
       {% if license %}
-      | <a href="{{ host }}/{{ name }}/file/{{ license.href }}">{{ license.path }}</a>
+      | <a href="{{ host }}/{{ name }}/file/{{ license.href }}">{{ license.name }}</a>
       {% endif %}
     </div>
     </p>
