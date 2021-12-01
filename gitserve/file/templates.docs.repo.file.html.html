@@ -32,8 +32,7 @@
     <div id="content">
       <p>-rw-r--r-- templates/docs/repo/file.html</p><hr>
 
-  <pre id="blob">
-<a href="#l1" class="line" id="l1">    1</a>  {% extends &quot;../template.html.include&quot; %}
+  <pre id="blob"><a href="#l1" class="line" id="l1">    1</a>  {% extends &quot;../template.html.include&quot; %}
 <a href="#l2" class="line" id="l2">    2</a>  
 <a href="#l3" class="line" id="l3">    3</a>  {%- block title %}{{ file }}{% endblock -%}
 <a href="#l4" class="line" id="l4">    4</a>  
@@ -59,14 +58,16 @@
 <a href="#l24" class="line" id="l24">   24</a>    &lt;/tbody&gt;
 <a href="#l25" class="line" id="l25">   25</a>  &lt;/table&gt;
 <a href="#l26" class="line" id="l26">   26</a>  {% else %}
-<a href="#l27" class="line" id="l27">   27</a>    &lt;pre id=&quot;blob&quot;&gt;
-<a href="#l28" class="line" id="l28">   28</a>  {% for line in split(file.contents, &apos;\n&apos;) %}
-<a href="#l29" class="line" id="l29">   29</a>  &lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%5v&quot;, loop.index) }}&lt;/a&gt;  {{ line }}
-<a href="#l30" class="line" id="l30">   30</a>  {% endfor %}
-<a href="#l31" class="line" id="l31">   31</a>  {% endif %}
-<a href="#l32" class="line" id="l32">   32</a>  &lt;/pre&gt;
-<a href="#l33" class="line" id="l33">   33</a>  {% endblock %}
+<a href="#l27" class="line" id="l27">   27</a>    {% if file.is_binary %}
+<a href="#l28" class="line" id="l28">   28</a>    (File is binary)
+<a href="#l29" class="line" id="l29">   29</a>    {% else %}
+<a href="#l30" class="line" id="l30">   30</a>  &lt;pre id=&quot;blob&quot;&gt;{% for line in split(file.contents, &apos;\n&apos;) %}
+<a href="#l31" class="line" id="l31">   31</a>  &lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%5v&quot;, loop.index) }}&lt;/a&gt;  {{ line }}
+<a href="#l32" class="line" id="l32">   32</a>  {% endfor %}&lt;/pre&gt;
+<a href="#l33" class="line" id="l33">   33</a>    {% endif %}
+<a href="#l34" class="line" id="l34">   34</a>  {% endif %}
+<a href="#l35" class="line" id="l35">   35</a>  {% endblock %}
 </pre>
-    </div>
+      </div>
   </body>
 </html>

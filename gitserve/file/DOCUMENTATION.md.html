@@ -32,8 +32,7 @@
     <div id="content">
       <p>-rw-r--r-- DOCUMENTATION.md</p><hr>
 
-  <pre id="blob">
-<a href="#l1" class="line" id="l1">    1</a>  Documentation
+  <pre id="blob"><a href="#l1" class="line" id="l1">    1</a>  Documentation
 <a href="#l2" class="line" id="l2">    2</a>  =============
 <a href="#l3" class="line" id="l3">    3</a>  
 <a href="#l4" class="line" id="l4">    4</a>  `gitserve` is a tool that reads from locally hosted or cloned git repositories
@@ -216,22 +215,23 @@
 <a href="#l181" class="line" id="l181">  181</a>  |            | mode\_octal      | Mode in octal form e.g. &quot;00644&quot; for plain files.         |
 <a href="#l182" class="line" id="l182">  182</a>  |            | mode\_symbolic   | Mode in symbolic form e.g. &quot;&quot;-rw-r--r--&quot; for plain files.|
 <a href="#l183" class="line" id="l183">  183</a>  |            | is\_directory    | A boolean, useful for ginger conditionals.               |
-<a href="#l184" class="line" id="l184">  184</a>  | ref        | name             | The tag or branch name.                                  |
-<a href="#l185" class="line" id="l185">  185</a>  |            | commit           | The commit pointed to by the tag or branch.              |
-<a href="#l186" class="line" id="l186">  186</a>  
-<a href="#l187" class="line" id="l187">  187</a>  Note:
-<a href="#l188" class="line" id="l188">  188</a>  
-<a href="#l189" class="line" id="l189">  189</a>  - Some attributes point to other objects that have attributes. For example,
-<a href="#l190" class="line" id="l190">  190</a>    `branches[0].commit.parent` will work as expected.
-<a href="#l191" class="line" id="l191">  191</a>  - &quot;file&quot; includes directories and symbolic links.
-<a href="#l192" class="line" id="l192">  192</a>  
-<a href="#l193" class="line" id="l193">  193</a>  Questions?
-<a href="#l194" class="line" id="l194">  194</a>  ----------
-<a href="#l195" class="line" id="l195">  195</a>  
-<a href="#l196" class="line" id="l196">  196</a>  If any of this is unclear or could be improved, please do feel free to post an
-<a href="#l197" class="line" id="l197">  197</a>  issue on GitHub (or contact me another way). Contributions of code and docs are
-<a href="#l198" class="line" id="l198">  198</a>  also warmly welcome.
+<a href="#l184" class="line" id="l184">  184</a>  |            | is\_binary       | A boolean, tells you if the contents can be rendered.    |
+<a href="#l185" class="line" id="l185">  185</a>  | ref        | name             | The tag or branch name.                                  |
+<a href="#l186" class="line" id="l186">  186</a>  |            | commit           | The commit pointed to by the tag or branch.              |
+<a href="#l187" class="line" id="l187">  187</a>  
+<a href="#l188" class="line" id="l188">  188</a>  Note:
+<a href="#l189" class="line" id="l189">  189</a>  
+<a href="#l190" class="line" id="l190">  190</a>  - Some attributes point to other objects that have attributes. For example,
+<a href="#l191" class="line" id="l191">  191</a>    `branches[0].commit.parent` will work as expected.
+<a href="#l192" class="line" id="l192">  192</a>  - &quot;file&quot; includes directories and symbolic links.
+<a href="#l193" class="line" id="l193">  193</a>  
+<a href="#l194" class="line" id="l194">  194</a>  Questions?
+<a href="#l195" class="line" id="l195">  195</a>  ----------
+<a href="#l196" class="line" id="l196">  196</a>  
+<a href="#l197" class="line" id="l197">  197</a>  If any of this is unclear or could be improved, please do feel free to post an
+<a href="#l198" class="line" id="l198">  198</a>  issue on GitHub (or contact me another way). Contributions of code and docs are
+<a href="#l199" class="line" id="l199">  199</a>  also warmly welcome.
 </pre>
-    </div>
+      </div>
   </body>
 </html>

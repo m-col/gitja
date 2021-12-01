@@ -32,8 +32,7 @@
     <div id="content">
       <p>-rw-r--r-- test/templates/repo/file.html</p><hr>
 
-  <pre id="blob">
-<a href="#l1" class="line" id="l1">    1</a>  {% extends &quot;../title.html.include&quot; -%}
+  <pre id="blob"><a href="#l1" class="line" id="l1">    1</a>  {% extends &quot;../title.html.include&quot; -%}
 <a href="#l2" class="line" id="l2">    2</a>  {%- block title -%}{{ file.path }}{%- endblock -%}
 <a href="#l3" class="line" id="l3">    3</a>  
 <a href="#l4" class="line" id="l4">    4</a>  {% block body %}
@@ -41,27 +40,28 @@
 <a href="#l6" class="line" id="l6">    6</a>  file: {{ file }}
 <a href="#l7" class="line" id="l7">    7</a>  file.path: {{ file.path }}
 <a href="#l8" class="line" id="l8">    8</a>  file.href: {{ file.href }}
-<a href="#l9" class="line" id="l9">    9</a>  file.contents: {{ file.contents }}
-<a href="#l10" class="line" id="l10">   10</a>  file.mode: {{ file.mode }}
-<a href="#l11" class="line" id="l11">   11</a>  file.mode_octal: {{ file.mode_octal }}
-<a href="#l12" class="line" id="l12">   12</a>  file.mode_symbolic: {{ file.mode_symbolic }}
-<a href="#l13" class="line" id="l13">   13</a>  if file.is_directory then &quot;directory&quot; else &quot;file&quot;:
-<a href="#l14" class="line" id="l14">   14</a>  	{%- if file.is_directory %} &quot;directory&quot;{% else %} &quot;file&quot;{% endif %}
-<a href="#l15" class="line" id="l15">   15</a>  
+<a href="#l9" class="line" id="l9">    9</a>  file.contents: {% if file.is_binary %}(binary){% else %}{{ file.contents }}{% endif %}
+<a href="#l10" class="line" id="l10">   10</a>  
+<a href="#l11" class="line" id="l11">   11</a>  file.mode: {{ file.mode }}
+<a href="#l12" class="line" id="l12">   12</a>  file.mode_octal: {{ file.mode_octal }}
+<a href="#l13" class="line" id="l13">   13</a>  file.mode_symbolic: {{ file.mode_symbolic }}
+<a href="#l14" class="line" id="l14">   14</a>  if file.is_directory then &quot;directory&quot; else &quot;file&quot;:
+<a href="#l15" class="line" id="l15">   15</a>  	{%- if file.is_directory %} &quot;directory&quot;{% else %} &quot;file&quot;{% endif %}
 <a href="#l16" class="line" id="l16">   16</a>  
-<a href="#l17" class="line" id="l17">   17</a>  file scope also should have data from repo scope available:
-<a href="#l18" class="line" id="l18">   18</a>  host: {{ host }}
-<a href="#l19" class="line" id="l19">   19</a>  repos: {{ repositories }}
-<a href="#l20" class="line" id="l20">   20</a>  name: {{ name }}
-<a href="#l21" class="line" id="l21">   21</a>  description: {{ description }}
-<a href="#l22" class="line" id="l22">   22</a>  commits: (skipped)
-<a href="#l23" class="line" id="l23">   23</a>  tree: (skipped)
-<a href="#l24" class="line" id="l24">   24</a>  tags: {{ length(filter(tags, (t) -&gt; t.name == &quot;0.2.0&quot;)) }}
-<a href="#l25" class="line" id="l25">   25</a>  branches: {{ length(filter(branches, (b) -&gt; b.name == &quot;master&quot;)) }}
-<a href="#l26" class="line" id="l26">   26</a>  readme.path: {{ readme.path }}
-<a href="#l27" class="line" id="l27">   27</a>  license.path: {{ license.path }}
-<a href="#l28" class="line" id="l28">   28</a>  {% endblock %}
+<a href="#l17" class="line" id="l17">   17</a>  
+<a href="#l18" class="line" id="l18">   18</a>  file scope also should have data from repo scope available:
+<a href="#l19" class="line" id="l19">   19</a>  host: {{ host }}
+<a href="#l20" class="line" id="l20">   20</a>  repos: {{ repositories }}
+<a href="#l21" class="line" id="l21">   21</a>  name: {{ name }}
+<a href="#l22" class="line" id="l22">   22</a>  description: {{ description }}
+<a href="#l23" class="line" id="l23">   23</a>  commits: (skipped)
+<a href="#l24" class="line" id="l24">   24</a>  tree: (skipped)
+<a href="#l25" class="line" id="l25">   25</a>  tags: {{ length(filter(tags, (t) -&gt; t.name == &quot;0.2.0&quot;)) }}
+<a href="#l26" class="line" id="l26">   26</a>  branches: {{ length(filter(branches, (b) -&gt; b.name == &quot;master&quot;)) }}
+<a href="#l27" class="line" id="l27">   27</a>  readme.path: {{ readme.path }}
+<a href="#l28" class="line" id="l28">   28</a>  license.path: {{ license.path }}
+<a href="#l29" class="line" id="l29">   29</a>  {% endblock %}
 </pre>
-    </div>
+      </div>
   </body>
 </html>

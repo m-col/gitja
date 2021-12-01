@@ -32,8 +32,7 @@
     <div id="content">
       <p>-rw-r--r-- src/Repositories.hs</p><hr>
 
-  <pre id="blob">
-<a href="#l1" class="line" id="l1">    1</a>  -- Needed for the Target class type constraints
+  <pre id="blob"><a href="#l1" class="line" id="l1">    1</a>  -- Needed for the Target class type constraints
 <a href="#l2" class="line" id="l2">    2</a>  {-# LANGUAGE FlexibleContexts #-}
 <a href="#l3" class="line" id="l3">    3</a>  -- Needed for the Target class type constraints
 <a href="#l4" class="line" id="l4">    4</a>  {-# LANGUAGE FlexibleInstances #-}
@@ -198,7 +197,7 @@
 <a href="#l163" class="line" id="l163">  163</a>  prependParent parent (path, entry) = (mconcat [parent, &quot;/&quot;, path], entry)
 <a href="#l164" class="line" id="l164">  164</a>  
 <a href="#l165" class="line" id="l165">  165</a>  getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -&gt; ReaderT LgRepo IO TreeFileContents
-<a href="#l166" class="line" id="l166">  166</a>  getEntryContents (_, BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode &lt;$&gt; catBlob oid
+<a href="#l166" class="line" id="l166">  166</a>  getEntryContents (_, BlobEntry oid _) = getBlobContents oid
 <a href="#l167" class="line" id="l167">  167</a>  getEntryContents (path, TreeEntry oid) = FolderContents &lt;$&gt; getTree&apos; path oid
 <a href="#l168" class="line" id="l168">  168</a>  getEntryContents (_, CommitEntry oid) = return . FileContents . pack . show . untag $ oid
 <a href="#l169" class="line" id="l169">  169</a>  
@@ -293,6 +292,6 @@
 <a href="#l258" class="line" id="l258">  258</a>          let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
 <a href="#l259" class="line" id="l259">  259</a>          generate output&apos; scope&apos; template
 </pre>
-    </div>
+      </div>
   </body>
 </html>
