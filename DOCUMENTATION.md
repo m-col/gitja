@@ -162,6 +162,7 @@ Here is the reference of attributes available on the variables that have them:
 |            | head             | The current git commit.                                  |
 |            | updated          | The time when the current commit was committed.          |
 | commit     | id               | The SHA of the given commit.                             |
+|            | href             | The name of the HTML file for this commit.               |
 |            | title            | The commit message title.                                |
 |            | body             | The commit message body.                                 |
 |            | message          | The entire message, including both title and body.       |
@@ -175,7 +176,7 @@ Here is the reference of attributes available on the variables that have them:
 |            | parent           | The SHA of the parent commit.                            |
 | file       | path             | The path the file relative to the repository root.       |
 |            | name             | The name of the file.                                    |
-|            | href             | The HTML output path relative to `outputDirectory`.      |
+|            | href             | The name of the HTML file for this file.                 |
 |            | contents         | The file's contents.                                     |
 |            | mode             | Directory, Plain, Executable, Symlink or Submodule.      |
 |            | mode\_octal      | Mode in octal form e.g. "00644" for plain files.         |

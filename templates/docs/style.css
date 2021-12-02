@@ -47,6 +47,11 @@ p {
     padding: 10px 20px 0;
 }
 
+#tag,
+#tag a {
+    color: #aaa;
+}
+
 #links {
     float: right;
 }

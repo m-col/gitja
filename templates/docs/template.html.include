@@ -28,6 +28,10 @@
         <a href="{{ host }}/{{ name }}/file/{{ readme.href }}">Readme</a> |
         <a href="{{ host }}/{{ name }}/file/{{ license.href }}">License</a>
       </span>
+
+      <p id="tag">
+        Docs built @ <a href="{{ host }}/gitserve/commit/{{ commits[0].href }}">{{ commits[0].id[:7] }}</a>
+      </p>
     </div>
 
     <div id="content">

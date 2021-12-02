@@ -89,6 +89,7 @@ instance ToGVal m (Commit LgRepo) where
 commitAsLookup :: Commit LgRepo -> Text -> Maybe (GVal m)
 commitAsLookup commit = \case
     "id" -> Just . toGVal . show . untag . commitOid $ commit
+    "href" -> Just . toGVal . (<> ".html") . show . untag . commitOid $ commit
     "title" -> Just . toGVal . strip . T.takeWhile (/= '\n') . commitLog $ commit
     "body" -> Just . toGVal . strip . T.dropWhile (/= '\n') . commitLog $ commit
     "message" -> Just . toGVal . strip . commitLog $ commit
