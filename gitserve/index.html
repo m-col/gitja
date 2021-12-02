@@ -27,6 +27,10 @@
         <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
         <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
       </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/afedb32fd8d5e3134b4f9f05b78779bd4b7c2e27.html">afedb32</a>
+      </p>
     </div>
 
     <div id="content">
@@ -196,6 +200,7 @@ Here is the reference of attributes available on the variables that have them:
 |            | head             | The current git commit.                                  |
 |            | updated          | The time when the current commit was committed.          |
 | commit     | id               | The SHA of the given commit.                             |
+|            | href             | The name of the HTML file for this commit.               |
 |            | title            | The commit message title.                                |
 |            | body             | The commit message body.                                 |
 |            | message          | The entire message, including both title and body.       |
@@ -209,7 +214,7 @@ Here is the reference of attributes available on the variables that have them:
 |            | parent           | The SHA of the parent commit.                            |
 | file       | path             | The path the file relative to the repository root.       |
 |            | name             | The name of the file.                                    |
-|            | href             | The HTML output path relative to `outputDirectory`.      |
+|            | href             | The name of the HTML file for this file.                 |
 |            | contents         | The file&apos;s contents.                                     |
 |            | mode             | Directory, Plain, Executable, Symlink or Submodule.      |
 |            | mode\_octal      | Mode in octal form e.g. &quot;00644&quot; for plain files.         |

@@ -27,6 +27,10 @@
         <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
         <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
       </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/afedb32fd8d5e3134b4f9f05b78779bd4b7c2e27.html">afedb32</a>
+      </p>
     </div>
 
     <div id="content">
@@ -62,14 +66,18 @@
 <a href="#l28" class="line" id="l28">   28</a>          &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ readme.href }}&quot;&gt;Readme&lt;/a&gt; |
 <a href="#l29" class="line" id="l29">   29</a>          &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ license.href }}&quot;&gt;License&lt;/a&gt;
 <a href="#l30" class="line" id="l30">   30</a>        &lt;/span&gt;
-<a href="#l31" class="line" id="l31">   31</a>      &lt;/div&gt;
-<a href="#l32" class="line" id="l32">   32</a>  
-<a href="#l33" class="line" id="l33">   33</a>      &lt;div id=&quot;content&quot;&gt;
-<a href="#l34" class="line" id="l34">   34</a>        {% block body %}
-<a href="#l35" class="line" id="l35">   35</a>        {% endblock %}
-<a href="#l36" class="line" id="l36">   36</a>      &lt;/div&gt;
-<a href="#l37" class="line" id="l37">   37</a>    &lt;/body&gt;
-<a href="#l38" class="line" id="l38">   38</a>  &lt;/html&gt;
+<a href="#l31" class="line" id="l31">   31</a>  
+<a href="#l32" class="line" id="l32">   32</a>        &lt;p id=&quot;tag&quot;&gt;
+<a href="#l33" class="line" id="l33">   33</a>          Docs built @ &lt;a href=&quot;{{ host }}/gitserve/commit/{{ commits[0].href }}&quot;&gt;{{ commits[0].id[:7] }}&lt;/a&gt;
+<a href="#l34" class="line" id="l34">   34</a>        &lt;/p&gt;
+<a href="#l35" class="line" id="l35">   35</a>      &lt;/div&gt;
+<a href="#l36" class="line" id="l36">   36</a>  
+<a href="#l37" class="line" id="l37">   37</a>      &lt;div id=&quot;content&quot;&gt;
+<a href="#l38" class="line" id="l38">   38</a>        {% block body %}
+<a href="#l39" class="line" id="l39">   39</a>        {% endblock %}
+<a href="#l40" class="line" id="l40">   40</a>      &lt;/div&gt;
+<a href="#l41" class="line" id="l41">   41</a>    &lt;/body&gt;
+<a href="#l42" class="line" id="l42">   42</a>  &lt;/html&gt;
 </pre>
       </div>
   </body>

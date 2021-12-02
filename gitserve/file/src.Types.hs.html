@@ -27,6 +27,10 @@
         <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
         <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
       </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/afedb32fd8d5e3134b4f9f05b78779bd4b7c2e27.html">afedb32</a>
+      </p>
     </div>
 
     <div id="content">
@@ -123,152 +127,153 @@
 <a href="#l89" class="line" id="l89">   89</a>  commitAsLookup :: Commit LgRepo -&gt; Text -&gt; Maybe (GVal m)
 <a href="#l90" class="line" id="l90">   90</a>  commitAsLookup commit = \case
 <a href="#l91" class="line" id="l91">   91</a>      &quot;id&quot; -&gt; Just . toGVal . show . untag . commitOid $ commit
-<a href="#l92" class="line" id="l92">   92</a>      &quot;title&quot; -&gt; Just . toGVal . strip . T.takeWhile (/= &apos;\n&apos;) . commitLog $ commit
-<a href="#l93" class="line" id="l93">   93</a>      &quot;body&quot; -&gt; Just . toGVal . strip . T.dropWhile (/= &apos;\n&apos;) . commitLog $ commit
-<a href="#l94" class="line" id="l94">   94</a>      &quot;message&quot; -&gt; Just . toGVal . strip . commitLog $ commit
-<a href="#l95" class="line" id="l95">   95</a>      &quot;author&quot; -&gt; Just . toGVal . strip . signatureName . commitAuthor $ commit
-<a href="#l96" class="line" id="l96">   96</a>      &quot;committer&quot; -&gt; Just . toGVal . strip . signatureName . commitCommitter $ commit
-<a href="#l97" class="line" id="l97">   97</a>      &quot;author_email&quot; -&gt; Just . toGVal . strip . signatureEmail . commitAuthor $ commit
-<a href="#l98" class="line" id="l98">   98</a>      &quot;committer_email&quot; -&gt; Just . toGVal . strip . signatureEmail . commitCommitter $ commit
-<a href="#l99" class="line" id="l99">   99</a>      &quot;authored&quot; -&gt; Just . toGVal . show . signatureWhen . commitAuthor $ commit
-<a href="#l100" class="line" id="l100">  100</a>      &quot;committed&quot; -&gt; Just . toGVal . show . signatureWhen . commitCommitter $ commit
-<a href="#l101" class="line" id="l101">  101</a>      &quot;encoding&quot; -&gt; Just . toGVal . strip . commitEncoding $ commit
-<a href="#l102" class="line" id="l102">  102</a>      &quot;parent&quot; -&gt; toGVal . show . untag &lt;$&gt; (listToMaybe . commitParents $ commit)
-<a href="#l103" class="line" id="l103">  103</a>      _ -&gt; Nothing
-<a href="#l104" class="line" id="l104">  104</a>  
-<a href="#l105" class="line" id="l105">  105</a>  {-
-<a href="#l106" class="line" id="l106">  106</a>  Next we have some data used to represent a repository&apos;s tree and the different kinds of
-<a href="#l107" class="line" id="l107">  107</a>  objects contained therein.
-<a href="#l108" class="line" id="l108">  108</a>  -}
-<a href="#l109" class="line" id="l109">  109</a>  data TreeFile = TreeFile
-<a href="#l110" class="line" id="l110">  110</a>      { treeFilePath :: TreeFilePath
-<a href="#l111" class="line" id="l111">  111</a>      , treeFileContents :: TreeFileContents
-<a href="#l112" class="line" id="l112">  112</a>      , treeFileMode :: TreeEntryMode
-<a href="#l113" class="line" id="l113">  113</a>      }
-<a href="#l114" class="line" id="l114">  114</a>  
-<a href="#l115" class="line" id="l115">  115</a>  data TreeFileContents = BinaryContents | FileContents Text | FolderContents [TreeFile]
-<a href="#l116" class="line" id="l116">  116</a>  
-<a href="#l117" class="line" id="l117">  117</a>  data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
-<a href="#l118" class="line" id="l118">  118</a>      deriving stock (Show)
-<a href="#l119" class="line" id="l119">  119</a>  
-<a href="#l120" class="line" id="l120">  120</a>  {-
-<a href="#l121" class="line" id="l121">  121</a>  Some helper functions to convert from Haskell&apos;s LibGit2 BlobKind to our TreeEntryMode,
-<a href="#l122" class="line" id="l122">  122</a>  and then from that to Git&apos;s octal representation, as seen when calling `git ls-tree
-<a href="#l123" class="line" id="l123">  123</a>  &lt;tree-ish&gt;`
-<a href="#l124" class="line" id="l124">  124</a>  -}
-<a href="#l125" class="line" id="l125">  125</a>  blobkindToMode :: BlobKind -&gt; TreeEntryMode
-<a href="#l126" class="line" id="l126">  126</a>  blobkindToMode PlainBlob = ModePlain
-<a href="#l127" class="line" id="l127">  127</a>  blobkindToMode ExecutableBlob = ModeExecutable
-<a href="#l128" class="line" id="l128">  128</a>  blobkindToMode SymlinkBlob = ModeSymlink
-<a href="#l129" class="line" id="l129">  129</a>  
-<a href="#l130" class="line" id="l130">  130</a>  modeToOctal :: TreeEntryMode -&gt; String
-<a href="#l131" class="line" id="l131">  131</a>  modeToOctal ModeDirectory = &quot;40000&quot;
-<a href="#l132" class="line" id="l132">  132</a>  modeToOctal ModePlain = &quot;00644&quot;
-<a href="#l133" class="line" id="l133">  133</a>  modeToOctal ModeExecutable = &quot;00755&quot;
-<a href="#l134" class="line" id="l134">  134</a>  modeToOctal ModeSymlink = &quot;20000&quot;
-<a href="#l135" class="line" id="l135">  135</a>  modeToOctal ModeSubmodule = &quot;60000&quot;
-<a href="#l136" class="line" id="l136">  136</a>  
-<a href="#l137" class="line" id="l137">  137</a>  modeToSymbolic :: TreeEntryMode -&gt; String
-<a href="#l138" class="line" id="l138">  138</a>  modeToSymbolic ModeDirectory = &quot;drwxr-xr-x&quot;
-<a href="#l139" class="line" id="l139">  139</a>  modeToSymbolic ModePlain = &quot;-rw-r--r--&quot;
-<a href="#l140" class="line" id="l140">  140</a>  modeToSymbolic ModeExecutable = &quot;-rwxr-xr-x&quot;
-<a href="#l141" class="line" id="l141">  141</a>  modeToSymbolic ModeSymlink = &quot;l---------&quot;
-<a href="#l142" class="line" id="l142">  142</a>  modeToSymbolic ModeSubmodule = &quot;git-module&quot;
-<a href="#l143" class="line" id="l143">  143</a>  
-<a href="#l144" class="line" id="l144">  144</a>  {-
-<a href="#l145" class="line" id="l145">  145</a>  This
-<a href="#l146" class="line" id="l146">  146</a>  -}
-<a href="#l147" class="line" id="l147">  147</a>  getBlobContents :: BlobOid LgRepo -&gt; ReaderT LgRepo IO TreeFileContents
-<a href="#l148" class="line" id="l148">  148</a>  getBlobContents oid = do
-<a href="#l149" class="line" id="l149">  149</a>      repo &lt;- getRepository
-<a href="#l150" class="line" id="l150">  150</a>      blobPtr &lt;- liftIO mallocForeignPtr
-<a href="#l151" class="line" id="l151">  151</a>      isBinary &lt;- liftIO . withForeignPtr (repoObj repo) $ \repoPtr -&gt;
-<a href="#l152" class="line" id="l152">  152</a>          withForeignPtr blobPtr $ \blobPtr&apos; -&gt;
-<a href="#l153" class="line" id="l153">  153</a>              withForeignPtr (getOid . untag $ oid) $ \oidPtr -&gt; do
-<a href="#l154" class="line" id="l154">  154</a>                  r1 &lt;- c&apos;git_blob_lookup blobPtr&apos; repoPtr oidPtr
-<a href="#l155" class="line" id="l155">  155</a>                  when (r1 &lt; 0) $ throwM (Git.BackendError &quot;Could not lookup blob&quot;)
-<a href="#l156" class="line" id="l156">  156</a>                  c&apos;git_blob_is_binary =&lt;&lt; peek blobPtr&apos;
-<a href="#l157" class="line" id="l157">  157</a>  
-<a href="#l158" class="line" id="l158">  158</a>      if toEnum . fromEnum $ isBinary -- This reads weird, but it goes CInt, to Int, to Bool.
-<a href="#l159" class="line" id="l159">  159</a>          then return BinaryContents
-<a href="#l160" class="line" id="l160">  160</a>          else FileContents . decodeUtf8With lenientDecode &lt;$&gt; catBlob oid
-<a href="#l161" class="line" id="l161">  161</a>  
-<a href="#l162" class="line" id="l162">  162</a>  {-
-<a href="#l163" class="line" id="l163">  163</a>  GVal implementations for data definitions above, allowing commits to be rendered in
-<a href="#l164" class="line" id="l164">  164</a>  Ginger templates.
-<a href="#l165" class="line" id="l165">  165</a>  -}
-<a href="#l166" class="line" id="l166">  166</a>  instance ToGVal RunRepo TreeFile where
-<a href="#l167" class="line" id="l167">  167</a>      toGVal :: TreeFile -&gt; GVal RunRepo
-<a href="#l168" class="line" id="l168">  168</a>      toGVal treefile =
-<a href="#l169" class="line" id="l169">  169</a>          def
-<a href="#l170" class="line" id="l170">  170</a>              { asHtml = html . pack . toString . treeFilePath $ treefile
-<a href="#l171" class="line" id="l171">  171</a>              , asText = pack . show . treeFilePath $ treefile
-<a href="#l172" class="line" id="l172">  172</a>              , asLookup = Just . treeAsLookup $ treefile
-<a href="#l173" class="line" id="l173">  173</a>              , asBoolean = True -- Used for conditionally checking readme/license template variables.
-<a href="#l174" class="line" id="l174">  174</a>              }
-<a href="#l175" class="line" id="l175">  175</a>  
-<a href="#l176" class="line" id="l176">  176</a>  instance ToGVal RunRepo TreeFileContents where
-<a href="#l177" class="line" id="l177">  177</a>      toGVal :: TreeFileContents -&gt; GVal RunRepo
-<a href="#l178" class="line" id="l178">  178</a>      toGVal BinaryContents = def
-<a href="#l179" class="line" id="l179">  179</a>      toGVal (FileContents text) = toGVal . strip $ text
-<a href="#l180" class="line" id="l180">  180</a>      toGVal (FolderContents treeFiles) =
-<a href="#l181" class="line" id="l181">  181</a>          def
-<a href="#l182" class="line" id="l182">  182</a>              { asHtml = html . pack . show . fmap (toString . treeFilePath) $ treeFiles
-<a href="#l183" class="line" id="l183">  183</a>              , asText = pack . show . fmap (toString . treeFilePath) $ treeFiles
-<a href="#l184" class="line" id="l184">  184</a>              , asList = Just . fmap toGVal $ treeFiles
-<a href="#l185" class="line" id="l185">  185</a>              }
-<a href="#l186" class="line" id="l186">  186</a>  
-<a href="#l187" class="line" id="l187">  187</a>  treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal RunRepo)
-<a href="#l188" class="line" id="l188">  188</a>  treeAsLookup treefile = \case
-<a href="#l189" class="line" id="l189">  189</a>      &quot;path&quot; -&gt; Just . toGVal . treeFilePath $ treefile
-<a href="#l190" class="line" id="l190">  190</a>      &quot;name&quot; -&gt; Just . toGVal . takeFileName . toString . treeFilePath $ treefile
-<a href="#l191" class="line" id="l191">  191</a>      &quot;href&quot; -&gt; Just . toGVal . treePathToHref . treeFilePath $ treefile
-<a href="#l192" class="line" id="l192">  192</a>      &quot;contents&quot; -&gt; Just . toGVal . treeFileContents $ treefile
-<a href="#l193" class="line" id="l193">  193</a>      &quot;mode&quot; -&gt; Just . toGVal . drop 4 . show . treeFileMode $ treefile
-<a href="#l194" class="line" id="l194">  194</a>      &quot;mode_octal&quot; -&gt; Just . toGVal . modeToOctal . treeFileMode $ treefile
-<a href="#l195" class="line" id="l195">  195</a>      &quot;mode_symbolic&quot; -&gt; Just . toGVal . modeToSymbolic . treeFileMode $ treefile
-<a href="#l196" class="line" id="l196">  196</a>      &quot;is_binary&quot; -&gt; Just . toGVal . treeFileIsBinary $ treefile
-<a href="#l197" class="line" id="l197">  197</a>      &quot;is_directory&quot; -&gt; Just . toGVal . treeFileIsDirectory $ treefile
-<a href="#l198" class="line" id="l198">  198</a>      _ -&gt; Nothing
-<a href="#l199" class="line" id="l199">  199</a>  
-<a href="#l200" class="line" id="l200">  200</a>  treeFileIsBinary :: TreeFile -&gt; Bool
-<a href="#l201" class="line" id="l201">  201</a>  treeFileIsBinary treefile = case treeFileContents treefile of
-<a href="#l202" class="line" id="l202">  202</a>      BinaryContents -&gt; True
-<a href="#l203" class="line" id="l203">  203</a>      _ -&gt; False
-<a href="#l204" class="line" id="l204">  204</a>  
-<a href="#l205" class="line" id="l205">  205</a>  treeFileIsDirectory :: TreeFile -&gt; Bool
-<a href="#l206" class="line" id="l206">  206</a>  treeFileIsDirectory treefile = case treeFileContents treefile of
-<a href="#l207" class="line" id="l207">  207</a>      FolderContents _ -&gt; True
-<a href="#l208" class="line" id="l208">  208</a>      _ -&gt; False
-<a href="#l209" class="line" id="l209">  209</a>  
-<a href="#l210" class="line" id="l210">  210</a>  {-
-<a href="#l211" class="line" id="l211">  211</a>  Get the name of a tree file path&apos;s HTML file.
-<a href="#l212" class="line" id="l212">  212</a>  -}
-<a href="#l213" class="line" id="l213">  213</a>  treePathToHref :: TreeFilePath -&gt; Text
-<a href="#l214" class="line" id="l214">  214</a>  treePathToHref = flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; . decodeUtf8With lenientDecode
-<a href="#l215" class="line" id="l215">  215</a>  
-<a href="#l216" class="line" id="l216">  216</a>  {-
-<a href="#l217" class="line" id="l217">  217</a>  Data to store information about references: tags and branches.
-<a href="#l218" class="line" id="l218">  218</a>  -}
-<a href="#l219" class="line" id="l219">  219</a>  data Ref = Ref
-<a href="#l220" class="line" id="l220">  220</a>      { refName :: RefName
-<a href="#l221" class="line" id="l221">  221</a>      , refCommit :: Commit LgRepo
-<a href="#l222" class="line" id="l222">  222</a>      }
-<a href="#l223" class="line" id="l223">  223</a>  
-<a href="#l224" class="line" id="l224">  224</a>  instance ToGVal RunRepo Ref where
-<a href="#l225" class="line" id="l225">  225</a>      toGVal :: Ref -&gt; GVal RunRepo
-<a href="#l226" class="line" id="l226">  226</a>      toGVal ref =
-<a href="#l227" class="line" id="l227">  227</a>          def
-<a href="#l228" class="line" id="l228">  228</a>              { asHtml = html . refName $ ref
-<a href="#l229" class="line" id="l229">  229</a>              , asText = refName ref
-<a href="#l230" class="line" id="l230">  230</a>              , asLookup = Just . refAsLookup $ ref
-<a href="#l231" class="line" id="l231">  231</a>              }
-<a href="#l232" class="line" id="l232">  232</a>  
-<a href="#l233" class="line" id="l233">  233</a>  refAsLookup :: Ref -&gt; Text -&gt; Maybe (GVal RunRepo)
-<a href="#l234" class="line" id="l234">  234</a>  refAsLookup ref = \case
-<a href="#l235" class="line" id="l235">  235</a>      &quot;name&quot; -&gt; Just . toGVal . refName $ ref
-<a href="#l236" class="line" id="l236">  236</a>      &quot;commit&quot; -&gt; Just . toGVal . refCommit $ ref
-<a href="#l237" class="line" id="l237">  237</a>      key -&gt; commitAsLookup (refCommit ref) key
+<a href="#l92" class="line" id="l92">   92</a>      &quot;href&quot; -&gt; Just . toGVal . (&lt;&gt; &quot;.html&quot;) . show . untag . commitOid $ commit
+<a href="#l93" class="line" id="l93">   93</a>      &quot;title&quot; -&gt; Just . toGVal . strip . T.takeWhile (/= &apos;\n&apos;) . commitLog $ commit
+<a href="#l94" class="line" id="l94">   94</a>      &quot;body&quot; -&gt; Just . toGVal . strip . T.dropWhile (/= &apos;\n&apos;) . commitLog $ commit
+<a href="#l95" class="line" id="l95">   95</a>      &quot;message&quot; -&gt; Just . toGVal . strip . commitLog $ commit
+<a href="#l96" class="line" id="l96">   96</a>      &quot;author&quot; -&gt; Just . toGVal . strip . signatureName . commitAuthor $ commit
+<a href="#l97" class="line" id="l97">   97</a>      &quot;committer&quot; -&gt; Just . toGVal . strip . signatureName . commitCommitter $ commit
+<a href="#l98" class="line" id="l98">   98</a>      &quot;author_email&quot; -&gt; Just . toGVal . strip . signatureEmail . commitAuthor $ commit
+<a href="#l99" class="line" id="l99">   99</a>      &quot;committer_email&quot; -&gt; Just . toGVal . strip . signatureEmail . commitCommitter $ commit
+<a href="#l100" class="line" id="l100">  100</a>      &quot;authored&quot; -&gt; Just . toGVal . show . signatureWhen . commitAuthor $ commit
+<a href="#l101" class="line" id="l101">  101</a>      &quot;committed&quot; -&gt; Just . toGVal . show . signatureWhen . commitCommitter $ commit
+<a href="#l102" class="line" id="l102">  102</a>      &quot;encoding&quot; -&gt; Just . toGVal . strip . commitEncoding $ commit
+<a href="#l103" class="line" id="l103">  103</a>      &quot;parent&quot; -&gt; toGVal . show . untag &lt;$&gt; (listToMaybe . commitParents $ commit)
+<a href="#l104" class="line" id="l104">  104</a>      _ -&gt; Nothing
+<a href="#l105" class="line" id="l105">  105</a>  
+<a href="#l106" class="line" id="l106">  106</a>  {-
+<a href="#l107" class="line" id="l107">  107</a>  Next we have some data used to represent a repository&apos;s tree and the different kinds of
+<a href="#l108" class="line" id="l108">  108</a>  objects contained therein.
+<a href="#l109" class="line" id="l109">  109</a>  -}
+<a href="#l110" class="line" id="l110">  110</a>  data TreeFile = TreeFile
+<a href="#l111" class="line" id="l111">  111</a>      { treeFilePath :: TreeFilePath
+<a href="#l112" class="line" id="l112">  112</a>      , treeFileContents :: TreeFileContents
+<a href="#l113" class="line" id="l113">  113</a>      , treeFileMode :: TreeEntryMode
+<a href="#l114" class="line" id="l114">  114</a>      }
+<a href="#l115" class="line" id="l115">  115</a>  
+<a href="#l116" class="line" id="l116">  116</a>  data TreeFileContents = BinaryContents | FileContents Text | FolderContents [TreeFile]
+<a href="#l117" class="line" id="l117">  117</a>  
+<a href="#l118" class="line" id="l118">  118</a>  data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
+<a href="#l119" class="line" id="l119">  119</a>      deriving stock (Show)
+<a href="#l120" class="line" id="l120">  120</a>  
+<a href="#l121" class="line" id="l121">  121</a>  {-
+<a href="#l122" class="line" id="l122">  122</a>  Some helper functions to convert from Haskell&apos;s LibGit2 BlobKind to our TreeEntryMode,
+<a href="#l123" class="line" id="l123">  123</a>  and then from that to Git&apos;s octal representation, as seen when calling `git ls-tree
+<a href="#l124" class="line" id="l124">  124</a>  &lt;tree-ish&gt;`
+<a href="#l125" class="line" id="l125">  125</a>  -}
+<a href="#l126" class="line" id="l126">  126</a>  blobkindToMode :: BlobKind -&gt; TreeEntryMode
+<a href="#l127" class="line" id="l127">  127</a>  blobkindToMode PlainBlob = ModePlain
+<a href="#l128" class="line" id="l128">  128</a>  blobkindToMode ExecutableBlob = ModeExecutable
+<a href="#l129" class="line" id="l129">  129</a>  blobkindToMode SymlinkBlob = ModeSymlink
+<a href="#l130" class="line" id="l130">  130</a>  
+<a href="#l131" class="line" id="l131">  131</a>  modeToOctal :: TreeEntryMode -&gt; String
+<a href="#l132" class="line" id="l132">  132</a>  modeToOctal ModeDirectory = &quot;40000&quot;
+<a href="#l133" class="line" id="l133">  133</a>  modeToOctal ModePlain = &quot;00644&quot;
+<a href="#l134" class="line" id="l134">  134</a>  modeToOctal ModeExecutable = &quot;00755&quot;
+<a href="#l135" class="line" id="l135">  135</a>  modeToOctal ModeSymlink = &quot;20000&quot;
+<a href="#l136" class="line" id="l136">  136</a>  modeToOctal ModeSubmodule = &quot;60000&quot;
+<a href="#l137" class="line" id="l137">  137</a>  
+<a href="#l138" class="line" id="l138">  138</a>  modeToSymbolic :: TreeEntryMode -&gt; String
+<a href="#l139" class="line" id="l139">  139</a>  modeToSymbolic ModeDirectory = &quot;drwxr-xr-x&quot;
+<a href="#l140" class="line" id="l140">  140</a>  modeToSymbolic ModePlain = &quot;-rw-r--r--&quot;
+<a href="#l141" class="line" id="l141">  141</a>  modeToSymbolic ModeExecutable = &quot;-rwxr-xr-x&quot;
+<a href="#l142" class="line" id="l142">  142</a>  modeToSymbolic ModeSymlink = &quot;l---------&quot;
+<a href="#l143" class="line" id="l143">  143</a>  modeToSymbolic ModeSubmodule = &quot;git-module&quot;
+<a href="#l144" class="line" id="l144">  144</a>  
+<a href="#l145" class="line" id="l145">  145</a>  {-
+<a href="#l146" class="line" id="l146">  146</a>  This
+<a href="#l147" class="line" id="l147">  147</a>  -}
+<a href="#l148" class="line" id="l148">  148</a>  getBlobContents :: BlobOid LgRepo -&gt; ReaderT LgRepo IO TreeFileContents
+<a href="#l149" class="line" id="l149">  149</a>  getBlobContents oid = do
+<a href="#l150" class="line" id="l150">  150</a>      repo &lt;- getRepository
+<a href="#l151" class="line" id="l151">  151</a>      blobPtr &lt;- liftIO mallocForeignPtr
+<a href="#l152" class="line" id="l152">  152</a>      isBinary &lt;- liftIO . withForeignPtr (repoObj repo) $ \repoPtr -&gt;
+<a href="#l153" class="line" id="l153">  153</a>          withForeignPtr blobPtr $ \blobPtr&apos; -&gt;
+<a href="#l154" class="line" id="l154">  154</a>              withForeignPtr (getOid . untag $ oid) $ \oidPtr -&gt; do
+<a href="#l155" class="line" id="l155">  155</a>                  r1 &lt;- c&apos;git_blob_lookup blobPtr&apos; repoPtr oidPtr
+<a href="#l156" class="line" id="l156">  156</a>                  when (r1 &lt; 0) $ throwM (Git.BackendError &quot;Could not lookup blob&quot;)
+<a href="#l157" class="line" id="l157">  157</a>                  c&apos;git_blob_is_binary =&lt;&lt; peek blobPtr&apos;
+<a href="#l158" class="line" id="l158">  158</a>  
+<a href="#l159" class="line" id="l159">  159</a>      if toEnum . fromEnum $ isBinary -- This reads weird, but it goes CInt, to Int, to Bool.
+<a href="#l160" class="line" id="l160">  160</a>          then return BinaryContents
+<a href="#l161" class="line" id="l161">  161</a>          else FileContents . decodeUtf8With lenientDecode &lt;$&gt; catBlob oid
+<a href="#l162" class="line" id="l162">  162</a>  
+<a href="#l163" class="line" id="l163">  163</a>  {-
+<a href="#l164" class="line" id="l164">  164</a>  GVal implementations for data definitions above, allowing commits to be rendered in
+<a href="#l165" class="line" id="l165">  165</a>  Ginger templates.
+<a href="#l166" class="line" id="l166">  166</a>  -}
+<a href="#l167" class="line" id="l167">  167</a>  instance ToGVal RunRepo TreeFile where
+<a href="#l168" class="line" id="l168">  168</a>      toGVal :: TreeFile -&gt; GVal RunRepo
+<a href="#l169" class="line" id="l169">  169</a>      toGVal treefile =
+<a href="#l170" class="line" id="l170">  170</a>          def
+<a href="#l171" class="line" id="l171">  171</a>              { asHtml = html . pack . toString . treeFilePath $ treefile
+<a href="#l172" class="line" id="l172">  172</a>              , asText = pack . show . treeFilePath $ treefile
+<a href="#l173" class="line" id="l173">  173</a>              , asLookup = Just . treeAsLookup $ treefile
+<a href="#l174" class="line" id="l174">  174</a>              , asBoolean = True -- Used for conditionally checking readme/license template variables.
+<a href="#l175" class="line" id="l175">  175</a>              }
+<a href="#l176" class="line" id="l176">  176</a>  
+<a href="#l177" class="line" id="l177">  177</a>  instance ToGVal RunRepo TreeFileContents where
+<a href="#l178" class="line" id="l178">  178</a>      toGVal :: TreeFileContents -&gt; GVal RunRepo
+<a href="#l179" class="line" id="l179">  179</a>      toGVal BinaryContents = def
+<a href="#l180" class="line" id="l180">  180</a>      toGVal (FileContents text) = toGVal . strip $ text
+<a href="#l181" class="line" id="l181">  181</a>      toGVal (FolderContents treeFiles) =
+<a href="#l182" class="line" id="l182">  182</a>          def
+<a href="#l183" class="line" id="l183">  183</a>              { asHtml = html . pack . show . fmap (toString . treeFilePath) $ treeFiles
+<a href="#l184" class="line" id="l184">  184</a>              , asText = pack . show . fmap (toString . treeFilePath) $ treeFiles
+<a href="#l185" class="line" id="l185">  185</a>              , asList = Just . fmap toGVal $ treeFiles
+<a href="#l186" class="line" id="l186">  186</a>              }
+<a href="#l187" class="line" id="l187">  187</a>  
+<a href="#l188" class="line" id="l188">  188</a>  treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal RunRepo)
+<a href="#l189" class="line" id="l189">  189</a>  treeAsLookup treefile = \case
+<a href="#l190" class="line" id="l190">  190</a>      &quot;path&quot; -&gt; Just . toGVal . treeFilePath $ treefile
+<a href="#l191" class="line" id="l191">  191</a>      &quot;name&quot; -&gt; Just . toGVal . takeFileName . toString . treeFilePath $ treefile
+<a href="#l192" class="line" id="l192">  192</a>      &quot;href&quot; -&gt; Just . toGVal . treePathToHref . treeFilePath $ treefile
+<a href="#l193" class="line" id="l193">  193</a>      &quot;contents&quot; -&gt; Just . toGVal . treeFileContents $ treefile
+<a href="#l194" class="line" id="l194">  194</a>      &quot;mode&quot; -&gt; Just . toGVal . drop 4 . show . treeFileMode $ treefile
+<a href="#l195" class="line" id="l195">  195</a>      &quot;mode_octal&quot; -&gt; Just . toGVal . modeToOctal . treeFileMode $ treefile
+<a href="#l196" class="line" id="l196">  196</a>      &quot;mode_symbolic&quot; -&gt; Just . toGVal . modeToSymbolic . treeFileMode $ treefile
+<a href="#l197" class="line" id="l197">  197</a>      &quot;is_binary&quot; -&gt; Just . toGVal . treeFileIsBinary $ treefile
+<a href="#l198" class="line" id="l198">  198</a>      &quot;is_directory&quot; -&gt; Just . toGVal . treeFileIsDirectory $ treefile
+<a href="#l199" class="line" id="l199">  199</a>      _ -&gt; Nothing
+<a href="#l200" class="line" id="l200">  200</a>  
+<a href="#l201" class="line" id="l201">  201</a>  treeFileIsBinary :: TreeFile -&gt; Bool
+<a href="#l202" class="line" id="l202">  202</a>  treeFileIsBinary treefile = case treeFileContents treefile of
+<a href="#l203" class="line" id="l203">  203</a>      BinaryContents -&gt; True
+<a href="#l204" class="line" id="l204">  204</a>      _ -&gt; False
+<a href="#l205" class="line" id="l205">  205</a>  
+<a href="#l206" class="line" id="l206">  206</a>  treeFileIsDirectory :: TreeFile -&gt; Bool
+<a href="#l207" class="line" id="l207">  207</a>  treeFileIsDirectory treefile = case treeFileContents treefile of
+<a href="#l208" class="line" id="l208">  208</a>      FolderContents _ -&gt; True
+<a href="#l209" class="line" id="l209">  209</a>      _ -&gt; False
+<a href="#l210" class="line" id="l210">  210</a>  
+<a href="#l211" class="line" id="l211">  211</a>  {-
+<a href="#l212" class="line" id="l212">  212</a>  Get the name of a tree file path&apos;s HTML file.
+<a href="#l213" class="line" id="l213">  213</a>  -}
+<a href="#l214" class="line" id="l214">  214</a>  treePathToHref :: TreeFilePath -&gt; Text
+<a href="#l215" class="line" id="l215">  215</a>  treePathToHref = flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; . decodeUtf8With lenientDecode
+<a href="#l216" class="line" id="l216">  216</a>  
+<a href="#l217" class="line" id="l217">  217</a>  {-
+<a href="#l218" class="line" id="l218">  218</a>  Data to store information about references: tags and branches.
+<a href="#l219" class="line" id="l219">  219</a>  -}
+<a href="#l220" class="line" id="l220">  220</a>  data Ref = Ref
+<a href="#l221" class="line" id="l221">  221</a>      { refName :: RefName
+<a href="#l222" class="line" id="l222">  222</a>      , refCommit :: Commit LgRepo
+<a href="#l223" class="line" id="l223">  223</a>      }
+<a href="#l224" class="line" id="l224">  224</a>  
+<a href="#l225" class="line" id="l225">  225</a>  instance ToGVal RunRepo Ref where
+<a href="#l226" class="line" id="l226">  226</a>      toGVal :: Ref -&gt; GVal RunRepo
+<a href="#l227" class="line" id="l227">  227</a>      toGVal ref =
+<a href="#l228" class="line" id="l228">  228</a>          def
+<a href="#l229" class="line" id="l229">  229</a>              { asHtml = html . refName $ ref
+<a href="#l230" class="line" id="l230">  230</a>              , asText = refName ref
+<a href="#l231" class="line" id="l231">  231</a>              , asLookup = Just . refAsLookup $ ref
+<a href="#l232" class="line" id="l232">  232</a>              }
+<a href="#l233" class="line" id="l233">  233</a>  
+<a href="#l234" class="line" id="l234">  234</a>  refAsLookup :: Ref -&gt; Text -&gt; Maybe (GVal RunRepo)
+<a href="#l235" class="line" id="l235">  235</a>  refAsLookup ref = \case
+<a href="#l236" class="line" id="l236">  236</a>      &quot;name&quot; -&gt; Just . toGVal . refName $ ref
+<a href="#l237" class="line" id="l237">  237</a>      &quot;commit&quot; -&gt; Just . toGVal . refCommit $ ref
+<a href="#l238" class="line" id="l238">  238</a>      key -&gt; commitAsLookup (refCommit ref) key
 </pre>
       </div>
   </body>
