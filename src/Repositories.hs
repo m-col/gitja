@@ -12,9 +12,10 @@ module Repositories (
 import Conduit (runConduit, sinkList, (.|))
 import Control.Exception (try)
 import Control.Monad (filterM, unless, when, (<=<))
+import Control.Monad.Extra (ifM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
-import Data.Either (fromRight, isRight)
+import Data.Either (isRight)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
 import Data.Tagged
@@ -25,8 +26,8 @@ import Git
 import Git.Libgit2 (LgRepo, lgFactory)
 import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (</>))
 import Path.IO (doesFileExist, ensureDir)
+import qualified System.Directory as D
 import qualified System.FilePath as FP
-import System.IO.Error (tryIOError)
 import Text.Ginger.GVal (GVal, ToGVal, toGVal)
 
 import Templates (Env (..), Template (..), generate)
@@ -54,10 +55,31 @@ loadRepos env = do
     okRepo p = try . liftIO . openRepository lgFactory $ defaultRepositoryOptions{repoPath = toFilePath p}
 
 {-
-Pass the repository's folder, get its description.
+Pass the repository's folder, get its description. The algorithm is:
+
+    1. Check for a description in repo/description
+    2. Check for a description in repo/.git/description
+    3. Fallback to the repo folder's name.
+
 -}
 getDescription :: Path Abs Dir -> IO Text
-getDescription = fmap (fromRight "") . tryIOError . fmap (strip . pack) . readFile . flip FP.combine "description" . toFilePath
+getDescription dir =
+    ifM
+        (D.doesFileExist inTop)
+        (return . Just $ inTop)
+        ( ifM
+            (D.doesFileExist inGit)
+            (return . Just $ inGit)
+            (return Nothing)
+        )
+        >>= \case
+            Just file ->
+                strip . pack <$> readFile file
+            Nothing ->
+                return . pack . toFilePath . dirname $ dir
+  where
+    inTop = toFilePath dir FP.</> "description"
+    inGit = toFilePath dir FP.</> ".git" FP.</> "description"
 
 {-
 This receives a file path to a single repository and tries to process it. If the

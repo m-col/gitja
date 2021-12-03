@@ -140,7 +140,7 @@ The variables available within each scope are listed here for reference:
 |        | repositories | A list of all of the git repositories.                |
 | Repo   |              | *In addition to the variables from the index scope...*|
 |        | name         | The repository name, taken from its folder name.      |
-|        | description  | A description taken from a file called "description" in that folder.|
+|        | description  | The repository's description (see below).             |
 |        | commits      | A list of the repository's commits.                   |
 |        | tree         | A list of the repository's files.                     |
 |        | tags         | A list of the refs corresponding to tags.             |
@@ -163,7 +163,7 @@ Here is the reference of attributes available on the variables that have them:
 | Object     | Attribute        | Description                                              |
 | ---------- | ---------------- | -------------------------------------------------------- |
 | repository | name             | The repository's name, taken from the folder name.       |
-|            | description      | A description taken from a file called "description" in that folder.|
+|            | description      | The repository's description (see below).                |
 |            | head             | The current git commit.                                  |
 |            | updated          | The time when the current commit was committed.          |
 | commit     | id               | The SHA of the given commit.                             |
@@ -196,6 +196,15 @@ Note:
 - Some attributes point to other objects that have attributes. For example,
   `branches[0].commit.parent` will work as expected.
 - "file" includes directories and symbolic links.
+
+#### Descriptions
+
+Each repository can have a description that is available in the templates. This
+is how the description for a given respository is determined:
+
+1. Look for a file at `repo/description`, and if found read from there.
+2. Otherwise, look for a file at `repo/.git/description`, and if found read from there.
+2. Otherwise, simply use the repository folder's name.
 
 Questions?
 ----------
