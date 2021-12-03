@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/04be7bc2ef0df74aac86332bb6935c8e1c60a97f.html">04be7bc</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/46cab4e4c92887baaeee45890602f1c07b41ee87.html">46cab4e</a>
       </p>
     </div>
 
@@ -57,7 +57,7 @@
 <a href="#l19" class="line" id="l19">   19</a>      &lt;/thead&gt;
 <a href="#l20" class="line" id="l20">   20</a>  
 <a href="#l21" class="line" id="l21">   21</a>      &lt;tbody&gt;
-<a href="#l22" class="line" id="l22">   22</a>        {% for repo in repositories %}
+<a href="#l22" class="line" id="l22">   22</a>        {% for repo in sort(repositories, by=&quot;updated&quot;, reverse=1) %}
 <a href="#l23" class="line" id="l23">   23</a>        &lt;tr&gt;&lt;td&gt;&lt;a href=&quot;{{ repo.name }}&quot;&gt;{{ repo.name }}&lt;/a&gt;&lt;/td&gt;&lt;td&gt;{{ repo.description }}&lt;/td&gt;&lt;td&gt;{{ repo.updated[:16] }}&lt;/td&gt;&lt;/tr&gt;
 <a href="#l24" class="line" id="l24">   24</a>        {% endfor %}
 <a href="#l25" class="line" id="l25">   25</a>      &lt;/tbody&gt;

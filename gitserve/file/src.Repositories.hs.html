@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/04be7bc2ef0df74aac86332bb6935c8e1c60a97f.html">04be7bc</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/46cab4e4c92887baaeee45890602f1c07b41ee87.html">46cab4e</a>
       </p>
     </div>
 
@@ -186,7 +186,7 @@
 <a href="#l148" class="line" id="l148">  148</a>          , (&quot;repositories&quot;, toGVal repos)
 <a href="#l149" class="line" id="l149">  149</a>          , (&quot;name&quot;, toGVal . pack . init . toFilePath $ name)
 <a href="#l150" class="line" id="l150">  150</a>          , (&quot;description&quot;, toGVal description)
-<a href="#l151" class="line" id="l151">  151</a>          , (&quot;commits&quot;, toGVal . reverse $ commits) -- Could be optimised
+<a href="#l151" class="line" id="l151">  151</a>          , (&quot;commits&quot;, toGVal commits)
 <a href="#l152" class="line" id="l152">  152</a>          , (&quot;tree&quot;, toGVal tree)
 <a href="#l153" class="line" id="l153">  153</a>          , (&quot;tags&quot;, toGVal tags)
 <a href="#l154" class="line" id="l154">  154</a>          , (&quot;branches&quot;, toGVal branches)
@@ -199,7 +199,7 @@
 <a href="#l161" class="line" id="l161">  161</a>  -}
 <a href="#l162" class="line" id="l162">  162</a>  getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit LgRepo]
 <a href="#l163" class="line" id="l163">  163</a>  getCommits commitID =
-<a href="#l164" class="line" id="l164">  164</a>      sequence . mapMaybe loadCommit
+<a href="#l164" class="line" id="l164">  164</a>      fmap reverse . sequence . mapMaybe loadCommit
 <a href="#l165" class="line" id="l165">  165</a>          &lt;=&lt; runConduit
 <a href="#l166" class="line" id="l166">  166</a>          $ sourceObjects Nothing commitID False .| sinkList
 <a href="#l167" class="line" id="l167">  167</a>  
