@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/a6efc95f7783b76592e97d1c9c2d7206ccf3617b.html">a6efc95</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/04be7bc2ef0df74aac86332bb6935c8e1c60a97f.html">04be7bc</a>
       </p>
     </div>
 
@@ -50,17 +50,21 @@
 <a href="#l12" class="line" id="l12">   12</a>  -- These are the configurable options that are used by gitserve.
 <a href="#l13" class="line" id="l13">   13</a>  -- If copying, you may want to replace the relative paths for absolute paths.
 <a href="#l14" class="line" id="l14">   14</a>  let config =
-<a href="#l15" class="line" id="l15">   15</a>      { repoPaths = folders
-<a href="#l16" class="line" id="l16">   16</a>      , scanRepoPaths = False
-<a href="#l17" class="line" id="l17">   17</a>      , templateDirectory = &quot;./templates/docs&quot;
-<a href="#l18" class="line" id="l18">   18</a>      , outputDirectory = &quot;./output&quot;
+<a href="#l15" class="line" id="l15">   15</a>      { repos = folders
+<a href="#l16" class="line" id="l16">   16</a>      , scan = False
+<a href="#l17" class="line" id="l17">   17</a>      , template = &quot;./templates/docs&quot;
+<a href="#l18" class="line" id="l18">   18</a>      , output = &quot;./output&quot;
 <a href="#l19" class="line" id="l19">   19</a>      , host = &quot;http://localhost:8000&quot;
 <a href="#l20" class="line" id="l20">   20</a>      }
 <a href="#l21" class="line" id="l21">   21</a>  
-<a href="#l22" class="line" id="l22">   22</a>  -- Note: The host is available verbatim in templates.
-<a href="#l23" class="line" id="l23">   23</a>  -- Port 8000 is appended here for easier testing with `python -m http.server`.
-<a href="#l24" class="line" id="l24">   24</a>  
-<a href="#l25" class="line" id="l25">   25</a>  in config
+<a href="#l22" class="line" id="l22">   22</a>  -- If `scan` is True, then gitserve will look for git repositories in folders
+<a href="#l23" class="line" id="l23">   23</a>  -- nested within those listed in `repos`. Otherwise, the folders in `repos` are
+<a href="#l24" class="line" id="l24">   24</a>  -- assumed to be repositories themselves.
+<a href="#l25" class="line" id="l25">   25</a>  
+<a href="#l26" class="line" id="l26">   26</a>  -- Note: The host is available verbatim in templates.
+<a href="#l27" class="line" id="l27">   27</a>  -- Port 8000 is appended here for easier testing with `python -m http.server`.
+<a href="#l28" class="line" id="l28">   28</a>  
+<a href="#l29" class="line" id="l29">   29</a>  in config
 </pre>
       </div>
   </body>

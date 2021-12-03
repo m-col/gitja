@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/a6efc95f7783b76592e97d1c9c2d7206ccf3617b.html">a6efc95</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/04be7bc2ef0df74aac86332bb6935c8e1c60a97f.html">04be7bc</a>
       </p>
     </div>
 
@@ -141,12 +141,12 @@
 <a href="#l103" class="line" id="l103">  103</a>                  B.writeFile &quot;./config.dhall&quot; config
 <a href="#l104" class="line" id="l104">  104</a>                  putStrLn &quot;A base template as been put at ./template.&quot;
 <a href="#l105" class="line" id="l105">  105</a>                  putStrLn &quot;A plain config has been put at ./config.dhall&quot;
-<a href="#l106" class="line" id="l106">  106</a>                  putStrLn &quot;Add a local git repository to repoPaths in the config&quot;
+<a href="#l106" class="line" id="l106">  106</a>                  putStrLn &quot;Add a local git repository to &apos;repos&apos; in the config&quot;
 <a href="#l107" class="line" id="l107">  107</a>                  putStrLn &quot;and run gitserve to generate HTML in ./output.&quot;
 <a href="#l108" class="line" id="l108">  108</a>                  oExists &lt;- D.doesPathExist &quot;./output&quot;
 <a href="#l109" class="line" id="l109">  109</a>                  when oExists . putStrLn $
 <a href="#l110" class="line" id="l110">  110</a>                      &quot;WARNING: ./output ALREADY EXISTS AND WILL BE OVERWRITTEN\n&quot;
-<a href="#l111" class="line" id="l111">  111</a>                          &lt;&gt; &quot;UNLESS YOU MOVE/RENAME IT OR CHANGE GITSERVE&apos;S outputDirectory.&quot;
+<a href="#l111" class="line" id="l111">  111</a>                          &lt;&gt; &quot;UNLESS YOU MOVE/RENAME IT OR CHANGE GITSERVE&apos;S output.&quot;
 <a href="#l112" class="line" id="l112">  112</a>    where
 <a href="#l113" class="line" id="l113">  113</a>      base :: [(FilePath, B.ByteString)]
 <a href="#l114" class="line" id="l114">  114</a>      base = $(embedDir &quot;templates/base&quot;)

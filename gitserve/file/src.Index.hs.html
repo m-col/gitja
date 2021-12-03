@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/a6efc95f7783b76592e97d1c9c2d7206ccf3617b.html">a6efc95</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/04be7bc2ef0df74aac86332bb6935c8e1c60a97f.html">04be7bc</a>
       </p>
     </div>
 
@@ -64,7 +64,7 @@
 <a href="#l26" class="line" id="l26">   26</a>  
 <a href="#l27" class="line" id="l27">   27</a>  runIndexFile :: Env -&gt; [Repo] -&gt; Template -&gt; IO ()
 <a href="#l28" class="line" id="l28">   28</a>  runIndexFile env repos template = do
-<a href="#l29" class="line" id="l29">   29</a>      let output = combine (toFilePath . envOutputDirectory $ env) . toFilePath . templatePath $ template
+<a href="#l29" class="line" id="l29">   29</a>      let output = combine (toFilePath . envOutput $ env) . toFilePath . templatePath $ template
 <a href="#l30" class="line" id="l30">   30</a>      unless (envQuiet env) . putStrLn $ &quot;Writing &quot; &lt;&gt; output
 <a href="#l31" class="line" id="l31">   31</a>      writeFile output &quot;&quot; -- Clear contents of file if it exists
 <a href="#l32" class="line" id="l32">   32</a>      void $
