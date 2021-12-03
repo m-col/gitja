@@ -1,6 +1,8 @@
 -- Required by Dhall
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Config (
     Config (..),
@@ -10,18 +12,20 @@ module Config (
 import Control.Monad ((<=<))
 import Data.Text (pack)
 import Dhall
+import Dhall.Deriving
 import System.Directory (makeAbsolute)
 
 data Config = Config
-    { repoPaths :: [FilePath]
-    , scanRepoPaths :: Bool
-    , templateDirectory :: FilePath
-    , outputDirectory :: FilePath
-    , host :: Text
+    { confRepoPaths :: [FilePath]
+    , confScanRepoPaths :: Bool
+    , confTemplateDirectory :: FilePath
+    , confOutputDirectory :: FilePath
+    , confHost :: Text
     }
-    deriving stock (Generic, Show)
-
-instance FromDhall Config
+    deriving stock (Generic)
+    deriving
+        (FromDhall)
+        via Codec (Field (CamelCase <<< DropPrefix "conf")) Config
 
 getConfig :: String -> IO Config
 getConfig = input auto . pack <=< makeAbsolute

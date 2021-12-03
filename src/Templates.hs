@@ -78,20 +78,20 @@ from the template directory.
 loadEnv :: Bool -> Bool -> Config -> IO Env
 loadEnv quiet force config = do
     -- First ensure that the output directory exists
-    output <- parseAbsDir <=< canonicalizePath . outputDirectory $ config
+    output <- parseAbsDir <=< canonicalizePath . confOutputDirectory $ config
     ensureDir output
 
     -- Parse repos for env
-    repoPaths' <-
-        if scanRepoPaths config
+    repoPaths <-
+        if confScanRepoPaths config
             then do
-                ps <- fmap concat . mapM (fmap fst . ls) . repoPaths $ config
+                ps <- fmap concat . mapM (fmap fst . ls) . confRepoPaths $ config
                 return . filter ((/=) ".git" . toFilePath . dirname) $ ps
-            else mapM (parseAbsDir <=< canonicalizePath) . repoPaths $ config
+            else mapM (parseAbsDir <=< canonicalizePath) . confRepoPaths $ config
 
     -- Find template files, copying the static files as is
-    (dirs, files) <- ls . templateDirectory $ config
-    (_, filesRepo) <- ls $ templateDirectory config FP.</> "repo"
+    (dirs, files) <- ls . confTemplateDirectory $ config
+    (_, filesRepo) <- ls $ confTemplateDirectory config FP.</> "repo"
     copyStaticDirs output dirs
     copyStaticFiles output files
 
@@ -113,8 +113,8 @@ loadEnv quiet force config = do
             , envFileTemplate = fileT
             , envRepoTemplates = repoT
             , envOutputDirectory = output
-            , envRepoPaths = repoPaths'
-            , envHost = host config
+            , envRepoPaths = repoPaths
+            , envHost = confHost config
             , envQuiet = quiet
             , envForce = force
             }
@@ -187,13 +187,13 @@ loadTemplate path =
 
 {-
 The logic for copying static files and folders. Any file or folder in the
-``templateDirectory`` is considered static if:
+``confTemplateDirectory`` is considered static if:
 
 - it is a symbolic link, or
 - it does not end in ".html" or ".include".
 
 Symbolic links are not followed and are copied as is. This means that a symbolic link
-from `templateDirectory/link.html` to `gitserve/index.html` will be copied, keeping the
+from `confTemplateDirectory/link.html` to `gitserve/index.html` will be copied, keeping the
 link intact, resulting in a symbolic link at `outputDirectory/link.html` essentially
 pointing to `outputDirectory/gitserve/index.html`.
 -}
