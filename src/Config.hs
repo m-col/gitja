@@ -14,6 +14,7 @@ import System.Directory (makeAbsolute)
 
 data Config = Config
     { repoPaths :: [FilePath]
+    , scanRepoPaths :: Bool
     , templateDirectory :: FilePath
     , outputDirectory :: FilePath
     , host :: Text

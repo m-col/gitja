@@ -13,6 +13,7 @@ let folders =
 -- You may want to replace the relative paths for absolute paths.
 let config =
     { repoPaths = folders
+    , scanRepoPaths = True
     , templateDirectory = "./template"
     , outputDirectory = "./output"
     , host = "http://localhost:8000"

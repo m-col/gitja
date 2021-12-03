@@ -10,10 +10,11 @@ module Repositories (
 ) where
 
 import Conduit (runConduit, sinkList, (.|))
-import Control.Monad (unless, when, (<=<))
+import Control.Exception (try)
+import Control.Monad (filterM, unless, when, (<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
-import Data.Either (fromRight)
+import Data.Either (fromRight, isRight)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
 import Data.Tagged
@@ -45,9 +46,12 @@ Get paths along with their descriptions.
 -}
 loadRepos :: Env -> IO [Repo]
 loadRepos env = do
-    let paths = envRepoPaths env
-    descs <- mapM getDescription paths
-    return . fmap ($ Nothing) . zipWith Repo paths $ descs
+    paths' <- filterM (fmap isRight . okRepo) . envRepoPaths $ env
+    descs <- mapM getDescription paths'
+    return . fmap ($ Nothing) . zipWith Repo paths' $ descs
+  where
+    okRepo :: Path Abs Dir -> IO (Either GitException LgRepo)
+    okRepo p = try . liftIO . openRepository lgFactory $ defaultRepositoryOptions{repoPath = toFilePath p}
 
 {-
 Pass the repository's folder, get its description.

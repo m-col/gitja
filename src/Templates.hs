@@ -82,7 +82,12 @@ loadEnv quiet force config = do
     ensureDir output
 
     -- Parse repos for env
-    repoPaths' <- mapM (parseAbsDir <=< canonicalizePath) . repoPaths $ config
+    repoPaths' <-
+        if scanRepoPaths config
+            then do
+                ps <- fmap concat . mapM (fmap fst . ls) . repoPaths $ config
+                return . filter ((/=) ".git" . toFilePath . dirname) $ ps
+            else mapM (parseAbsDir <=< canonicalizePath) . repoPaths $ config
 
     -- Find template files, copying the static files as is
     (dirs, files) <- ls . templateDirectory $ config

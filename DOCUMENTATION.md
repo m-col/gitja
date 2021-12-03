@@ -16,12 +16,13 @@ running `gitserve -t`.
 
 It requires the following settings:
 
-| Setting              | Description                                         |
-| -------------------- | --------------------------------------------------- |
-| `repoPaths`          | A list of folders containing your git repositories. |
-| `templateDirectory`  | The folder containing the template (see below).     |
-| `outputDirectory`    | Where to put the generated files.                   |
-| `host`               | The host URL, which is needed for creating links.   |
+| Setting             | Description                                         |
+| ------------------- | --------------------------------------------------- |
+| `repoPaths`         | A list of folders containing your git repositories. |
+| `scanRepoPaths`     | Whether `repoPaths` lists repos or folders containing nested repos. |
+| `templateDirectory` | The folder containing the template (see below).     |
+| `outputDirectory`   | Where to put the generated files.                   |
+| `host`              | The host URL, which is needed for creating links.   |
 
 Then, pass the config file to gitserve.
 
