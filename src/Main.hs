@@ -103,12 +103,12 @@ makeTemplate = do
                 B.writeFile "./config.dhall" config
                 putStrLn "A base template as been put at ./template."
                 putStrLn "A plain config has been put at ./config.dhall"
-                putStrLn "Add a local git repository to repoPaths in the config"
+                putStrLn "Add a local git repository to 'repos' in the config"
                 putStrLn "and run gitserve to generate HTML in ./output."
                 oExists <- D.doesPathExist "./output"
                 when oExists . putStrLn $
                     "WARNING: ./output ALREADY EXISTS AND WILL BE OVERWRITTEN\n"
-                        <> "UNLESS YOU MOVE/RENAME IT OR CHANGE GITSERVE'S outputDirectory."
+                        <> "UNLESS YOU MOVE/RENAME IT OR CHANGE GITSERVE'S output."
   where
     base :: [(FilePath, B.ByteString)]
     base = $(embedDir "templates/base")

@@ -46,7 +46,7 @@ Get paths along with their descriptions.
 -}
 loadRepos :: Env -> IO [Repo]
 loadRepos env = do
-    paths' <- filterM (fmap isRight . okRepo) . envRepoPaths $ env
+    paths' <- filterM (fmap isRight . okRepo) . envRepos $ env
     descs <- mapM getDescription paths'
     return . fmap ($ Nothing) . zipWith Repo paths' $ descs
   where
@@ -71,7 +71,7 @@ processRepo env repos repo =
 processRepo' :: Env -> [Repo] -> Repo -> ReaderT LgRepo IO Repo
 processRepo' env repos repo = do
     let name = dirname . repositoryPath $ repo
-    let output = envOutputDirectory env </> name
+    let output = envOutput env </> name
 
     resolveReference "HEAD" >>= \case
         Nothing -> do

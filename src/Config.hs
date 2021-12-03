@@ -16,10 +16,10 @@ import Dhall.Deriving
 import System.Directory (makeAbsolute)
 
 data Config = Config
-    { confRepoPaths :: [FilePath]
-    , confScanRepoPaths :: Bool
-    , confTemplateDirectory :: FilePath
-    , confOutputDirectory :: FilePath
+    { confRepos :: [FilePath]
+    , confScan :: Bool
+    , confTemplate :: FilePath
+    , confOutput :: FilePath
     , confHost :: Text
     }
     deriving stock (Generic)

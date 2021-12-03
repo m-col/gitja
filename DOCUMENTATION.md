@@ -16,13 +16,17 @@ running `gitserve -t`.
 
 It requires the following settings:
 
-| Setting             | Description                                         |
-| ------------------- | --------------------------------------------------- |
-| `repoPaths`         | A list of folders containing your git repositories. |
-| `scanRepoPaths`     | Whether `repoPaths` lists repos or folders containing nested repos. |
-| `templateDirectory` | The folder containing the template (see below).     |
-| `outputDirectory`   | Where to put the generated files.                   |
-| `host`              | The host URL, which is needed for creating links.   |
+| Setting    | Description                                                     |
+| ---------- | --------------------------------------------------------------- |
+| `repos`    | A list of folders containing your git repositories.             |
+| `scan`     | Whether `repos` lists repos or folders containing nested repos. |
+| `template` | The folder containing the template (see below).                 |
+| `output`   | Where to put the generated files.                               |
+| `host`     | The host URL, which is needed for creating links.               |
+
+If `scan` is `True`, then gitserve will look for git repositories in folders
+nested within those listed in `repos`. Otherwise, the folders in `repos` are
+assumed to be repositories themselves.
 
 Then, pass the config file to gitserve.
 
@@ -42,7 +46,7 @@ See the CLI help message for usage:
       -v,--version             Print the gitserve's version.
       -h,--help                Show this help text
 
-Note the "force" flag. By default, gitserve will not generate new output for
+Note the `force` flag. By default, gitserve will not generate new output for
 commits to save time. This flag will force regeneration of all files, which
 would be needed if changes have been made to the template.
 
@@ -69,7 +73,7 @@ files contained therein.
 
 To illustrate, this is the expected structure:
 
-    templateDirectory/
+    template/
         i_can_have_any_name.html
         and_there_can_be_any_number.html
         some_might_be_ginger_includes.html.include
@@ -80,8 +84,8 @@ To illustrate, this is the expected structure:
             file.html
             commit.html
 
-The top-level folder, here `templateDirectory`, is that which is specified in
-the config file.
+The top-level folder, here `template`, is that which is specified in the config
+file.
 
 Files ending in ".html" directly within that folder have access to the *index
 scope*, and are each parsed exactly once and output into the output directory
@@ -99,10 +103,10 @@ The exceptions to this are the two special template files with the names
 "file.html" and "commit.html". These have access to the *file scope* and
 *commit scope* respectively, and are parsed and output once per file or commit.
 
-The resulting folder structure found in the `outputDirectory` will look like
-this (if the only specified git repository is gitserve):
+The resulting folder structure found in `output` will look like this (if
+`repos` only contains gitserve):
 
-    outputDirectory/
+    output/
         i_can_have_any_name.html
         and_there_can_be_any_number.html
         non_html_is_fine.css
@@ -121,10 +125,10 @@ this (if the only specified git repository is gitserve):
 
 Note: symbolic links are considered static and will be copied unchanged and
 unresolved from template to output. This means that, for example, a symlink at
-`templateDirectory/index.html` pointing to `gitserve/index.html` will produce a
-symlink at `outputDirectory/index.html` with the same behaviour, with the
-effect that the served root index page will actually be the index page for the
-`gitserve` repository (if present).
+`template/index.html` pointing to `gitserve/index.html` will produce a symlink
+at `output/index.html` with the same behaviour, with the effect that the served
+root index page will actually be the index page for the `gitserve` repository
+(if present).
 
 ### Scopes
 

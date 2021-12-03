@@ -59,8 +59,8 @@ data Env = Env
     , envCommitTemplate :: Maybe Template
     , envFileTemplate :: Maybe Template
     , envRepoTemplates :: [Template]
-    , envOutputDirectory :: Path Abs Dir
-    , envRepoPaths :: [Path Abs Dir]
+    , envOutput :: Path Abs Dir
+    , envRepos :: [Path Abs Dir]
     , envHost :: T.Text
     , envQuiet :: Bool
     , envForce :: Bool
@@ -78,20 +78,20 @@ from the template directory.
 loadEnv :: Bool -> Bool -> Config -> IO Env
 loadEnv quiet force config = do
     -- First ensure that the output directory exists
-    output <- parseAbsDir <=< canonicalizePath . confOutputDirectory $ config
+    output <- parseAbsDir <=< canonicalizePath . confOutput $ config
     ensureDir output
 
     -- Parse repos for env
-    repoPaths <-
-        if confScanRepoPaths config
+    repos <-
+        if confScan config
             then do
-                ps <- fmap concat . mapM (fmap fst . ls) . confRepoPaths $ config
+                ps <- fmap concat . mapM (fmap fst . ls) . confRepos $ config
                 return . filter ((/=) ".git" . toFilePath . dirname) $ ps
-            else mapM (parseAbsDir <=< canonicalizePath) . confRepoPaths $ config
+            else mapM (parseAbsDir <=< canonicalizePath) . confRepos $ config
 
     -- Find template files, copying the static files as is
-    (dirs, files) <- ls . confTemplateDirectory $ config
-    (_, filesRepo) <- ls $ confTemplateDirectory config FP.</> "repo"
+    (dirs, files) <- ls . confTemplate $ config
+    (_, filesRepo) <- ls $ confTemplate config FP.</> "repo"
     copyStaticDirs output dirs
     copyStaticFiles output files
 
@@ -112,8 +112,8 @@ loadEnv quiet force config = do
             , envCommitTemplate = commitT
             , envFileTemplate = fileT
             , envRepoTemplates = repoT
-            , envOutputDirectory = output
-            , envRepoPaths = repoPaths
+            , envOutput = output
+            , envRepos = repos
             , envHost = confHost config
             , envQuiet = quiet
             , envForce = force
@@ -187,15 +187,15 @@ loadTemplate path =
 
 {-
 The logic for copying static files and folders. Any file or folder in the
-``confTemplateDirectory`` is considered static if:
+``confTemplate`` is considered static if:
 
 - it is a symbolic link, or
 - it does not end in ".html" or ".include".
 
 Symbolic links are not followed and are copied as is. This means that a symbolic link
-from `confTemplateDirectory/link.html` to `gitserve/index.html` will be copied, keeping the
-link intact, resulting in a symbolic link at `outputDirectory/link.html` essentially
-pointing to `outputDirectory/gitserve/index.html`.
+from `confTemplate/link.html` to `gitserve/index.html` will be copied, keeping the
+link intact, resulting in a symbolic link at `output/link.html` essentially
+pointing to `output/gitserve/index.html`.
 -}
 -- TODO: merge isStatic and copy so it's just one step
 copyStaticDirs :: Path Abs Dir -> [Path Abs Dir] -> IO ()
