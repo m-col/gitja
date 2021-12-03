@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/afedb32fd8d5e3134b4f9f05b78779bd4b7c2e27.html">afedb32</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/a6efc95f7783b76592e97d1c9c2d7206ccf3617b.html">a6efc95</a>
       </p>
     </div>
 
@@ -54,188 +54,189 @@
 <a href="#l16" class="line" id="l16">   16</a>  
 <a href="#l17" class="line" id="l17">   17</a>  It requires the following settings:
 <a href="#l18" class="line" id="l18">   18</a>  
-<a href="#l19" class="line" id="l19">   19</a>  | Setting              | Description                                         |
-<a href="#l20" class="line" id="l20">   20</a>  | -------------------- | --------------------------------------------------- |
-<a href="#l21" class="line" id="l21">   21</a>  | `repoPaths`          | A list of folders containing your git repositories. |
-<a href="#l22" class="line" id="l22">   22</a>  | `templateDirectory`  | The folder containing the template (see below).     |
-<a href="#l23" class="line" id="l23">   23</a>  | `outputDirectory`    | Where to put the generated files.                   |
-<a href="#l24" class="line" id="l24">   24</a>  | `host`               | The host URL, which is needed for creating links.   |
-<a href="#l25" class="line" id="l25">   25</a>  
-<a href="#l26" class="line" id="l26">   26</a>  Then, pass the config file to gitserve.
-<a href="#l27" class="line" id="l27">   27</a>  
-<a href="#l28" class="line" id="l28">   28</a>  ### CLI
-<a href="#l29" class="line" id="l29">   29</a>  
-<a href="#l30" class="line" id="l30">   30</a>  See the CLI help message for usage:
-<a href="#l31" class="line" id="l31">   31</a>  
-<a href="#l32" class="line" id="l32">   32</a>      Usage: gitserve [-c|--config CONFIG] [-q|--quiet] [-f|--force] [-t|--template] 
-<a href="#l33" class="line" id="l33">   33</a>                      [-v|--version]
-<a href="#l34" class="line" id="l34">   34</a>        🐙 Templated web page generator for your git repositories
-<a href="#l35" class="line" id="l35">   35</a>  
-<a href="#l36" class="line" id="l36">   36</a>      Available options:
-<a href="#l37" class="line" id="l37">   37</a>        -c,--config CONFIG       Configuration file to use (Default: ./config.dhall).
-<a href="#l38" class="line" id="l38">   38</a>        -q,--quiet               Suppress non-error output.
-<a href="#l39" class="line" id="l39">   39</a>        -f,--force               Force regeneration of all files.
-<a href="#l40" class="line" id="l40">   40</a>        -t,--template            Create a template and config in the current folder.
-<a href="#l41" class="line" id="l41">   41</a>        -v,--version             Print the gitserve&apos;s version.
-<a href="#l42" class="line" id="l42">   42</a>        -h,--help                Show this help text
-<a href="#l43" class="line" id="l43">   43</a>  
-<a href="#l44" class="line" id="l44">   44</a>  Note the &quot;force&quot; flag. By default, gitserve will not generate new output for
-<a href="#l45" class="line" id="l45">   45</a>  commits to save time. This flag will force regeneration of all files, which
-<a href="#l46" class="line" id="l46">   46</a>  would be needed if changes have been made to the template.
-<a href="#l47" class="line" id="l47">   47</a>  
-<a href="#l48" class="line" id="l48">   48</a>  Templates
-<a href="#l49" class="line" id="l49">   49</a>  ---------
-<a href="#l50" class="line" id="l50">   50</a>  
-<a href="#l51" class="line" id="l51">   51</a>  A base template can be created in the current folder by running `gitserve -t`.
-<a href="#l52" class="line" id="l52">   52</a>  This can be used as a starting point to creating your own template.
-<a href="#l53" class="line" id="l53">   53</a>  
-<a href="#l54" class="line" id="l54">   54</a>  ### Folder structure
-<a href="#l55" class="line" id="l55">   55</a>  
-<a href="#l56" class="line" id="l56">   56</a>  The files that gitserve outputs are generated using
-<a href="#l57" class="line" id="l57">   57</a>  [ginger](https://ginger.tobiasdammers.nl) template files, which use the
-<a href="#l58" class="line" id="l58">   58</a>  [Jinja](https://jinja.palletsprojects.com) templating language. If these are
-<a href="#l59" class="line" id="l59">   59</a>  new to you, it may be enough to skim through some of the examples in the
-<a href="#l60" class="line" id="l60">   60</a>  [templates](https://github.com/m-col/gitserve/tree/master/templates) folder,
-<a href="#l61" class="line" id="l61">   61</a>  otherwise the ginger docs can be very helpful to see what is supported.
-<a href="#l62" class="line" id="l62">   62</a>  
-<a href="#l63" class="line" id="l63">   63</a>  Templates are a folder containing a number of ginger template files.  There are
-<a href="#l64" class="line" id="l64">   64</a>  4 &quot;scopes&quot;, each making available a unique set of variables storing information
-<a href="#l65" class="line" id="l65">   65</a>  about the git repositories. Each template file has access to a single one of
-<a href="#l66" class="line" id="l66">   66</a>  these scopes. The structure of the template folder determines the scopes of the
-<a href="#l67" class="line" id="l67">   67</a>  files contained therein.
-<a href="#l68" class="line" id="l68">   68</a>  
-<a href="#l69" class="line" id="l69">   69</a>  To illustrate, this is the expected structure:
-<a href="#l70" class="line" id="l70">   70</a>  
-<a href="#l71" class="line" id="l71">   71</a>      templateDirectory/
-<a href="#l72" class="line" id="l72">   72</a>          i_can_have_any_name.html
-<a href="#l73" class="line" id="l73">   73</a>          and_there_can_be_any_number.html
-<a href="#l74" class="line" id="l74">   74</a>          some_might_be_ginger_includes.html.include
-<a href="#l75" class="line" id="l75">   75</a>          non_html_is_fine.css
-<a href="#l76" class="line" id="l76">   76</a>          repo/
-<a href="#l77" class="line" id="l77">   77</a>              inside_this_folder.html
-<a href="#l78" class="line" id="l78">   78</a>              two_names_are_special.html
-<a href="#l79" class="line" id="l79">   79</a>              file.html
-<a href="#l80" class="line" id="l80">   80</a>              commit.html
-<a href="#l81" class="line" id="l81">   81</a>  
-<a href="#l82" class="line" id="l82">   82</a>  The top-level folder, here `templateDirectory`, is that which is specified in
-<a href="#l83" class="line" id="l83">   83</a>  the config file.
-<a href="#l84" class="line" id="l84">   84</a>  
-<a href="#l85" class="line" id="l85">   85</a>  Files ending in &quot;.html&quot; directly within that folder have access to the *index
-<a href="#l86" class="line" id="l86">   86</a>  scope*, and are each parsed exactly once and output into the output directory
-<a href="#l87" class="line" id="l87">   87</a>  with the same name.
-<a href="#l88" class="line" id="l88">   88</a>  &quot;[include](https://ginger.tobiasdammers.nl/guide/syntax/statements/#include)&quot;
-<a href="#l89" class="line" id="l89">   89</a>  files are never copied but can be used to assist in templating. The remaining
-<a href="#l90" class="line" id="l90">   90</a>  files, and any folders not called &quot;repo&quot;, are copied as-is as static content,
-<a href="#l91" class="line" id="l91">   91</a>  such as CSS, images, etc.
-<a href="#l92" class="line" id="l92">   92</a>  
-<a href="#l93" class="line" id="l93">   93</a>  The special folder &quot;repo&quot; has access to the *repo scope*, which exposes
-<a href="#l94" class="line" id="l94">   94</a>  information pertaining to a single git repository. The template files contained
-<a href="#l95" class="line" id="l95">   95</a>  within this folder are parsed and output once per git repository.
-<a href="#l96" class="line" id="l96">   96</a>  
-<a href="#l97" class="line" id="l97">   97</a>  The exceptions to this are the two special template files with the names
-<a href="#l98" class="line" id="l98">   98</a>  &quot;file.html&quot; and &quot;commit.html&quot;. These have access to the *file scope* and
-<a href="#l99" class="line" id="l99">   99</a>  *commit scope* respectively, and are parsed and output once per file or commit.
-<a href="#l100" class="line" id="l100">  100</a>  
-<a href="#l101" class="line" id="l101">  101</a>  The resulting folder structure found in the `outputDirectory` will look like
-<a href="#l102" class="line" id="l102">  102</a>  this (if the only specified git repository is gitserve):
-<a href="#l103" class="line" id="l103">  103</a>  
-<a href="#l104" class="line" id="l104">  104</a>      outputDirectory/
-<a href="#l105" class="line" id="l105">  105</a>          i_can_have_any_name.html
-<a href="#l106" class="line" id="l106">  106</a>          and_there_can_be_any_number.html
-<a href="#l107" class="line" id="l107">  107</a>          non_html_is_fine.css
-<a href="#l108" class="line" id="l108">  108</a>          gitserve/
-<a href="#l109" class="line" id="l109">  109</a>              inside_this_folder.html
-<a href="#l110" class="line" id="l110">  110</a>              two_names_are_special.html
-<a href="#l111" class="line" id="l111">  111</a>              file/
-<a href="#l112" class="line" id="l112">  112</a>                  LICENSE.html
-<a href="#l113" class="line" id="l113">  113</a>                  Makefile.html
-<a href="#l114" class="line" id="l114">  114</a>                  ...
-<a href="#l115" class="line" id="l115">  115</a>              commit/
-<a href="#l116" class="line" id="l116">  116</a>                  0a18f38bb5c398bd192a6268281fc6abefaedd63.html
-<a href="#l117" class="line" id="l117">  117</a>                  0a7601059956d9c4d395f5d08e8cf48a515d080f.html
-<a href="#l118" class="line" id="l118">  118</a>                  ...
-<a href="#l119" class="line" id="l119">  119</a>          ...
-<a href="#l120" class="line" id="l120">  120</a>  
-<a href="#l121" class="line" id="l121">  121</a>  Note: symbolic links are considered static and will be copied unchanged and
-<a href="#l122" class="line" id="l122">  122</a>  unresolved from template to output. This means that, for example, a symlink at
-<a href="#l123" class="line" id="l123">  123</a>  `templateDirectory/index.html` pointing to `gitserve/index.html` will produce a
-<a href="#l124" class="line" id="l124">  124</a>  symlink at `outputDirectory/index.html` with the same behaviour, with the
-<a href="#l125" class="line" id="l125">  125</a>  effect that the served root index page will actually be the index page for the
-<a href="#l126" class="line" id="l126">  126</a>  `gitserve` repository (if present).
-<a href="#l127" class="line" id="l127">  127</a>  
-<a href="#l128" class="line" id="l128">  128</a>  ### Scopes
-<a href="#l129" class="line" id="l129">  129</a>  
-<a href="#l130" class="line" id="l130">  130</a>  The variables available within each scope are listed here for reference:
-<a href="#l131" class="line" id="l131">  131</a>  
-<a href="#l132" class="line" id="l132">  132</a>  | Scope  | Variable     | Description                                           |
-<a href="#l133" class="line" id="l133">  133</a>  | ------ | ------------ | ----------------------------------------------------- |
-<a href="#l134" class="line" id="l134">  134</a>  | Index  | host         | The string from the `host` config option.             |
-<a href="#l135" class="line" id="l135">  135</a>  |        | repositories | A list of all of the git repositories.                |
-<a href="#l136" class="line" id="l136">  136</a>  | Repo   |              | *In addition to the variables from the index scope...*|
-<a href="#l137" class="line" id="l137">  137</a>  |        | name         | The repository name, taken from its folder name.      |
-<a href="#l138" class="line" id="l138">  138</a>  |        | description  | A description taken from a file called &quot;description&quot; in that folder.|
-<a href="#l139" class="line" id="l139">  139</a>  |        | commits      | A list of the repository&apos;s commits.                   |
-<a href="#l140" class="line" id="l140">  140</a>  |        | tree         | A list of the repository&apos;s files.                     |
-<a href="#l141" class="line" id="l141">  141</a>  |        | tags         | A list of the refs corresponding to tags.             |
-<a href="#l142" class="line" id="l142">  142</a>  |        | branches     | A list of the refs corresponding to branches.         |
-<a href="#l143" class="line" id="l143">  143</a>  |        | readme       | The repository&apos;s readme file, if it has one.          |
-<a href="#l144" class="line" id="l144">  144</a>  |        | license      | The repository&apos;s license file, if it has one.         |
-<a href="#l145" class="line" id="l145">  145</a>  | File   |              | *In addition to the variables from the Repo scope...* |
-<a href="#l146" class="line" id="l146">  146</a>  |        | file         | A single file.                                        |
-<a href="#l147" class="line" id="l147">  147</a>  | Commit |              | *In addition to the variables from the Repo scope...* |
-<a href="#l148" class="line" id="l148">  148</a>  |        | commit       | A single commit.                                      |
-<a href="#l149" class="line" id="l149">  149</a>  
-<a href="#l150" class="line" id="l150">  150</a>  As in [Jinja](https://jinja.palletsprojects.com), a list can be accessed with
-<a href="#l151" class="line" id="l151">  151</a>  indexing, and attributes can be accessed using a dot notation. For example, a
-<a href="#l152" class="line" id="l152">  152</a>  `repository` exposes an attribute called &quot;name&quot;, so to access the name of the
-<a href="#l153" class="line" id="l153">  153</a>  first repository from within the index scope you would do
-<a href="#l154" class="line" id="l154">  154</a>  `repositories[0].name`.
-<a href="#l155" class="line" id="l155">  155</a>  
-<a href="#l156" class="line" id="l156">  156</a>  Here is the reference of attributes available on the variables that have them:
-<a href="#l157" class="line" id="l157">  157</a>  
-<a href="#l158" class="line" id="l158">  158</a>  | Object     | Attribute        | Description                                              |
-<a href="#l159" class="line" id="l159">  159</a>  | ---------- | ---------------- | -------------------------------------------------------- |
-<a href="#l160" class="line" id="l160">  160</a>  | repository | name             | The repository&apos;s name, taken from the folder name.       |
-<a href="#l161" class="line" id="l161">  161</a>  |            | description      | A description taken from a file called &quot;description&quot; in that folder.|
-<a href="#l162" class="line" id="l162">  162</a>  |            | head             | The current git commit.                                  |
-<a href="#l163" class="line" id="l163">  163</a>  |            | updated          | The time when the current commit was committed.          |
-<a href="#l164" class="line" id="l164">  164</a>  | commit     | id               | The SHA of the given commit.                             |
-<a href="#l165" class="line" id="l165">  165</a>  |            | href             | The name of the HTML file for this commit.               |
-<a href="#l166" class="line" id="l166">  166</a>  |            | title            | The commit message title.                                |
-<a href="#l167" class="line" id="l167">  167</a>  |            | body             | The commit message body.                                 |
-<a href="#l168" class="line" id="l168">  168</a>  |            | message          | The entire message, including both title and body.       |
-<a href="#l169" class="line" id="l169">  169</a>  |            | author           | The commit author.                                       |
-<a href="#l170" class="line" id="l170">  170</a>  |            | committer        | The committer.                                           |
-<a href="#l171" class="line" id="l171">  171</a>  |            | author\_email    | The email address of the author.                         |
-<a href="#l172" class="line" id="l172">  172</a>  |            | committer\_email | The email address of the committer.                      |
-<a href="#l173" class="line" id="l173">  173</a>  |            | authored         | The timestamp from when it was written.                  |
-<a href="#l174" class="line" id="l174">  174</a>  |            | committed        | The timestamp from when it was committed to this branch. |
-<a href="#l175" class="line" id="l175">  175</a>  |            | encoding         | The commit encoding.                                     |
-<a href="#l176" class="line" id="l176">  176</a>  |            | parent           | The SHA of the parent commit.                            |
-<a href="#l177" class="line" id="l177">  177</a>  | file       | path             | The path the file relative to the repository root.       |
-<a href="#l178" class="line" id="l178">  178</a>  |            | name             | The name of the file.                                    |
-<a href="#l179" class="line" id="l179">  179</a>  |            | href             | The name of the HTML file for this file.                 |
-<a href="#l180" class="line" id="l180">  180</a>  |            | contents         | The file&apos;s contents.                                     |
-<a href="#l181" class="line" id="l181">  181</a>  |            | mode             | Directory, Plain, Executable, Symlink or Submodule.      |
-<a href="#l182" class="line" id="l182">  182</a>  |            | mode\_octal      | Mode in octal form e.g. &quot;00644&quot; for plain files.         |
-<a href="#l183" class="line" id="l183">  183</a>  |            | mode\_symbolic   | Mode in symbolic form e.g. &quot;&quot;-rw-r--r--&quot; for plain files.|
-<a href="#l184" class="line" id="l184">  184</a>  |            | is\_directory    | A boolean, useful for ginger conditionals.               |
-<a href="#l185" class="line" id="l185">  185</a>  |            | is\_binary       | A boolean, tells you if the contents can be rendered.    |
-<a href="#l186" class="line" id="l186">  186</a>  | ref        | name             | The tag or branch name.                                  |
-<a href="#l187" class="line" id="l187">  187</a>  |            | commit           | The commit pointed to by the tag or branch.              |
-<a href="#l188" class="line" id="l188">  188</a>  
-<a href="#l189" class="line" id="l189">  189</a>  Note:
-<a href="#l190" class="line" id="l190">  190</a>  
-<a href="#l191" class="line" id="l191">  191</a>  - Some attributes point to other objects that have attributes. For example,
-<a href="#l192" class="line" id="l192">  192</a>    `branches[0].commit.parent` will work as expected.
-<a href="#l193" class="line" id="l193">  193</a>  - &quot;file&quot; includes directories and symbolic links.
-<a href="#l194" class="line" id="l194">  194</a>  
-<a href="#l195" class="line" id="l195">  195</a>  Questions?
-<a href="#l196" class="line" id="l196">  196</a>  ----------
-<a href="#l197" class="line" id="l197">  197</a>  
-<a href="#l198" class="line" id="l198">  198</a>  If any of this is unclear or could be improved, please do feel free to post an
-<a href="#l199" class="line" id="l199">  199</a>  issue on GitHub (or contact me another way). Contributions of code and docs are
-<a href="#l200" class="line" id="l200">  200</a>  also warmly welcome.
+<a href="#l19" class="line" id="l19">   19</a>  | Setting             | Description                                         |
+<a href="#l20" class="line" id="l20">   20</a>  | ------------------- | --------------------------------------------------- |
+<a href="#l21" class="line" id="l21">   21</a>  | `repoPaths`         | A list of folders containing your git repositories. |
+<a href="#l22" class="line" id="l22">   22</a>  | `scanRepoPaths`     | Whether `repoPaths` lists repos or folders containing nested repos. |
+<a href="#l23" class="line" id="l23">   23</a>  | `templateDirectory` | The folder containing the template (see below).     |
+<a href="#l24" class="line" id="l24">   24</a>  | `outputDirectory`   | Where to put the generated files.                   |
+<a href="#l25" class="line" id="l25">   25</a>  | `host`              | The host URL, which is needed for creating links.   |
+<a href="#l26" class="line" id="l26">   26</a>  
+<a href="#l27" class="line" id="l27">   27</a>  Then, pass the config file to gitserve.
+<a href="#l28" class="line" id="l28">   28</a>  
+<a href="#l29" class="line" id="l29">   29</a>  ### CLI
+<a href="#l30" class="line" id="l30">   30</a>  
+<a href="#l31" class="line" id="l31">   31</a>  See the CLI help message for usage:
+<a href="#l32" class="line" id="l32">   32</a>  
+<a href="#l33" class="line" id="l33">   33</a>      Usage: gitserve [-c|--config CONFIG] [-q|--quiet] [-f|--force] [-t|--template] 
+<a href="#l34" class="line" id="l34">   34</a>                      [-v|--version]
+<a href="#l35" class="line" id="l35">   35</a>        🐙 Templated web page generator for your git repositories
+<a href="#l36" class="line" id="l36">   36</a>  
+<a href="#l37" class="line" id="l37">   37</a>      Available options:
+<a href="#l38" class="line" id="l38">   38</a>        -c,--config CONFIG       Configuration file to use (Default: ./config.dhall).
+<a href="#l39" class="line" id="l39">   39</a>        -q,--quiet               Suppress non-error output.
+<a href="#l40" class="line" id="l40">   40</a>        -f,--force               Force regeneration of all files.
+<a href="#l41" class="line" id="l41">   41</a>        -t,--template            Create a template and config in the current folder.
+<a href="#l42" class="line" id="l42">   42</a>        -v,--version             Print the gitserve&apos;s version.
+<a href="#l43" class="line" id="l43">   43</a>        -h,--help                Show this help text
+<a href="#l44" class="line" id="l44">   44</a>  
+<a href="#l45" class="line" id="l45">   45</a>  Note the &quot;force&quot; flag. By default, gitserve will not generate new output for
+<a href="#l46" class="line" id="l46">   46</a>  commits to save time. This flag will force regeneration of all files, which
+<a href="#l47" class="line" id="l47">   47</a>  would be needed if changes have been made to the template.
+<a href="#l48" class="line" id="l48">   48</a>  
+<a href="#l49" class="line" id="l49">   49</a>  Templates
+<a href="#l50" class="line" id="l50">   50</a>  ---------
+<a href="#l51" class="line" id="l51">   51</a>  
+<a href="#l52" class="line" id="l52">   52</a>  A base template can be created in the current folder by running `gitserve -t`.
+<a href="#l53" class="line" id="l53">   53</a>  This can be used as a starting point to creating your own template.
+<a href="#l54" class="line" id="l54">   54</a>  
+<a href="#l55" class="line" id="l55">   55</a>  ### Folder structure
+<a href="#l56" class="line" id="l56">   56</a>  
+<a href="#l57" class="line" id="l57">   57</a>  The files that gitserve outputs are generated using
+<a href="#l58" class="line" id="l58">   58</a>  [ginger](https://ginger.tobiasdammers.nl) template files, which use the
+<a href="#l59" class="line" id="l59">   59</a>  [Jinja](https://jinja.palletsprojects.com) templating language. If these are
+<a href="#l60" class="line" id="l60">   60</a>  new to you, it may be enough to skim through some of the examples in the
+<a href="#l61" class="line" id="l61">   61</a>  [templates](https://github.com/m-col/gitserve/tree/master/templates) folder,
+<a href="#l62" class="line" id="l62">   62</a>  otherwise the ginger docs can be very helpful to see what is supported.
+<a href="#l63" class="line" id="l63">   63</a>  
+<a href="#l64" class="line" id="l64">   64</a>  Templates are a folder containing a number of ginger template files.  There are
+<a href="#l65" class="line" id="l65">   65</a>  4 &quot;scopes&quot;, each making available a unique set of variables storing information
+<a href="#l66" class="line" id="l66">   66</a>  about the git repositories. Each template file has access to a single one of
+<a href="#l67" class="line" id="l67">   67</a>  these scopes. The structure of the template folder determines the scopes of the
+<a href="#l68" class="line" id="l68">   68</a>  files contained therein.
+<a href="#l69" class="line" id="l69">   69</a>  
+<a href="#l70" class="line" id="l70">   70</a>  To illustrate, this is the expected structure:
+<a href="#l71" class="line" id="l71">   71</a>  
+<a href="#l72" class="line" id="l72">   72</a>      templateDirectory/
+<a href="#l73" class="line" id="l73">   73</a>          i_can_have_any_name.html
+<a href="#l74" class="line" id="l74">   74</a>          and_there_can_be_any_number.html
+<a href="#l75" class="line" id="l75">   75</a>          some_might_be_ginger_includes.html.include
+<a href="#l76" class="line" id="l76">   76</a>          non_html_is_fine.css
+<a href="#l77" class="line" id="l77">   77</a>          repo/
+<a href="#l78" class="line" id="l78">   78</a>              inside_this_folder.html
+<a href="#l79" class="line" id="l79">   79</a>              two_names_are_special.html
+<a href="#l80" class="line" id="l80">   80</a>              file.html
+<a href="#l81" class="line" id="l81">   81</a>              commit.html
+<a href="#l82" class="line" id="l82">   82</a>  
+<a href="#l83" class="line" id="l83">   83</a>  The top-level folder, here `templateDirectory`, is that which is specified in
+<a href="#l84" class="line" id="l84">   84</a>  the config file.
+<a href="#l85" class="line" id="l85">   85</a>  
+<a href="#l86" class="line" id="l86">   86</a>  Files ending in &quot;.html&quot; directly within that folder have access to the *index
+<a href="#l87" class="line" id="l87">   87</a>  scope*, and are each parsed exactly once and output into the output directory
+<a href="#l88" class="line" id="l88">   88</a>  with the same name.
+<a href="#l89" class="line" id="l89">   89</a>  &quot;[include](https://ginger.tobiasdammers.nl/guide/syntax/statements/#include)&quot;
+<a href="#l90" class="line" id="l90">   90</a>  files are never copied but can be used to assist in templating. The remaining
+<a href="#l91" class="line" id="l91">   91</a>  files, and any folders not called &quot;repo&quot;, are copied as-is as static content,
+<a href="#l92" class="line" id="l92">   92</a>  such as CSS, images, etc.
+<a href="#l93" class="line" id="l93">   93</a>  
+<a href="#l94" class="line" id="l94">   94</a>  The special folder &quot;repo&quot; has access to the *repo scope*, which exposes
+<a href="#l95" class="line" id="l95">   95</a>  information pertaining to a single git repository. The template files contained
+<a href="#l96" class="line" id="l96">   96</a>  within this folder are parsed and output once per git repository.
+<a href="#l97" class="line" id="l97">   97</a>  
+<a href="#l98" class="line" id="l98">   98</a>  The exceptions to this are the two special template files with the names
+<a href="#l99" class="line" id="l99">   99</a>  &quot;file.html&quot; and &quot;commit.html&quot;. These have access to the *file scope* and
+<a href="#l100" class="line" id="l100">  100</a>  *commit scope* respectively, and are parsed and output once per file or commit.
+<a href="#l101" class="line" id="l101">  101</a>  
+<a href="#l102" class="line" id="l102">  102</a>  The resulting folder structure found in the `outputDirectory` will look like
+<a href="#l103" class="line" id="l103">  103</a>  this (if the only specified git repository is gitserve):
+<a href="#l104" class="line" id="l104">  104</a>  
+<a href="#l105" class="line" id="l105">  105</a>      outputDirectory/
+<a href="#l106" class="line" id="l106">  106</a>          i_can_have_any_name.html
+<a href="#l107" class="line" id="l107">  107</a>          and_there_can_be_any_number.html
+<a href="#l108" class="line" id="l108">  108</a>          non_html_is_fine.css
+<a href="#l109" class="line" id="l109">  109</a>          gitserve/
+<a href="#l110" class="line" id="l110">  110</a>              inside_this_folder.html
+<a href="#l111" class="line" id="l111">  111</a>              two_names_are_special.html
+<a href="#l112" class="line" id="l112">  112</a>              file/
+<a href="#l113" class="line" id="l113">  113</a>                  LICENSE.html
+<a href="#l114" class="line" id="l114">  114</a>                  Makefile.html
+<a href="#l115" class="line" id="l115">  115</a>                  ...
+<a href="#l116" class="line" id="l116">  116</a>              commit/
+<a href="#l117" class="line" id="l117">  117</a>                  0a18f38bb5c398bd192a6268281fc6abefaedd63.html
+<a href="#l118" class="line" id="l118">  118</a>                  0a7601059956d9c4d395f5d08e8cf48a515d080f.html
+<a href="#l119" class="line" id="l119">  119</a>                  ...
+<a href="#l120" class="line" id="l120">  120</a>          ...
+<a href="#l121" class="line" id="l121">  121</a>  
+<a href="#l122" class="line" id="l122">  122</a>  Note: symbolic links are considered static and will be copied unchanged and
+<a href="#l123" class="line" id="l123">  123</a>  unresolved from template to output. This means that, for example, a symlink at
+<a href="#l124" class="line" id="l124">  124</a>  `templateDirectory/index.html` pointing to `gitserve/index.html` will produce a
+<a href="#l125" class="line" id="l125">  125</a>  symlink at `outputDirectory/index.html` with the same behaviour, with the
+<a href="#l126" class="line" id="l126">  126</a>  effect that the served root index page will actually be the index page for the
+<a href="#l127" class="line" id="l127">  127</a>  `gitserve` repository (if present).
+<a href="#l128" class="line" id="l128">  128</a>  
+<a href="#l129" class="line" id="l129">  129</a>  ### Scopes
+<a href="#l130" class="line" id="l130">  130</a>  
+<a href="#l131" class="line" id="l131">  131</a>  The variables available within each scope are listed here for reference:
+<a href="#l132" class="line" id="l132">  132</a>  
+<a href="#l133" class="line" id="l133">  133</a>  | Scope  | Variable     | Description                                           |
+<a href="#l134" class="line" id="l134">  134</a>  | ------ | ------------ | ----------------------------------------------------- |
+<a href="#l135" class="line" id="l135">  135</a>  | Index  | host         | The string from the `host` config option.             |
+<a href="#l136" class="line" id="l136">  136</a>  |        | repositories | A list of all of the git repositories.                |
+<a href="#l137" class="line" id="l137">  137</a>  | Repo   |              | *In addition to the variables from the index scope...*|
+<a href="#l138" class="line" id="l138">  138</a>  |        | name         | The repository name, taken from its folder name.      |
+<a href="#l139" class="line" id="l139">  139</a>  |        | description  | A description taken from a file called &quot;description&quot; in that folder.|
+<a href="#l140" class="line" id="l140">  140</a>  |        | commits      | A list of the repository&apos;s commits.                   |
+<a href="#l141" class="line" id="l141">  141</a>  |        | tree         | A list of the repository&apos;s files.                     |
+<a href="#l142" class="line" id="l142">  142</a>  |        | tags         | A list of the refs corresponding to tags.             |
+<a href="#l143" class="line" id="l143">  143</a>  |        | branches     | A list of the refs corresponding to branches.         |
+<a href="#l144" class="line" id="l144">  144</a>  |        | readme       | The repository&apos;s readme file, if it has one.          |
+<a href="#l145" class="line" id="l145">  145</a>  |        | license      | The repository&apos;s license file, if it has one.         |
+<a href="#l146" class="line" id="l146">  146</a>  | File   |              | *In addition to the variables from the Repo scope...* |
+<a href="#l147" class="line" id="l147">  147</a>  |        | file         | A single file.                                        |
+<a href="#l148" class="line" id="l148">  148</a>  | Commit |              | *In addition to the variables from the Repo scope...* |
+<a href="#l149" class="line" id="l149">  149</a>  |        | commit       | A single commit.                                      |
+<a href="#l150" class="line" id="l150">  150</a>  
+<a href="#l151" class="line" id="l151">  151</a>  As in [Jinja](https://jinja.palletsprojects.com), a list can be accessed with
+<a href="#l152" class="line" id="l152">  152</a>  indexing, and attributes can be accessed using a dot notation. For example, a
+<a href="#l153" class="line" id="l153">  153</a>  `repository` exposes an attribute called &quot;name&quot;, so to access the name of the
+<a href="#l154" class="line" id="l154">  154</a>  first repository from within the index scope you would do
+<a href="#l155" class="line" id="l155">  155</a>  `repositories[0].name`.
+<a href="#l156" class="line" id="l156">  156</a>  
+<a href="#l157" class="line" id="l157">  157</a>  Here is the reference of attributes available on the variables that have them:
+<a href="#l158" class="line" id="l158">  158</a>  
+<a href="#l159" class="line" id="l159">  159</a>  | Object     | Attribute        | Description                                              |
+<a href="#l160" class="line" id="l160">  160</a>  | ---------- | ---------------- | -------------------------------------------------------- |
+<a href="#l161" class="line" id="l161">  161</a>  | repository | name             | The repository&apos;s name, taken from the folder name.       |
+<a href="#l162" class="line" id="l162">  162</a>  |            | description      | A description taken from a file called &quot;description&quot; in that folder.|
+<a href="#l163" class="line" id="l163">  163</a>  |            | head             | The current git commit.                                  |
+<a href="#l164" class="line" id="l164">  164</a>  |            | updated          | The time when the current commit was committed.          |
+<a href="#l165" class="line" id="l165">  165</a>  | commit     | id               | The SHA of the given commit.                             |
+<a href="#l166" class="line" id="l166">  166</a>  |            | href             | The name of the HTML file for this commit.               |
+<a href="#l167" class="line" id="l167">  167</a>  |            | title            | The commit message title.                                |
+<a href="#l168" class="line" id="l168">  168</a>  |            | body             | The commit message body.                                 |
+<a href="#l169" class="line" id="l169">  169</a>  |            | message          | The entire message, including both title and body.       |
+<a href="#l170" class="line" id="l170">  170</a>  |            | author           | The commit author.                                       |
+<a href="#l171" class="line" id="l171">  171</a>  |            | committer        | The committer.                                           |
+<a href="#l172" class="line" id="l172">  172</a>  |            | author\_email    | The email address of the author.                         |
+<a href="#l173" class="line" id="l173">  173</a>  |            | committer\_email | The email address of the committer.                      |
+<a href="#l174" class="line" id="l174">  174</a>  |            | authored         | The timestamp from when it was written.                  |
+<a href="#l175" class="line" id="l175">  175</a>  |            | committed        | The timestamp from when it was committed to this branch. |
+<a href="#l176" class="line" id="l176">  176</a>  |            | encoding         | The commit encoding.                                     |
+<a href="#l177" class="line" id="l177">  177</a>  |            | parent           | The SHA of the parent commit.                            |
+<a href="#l178" class="line" id="l178">  178</a>  | file       | path             | The path the file relative to the repository root.       |
+<a href="#l179" class="line" id="l179">  179</a>  |            | name             | The name of the file.                                    |
+<a href="#l180" class="line" id="l180">  180</a>  |            | href             | The name of the HTML file for this file.                 |
+<a href="#l181" class="line" id="l181">  181</a>  |            | contents         | The file&apos;s contents.                                     |
+<a href="#l182" class="line" id="l182">  182</a>  |            | mode             | Directory, Plain, Executable, Symlink or Submodule.      |
+<a href="#l183" class="line" id="l183">  183</a>  |            | mode\_octal      | Mode in octal form e.g. &quot;00644&quot; for plain files.         |
+<a href="#l184" class="line" id="l184">  184</a>  |            | mode\_symbolic   | Mode in symbolic form e.g. &quot;&quot;-rw-r--r--&quot; for plain files.|
+<a href="#l185" class="line" id="l185">  185</a>  |            | is\_directory    | A boolean, useful for ginger conditionals.               |
+<a href="#l186" class="line" id="l186">  186</a>  |            | is\_binary       | A boolean, tells you if the contents can be rendered.    |
+<a href="#l187" class="line" id="l187">  187</a>  | ref        | name             | The tag or branch name.                                  |
+<a href="#l188" class="line" id="l188">  188</a>  |            | commit           | The commit pointed to by the tag or branch.              |
+<a href="#l189" class="line" id="l189">  189</a>  
+<a href="#l190" class="line" id="l190">  190</a>  Note:
+<a href="#l191" class="line" id="l191">  191</a>  
+<a href="#l192" class="line" id="l192">  192</a>  - Some attributes point to other objects that have attributes. For example,
+<a href="#l193" class="line" id="l193">  193</a>    `branches[0].commit.parent` will work as expected.
+<a href="#l194" class="line" id="l194">  194</a>  - &quot;file&quot; includes directories and symbolic links.
+<a href="#l195" class="line" id="l195">  195</a>  
+<a href="#l196" class="line" id="l196">  196</a>  Questions?
+<a href="#l197" class="line" id="l197">  197</a>  ----------
+<a href="#l198" class="line" id="l198">  198</a>  
+<a href="#l199" class="line" id="l199">  199</a>  If any of this is unclear or could be improved, please do feel free to post an
+<a href="#l200" class="line" id="l200">  200</a>  issue on GitHub (or contact me another way). Contributions of code and docs are
+<a href="#l201" class="line" id="l201">  201</a>  also warmly welcome.
 </pre>
       </div>
   </body>
