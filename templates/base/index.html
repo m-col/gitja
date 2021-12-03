@@ -27,7 +27,7 @@ href="https://gitserve.mcol.xyz">https://gitserve.mcol.xyz</a>.
   </thead>
 
   <tbody>
-    {% for repo in repositories %}
+    {% for repo in sort(repositories, by="updated", reverse=1) %}
     <tr>
       <td><a href="{{ host }}/{{ repo.name }}">{{ repo.name }}</a></td>
       <td>{{ repo.description }}</td>

@@ -19,7 +19,7 @@ gitserve - Index
     </thead>
 
     <tbody>
-      {% for repo in repositories %}
+      {% for repo in sort(repositories, by="updated", reverse=1) %}
       <tr><td><a href="{{ repo.name }}">{{ repo.name }}</a></td><td>{{ repo.description }}</td><td>{{ repo.updated[:16] }}</td></tr>
       {% endfor %}
     </tbody>
