@@ -148,7 +148,7 @@ package env repos name description commits tree tags branches =
         , ("repositories", toGVal repos)
         , ("name", toGVal . pack . init . toFilePath $ name)
         , ("description", toGVal description)
-        , ("commits", toGVal . reverse $ commits) -- Could be optimised
+        , ("commits", toGVal commits)
         , ("tree", toGVal tree)
         , ("tags", toGVal tags)
         , ("branches", toGVal branches)
@@ -161,7 +161,7 @@ Collect commit information.
 -}
 getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
 getCommits commitID =
-    sequence . mapMaybe loadCommit
+    fmap reverse . sequence . mapMaybe loadCommit
         <=< runConduit
         $ sourceObjects Nothing commitID False .| sinkList
 
