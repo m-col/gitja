@@ -15,7 +15,7 @@
   </thead>
 
   <tbody>
-    {% for child in file.contents %}
+    {% for child in file.tree %}
     <tr>
       <td>{{ child.mode_symbolic }}</td>
       <td><a href="{{ host }}/{{ name }}/file/{{ child.href }}">{{ child.path }}</a></td>

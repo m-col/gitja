@@ -16,7 +16,7 @@ import Control.Monad.Catch (throwM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Default (def)
-import Data.Maybe (listToMaybe)
+import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Tagged (untag)
 import Data.Text (Text, pack, strip)
 import qualified Data.Text as T
@@ -27,7 +27,7 @@ import Foreign.ForeignPtr (mallocForeignPtr, withForeignPtr)
 import Git
 import Git.Libgit2 (LgRepo, getOid, repoObj)
 import Path (Abs, Dir, Path, dirname, toFilePath)
-import System.FilePath (takeFileName)
+import qualified System.FilePath as FP
 import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
 import Text.Ginger.Html (Html, html)
 import Text.Ginger.Parse (SourcePos)
@@ -187,15 +187,27 @@ instance ToGVal RunRepo TreeFileContents where
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal RunRepo)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
-    "name" -> Just . toGVal . takeFileName . T.unpack . treeFilePath $ treefile
+    "name" -> Just . toGVal . FP.takeFileName . T.unpack . treeFilePath $ treefile
     "href" -> Just . toGVal . treePathToHref $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
+    "tree" -> Just . toGVal . treeFileGetTree (treeFilePath treefile) . treeFileContents $ treefile
+    "tree_recursive" -> Just . toGVal . treeFileGetTreeRecursive . treeFileContents $ treefile
     "mode" -> Just . toGVal . drop 4 . show . treeFileMode $ treefile
     "mode_octal" -> Just . toGVal . modeToOctal . treeFileMode $ treefile
     "mode_symbolic" -> Just . toGVal . modeToSymbolic . treeFileMode $ treefile
     "is_binary" -> Just . toGVal . treeFileIsBinary $ treefile
     "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile
     _ -> Nothing
+
+treeFileGetTree :: Text -> TreeFileContents -> [TreeFile]
+treeFileGetTree parent (FolderContents fs) = filter atTop fs
+  where
+    atTop = notElem FP.pathSeparator . drop 1 . T.unpack . fromMaybe "" . T.stripPrefix parent . treeFilePath
+treeFileGetTree _ _ = []
+
+treeFileGetTreeRecursive :: TreeFileContents -> [TreeFile]
+treeFileGetTreeRecursive (FolderContents fs) = fs
+treeFileGetTreeRecursive _ = []
 
 treeFileIsBinary :: TreeFile -> Bool
 treeFileIsBinary treefile = case treeFileContents treefile of

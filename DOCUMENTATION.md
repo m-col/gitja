@@ -191,6 +191,8 @@ Here is the reference of attributes available on the variables that have them:
 |            | mode\_symbolic   | Mode in symbolic form e.g. ""-rw-r--r--" for plain files.|
 |            | is\_directory    | A boolean, useful for ginger conditionals.               |
 |            | is\_binary       | A boolean, tells you if the contents can be rendered.    |
+|            | tree             | A list of a directory's direct contents.                 |
+|            | tree\_recursive  | A list of *all* of a directory's contents.               |
 | ref        | name             | The tag or branch name.                                  |
 |            | commit           | The commit pointed to by the tag or branch.              |
 
