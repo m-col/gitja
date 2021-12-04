@@ -109,7 +109,7 @@ processRepo' env repos repo = do
                 liftIO . D.doesFileExist $
                     toFilePath output FP.</> "commit" FP.</> show commitID <> ".html"
 
-            unless exists $ do
+            when (not exists || envForce env) $ do
                 -- Collect variables available to the ginger templates --
                 commits <- getCommits gitHead
                 tree <- getTree gitHead
