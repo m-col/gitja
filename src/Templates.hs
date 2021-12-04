@@ -207,47 +207,37 @@ from `confTemplate/link.html` to `gitserve/index.html` will be copied, keeping t
 link intact, resulting in a symbolic link at `output/link.html` essentially
 pointing to `output/gitserve/index.html`.
 -}
--- TODO: merge isStatic and copy so it's just one step
 copyStaticDirs :: Path Abs Dir -> [Path Abs Dir] -> IO ()
-copyStaticDirs output = mapM_ copy <=< filterM isStatic
+copyStaticDirs output = mapM_ copy
   where
-    isStatic :: Path Abs Dir -> IO Bool
-    isStatic p = do
-        let isRepo = (toFilePath . dirname $ p) == "repo/"
-        isLink <- pathIsSymbolicLink . toFilePath $ p
-        return $ not isRepo || isLink
-
     copy :: Path Abs Dir -> IO ()
     copy p = do
-        let output' = output </> dirname p
-        let fp = FP.dropTrailingPathSeparator . toFilePath $ p
-        isLink <- pathIsSymbolicLink fp
-        if isLink
-            then do
-                target <- getSymbolicLinkTarget fp
-                createDirectoryLink target . FP.dropTrailingPathSeparator . toFilePath $ output'
-            else copyDirRecur p output'
+        let isRepo = (toFilePath . dirname $ p) == "repo/"
+        isLink <- pathIsSymbolicLink . toFilePath $ p
+        when (not isRepo || isLink) $ do
+            let output' = output </> dirname p
+            let fp = FP.dropTrailingPathSeparator . toFilePath $ p
+            if isLink
+                then do
+                    target <- getSymbolicLinkTarget fp
+                    createDirectoryLink target . FP.dropTrailingPathSeparator . toFilePath $ output'
+                else copyDirRecur p output'
 
 copyStaticFiles :: Path Abs Dir -> [Path Abs File] -> IO ()
-copyStaticFiles output = mapM_ copy <=< filterM isStatic
+copyStaticFiles output = mapM_ copy
   where
-    isStatic :: Path Abs File -> IO Bool
-    isStatic p = do
-        let fp = toFilePath p
-        let isTemplate = FP.takeExtension fp `elem` [".html", ".include"]
-        isLink <- pathIsSymbolicLink fp
-        return $ not isTemplate || isLink
-
     copy :: Path Abs File -> IO ()
     copy p = do
         let fp = toFilePath p
+        let isTemplate = FP.takeExtension fp `elem` [".html", ".include"]
         isLink <- pathIsSymbolicLink fp
-        let output' = output </> filename p
-        if isLink
-            then do
-                target <- getSymbolicLinkTarget fp
-                maybeExists <- forgivingAbsence . isSymlink $ output'
-                let exists = fromMaybe False maybeExists
-                when exists . removeFile . toFilePath $ output'
-                createFileLink target . toFilePath $ output'
-            else copyFile p output'
+        when (not isTemplate || isLink) $ do
+            let output' = output </> filename p
+            if isLink
+                then do
+                    target <- getSymbolicLinkTarget fp
+                    maybeExists <- forgivingAbsence . isSymlink $ output'
+                    let exists = fromMaybe False maybeExists
+                    when exists . removeFile . toFilePath $ output'
+                    createFileLink target . toFilePath $ output'
+                else copyFile p output'
