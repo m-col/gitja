@@ -15,7 +15,6 @@ import Control.Monad (when)
 import Control.Monad.Catch (throwM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
-import Data.ByteString.UTF8 (toString)
 import Data.Default (def)
 import Data.Maybe (listToMaybe)
 import Data.Tagged (untag)
@@ -108,7 +107,7 @@ Next we have some data used to represent a repository's tree and the different k
 objects contained therein.
 -}
 data TreeFile = TreeFile
-    { treeFilePath :: TreeFilePath
+    { treeFilePath :: Text
     , treeFileContents :: TreeFileContents
     , treeFileMode :: TreeEntryMode
     }
@@ -168,8 +167,8 @@ instance ToGVal RunRepo TreeFile where
     toGVal :: TreeFile -> GVal RunRepo
     toGVal treefile =
         def
-            { asHtml = html . pack . toString . treeFilePath $ treefile
-            , asText = pack . show . treeFilePath $ treefile
+            { asHtml = html . treeFilePath $ treefile
+            , asText = treeFilePath treefile
             , asLookup = Just . treeAsLookup $ treefile
             , asBoolean = True -- Used for conditionally checking readme/license template variables.
             }
@@ -180,16 +179,16 @@ instance ToGVal RunRepo TreeFileContents where
     toGVal (FileContents text) = toGVal . strip $ text
     toGVal (FolderContents treeFiles) =
         def
-            { asHtml = html . pack . show . fmap (toString . treeFilePath) $ treeFiles
-            , asText = pack . show . fmap (toString . treeFilePath) $ treeFiles
+            { asHtml = html . pack . show . fmap treeFilePath $ treeFiles
+            , asText = pack . show . fmap treeFilePath $ treeFiles
             , asList = Just . fmap toGVal $ treeFiles
             }
 
 treeAsLookup :: TreeFile -> Text -> Maybe (GVal RunRepo)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
-    "name" -> Just . toGVal . takeFileName . toString . treeFilePath $ treefile
-    "href" -> Just . toGVal . treePathToHref . treeFilePath $ treefile
+    "name" -> Just . toGVal . takeFileName . T.unpack . treeFilePath $ treefile
+    "href" -> Just . toGVal . treePathToHref $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
     "mode" -> Just . toGVal . drop 4 . show . treeFileMode $ treefile
     "mode_octal" -> Just . toGVal . modeToOctal . treeFileMode $ treefile
@@ -209,10 +208,10 @@ treeFileIsDirectory treefile = case treeFileContents treefile of
     _ -> False
 
 {-
-Get the name of a tree file path's HTML file.
+Get the name of a tree file path's HTML file. Leading periods are dropped.
 -}
-treePathToHref :: TreeFilePath -> Text
-treePathToHref = flip T.append ".html" . T.replace "/" "." . decodeUtf8With lenientDecode
+treePathToHref :: TreeFile -> Text
+treePathToHref = T.dropWhile (== '.') . flip T.append ".html" . T.replace "/" "." . treeFilePath
 
 {-
 Data to store information about references: tags and branches.

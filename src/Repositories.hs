@@ -15,14 +15,14 @@ import Control.Monad (filterM, unless, when, (<=<))
 import Control.Monad.Extra (ifM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
-import Data.ByteString.UTF8 (toString)
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
 import Data.Tagged
-import Data.Text (Text, isPrefixOf, pack, strip, stripPrefix, toLower, unpack)
-import Data.Text.Encoding (decodeUtf8With)
-import Data.Text.Encoding.Error (lenientDecode)
+import Data.Text (Text)
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
+import qualified Data.Text.Encoding.Error as T
 import Git
 import Git.Libgit2 (LgRepo, lgFactory)
 import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (</>))
@@ -76,9 +76,9 @@ getDescription dir =
         )
         >>= \case
             Just file ->
-                strip . pack <$> readFile file
+                T.strip . T.pack <$> readFile file
             Nothing ->
-                return . pack . toFilePath . dirname $ dir
+                return . T.pack . toFilePath . dirname $ dir
   where
     inTop = toFilePath dir FP.</> "description"
     inGit = toFilePath dir FP.</> ".git" FP.</> "description"
@@ -151,10 +151,10 @@ package env repos name description commits tree tags branches =
     HashMap.fromList
         [ ("host", toGVal . envHost $ env)
         , ("repositories", toGVal repos)
-        , ("name", toGVal . pack . init . toFilePath $ name)
+        , ("name", toGVal . T.pack . init . toFilePath $ name)
         , ("description", toGVal description)
         , ("commits", toGVal commits)
-        , ("tree", toGVal . filter (notElem FP.pathSeparator . toString . treeFilePath) $ tree)
+        , ("tree", toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
         , ("tree_recursive", toGVal tree)
         , ("tags", toGVal tags)
         , ("branches", toGVal branches)
@@ -188,7 +188,7 @@ getTree' parent toid = do
     let entries' = fmap (prependParent parent) entries
     contents <- mapM getEntryContents entries'
     modes <- mapM (getEntryModes . snd) entries'
-    return $ zipWith3 TreeFile (fmap fst entries') contents modes
+    return $ zipWith3 TreeFile (fmap treePaths entries') contents modes
 
 prependParent :: TreeFilePath -> (TreeFilePath, TreeEntry LgRepo) -> (TreeFilePath, TreeEntry LgRepo)
 prependParent "" pathentry = pathentry
@@ -197,12 +197,15 @@ prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
 getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -> ReaderT LgRepo IO TreeFileContents
 getEntryContents (_, BlobEntry oid _) = getBlobContents oid
 getEntryContents (path, TreeEntry oid) = FolderContents <$> getTree' path oid
-getEntryContents (_, CommitEntry oid) = return . FileContents . pack . show . untag $ oid
+getEntryContents (_, CommitEntry oid) = return . FileContents . T.pack . show . untag $ oid
 
 getEntryModes :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
 getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
 getEntryModes (TreeEntry _) = return ModeDirectory
 getEntryModes (CommitEntry _) = return ModeSubmodule
+
+treePaths :: (TreeFilePath, TreeEntry LgRepo) -> Text
+treePaths = T.decodeUtf8With T.lenientDecode . fst
 
 {-
 Find a file in the tree starting with the specified prefix. The prefix is looked for on
@@ -212,7 +215,7 @@ findFile :: Text -> [TreeFile] -> Maybe TreeFile
 findFile _ [] = Nothing
 findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
   where
-    isReadme = isPrefixOf prefix . toLower . decodeUtf8With lenientDecode . treeFilePath
+    isReadme = T.isPrefixOf prefix . T.toLower . treeFilePath
 
 {-
 Collect information about references. TODO: Find a more canonical way to split
@@ -220,12 +223,12 @@ references into tags or branches rather than filtering the refnames.
 -}
 getRefs :: Text -> ReaderT LgRepo IO [Ref]
 getRefs ref = do
-    names <- filter (isPrefixOf ref) <$> listReferences
+    names <- filter (T.isPrefixOf ref) <$> listReferences
     maybeOids <- mapM resolveReference names
     let names' = catMaybes . zipWith dropName maybeOids $ names
     objs <- mapM lookupObject . catMaybes $ maybeOids
     maybeCommits <- mapM refObjToCommit objs
-    let names'' = map (fromJust . stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names'
+    let names'' = map (fromJust . T.stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names'
     return . zipWith Ref names'' . catMaybes $ maybeCommits
   where
     refObjToCommit :: Object r (ReaderT LgRepo IO) -> ReaderT LgRepo IO (Maybe (Commit r))
@@ -268,7 +271,7 @@ instance Target (Commit LgRepo) where
     category = const "commit"
 
 instance Target TreeFile where
-    identify = unpack . treePathToHref . treeFilePath
+    identify = T.unpack . treePathToHref
     category = const "file"
 
 genTarget ::
@@ -287,5 +290,5 @@ genTarget output scope quiet force (Just template) target = do
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
         liftIO . unless quiet . putStrLn $ "Writing " <> toFilePath output'
-        let scope' = scope <> HashMap.fromList [(pack . category $ target, toGVal target)]
+        let scope' = scope <> HashMap.fromList [(T.pack . category $ target, toGVal target)]
         generate output' scope' template
