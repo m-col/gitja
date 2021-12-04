@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/437063ec4c87b45d57f8e8518b01c21d55a48229.html">437063e</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/c9895884e73b2dfd643edc7e868802de1787c955.html">c989588</a>
       </p>
     </div>
 
@@ -53,14 +53,14 @@
 <a href="#l15" class="line" id="l15">   15</a>  import Control.Monad.Extra (ifM)
 <a href="#l16" class="line" id="l16">   16</a>  import Control.Monad.IO.Class (liftIO)
 <a href="#l17" class="line" id="l17">   17</a>  import Control.Monad.Trans.Reader (ReaderT)
-<a href="#l18" class="line" id="l18">   18</a>  import Data.ByteString.UTF8 (toString)
-<a href="#l19" class="line" id="l19">   19</a>  import Data.Either (isRight)
-<a href="#l20" class="line" id="l20">   20</a>  import qualified Data.HashMap.Strict as HashMap
-<a href="#l21" class="line" id="l21">   21</a>  import Data.Maybe (catMaybes, fromJust, mapMaybe)
-<a href="#l22" class="line" id="l22">   22</a>  import Data.Tagged
-<a href="#l23" class="line" id="l23">   23</a>  import Data.Text (Text, isPrefixOf, pack, strip, stripPrefix, toLower, unpack)
-<a href="#l24" class="line" id="l24">   24</a>  import Data.Text.Encoding (decodeUtf8With)
-<a href="#l25" class="line" id="l25">   25</a>  import Data.Text.Encoding.Error (lenientDecode)
+<a href="#l18" class="line" id="l18">   18</a>  import Data.Either (isRight)
+<a href="#l19" class="line" id="l19">   19</a>  import qualified Data.HashMap.Strict as HashMap
+<a href="#l20" class="line" id="l20">   20</a>  import Data.Maybe (catMaybes, fromJust, mapMaybe)
+<a href="#l21" class="line" id="l21">   21</a>  import Data.Tagged
+<a href="#l22" class="line" id="l22">   22</a>  import Data.Text (Text)
+<a href="#l23" class="line" id="l23">   23</a>  import qualified Data.Text as T
+<a href="#l24" class="line" id="l24">   24</a>  import qualified Data.Text.Encoding as T
+<a href="#l25" class="line" id="l25">   25</a>  import qualified Data.Text.Encoding.Error as T
 <a href="#l26" class="line" id="l26">   26</a>  import Git
 <a href="#l27" class="line" id="l27">   27</a>  import Git.Libgit2 (LgRepo, lgFactory)
 <a href="#l28" class="line" id="l28">   28</a>  import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
@@ -114,9 +114,9 @@
 <a href="#l76" class="line" id="l76">   76</a>          )
 <a href="#l77" class="line" id="l77">   77</a>          &gt;&gt;= \case
 <a href="#l78" class="line" id="l78">   78</a>              Just file -&gt;
-<a href="#l79" class="line" id="l79">   79</a>                  strip . pack &lt;$&gt; readFile file
+<a href="#l79" class="line" id="l79">   79</a>                  T.strip . T.pack &lt;$&gt; readFile file
 <a href="#l80" class="line" id="l80">   80</a>              Nothing -&gt;
-<a href="#l81" class="line" id="l81">   81</a>                  return . pack . toFilePath . dirname $ dir
+<a href="#l81" class="line" id="l81">   81</a>                  return . T.pack . toFilePath . dirname $ dir
 <a href="#l82" class="line" id="l82">   82</a>    where
 <a href="#l83" class="line" id="l83">   83</a>      inTop = toFilePath dir FP.&lt;/&gt; &quot;description&quot;
 <a href="#l84" class="line" id="l84">   84</a>      inGit = toFilePath dir FP.&lt;/&gt; &quot;.git&quot; FP.&lt;/&gt; &quot;description&quot;
@@ -189,10 +189,10 @@
 <a href="#l151" class="line" id="l151">  151</a>      HashMap.fromList
 <a href="#l152" class="line" id="l152">  152</a>          [ (&quot;host&quot;, toGVal . envHost $ env)
 <a href="#l153" class="line" id="l153">  153</a>          , (&quot;repositories&quot;, toGVal repos)
-<a href="#l154" class="line" id="l154">  154</a>          , (&quot;name&quot;, toGVal . pack . init . toFilePath $ name)
+<a href="#l154" class="line" id="l154">  154</a>          , (&quot;name&quot;, toGVal . T.pack . init . toFilePath $ name)
 <a href="#l155" class="line" id="l155">  155</a>          , (&quot;description&quot;, toGVal description)
 <a href="#l156" class="line" id="l156">  156</a>          , (&quot;commits&quot;, toGVal commits)
-<a href="#l157" class="line" id="l157">  157</a>          , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . toString . treeFilePath) $ tree)
+<a href="#l157" class="line" id="l157">  157</a>          , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
 <a href="#l158" class="line" id="l158">  158</a>          , (&quot;tree_recursive&quot;, toGVal tree)
 <a href="#l159" class="line" id="l159">  159</a>          , (&quot;tags&quot;, toGVal tags)
 <a href="#l160" class="line" id="l160">  160</a>          , (&quot;branches&quot;, toGVal branches)
@@ -226,7 +226,7 @@
 <a href="#l188" class="line" id="l188">  188</a>      let entries&apos; = fmap (prependParent parent) entries
 <a href="#l189" class="line" id="l189">  189</a>      contents &lt;- mapM getEntryContents entries&apos;
 <a href="#l190" class="line" id="l190">  190</a>      modes &lt;- mapM (getEntryModes . snd) entries&apos;
-<a href="#l191" class="line" id="l191">  191</a>      return $ zipWith3 TreeFile (fmap fst entries&apos;) contents modes
+<a href="#l191" class="line" id="l191">  191</a>      return $ zipWith3 TreeFile (fmap treePaths entries&apos;) contents modes
 <a href="#l192" class="line" id="l192">  192</a>  
 <a href="#l193" class="line" id="l193">  193</a>  prependParent :: TreeFilePath -&gt; (TreeFilePath, TreeEntry LgRepo) -&gt; (TreeFilePath, TreeEntry LgRepo)
 <a href="#l194" class="line" id="l194">  194</a>  prependParent &quot;&quot; pathentry = pathentry
@@ -235,98 +235,101 @@
 <a href="#l197" class="line" id="l197">  197</a>  getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -&gt; ReaderT LgRepo IO TreeFileContents
 <a href="#l198" class="line" id="l198">  198</a>  getEntryContents (_, BlobEntry oid _) = getBlobContents oid
 <a href="#l199" class="line" id="l199">  199</a>  getEntryContents (path, TreeEntry oid) = FolderContents &lt;$&gt; getTree&apos; path oid
-<a href="#l200" class="line" id="l200">  200</a>  getEntryContents (_, CommitEntry oid) = return . FileContents . pack . show . untag $ oid
+<a href="#l200" class="line" id="l200">  200</a>  getEntryContents (_, CommitEntry oid) = return . FileContents . T.pack . show . untag $ oid
 <a href="#l201" class="line" id="l201">  201</a>  
 <a href="#l202" class="line" id="l202">  202</a>  getEntryModes :: TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeEntryMode
 <a href="#l203" class="line" id="l203">  203</a>  getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
 <a href="#l204" class="line" id="l204">  204</a>  getEntryModes (TreeEntry _) = return ModeDirectory
 <a href="#l205" class="line" id="l205">  205</a>  getEntryModes (CommitEntry _) = return ModeSubmodule
 <a href="#l206" class="line" id="l206">  206</a>  
-<a href="#l207" class="line" id="l207">  207</a>  {-
-<a href="#l208" class="line" id="l208">  208</a>  Find a file in the tree starting with the specified prefix. The prefix is looked for on
-<a href="#l209" class="line" id="l209">  209</a>  the full path, so will only find files in the top level directory.
-<a href="#l210" class="line" id="l210">  210</a>  -}
-<a href="#l211" class="line" id="l211">  211</a>  findFile :: Text -&gt; [TreeFile] -&gt; Maybe TreeFile
-<a href="#l212" class="line" id="l212">  212</a>  findFile _ [] = Nothing
-<a href="#l213" class="line" id="l213">  213</a>  findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
-<a href="#l214" class="line" id="l214">  214</a>    where
-<a href="#l215" class="line" id="l215">  215</a>      isReadme = isPrefixOf prefix . toLower . decodeUtf8With lenientDecode . treeFilePath
-<a href="#l216" class="line" id="l216">  216</a>  
-<a href="#l217" class="line" id="l217">  217</a>  {-
-<a href="#l218" class="line" id="l218">  218</a>  Collect information about references. TODO: Find a more canonical way to split
-<a href="#l219" class="line" id="l219">  219</a>  references into tags or branches rather than filtering the refnames.
-<a href="#l220" class="line" id="l220">  220</a>  -}
-<a href="#l221" class="line" id="l221">  221</a>  getRefs :: Text -&gt; ReaderT LgRepo IO [Ref]
-<a href="#l222" class="line" id="l222">  222</a>  getRefs ref = do
-<a href="#l223" class="line" id="l223">  223</a>      names &lt;- filter (isPrefixOf ref) &lt;$&gt; listReferences
-<a href="#l224" class="line" id="l224">  224</a>      maybeOids &lt;- mapM resolveReference names
-<a href="#l225" class="line" id="l225">  225</a>      let names&apos; = catMaybes . zipWith dropName maybeOids $ names
-<a href="#l226" class="line" id="l226">  226</a>      objs &lt;- mapM lookupObject . catMaybes $ maybeOids
-<a href="#l227" class="line" id="l227">  227</a>      maybeCommits &lt;- mapM refObjToCommit objs
-<a href="#l228" class="line" id="l228">  228</a>      let names&apos;&apos; = map (fromJust . stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names&apos;
-<a href="#l229" class="line" id="l229">  229</a>      return . zipWith Ref names&apos;&apos; . catMaybes $ maybeCommits
-<a href="#l230" class="line" id="l230">  230</a>    where
-<a href="#l231" class="line" id="l231">  231</a>      refObjToCommit :: Object r (ReaderT LgRepo IO) -&gt; ReaderT LgRepo IO (Maybe (Commit r))
-<a href="#l232" class="line" id="l232">  232</a>      refObjToCommit (CommitObj obj) = return . Just $ obj
-<a href="#l233" class="line" id="l233">  233</a>      refObjToCommit _ = return Nothing
-<a href="#l234" class="line" id="l234">  234</a>  
-<a href="#l235" class="line" id="l235">  235</a>      dropName :: Maybe a -&gt; RefName -&gt; Maybe RefName
-<a href="#l236" class="line" id="l236">  236</a>      dropName (Just _) name = Just name
-<a href="#l237" class="line" id="l237">  237</a>      dropName Nothing _ = Nothing
-<a href="#l238" class="line" id="l238">  238</a>  
-<a href="#l239" class="line" id="l239">  239</a>  genRepo ::
-<a href="#l240" class="line" id="l240">  240</a>      Path Abs Dir -&gt;
-<a href="#l241" class="line" id="l241">  241</a>      HashMap.HashMap Text (GVal RunRepo) -&gt;
-<a href="#l242" class="line" id="l242">  242</a>      Template -&gt;
-<a href="#l243" class="line" id="l243">  243</a>      ReaderT LgRepo IO ()
-<a href="#l244" class="line" id="l244">  244</a>  genRepo output scope template =
-<a href="#l245" class="line" id="l245">  245</a>      generate (output &lt;/&gt; templatePath template) scope template
-<a href="#l246" class="line" id="l246">  246</a>  
-<a href="#l247" class="line" id="l247">  247</a>  ----------------------------------------------------------------------------------------
-<a href="#l248" class="line" id="l248">  248</a>  -- Targets -----------------------------------------------------------------------------
+<a href="#l207" class="line" id="l207">  207</a>  treePaths :: (TreeFilePath, TreeEntry LgRepo) -&gt; Text
+<a href="#l208" class="line" id="l208">  208</a>  treePaths = T.decodeUtf8With T.lenientDecode . fst
+<a href="#l209" class="line" id="l209">  209</a>  
+<a href="#l210" class="line" id="l210">  210</a>  {-
+<a href="#l211" class="line" id="l211">  211</a>  Find a file in the tree starting with the specified prefix. The prefix is looked for on
+<a href="#l212" class="line" id="l212">  212</a>  the full path, so will only find files in the top level directory.
+<a href="#l213" class="line" id="l213">  213</a>  -}
+<a href="#l214" class="line" id="l214">  214</a>  findFile :: Text -&gt; [TreeFile] -&gt; Maybe TreeFile
+<a href="#l215" class="line" id="l215">  215</a>  findFile _ [] = Nothing
+<a href="#l216" class="line" id="l216">  216</a>  findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
+<a href="#l217" class="line" id="l217">  217</a>    where
+<a href="#l218" class="line" id="l218">  218</a>      isReadme = T.isPrefixOf prefix . T.toLower . treeFilePath
+<a href="#l219" class="line" id="l219">  219</a>  
+<a href="#l220" class="line" id="l220">  220</a>  {-
+<a href="#l221" class="line" id="l221">  221</a>  Collect information about references. TODO: Find a more canonical way to split
+<a href="#l222" class="line" id="l222">  222</a>  references into tags or branches rather than filtering the refnames.
+<a href="#l223" class="line" id="l223">  223</a>  -}
+<a href="#l224" class="line" id="l224">  224</a>  getRefs :: Text -&gt; ReaderT LgRepo IO [Ref]
+<a href="#l225" class="line" id="l225">  225</a>  getRefs ref = do
+<a href="#l226" class="line" id="l226">  226</a>      names &lt;- filter (T.isPrefixOf ref) &lt;$&gt; listReferences
+<a href="#l227" class="line" id="l227">  227</a>      maybeOids &lt;- mapM resolveReference names
+<a href="#l228" class="line" id="l228">  228</a>      let names&apos; = catMaybes . zipWith dropName maybeOids $ names
+<a href="#l229" class="line" id="l229">  229</a>      objs &lt;- mapM lookupObject . catMaybes $ maybeOids
+<a href="#l230" class="line" id="l230">  230</a>      maybeCommits &lt;- mapM refObjToCommit objs
+<a href="#l231" class="line" id="l231">  231</a>      let names&apos;&apos; = map (fromJust . T.stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names&apos;
+<a href="#l232" class="line" id="l232">  232</a>      return . zipWith Ref names&apos;&apos; . catMaybes $ maybeCommits
+<a href="#l233" class="line" id="l233">  233</a>    where
+<a href="#l234" class="line" id="l234">  234</a>      refObjToCommit :: Object r (ReaderT LgRepo IO) -&gt; ReaderT LgRepo IO (Maybe (Commit r))
+<a href="#l235" class="line" id="l235">  235</a>      refObjToCommit (CommitObj obj) = return . Just $ obj
+<a href="#l236" class="line" id="l236">  236</a>      refObjToCommit _ = return Nothing
+<a href="#l237" class="line" id="l237">  237</a>  
+<a href="#l238" class="line" id="l238">  238</a>      dropName :: Maybe a -&gt; RefName -&gt; Maybe RefName
+<a href="#l239" class="line" id="l239">  239</a>      dropName (Just _) name = Just name
+<a href="#l240" class="line" id="l240">  240</a>      dropName Nothing _ = Nothing
+<a href="#l241" class="line" id="l241">  241</a>  
+<a href="#l242" class="line" id="l242">  242</a>  genRepo ::
+<a href="#l243" class="line" id="l243">  243</a>      Path Abs Dir -&gt;
+<a href="#l244" class="line" id="l244">  244</a>      HashMap.HashMap Text (GVal RunRepo) -&gt;
+<a href="#l245" class="line" id="l245">  245</a>      Template -&gt;
+<a href="#l246" class="line" id="l246">  246</a>      ReaderT LgRepo IO ()
+<a href="#l247" class="line" id="l247">  247</a>  genRepo output scope template =
+<a href="#l248" class="line" id="l248">  248</a>      generate (output &lt;/&gt; templatePath template) scope template
 <a href="#l249" class="line" id="l249">  249</a>  
-<a href="#l250" class="line" id="l250">  250</a>  {-
-<a href="#l251" class="line" id="l251">  251</a>  A Target refers to a template scope and repository object whose information is available
-<a href="#l252" class="line" id="l252">  252</a>  in that scope. For example, commits are a target as they each generate a scope
-<a href="#l253" class="line" id="l253">  253</a>  containing that commit&apos;s information, and these scopes are each rendered in the
-<a href="#l254" class="line" id="l254">  254</a>  commitTemplate. The Target class generalises how each target is represented so that
-<a href="#l255" class="line" id="l255">  255</a>  genTarget can work on any target type.
-<a href="#l256" class="line" id="l256">  256</a>  -}
-<a href="#l257" class="line" id="l257">  257</a>  class ToGVal RunRepo a =&gt; Target a where
-<a href="#l258" class="line" id="l258">  258</a>      identify :: a -&gt; FilePath
-<a href="#l259" class="line" id="l259">  259</a>      category :: a -&gt; FilePath
-<a href="#l260" class="line" id="l260">  260</a>      dest :: a -&gt; IO (Path Rel File)
-<a href="#l261" class="line" id="l261">  261</a>      dest t = do
-<a href="#l262" class="line" id="l262">  262</a>          dir &lt;- parseRelDir . category $ t
-<a href="#l263" class="line" id="l263">  263</a>          file &lt;- parseRelFile . identify $ t
-<a href="#l264" class="line" id="l264">  264</a>          return $ dir &lt;/&gt; file
-<a href="#l265" class="line" id="l265">  265</a>  
-<a href="#l266" class="line" id="l266">  266</a>  instance Target (Commit LgRepo) where
-<a href="#l267" class="line" id="l267">  267</a>      identify = (++ &quot;.html&quot;) . show . untag . commitOid
-<a href="#l268" class="line" id="l268">  268</a>      category = const &quot;commit&quot;
-<a href="#l269" class="line" id="l269">  269</a>  
-<a href="#l270" class="line" id="l270">  270</a>  instance Target TreeFile where
-<a href="#l271" class="line" id="l271">  271</a>      identify = unpack . treePathToHref . treeFilePath
-<a href="#l272" class="line" id="l272">  272</a>      category = const &quot;file&quot;
-<a href="#l273" class="line" id="l273">  273</a>  
-<a href="#l274" class="line" id="l274">  274</a>  genTarget ::
-<a href="#l275" class="line" id="l275">  275</a>      Target a =&gt;
-<a href="#l276" class="line" id="l276">  276</a>      Path Abs Dir -&gt;
-<a href="#l277" class="line" id="l277">  277</a>      HashMap.HashMap Text (GVal RunRepo) -&gt;
-<a href="#l278" class="line" id="l278">  278</a>      Bool -&gt;
-<a href="#l279" class="line" id="l279">  279</a>      Bool -&gt;
-<a href="#l280" class="line" id="l280">  280</a>      Maybe Template -&gt;
-<a href="#l281" class="line" id="l281">  281</a>      a -&gt;
-<a href="#l282" class="line" id="l282">  282</a>      ReaderT LgRepo IO ()
-<a href="#l283" class="line" id="l283">  283</a>  genTarget _ _ _ _ Nothing _ = return ()
-<a href="#l284" class="line" id="l284">  284</a>  genTarget output scope quiet force (Just template) target = do
-<a href="#l285" class="line" id="l285">  285</a>      outFile &lt;- liftIO . dest $ target
-<a href="#l286" class="line" id="l286">  286</a>      let output&apos; = output &lt;/&gt; outFile
-<a href="#l287" class="line" id="l287">  287</a>      exists &lt;- liftIO . doesFileExist $ output&apos;
-<a href="#l288" class="line" id="l288">  288</a>      when (force || not exists) $ do
-<a href="#l289" class="line" id="l289">  289</a>          liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
-<a href="#l290" class="line" id="l290">  290</a>          let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
-<a href="#l291" class="line" id="l291">  291</a>          generate output&apos; scope&apos; template
+<a href="#l250" class="line" id="l250">  250</a>  ----------------------------------------------------------------------------------------
+<a href="#l251" class="line" id="l251">  251</a>  -- Targets -----------------------------------------------------------------------------
+<a href="#l252" class="line" id="l252">  252</a>  
+<a href="#l253" class="line" id="l253">  253</a>  {-
+<a href="#l254" class="line" id="l254">  254</a>  A Target refers to a template scope and repository object whose information is available
+<a href="#l255" class="line" id="l255">  255</a>  in that scope. For example, commits are a target as they each generate a scope
+<a href="#l256" class="line" id="l256">  256</a>  containing that commit&apos;s information, and these scopes are each rendered in the
+<a href="#l257" class="line" id="l257">  257</a>  commitTemplate. The Target class generalises how each target is represented so that
+<a href="#l258" class="line" id="l258">  258</a>  genTarget can work on any target type.
+<a href="#l259" class="line" id="l259">  259</a>  -}
+<a href="#l260" class="line" id="l260">  260</a>  class ToGVal RunRepo a =&gt; Target a where
+<a href="#l261" class="line" id="l261">  261</a>      identify :: a -&gt; FilePath
+<a href="#l262" class="line" id="l262">  262</a>      category :: a -&gt; FilePath
+<a href="#l263" class="line" id="l263">  263</a>      dest :: a -&gt; IO (Path Rel File)
+<a href="#l264" class="line" id="l264">  264</a>      dest t = do
+<a href="#l265" class="line" id="l265">  265</a>          dir &lt;- parseRelDir . category $ t
+<a href="#l266" class="line" id="l266">  266</a>          file &lt;- parseRelFile . identify $ t
+<a href="#l267" class="line" id="l267">  267</a>          return $ dir &lt;/&gt; file
+<a href="#l268" class="line" id="l268">  268</a>  
+<a href="#l269" class="line" id="l269">  269</a>  instance Target (Commit LgRepo) where
+<a href="#l270" class="line" id="l270">  270</a>      identify = (++ &quot;.html&quot;) . show . untag . commitOid
+<a href="#l271" class="line" id="l271">  271</a>      category = const &quot;commit&quot;
+<a href="#l272" class="line" id="l272">  272</a>  
+<a href="#l273" class="line" id="l273">  273</a>  instance Target TreeFile where
+<a href="#l274" class="line" id="l274">  274</a>      identify = T.unpack . treePathToHref
+<a href="#l275" class="line" id="l275">  275</a>      category = const &quot;file&quot;
+<a href="#l276" class="line" id="l276">  276</a>  
+<a href="#l277" class="line" id="l277">  277</a>  genTarget ::
+<a href="#l278" class="line" id="l278">  278</a>      Target a =&gt;
+<a href="#l279" class="line" id="l279">  279</a>      Path Abs Dir -&gt;
+<a href="#l280" class="line" id="l280">  280</a>      HashMap.HashMap Text (GVal RunRepo) -&gt;
+<a href="#l281" class="line" id="l281">  281</a>      Bool -&gt;
+<a href="#l282" class="line" id="l282">  282</a>      Bool -&gt;
+<a href="#l283" class="line" id="l283">  283</a>      Maybe Template -&gt;
+<a href="#l284" class="line" id="l284">  284</a>      a -&gt;
+<a href="#l285" class="line" id="l285">  285</a>      ReaderT LgRepo IO ()
+<a href="#l286" class="line" id="l286">  286</a>  genTarget _ _ _ _ Nothing _ = return ()
+<a href="#l287" class="line" id="l287">  287</a>  genTarget output scope quiet force (Just template) target = do
+<a href="#l288" class="line" id="l288">  288</a>      outFile &lt;- liftIO . dest $ target
+<a href="#l289" class="line" id="l289">  289</a>      let output&apos; = output &lt;/&gt; outFile
+<a href="#l290" class="line" id="l290">  290</a>      exists &lt;- liftIO . doesFileExist $ output&apos;
+<a href="#l291" class="line" id="l291">  291</a>      when (force || not exists) $ do
+<a href="#l292" class="line" id="l292">  292</a>          liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
+<a href="#l293" class="line" id="l293">  293</a>          let scope&apos; = scope &lt;&gt; HashMap.fromList [(T.pack . category $ target, toGVal target)]
+<a href="#l294" class="line" id="l294">  294</a>          generate output&apos; scope&apos; template
 </pre>
       </div>
   </body>

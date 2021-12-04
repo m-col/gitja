@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/437063ec4c87b45d57f8e8518b01c21d55a48229.html">437063e</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/c9895884e73b2dfd643edc7e868802de1787c955.html">c989588</a>
       </p>
     </div>
 
@@ -68,18 +68,18 @@
 <a href="#l30" class="line" id="l30">   30</a>  
 <a href="#l31" class="line" id="l31">   31</a>  declare -a TESTS
 <a href="#l32" class="line" id="l32">   32</a>  TESTS=(
-<a href="#l33" class="line" id="l33">   33</a>      &quot;index.html&quot;
-<a href="#l34" class="line" id="l34">   34</a>      &quot;link.html&quot;
-<a href="#l35" class="line" id="l35">   35</a>      &quot;style.css&quot;
-<a href="#l36" class="line" id="l36">   36</a>      &quot;so_called_binary_file&quot;
-<a href="#l37" class="line" id="l37">   37</a>      &quot;static/a_nice_file&quot;
-<a href="#l38" class="line" id="l38">   38</a>      &quot;gitserve/index.html&quot;
-<a href="#l39" class="line" id="l39">   39</a>      &quot;gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html&quot;
-<a href="#l40" class="line" id="l40">   40</a>      &quot;gitserve/file/test.expected.gitserve.file.html&quot;
-<a href="#l41" class="line" id="l41">   41</a>      &quot;gitserve/file/test.templates.style.css.html&quot;
-<a href="#l42" class="line" id="l42">   42</a>      &quot;gitserve/file/test.templates.so_called_binary_file.html&quot;
-<a href="#l43" class="line" id="l43">   43</a>      &quot;gitserve/log.html&quot;
-<a href="#l44" class="line" id="l44">   44</a>      &quot;gitserve/static/another_file&quot;
+<a href="#l33" class="line" id="l33">   33</a>      &quot;index.html&quot;  # Index scope
+<a href="#l34" class="line" id="l34">   34</a>      &quot;link.html&quot;  # Symbolic link at top level
+<a href="#l35" class="line" id="l35">   35</a>      &quot;style.css&quot;  # Static file at top level
+<a href="#l36" class="line" id="l36">   36</a>      &quot;static/a_nice_file&quot;  # Static folder at top level
+<a href="#l37" class="line" id="l37">   37</a>      &quot;gitserve/index.html&quot;  # Repo scope
+<a href="#l38" class="line" id="l38">   38</a>      &quot;gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html&quot;  # A commit
+<a href="#l39" class="line" id="l39">   39</a>      &quot;gitserve/file/test.templates.style.css.html&quot;  # A plain text file
+<a href="#l40" class="line" id="l40">   40</a>      &quot;so_called_binary_file&quot;  # Static file at top level that git considers binary
+<a href="#l41" class="line" id="l41">   41</a>      &quot;gitserve/file/test.templates.so_called_binary_file.html&quot;  # The binary file
+<a href="#l42" class="line" id="l42">   42</a>      &quot;gitserve/file/github.FUNDING.yml.html&quot;  # HREF drops leading period
+<a href="#l43" class="line" id="l43">   43</a>      &quot;gitserve/log.html&quot;  # Symbolic link inside repo/
+<a href="#l44" class="line" id="l44">   44</a>      &quot;gitserve/static/another_file&quot;  # Static folder inside repo/
 <a href="#l45" class="line" id="l45">   45</a>  )
 <a href="#l46" class="line" id="l46">   46</a>  
 <a href="#l47" class="line" id="l47">   47</a>  stack run -- -c test/config.dhall -q || exit 1
