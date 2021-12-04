@@ -14,7 +14,7 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import qualified Data.HashMap.Strict as HashMap
 import Data.IORef (modifyIORef', newIORef, readIORef)
-import Data.Maybe (catMaybes, fromMaybe)
+import Data.Maybe (catMaybes, fromMaybe, isNothing)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.Text.Lazy.IO as T
@@ -38,6 +38,7 @@ import System.Directory (
     pathIsSymbolicLink,
     removeFile,
  )
+import System.Exit (die)
 import qualified System.FilePath as FP
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
@@ -103,6 +104,15 @@ loadEnv quiet force config = do
         collectTemplates
             . filter (flip notElem ["commit.html", "file.html"] . toFilePath . filename)
             $ filesRepo
+
+    -- Exit early if we didn't find any templates
+    when
+        ( null indexT
+            && isNothing commitT
+            && isNothing fileT
+            && null repoT
+        )
+        $ die "No templates were found."
 
     -- App environment
     return
