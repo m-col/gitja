@@ -48,3 +48,4 @@ jobs:
       with:
         branch: gh-pages
         folder: output
+        clean: false
