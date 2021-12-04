@@ -206,6 +206,7 @@ copyStaticDirs output = mapM_ copy <=< filterM isStatic
         let isRepo = (toFilePath . dirname $ p) == "repo/"
         isLink <- pathIsSymbolicLink . toFilePath $ p
         return $ not isRepo || isLink
+
     copy :: Path Abs Dir -> IO ()
     copy p = do
         let output' = output </> dirname p
@@ -226,6 +227,7 @@ copyStaticFiles output = mapM_ copy <=< filterM isStatic
         let isTemplate = FP.takeExtension fp `elem` [".html", ".include"]
         isLink <- pathIsSymbolicLink fp
         return $ not isTemplate || isLink
+
     copy :: Path Abs File -> IO ()
     copy p = do
         let fp = toFilePath p
