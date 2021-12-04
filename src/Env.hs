@@ -77,6 +77,7 @@ data Env = Env
     , envHost :: T.Text
     , envQuiet :: Bool
     , envForce :: Bool
+    , envRepoCopyStatics :: Path Abs Dir -> IO ()
     }
 
 {-
@@ -99,9 +100,9 @@ loadEnv quiet force config = do
 
     -- Find template files, copying the static files as is
     (dirs, files) <- ls . confTemplate $ config
-    (_, filesRepo) <- ls $ confTemplate config FP.</> "repo"
-    copyStaticDirs output dirs
-    copyStaticFiles output files
+    (dirsRepo, filesRepo) <- ls $ confTemplate config FP.</> "repo"
+    copyStaticDirs dirs output
+    copyStaticFiles files output
 
     -- Load files from template directory
     indexT <- collectTemplates files
@@ -134,6 +135,7 @@ loadEnv quiet force config = do
             , envHost = confHost config
             , envQuiet = quiet
             , envForce = force
+            , envRepoCopyStatics = \p -> copyStaticDirs dirsRepo p >> copyStaticFiles filesRepo p
             }
   where
     ls :: FilePath -> IO ([Path Abs Dir], [Path Abs File])
@@ -170,8 +172,8 @@ from `confTemplate/link.html` to `gitserve/index.html` will be copied, keeping t
 link intact, resulting in a symbolic link at `output/link.html` essentially
 pointing to `output/gitserve/index.html`.
 -}
-copyStaticDirs :: Path Abs Dir -> [Path Abs Dir] -> IO ()
-copyStaticDirs output = mapM_ copy
+copyStaticDirs :: [Path Abs Dir] -> Path Abs Dir -> IO ()
+copyStaticDirs dirs output = mapM_ copy dirs
   where
     copy :: Path Abs Dir -> IO ()
     copy p = do
@@ -186,8 +188,8 @@ copyStaticDirs output = mapM_ copy
                     createDirectoryLink target . FP.dropTrailingPathSeparator . toFilePath $ output'
                 else copyDirRecur p output'
 
-copyStaticFiles :: Path Abs Dir -> [Path Abs File] -> IO ()
-copyStaticFiles output = mapM_ copy
+copyStaticFiles :: [Path Abs File] -> Path Abs Dir -> IO ()
+copyStaticFiles files output = mapM_ copy files
   where
     copy :: Path Abs File -> IO ()
     copy p = do

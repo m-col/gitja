@@ -40,6 +40,8 @@ TESTS=(
     "gitserve/file/test.expected.gitserve.file.html"
     "gitserve/file/test.templates.style.css.html"
     "gitserve/file/test.templates.so_called_binary_file.html"
+    "gitserve/log.html"
+    "gitserve/static/another_file"
 )
 
 stack run -- -c test/config.dhall -q || exit 1

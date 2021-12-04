@@ -110,7 +110,7 @@ processRepo' env repos repo = do
             branches <- getRefs "refs/heads/"
             let scope = package env repos name (repositoryDescription repo) commits tree tags branches
 
-            -- Create the destination folders
+            -- Create the destination folders --
             commitDir <- liftIO . parseRelDir $ "commit"
             fileDir <- liftIO . parseRelDir $ "file"
             liftIO . ensureDir $ output </> commitDir
@@ -122,6 +122,9 @@ processRepo' env repos repo = do
             mapM_ (genRepo output scope) $ envRepoTemplates env
             mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
             mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
+
+            -- Copy any static files/folders into the output folder --
+            liftIO . envRepoCopyStatics env $ output
 
             -- Return the repo with the head so the index page can use it. --
             return
