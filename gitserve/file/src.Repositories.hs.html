@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/1ede5298d8d06bcaff650918a0f8574e5eb029b4.html">1ede529</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/f74a6a14a03425b91253f18e69ac2305fbc0c1dd.html">f74a6a1</a>
       </p>
     </div>
 
@@ -147,7 +147,7 @@
 <a href="#l109" class="line" id="l109">  109</a>                  liftIO . D.doesFileExist $
 <a href="#l110" class="line" id="l110">  110</a>                      toFilePath output FP.&lt;/&gt; &quot;commit&quot; FP.&lt;/&gt; show commitID &lt;&gt; &quot;.html&quot;
 <a href="#l111" class="line" id="l111">  111</a>  
-<a href="#l112" class="line" id="l112">  112</a>              unless exists $ do
+<a href="#l112" class="line" id="l112">  112</a>              when (not exists || envForce env) $ do
 <a href="#l113" class="line" id="l113">  113</a>                  -- Collect variables available to the ginger templates --
 <a href="#l114" class="line" id="l114">  114</a>                  commits &lt;- getCommits gitHead
 <a href="#l115" class="line" id="l115">  115</a>                  tree &lt;- getTree gitHead
