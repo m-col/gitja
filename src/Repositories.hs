@@ -104,32 +104,39 @@ processRepo' env repos repo = do
         Just commitID -> do
             let gitHead = Tagged commitID
 
-            -- Collect variables available in the ginger templates --
-            commits <- getCommits gitHead
-            tree <- getTree gitHead
-            tags <- getRefs "refs/tags/"
-            branches <- getRefs "refs/heads/"
-            let scope = package env repos name (repositoryDescription repo) commits tree tags branches
+            -- If a page exists for the head commit, don't do anything else --
+            exists <-
+                liftIO . D.doesFileExist $
+                    toFilePath output FP.</> "commit" FP.</> show commitID <> ".html"
 
-            -- Create the destination folders --
-            commitDir <- liftIO . parseRelDir $ "commit"
-            fileDir <- liftIO . parseRelDir $ "file"
-            liftIO . ensureDir $ output </> commitDir
-            liftIO . ensureDir $ output </> fileDir
+            unless exists $ do
+                -- Collect variables available to the ginger templates --
+                commits <- getCommits gitHead
+                tree <- getTree gitHead
+                tags <- getRefs "refs/tags/"
+                branches <- getRefs "refs/heads/"
+                let scope = package env repos name (repositoryDescription repo) commits tree tags branches
 
-            -- Run the generator --
-            let quiet = envQuiet env
-            let force = envForce env
-            mapM_ (genRepo output scope) $ envRepoTemplates env
-            mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
-            mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
+                -- Create the destination folders --
+                commitDir <- liftIO . parseRelDir $ "commit"
+                fileDir <- liftIO . parseRelDir $ "file"
+                liftIO . ensureDir $ output </> commitDir
+                liftIO . ensureDir $ output </> fileDir
 
-            -- Copy any static files/folders into the output folder --
-            liftIO . envRepoCopyStatics env $ output
+                -- Run the generator --
+                let quiet = envQuiet env
+                let force = envForce env
+                mapM_ (genRepo output scope) $ envRepoTemplates env
+                mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
+                mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
+
+                -- Copy any static files/folders into the output folder --
+                liftIO . envRepoCopyStatics env $ output
 
             -- Return the repo with the head so the index page can use it. --
+            repoHead <- lookupCommit gitHead -- Do this in case the block above is skipped.
             return
-                repo{repositoryHead = Just . head $ commits}
+                repo{repositoryHead = Just repoHead}
 
 {-
 The role of the function above is to gather information about a git repository and
