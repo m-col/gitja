@@ -20,6 +20,13 @@
       <td>{{ commit.author }}</td>
     </tr>
     {% endfor %}
+
+    {% if length(commits) > 50 %}
+    <tr>
+      <td></td>
+      <td colspan="2">More commits not shown.</td>
+    </tr>
+    {% endif %}
   </tbody>
 </table>
 {% endblock %}
