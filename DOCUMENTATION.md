@@ -91,9 +91,7 @@ Files ending in ".html" directly within that folder have access to the *index
 scope*, and are each parsed exactly once and output into the output directory
 with the same name.
 "[include](https://ginger.tobiasdammers.nl/guide/syntax/statements/#include)"
-files are never copied but can be used to assist in templating. The remaining
-files, and any folders not called "repo", are copied as-is as static content,
-such as CSS, images, etc.
+files are never copied but can be used to assist in templating.
 
 The special folder "repo" has access to the *repo scope*, which exposes
 information pertaining to a single git repository. The template files contained
@@ -123,12 +121,16 @@ The resulting folder structure found in `output` will look like this (if
                 ...
         ...
 
-Note: symbolic links are considered static and will be copied unchanged and
-unresolved from template to output. This means that, for example, a symlink at
-`template/index.html` pointing to `gitserve/index.html` will produce a symlink
-at `output/index.html` with the same behaviour, with the effect that the served
-root index page will actually be the index page for the `gitserve` repository
-(if present).
+#### Static files
+
+Files in the template folder that do not end in ".html" or ".include" or are
+symbolic links, as well as directories that are not called "repo", are
+considered static content. These are copied unchanged (i.e. symbolic links are
+copied as symbolic links) to the output folder. This is useful for putting CSS,
+images etc into the output.
+
+Similarly, any static content found within the template's "repo/" folder is
+copied unchanged into the output folder for every repository.
 
 ### Scopes
 
