@@ -136,23 +136,24 @@ copied unchanged into the output folder for every repository.
 
 The variables available within each scope are listed here for reference:
 
-| Scope  | Variable     | Description                                           |
-| ------ | ------------ | ----------------------------------------------------- |
-| Index  | host         | The string from the `host` config option.             |
-|        | repositories | A list of all of the git repositories.                |
-| Repo   |              | *In addition to the variables from the index scope...*|
-|        | name         | The repository name, taken from its folder name.      |
-|        | description  | The repository's description (see below).             |
-|        | commits      | A list of the repository's commits.                   |
-|        | tree         | A list of the repository's files.                     |
-|        | tags         | A list of the refs corresponding to tags.             |
-|        | branches     | A list of the refs corresponding to branches.         |
-|        | readme       | The repository's readme file, if it has one.          |
-|        | license      | The repository's license file, if it has one.         |
-| File   |              | *In addition to the variables from the Repo scope...* |
-|        | file         | A single file.                                        |
-| Commit |              | *In addition to the variables from the Repo scope...* |
-|        | commit       | A single commit.                                      |
+| Scope  | Variable        | Description                                           |
+| ------ | --------------- | ----------------------------------------------------- |
+| Index  | host            | The string from the `host` config option.             |
+|        | repositories    | A list of all of the git repositories.                |
+| Repo   |                 | *In addition to the variables from the index scope...*|
+|        | name            | The repository name, taken from its folder name.      |
+|        | description     | The repository's description (see below).             |
+|        | commits         | A list of the repository's commits.                   |
+|        | tree            | A list of the top-level folder's contents.            |
+|        | tree\_recursive | A list of *all* of the repository's contents.         |
+|        | tags            | A list of the refs corresponding to tags.             |
+|        | branches        | A list of the refs corresponding to branches.         |
+|        | readme          | The repository's readme file, if it has one.          |
+|        | license         | The repository's license file, if it has one.         |
+| File   |                 | *In addition to the variables from the Repo scope...* |
+|        | file            | A single file.                                        |
+| Commit |                 | *In addition to the variables from the Repo scope...* |
+|        | commit          | A single commit.                                      |
 
 As in [Jinja](https://jinja.palletsprojects.com), a list can be accessed with
 indexing, and attributes can be accessed using a dot notation. For example, a
