@@ -14,7 +14,8 @@ import Text.Ginger.Html (Html, htmlSource)
 import Text.Ginger.Parse (SourcePos)
 import Text.Ginger.Run (Run, easyRenderM)
 
-import Templates (Env (..), Template (..))
+import Env (Env (..))
+import Templates (Template (..))
 import Types
 
 {-

@@ -30,7 +30,8 @@ import qualified System.Directory as D
 import qualified System.FilePath as FP
 import Text.Ginger.GVal (GVal, ToGVal, toGVal)
 
-import Templates (Env (..), Template (..), generate)
+import Env (Env (..))
+import Templates (Template (..), generate)
 import Types
 
 {-

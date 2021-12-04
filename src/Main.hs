@@ -17,10 +17,9 @@ import qualified Options.Applicative as O
 import qualified System.Directory as D
 import System.FilePath (takeDirectory, (</>))
 
-import Config (getConfig)
+import Env (getConfig, loadEnv)
 import Index (runIndex)
 import Repositories (run)
-import Templates (loadEnv)
 
 {-
 Command line options
