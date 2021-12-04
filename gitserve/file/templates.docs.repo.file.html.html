@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/b06798837a4b6c52d3de2f7addd3325769fda6a6.html">b067988</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/a6171632c7bed6c70d9cf875f50cbd7d32e1e800.html">a617163</a>
       </p>
     </div>
 
@@ -61,16 +61,28 @@
 <a href="#l23" class="line" id="l23">   23</a>      {% endfor %}
 <a href="#l24" class="line" id="l24">   24</a>    &lt;/tbody&gt;
 <a href="#l25" class="line" id="l25">   25</a>  &lt;/table&gt;
-<a href="#l26" class="line" id="l26">   26</a>  {% else %}
-<a href="#l27" class="line" id="l27">   27</a>    {% if file.is_binary %}
-<a href="#l28" class="line" id="l28">   28</a>    (File is binary)
-<a href="#l29" class="line" id="l29">   29</a>    {% else %}
-<a href="#l30" class="line" id="l30">   30</a>  &lt;pre id=&quot;blob&quot;&gt;{% for line in split(file.contents, &apos;\n&apos;) %}
-<a href="#l31" class="line" id="l31">   31</a>  &lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%5v&quot;, loop.index) }}&lt;/a&gt;  {{ line }}
-<a href="#l32" class="line" id="l32">   32</a>  {% endfor %}&lt;/pre&gt;
-<a href="#l33" class="line" id="l33">   33</a>    {% endif %}
-<a href="#l34" class="line" id="l34">   34</a>  {% endif %}
-<a href="#l35" class="line" id="l35">   35</a>  {% endblock %}
+<a href="#l26" class="line" id="l26">   26</a>  
+<a href="#l27" class="line" id="l27">   27</a>    {%- if length(file.contents) == 1 -%}
+<a href="#l28" class="line" id="l28">   28</a>      {%- set child = file.contents[0] -%}
+<a href="#l29" class="line" id="l29">   29</a>      {% if child.is_binary %}
+<a href="#l30" class="line" id="l30">   30</a>      (Child is binary)
+<a href="#l31" class="line" id="l31">   31</a>      {% else %}
+<a href="#l32" class="line" id="l32">   32</a>  &lt;pre id=&quot;blob&quot;&gt;{% for line in split(child.contents, &apos;\n&apos;) %}
+<a href="#l33" class="line" id="l33">   33</a>  &lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%5v&quot;, loop.index) }}&lt;/a&gt;  {{ line }}
+<a href="#l34" class="line" id="l34">   34</a>  {% endfor %}&lt;/pre&gt;
+<a href="#l35" class="line" id="l35">   35</a>      {% endif %}
+<a href="#l36" class="line" id="l36">   36</a>    {%- endif -%}
+<a href="#l37" class="line" id="l37">   37</a>  
+<a href="#l38" class="line" id="l38">   38</a>  {% else %}
+<a href="#l39" class="line" id="l39">   39</a>    {% if file.is_binary %}
+<a href="#l40" class="line" id="l40">   40</a>    (File is binary)
+<a href="#l41" class="line" id="l41">   41</a>    {% else %}
+<a href="#l42" class="line" id="l42">   42</a>  &lt;pre id=&quot;blob&quot;&gt;{% for line in split(file.contents, &apos;\n&apos;) %}
+<a href="#l43" class="line" id="l43">   43</a>  &lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%5v&quot;, loop.index) }}&lt;/a&gt;  {{ line }}
+<a href="#l44" class="line" id="l44">   44</a>  {% endfor %}&lt;/pre&gt;
+<a href="#l45" class="line" id="l45">   45</a>    {% endif %}
+<a href="#l46" class="line" id="l46">   46</a>  {% endif %}
+<a href="#l47" class="line" id="l47">   47</a>  {% endblock %}
 </pre>
       </div>
   </body>

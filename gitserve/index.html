@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/b06798837a4b6c52d3de2f7addd3325769fda6a6.html">b067988</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/a6171632c7bed6c70d9cf875f50cbd7d32e1e800.html">a617163</a>
       </p>
     </div>
 
@@ -129,9 +129,7 @@ Files ending in &quot;.html&quot; directly within that folder have access to the
 scope*, and are each parsed exactly once and output into the output directory
 with the same name.
 &quot;[include](https://ginger.tobiasdammers.nl/guide/syntax/statements/#include)&quot;
-files are never copied but can be used to assist in templating. The remaining
-files, and any folders not called &quot;repo&quot;, are copied as-is as static content,
-such as CSS, images, etc.
+files are never copied but can be used to assist in templating.
 
 The special folder &quot;repo&quot; has access to the *repo scope*, which exposes
 information pertaining to a single git repository. The template files contained
@@ -161,34 +159,39 @@ The resulting folder structure found in `output` will look like this (if
                 ...
         ...
 
-Note: symbolic links are considered static and will be copied unchanged and
-unresolved from template to output. This means that, for example, a symlink at
-`template/index.html` pointing to `gitserve/index.html` will produce a symlink
-at `output/index.html` with the same behaviour, with the effect that the served
-root index page will actually be the index page for the `gitserve` repository
-(if present).
+#### Static files
+
+Files in the template folder that do not end in &quot;.html&quot; or &quot;.include&quot; or are
+symbolic links, as well as directories that are not called &quot;repo&quot;, are
+considered static content. These are copied unchanged (i.e. symbolic links are
+copied as symbolic links) to the output folder. This is useful for putting CSS,
+images etc into the output.
+
+Similarly, any static content found within the template&apos;s &quot;repo/&quot; folder is
+copied unchanged into the output folder for every repository.
 
 ### Scopes
 
 The variables available within each scope are listed here for reference:
 
-| Scope  | Variable     | Description                                           |
-| ------ | ------------ | ----------------------------------------------------- |
-| Index  | host         | The string from the `host` config option.             |
-|        | repositories | A list of all of the git repositories.                |
-| Repo   |              | *In addition to the variables from the index scope...*|
-|        | name         | The repository name, taken from its folder name.      |
-|        | description  | The repository&apos;s description (see below).             |
-|        | commits      | A list of the repository&apos;s commits.                   |
-|        | tree         | A list of the repository&apos;s files.                     |
-|        | tags         | A list of the refs corresponding to tags.             |
-|        | branches     | A list of the refs corresponding to branches.         |
-|        | readme       | The repository&apos;s readme file, if it has one.          |
-|        | license      | The repository&apos;s license file, if it has one.         |
-| File   |              | *In addition to the variables from the Repo scope...* |
-|        | file         | A single file.                                        |
-| Commit |              | *In addition to the variables from the Repo scope...* |
-|        | commit       | A single commit.                                      |
+| Scope  | Variable        | Description                                           |
+| ------ | --------------- | ----------------------------------------------------- |
+| Index  | host            | The string from the `host` config option.             |
+|        | repositories    | A list of all of the git repositories.                |
+| Repo   |                 | *In addition to the variables from the index scope...*|
+|        | name            | The repository name, taken from its folder name.      |
+|        | description     | The repository&apos;s description (see below).             |
+|        | commits         | A list of the repository&apos;s commits.                   |
+|        | tree            | A list of the top-level folder&apos;s contents.            |
+|        | tree\_recursive | A list of *all* of the repository&apos;s contents.         |
+|        | tags            | A list of the refs corresponding to tags.             |
+|        | branches        | A list of the refs corresponding to branches.         |
+|        | readme          | The repository&apos;s readme file, if it has one.          |
+|        | license         | The repository&apos;s license file, if it has one.         |
+| File   |                 | *In addition to the variables from the Repo scope...* |
+|        | file            | A single file.                                        |
+| Commit |                 | *In addition to the variables from the Repo scope...* |
+|        | commit          | A single commit.                                      |
 
 As in [Jinja](https://jinja.palletsprojects.com), a list can be accessed with
 indexing, and attributes can be accessed using a dot notation. For example, a

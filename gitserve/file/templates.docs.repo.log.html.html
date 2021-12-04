@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/b06798837a4b6c52d3de2f7addd3325769fda6a6.html">b067988</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/a6171632c7bed6c70d9cf875f50cbd7d32e1e800.html">a617163</a>
       </p>
     </div>
 
@@ -58,9 +58,16 @@
 <a href="#l20" class="line" id="l20">   20</a>        &lt;td&gt;{{ commit.author }}&lt;/td&gt;
 <a href="#l21" class="line" id="l21">   21</a>      &lt;/tr&gt;
 <a href="#l22" class="line" id="l22">   22</a>      {% endfor %}
-<a href="#l23" class="line" id="l23">   23</a>    &lt;/tbody&gt;
-<a href="#l24" class="line" id="l24">   24</a>  &lt;/table&gt;
-<a href="#l25" class="line" id="l25">   25</a>  {% endblock %}
+<a href="#l23" class="line" id="l23">   23</a>  
+<a href="#l24" class="line" id="l24">   24</a>      {% if length(commits) &gt; 50 %}
+<a href="#l25" class="line" id="l25">   25</a>      &lt;tr&gt;
+<a href="#l26" class="line" id="l26">   26</a>        &lt;td&gt;&lt;/td&gt;
+<a href="#l27" class="line" id="l27">   27</a>        &lt;td colspan=&quot;2&quot;&gt;More commits not shown.&lt;/td&gt;
+<a href="#l28" class="line" id="l28">   28</a>      &lt;/tr&gt;
+<a href="#l29" class="line" id="l29">   29</a>      {% endif %}
+<a href="#l30" class="line" id="l30">   30</a>    &lt;/tbody&gt;
+<a href="#l31" class="line" id="l31">   31</a>  &lt;/table&gt;
+<a href="#l32" class="line" id="l32">   32</a>  {% endblock %}
 </pre>
       </div>
   </body>
