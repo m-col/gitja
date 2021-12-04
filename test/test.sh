@@ -30,17 +30,16 @@ rm -fr "$RESULT"
 
 declare -a TESTS
 TESTS=(
-    "index.html"
+    "index.html"  # Index scope
     "link.html"  # Symbolic link at top level
     "style.css"  # Static file at top level
-    "so_called_binary_file"
     "static/a_nice_file"  # Static folder at top level
-    "gitserve/index.html"
-    "gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html"
-    "gitserve/file/test.expected.gitserve.file.html"
-    "gitserve/file/test.templates.style.css.html"
-    "gitserve/file/test.templates.so_called_binary_file.html"
-    "gitserve/file/github.FUNDING.yml.html"  # Drops leading period
+    "gitserve/index.html"  # Repo scope
+    "gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html"  # A commit
+    "gitserve/file/test.templates.style.css.html"  # A plain text file
+    "so_called_binary_file"  # Static file at top level that git considers binary
+    "gitserve/file/test.templates.so_called_binary_file.html"  # The binary file
+    "gitserve/file/github.FUNDING.yml.html"  # HREF drops leading period
     "gitserve/log.html"  # Symbolic link inside repo/
     "gitserve/static/another_file"  # Static folder inside repo/
 )
