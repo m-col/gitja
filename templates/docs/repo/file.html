@@ -23,6 +23,18 @@
     {% endfor %}
   </tbody>
 </table>
+
+  {%- if length(file.contents) == 1 -%}
+    {%- set child = file.contents[0] -%}
+    {% if child.is_binary %}
+    (Child is binary)
+    {% else %}
+<pre id="blob">{% for line in split(child.contents, '\n') %}
+<a href="#l{{ loop.index }}" class="line" id="l{{ loop.index }}">{{ printf("%5v", loop.index) }}</a>  {{ line }}
+{% endfor %}</pre>
+    {% endif %}
+  {%- endif -%}
+
 {% else %}
   {% if file.is_binary %}
   (File is binary)
