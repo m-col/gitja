@@ -121,7 +121,7 @@ The resulting folder structure found in `output` will look like this (if
                 ...
         ...
 
-#### Static files
+### Static files
 
 Files in the template folder that do not end in ".html" or ".include" or are
 symbolic links, as well as directories that are not called "repo", are
@@ -211,10 +211,10 @@ Note:
   `branches[0].commit.parent` will work as expected.
 - "file" includes directories and symbolic links.
 
-#### Diffs
+### Diffs
 
 Each commit has a corresponding list of diffs. Each diff corresponds to the
-changes made to a single file. A diff's `new\_file` and `old\_file` will differ
+changes made to a single file. A diff's `new_file` and `old_file` will differ
 only if the file was renamed. The `status` can be one of: Unmodified, Added,
 Deleted, Modified, Renamed, Copied, Ignored, Untracked, TypeChange.
 
@@ -227,7 +227,7 @@ class of the line without needing to parse the line text from within a template
 file. This makes it easier to style additions and subtractions from other (def
 for default) lines.
 
-#### Descriptions
+### Descriptions
 
 Each repository can have a description that is available in the templates. This
 is how the description for a given respository is determined:
