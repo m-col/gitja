@@ -108,7 +108,7 @@ commitAsLookup commit = \case
     "committed" -> Just . toGVal . show . Git.signatureWhen . Git.commitCommitter . commitGit $ commit
     "encoding" -> Just . toGVal . strip . Git.commitEncoding . commitGit $ commit
     "parent" -> toGVal . show . untag <$> (listToMaybe . Git.commitParents . commitGit $ commit)
-    "diff" -> Just . toGVal . commitDiffs $ commit
+    "diffs" -> Just . toGVal . commitDiffs $ commit
     _ -> Nothing
 
 {-
