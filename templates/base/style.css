@@ -21,3 +21,11 @@ html {
 #clone {
     float: right;
 }
+
+.diff .add {
+    color: #0a0;
+}
+
+.diff .sub {
+    color: #a00;
+}

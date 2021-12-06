@@ -167,3 +167,11 @@ pre a.d:hover {
 
 .gh, .gp, .cs, .gu, .ne, .cs
 { font-weight: bold }
+
+.diff .add {
+    color: #0a0;
+}
+
+.diff .sub {
+    color: #a00;
+}
