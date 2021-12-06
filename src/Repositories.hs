@@ -17,7 +17,7 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as HashMap
-import Data.Maybe (catMaybes, fromJust, mapMaybe)
+import Data.Maybe (catMaybes, fromJust, listToMaybe, mapMaybe)
 import Data.Tagged (Tagged (..), untag)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -105,6 +105,7 @@ processRepo' env repos repo = do
             return repo
         Just commitID -> do
             let gitHead = Tagged commitID
+            headCommit <- loadDiff =<< Git.lookupCommit gitHead
 
             -- If a page exists for the head commit, don't do anything else --
             exists <-
@@ -135,10 +136,8 @@ processRepo' env repos repo = do
                 -- Copy any static files/folders into the output folder --
                 liftIO . envRepoCopyStatics env $ output
 
-            -- Return the repo with the head so the index page can use it. --
-            repoHead <- Git.lookupCommit gitHead -- Do this in case the block above is skipped.
             return
-                repo{repositoryHead = Just repoHead}
+                repo{repositoryHead = Just headCommit}
 
 {-
 The role of the function above is to gather information about a git repository and
@@ -151,7 +150,7 @@ package ::
     [Repo] ->
     Path Rel Dir ->
     Text ->
-    [Git.Commit LgRepo] ->
+    [Commit] ->
     [TreeFile] ->
     [Ref] ->
     [Ref] ->
@@ -174,15 +173,29 @@ package env repos name description commits tree tags branches =
 {-
 Collect commit information.
 -}
-getCommits :: Git.CommitOid LgRepo -> ReaderT LgRepo IO [Git.Commit LgRepo]
+getCommits :: Git.CommitOid LgRepo -> ReaderT LgRepo IO [Commit]
 getCommits commitID =
     fmap reverse . sequence . mapMaybe loadCommit
         <=< runConduit
         $ Git.sourceObjects Nothing commitID False .| sinkList
 
-loadCommit :: Git.ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Git.Commit LgRepo))
-loadCommit (Git.CommitObjOid oid) = Just $ Git.lookupCommit oid
+loadCommit :: Git.ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO Commit)
+loadCommit (Git.CommitObjOid oid) = Just $ loadDiff =<< Git.lookupCommit oid
 loadCommit _ = Nothing
+
+loadDiff :: Git.Commit LgRepo -> ReaderT LgRepo IO Commit
+loadDiff gitCommit = do
+    let tree = Git.commitTree gitCommit
+    newTree <- Git.lookupTree tree
+    oldTree <-
+        case listToMaybe . Git.commitParents $ gitCommit of
+            Just parent ->
+                fmap Just . Git.lookupTree . Git.commitTree =<< Git.lookupCommit parent
+            Nothing ->
+                return Nothing
+
+    diffs <- Git.diffTreeToTree oldTree (Just newTree)
+    return $ Commit gitCommit diffs
 
 {-
 Collect tree information for the given commit. Recurses on directories to list their
@@ -240,8 +253,10 @@ getRefs ref = do
     let names'' = map (fromJust . T.stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names'
     return . zipWith Ref names'' . catMaybes $ maybeCommits
   where
-    refObjToCommit :: Git.Object r (ReaderT LgRepo IO) -> ReaderT LgRepo IO (Maybe (Git.Commit r))
-    refObjToCommit (Git.CommitObj obj) = return . Just $ obj
+    refObjToCommit ::
+        Git.Object LgRepo (ReaderT LgRepo IO) ->
+        ReaderT LgRepo IO (Maybe Commit)
+    refObjToCommit (Git.CommitObj obj) = Just <$> loadDiff obj
     refObjToCommit _ = return Nothing
 
     dropName :: Maybe a -> Git.RefName -> Maybe Git.RefName
@@ -275,8 +290,8 @@ class ToGVal RunRepo a => Target a where
         file <- parseRelFile . identify $ t
         return $ dir </> file
 
-instance Target (Git.Commit LgRepo) where
-    identify = (++ ".html") . show . untag . Git.commitOid
+instance Target Commit where
+    identify = (++ ".html") . show . untag . Git.commitOid . commitGit
     category = const "commit"
 
 instance Target TreeFile where

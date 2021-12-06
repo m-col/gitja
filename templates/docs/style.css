@@ -98,7 +98,6 @@ table {
     border-collapse: collapse;
 }
 
-
 th {
     background-color: #fcfaff;
     text-decoration: underline #aaa;
@@ -116,4 +115,24 @@ tr:nth-child(even) {
 .line:hover {
     background-color: #5d479d50;
     color: #333;
+}
+
+.diff {
+    background-color: #eee;
+    padding: 0.6em;
+    overflow-x: scroll;
+    margin: 20px 0;
+}
+
+.diff .status {
+    color: #666;
+    float: right;
+}
+
+.diff .add {
+    color: #0a0;
+}
+
+.diff .sub {
+    color: #a00;
 }

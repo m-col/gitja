@@ -12,4 +12,29 @@
 
 {{ commit.message }}
 </pre>
+
+{%- for diff in commit.diff -%}
+<div class="diff">
+  <p>
+    <b>{{ diff.new_file }}</b>
+    <span class="status">{{ diff.status }}</span>
+  </p>
+
+  {% if diff.newfile != diff.oldfile %}
+  <p>Renamed from {{ diff.old_file }}</p>
+  {% endif %}
+
+  {%- for hunk in diff.hunks -%}
+  {{ hunk.header }}
+
+  <pre>
+    {%- for line in hunk.lines -%}
+      <span class="{{ line.class }}">{{ line.text }}</span>
+    {%- endfor -%}
+  </pre>
+
+  {%- endfor -%}
+</div>
+{%- endfor -%}
+
 {% endblock %}
