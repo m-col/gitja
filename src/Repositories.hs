@@ -18,12 +18,12 @@ import Control.Monad.Trans.Reader (ReaderT)
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (catMaybes, fromJust, mapMaybe)
-import Data.Tagged
+import Data.Tagged (Tagged (..), untag)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Encoding.Error as T
-import Git
+import qualified Git
 import Git.Libgit2 (LgRepo, lgFactory)
 import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (</>))
 import Path.IO (doesFileExist, ensureDir)
@@ -53,8 +53,10 @@ loadRepos env = do
     descs <- mapM getDescription paths'
     return . fmap ($ Nothing) . zipWith Repo paths' $ descs
   where
-    okRepo :: Path Abs Dir -> IO (Either GitException LgRepo)
-    okRepo p = try . liftIO . openRepository lgFactory $ defaultRepositoryOptions{repoPath = toFilePath p}
+    okRepo :: Path Abs Dir -> IO (Either Git.GitException LgRepo)
+    okRepo p =
+        try . liftIO . Git.openRepository lgFactory $
+            Git.defaultRepositoryOptions{Git.repoPath = toFilePath p}
 
 {-
 Pass the repository's folder, get its description. The algorithm is:
@@ -90,14 +92,14 @@ repository doesn't exist or is unreadable in any way we can forget about it and 
 -}
 processRepo :: Env -> [Repo] -> Repo -> IO Repo
 processRepo env repos repo =
-    withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo' env repos repo
+    Git.withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo' env repos repo
 
 processRepo' :: Env -> [Repo] -> Repo -> ReaderT LgRepo IO Repo
 processRepo' env repos repo = do
     let name = dirname . repositoryPath $ repo
     let output = envOutput env </> name
 
-    resolveReference "HEAD" >>= \case
+    Git.resolveReference "HEAD" >>= \case
         Nothing -> do
             liftIO . unless (envQuiet env) . putStrLn $ "gitserve: " <> show name <> ": Failed to resolve HEAD."
             return repo
@@ -134,7 +136,7 @@ processRepo' env repos repo = do
                 liftIO . envRepoCopyStatics env $ output
 
             -- Return the repo with the head so the index page can use it. --
-            repoHead <- lookupCommit gitHead -- Do this in case the block above is skipped.
+            repoHead <- Git.lookupCommit gitHead -- Do this in case the block above is skipped.
             return
                 repo{repositoryHead = Just repoHead}
 
@@ -149,7 +151,7 @@ package ::
     [Repo] ->
     Path Rel Dir ->
     Text ->
-    [Commit LgRepo] ->
+    [Git.Commit LgRepo] ->
     [TreeFile] ->
     [Ref] ->
     [Ref] ->
@@ -172,46 +174,46 @@ package env repos name description commits tree tags branches =
 {-
 Collect commit information.
 -}
-getCommits :: CommitOid LgRepo -> ReaderT LgRepo IO [Commit LgRepo]
+getCommits :: Git.CommitOid LgRepo -> ReaderT LgRepo IO [Git.Commit LgRepo]
 getCommits commitID =
     fmap reverse . sequence . mapMaybe loadCommit
         <=< runConduit
-        $ sourceObjects Nothing commitID False .| sinkList
+        $ Git.sourceObjects Nothing commitID False .| sinkList
 
-loadCommit :: ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Commit LgRepo))
-loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
+loadCommit :: Git.ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO (Git.Commit LgRepo))
+loadCommit (Git.CommitObjOid oid) = Just $ Git.lookupCommit oid
 loadCommit _ = Nothing
 
 {-
 Collect tree information for the given commit. Recurses on directories to list their
 contents.
 -}
-getTree :: CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
-getTree = getTree' "" . commitTree <=< lookupCommit
+getTree :: Git.CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
+getTree = getTree' "" . Git.commitTree <=< Git.lookupCommit
 
-getTree' :: TreeFilePath -> TreeOid LgRepo -> ReaderT LgRepo IO [TreeFile]
+getTree' :: Git.TreeFilePath -> Git.TreeOid LgRepo -> ReaderT LgRepo IO [TreeFile]
 getTree' parent toid = do
-    entries <- listTreeEntries =<< lookupTree toid
+    entries <- Git.listTreeEntries =<< Git.lookupTree toid
     let entries' = fmap (prependParent parent) entries
     contents <- mapM getEntryContents entries'
     modes <- mapM (getEntryModes . snd) entries'
     return $ zipWith3 TreeFile (fmap treePaths entries') contents modes
 
-prependParent :: TreeFilePath -> (TreeFilePath, TreeEntry LgRepo) -> (TreeFilePath, TreeEntry LgRepo)
+prependParent :: Git.TreeFilePath -> (Git.TreeFilePath, Git.TreeEntry LgRepo) -> (Git.TreeFilePath, Git.TreeEntry LgRepo)
 prependParent "" pathentry = pathentry
 prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
 
-getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -> ReaderT LgRepo IO TreeFileContents
-getEntryContents (_, BlobEntry oid _) = getBlobContents oid
-getEntryContents (path, TreeEntry oid) = FolderContents <$> getTree' path oid
-getEntryContents (_, CommitEntry oid) = return . FileContents . T.pack . show . untag $ oid
+getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> ReaderT LgRepo IO TreeFileContents
+getEntryContents (_, Git.BlobEntry oid _) = getBlobContents oid
+getEntryContents (path, Git.TreeEntry oid) = FolderContents <$> getTree' path oid
+getEntryContents (_, Git.CommitEntry oid) = return . FileContents . T.pack . show . untag $ oid
 
-getEntryModes :: TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
-getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
-getEntryModes (TreeEntry _) = return ModeDirectory
-getEntryModes (CommitEntry _) = return ModeSubmodule
+getEntryModes :: Git.TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
+getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
+getEntryModes (Git.TreeEntry _) = return ModeDirectory
+getEntryModes (Git.CommitEntry _) = return ModeSubmodule
 
-treePaths :: (TreeFilePath, TreeEntry LgRepo) -> Text
+treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> Text
 treePaths = T.decodeUtf8With T.lenientDecode . fst
 
 {-
@@ -230,19 +232,19 @@ references into tags or branches rather than filtering the refnames.
 -}
 getRefs :: Text -> ReaderT LgRepo IO [Ref]
 getRefs ref = do
-    names <- filter (T.isPrefixOf ref) <$> listReferences
-    maybeOids <- mapM resolveReference names
+    names <- filter (T.isPrefixOf ref) <$> Git.listReferences
+    maybeOids <- mapM Git.resolveReference names
     let names' = catMaybes . zipWith dropName maybeOids $ names
-    objs <- mapM lookupObject . catMaybes $ maybeOids
+    objs <- mapM Git.lookupObject . catMaybes $ maybeOids
     maybeCommits <- mapM refObjToCommit objs
     let names'' = map (fromJust . T.stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names'
     return . zipWith Ref names'' . catMaybes $ maybeCommits
   where
-    refObjToCommit :: Object r (ReaderT LgRepo IO) -> ReaderT LgRepo IO (Maybe (Commit r))
-    refObjToCommit (CommitObj obj) = return . Just $ obj
+    refObjToCommit :: Git.Object r (ReaderT LgRepo IO) -> ReaderT LgRepo IO (Maybe (Git.Commit r))
+    refObjToCommit (Git.CommitObj obj) = return . Just $ obj
     refObjToCommit _ = return Nothing
 
-    dropName :: Maybe a -> RefName -> Maybe RefName
+    dropName :: Maybe a -> Git.RefName -> Maybe Git.RefName
     dropName (Just _) name = Just name
     dropName Nothing _ = Nothing
 
@@ -273,8 +275,8 @@ class ToGVal RunRepo a => Target a where
         file <- parseRelFile . identify $ t
         return $ dir </> file
 
-instance Target (Commit LgRepo) where
-    identify = (++ ".html") . show . untag . commitOid
+instance Target (Git.Commit LgRepo) where
+    identify = (++ ".html") . show . untag . Git.commitOid
     category = const "commit"
 
 instance Target TreeFile where

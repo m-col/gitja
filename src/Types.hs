@@ -24,7 +24,7 @@ import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
 import Foreign (peek)
 import Foreign.ForeignPtr (mallocForeignPtr, withForeignPtr)
-import Git
+import qualified Git
 import Git.Libgit2 (LgRepo, getOid, repoObj)
 import Path (Abs, Dir, Path, dirname, toFilePath)
 import qualified System.FilePath as FP
@@ -45,7 +45,7 @@ as well as in a list of all repositories in the index template.
 data Repo = Repo
     { repositoryPath :: Path Abs Dir
     , repositoryDescription :: Text
-    , repositoryHead :: Maybe (Commit LgRepo)
+    , repositoryHead :: Maybe (Git.Commit LgRepo)
     }
 
 instance ToGVal m (Path b t) where
@@ -69,37 +69,37 @@ repoAsLookup repo = \case
     "name" -> Just . toGVal . init . unquote . show . dirname . repositoryPath $ repo
     "description" -> Just . toGVal . repositoryDescription $ repo
     "head" -> Just . toGVal . repositoryHead $ repo
-    "updated" -> toGVal . show . signatureWhen . commitCommitter <$> repositoryHead repo
+    "updated" -> toGVal . show . Git.signatureWhen . Git.commitCommitter <$> repositoryHead repo
     _ -> Nothing
 
 {-
 GVal implementation for `Git.Commit r`, allowing commits to be rendered in Ginger
 templates.
 -}
-instance ToGVal m (Commit LgRepo) where
-    toGVal :: Commit LgRepo -> GVal m
+instance ToGVal m (Git.Commit LgRepo) where
+    toGVal :: Git.Commit LgRepo -> GVal m
     toGVal commit =
         def
-            { asHtml = html . strip . T.takeWhile (/= '\n') . commitLog $ commit
-            , asText = pack . show . commitLog $ commit
+            { asHtml = html . strip . T.takeWhile (/= '\n') . Git.commitLog $ commit
+            , asText = pack . show . Git.commitLog $ commit
             , asLookup = Just . commitAsLookup $ commit
             }
 
-commitAsLookup :: Commit LgRepo -> Text -> Maybe (GVal m)
+commitAsLookup :: Git.Commit LgRepo -> Text -> Maybe (GVal m)
 commitAsLookup commit = \case
-    "id" -> Just . toGVal . show . untag . commitOid $ commit
-    "href" -> Just . toGVal . (<> ".html") . show . untag . commitOid $ commit
-    "title" -> Just . toGVal . strip . T.takeWhile (/= '\n') . commitLog $ commit
-    "body" -> Just . toGVal . strip . T.dropWhile (/= '\n') . commitLog $ commit
-    "message" -> Just . toGVal . strip . commitLog $ commit
-    "author" -> Just . toGVal . strip . signatureName . commitAuthor $ commit
-    "committer" -> Just . toGVal . strip . signatureName . commitCommitter $ commit
-    "author_email" -> Just . toGVal . strip . signatureEmail . commitAuthor $ commit
-    "committer_email" -> Just . toGVal . strip . signatureEmail . commitCommitter $ commit
-    "authored" -> Just . toGVal . show . signatureWhen . commitAuthor $ commit
-    "committed" -> Just . toGVal . show . signatureWhen . commitCommitter $ commit
-    "encoding" -> Just . toGVal . strip . commitEncoding $ commit
-    "parent" -> toGVal . show . untag <$> (listToMaybe . commitParents $ commit)
+    "id" -> Just . toGVal . show . untag . Git.commitOid $ commit
+    "href" -> Just . toGVal . (<> ".html") . show . untag . Git.commitOid $ commit
+    "title" -> Just . toGVal . strip . T.takeWhile (/= '\n') . Git.commitLog $ commit
+    "body" -> Just . toGVal . strip . T.dropWhile (/= '\n') . Git.commitLog $ commit
+    "message" -> Just . toGVal . strip . Git.commitLog $ commit
+    "author" -> Just . toGVal . strip . Git.signatureName . Git.commitAuthor $ commit
+    "committer" -> Just . toGVal . strip . Git.signatureName . Git.commitCommitter $ commit
+    "author_email" -> Just . toGVal . strip . Git.signatureEmail . Git.commitAuthor $ commit
+    "committer_email" -> Just . toGVal . strip . Git.signatureEmail . Git.commitCommitter $ commit
+    "authored" -> Just . toGVal . show . Git.signatureWhen . Git.commitAuthor $ commit
+    "committed" -> Just . toGVal . show . Git.signatureWhen . Git.commitCommitter $ commit
+    "encoding" -> Just . toGVal . strip . Git.commitEncoding $ commit
+    "parent" -> toGVal . show . untag <$> (listToMaybe . Git.commitParents $ commit)
     _ -> Nothing
 
 {-
@@ -122,10 +122,10 @@ Some helper functions to convert from Haskell's LibGit2 BlobKind to our TreeEntr
 and then from that to Git's octal representation, as seen when calling `git ls-tree
 <tree-ish>`
 -}
-blobkindToMode :: BlobKind -> TreeEntryMode
-blobkindToMode PlainBlob = ModePlain
-blobkindToMode ExecutableBlob = ModeExecutable
-blobkindToMode SymlinkBlob = ModeSymlink
+blobkindToMode :: Git.BlobKind -> TreeEntryMode
+blobkindToMode Git.PlainBlob = ModePlain
+blobkindToMode Git.ExecutableBlob = ModeExecutable
+blobkindToMode Git.SymlinkBlob = ModeSymlink
 
 modeToOctal :: TreeEntryMode -> String
 modeToOctal ModeDirectory = "40000"
@@ -144,9 +144,9 @@ modeToSymbolic ModeSubmodule = "git-module"
 {-
 This
 -}
-getBlobContents :: BlobOid LgRepo -> ReaderT LgRepo IO TreeFileContents
+getBlobContents :: Git.BlobOid LgRepo -> ReaderT LgRepo IO TreeFileContents
 getBlobContents oid = do
-    repo <- getRepository
+    repo <- Git.getRepository
     blobPtr <- liftIO mallocForeignPtr
     isBinary <- liftIO . withForeignPtr (repoObj repo) $ \repoPtr ->
         withForeignPtr blobPtr $ \blobPtr' ->
@@ -157,7 +157,7 @@ getBlobContents oid = do
 
     if toEnum . fromEnum $ isBinary -- This reads weird, but it goes CInt, to Int, to Bool.
         then return BinaryContents
-        else FileContents . decodeUtf8With lenientDecode <$> catBlob oid
+        else FileContents . decodeUtf8With lenientDecode <$> Git.catBlob oid
 
 {-
 GVal implementations for data definitions above, allowing commits to be rendered in
@@ -229,8 +229,8 @@ treePathToHref = T.dropWhile (== '.') . flip T.append ".html" . T.replace "/" ".
 Data to store information about references: tags and branches.
 -}
 data Ref = Ref
-    { refName :: RefName
-    , refCommit :: Commit LgRepo
+    { refName :: Git.RefName
+    , refCommit :: Git.Commit LgRepo
     }
 
 instance ToGVal RunRepo Ref where
