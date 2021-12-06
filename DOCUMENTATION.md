@@ -169,19 +169,6 @@ Here is the reference of attributes available on the variables that have them:
 |            | description      | The repository's description (see below).                |
 |            | head             | The current git commit.                                  |
 |            | updated          | The time when the current commit was committed.          |
-| commit     | id               | The SHA of the given commit.                             |
-|            | href             | The name of the HTML file for this commit.               |
-|            | title            | The commit message title.                                |
-|            | body             | The commit message body.                                 |
-|            | message          | The entire message, including both title and body.       |
-|            | author           | The commit author.                                       |
-|            | committer        | The committer.                                           |
-|            | author\_email    | The email address of the author.                         |
-|            | committer\_email | The email address of the committer.                      |
-|            | authored         | The timestamp from when it was written.                  |
-|            | committed        | The timestamp from when it was committed to this branch. |
-|            | encoding         | The commit encoding.                                     |
-|            | parent           | The SHA of the parent commit.                            |
 | file       | path             | The path the file relative to the repository root.       |
 |            | name             | The name of the file.                                    |
 |            | href             | The name of the HTML file for this file.                 |
@@ -195,12 +182,50 @@ Here is the reference of attributes available on the variables that have them:
 |            | tree\_recursive  | A list of *all* of a directory's contents.               |
 | ref        | name             | The tag or branch name.                                  |
 |            | commit           | The commit pointed to by the tag or branch.              |
+| commit     | id               | The SHA of the given commit.                             |
+|            | href             | The name of the HTML file for this commit.               |
+|            | title            | The commit message title.                                |
+|            | body             | The commit message body.                                 |
+|            | message          | The entire message, including both title and body.       |
+|            | diff             | The list of diff objects for this commit.                |
+|            | author           | The commit author.                                       |
+|            | committer        | The committer.                                           |
+|            | author\_email    | The email address of the author.                         |
+|            | committer\_email | The email address of the committer.                      |
+|            | authored         | The timestamp from when it was written.                  |
+|            | committed        | The timestamp from when it was committed to this branch. |
+|            | encoding         | The commit encoding.                                     |
+|            | parent           | The SHA of the parent commit.                            |
+| diff       | new\_file        | The name of the file after the diff.                     |
+|            | old\_file        | The name of the file before the diff.                    |
+|            | status           | The type of the change (see below).                      |
+|            | hunks            | The list of modified hunks for this file.                |
+| hunk       | header           | The hunk's header e.g. "@@ -2,44 +2,22 @@".              |
+|            | lines            | The list of lines  that form this hunk.                  |
+| line       | text             | The line, possibly prefixed by `+` or `-`.               |
+|            | class            | `"add"`, `"sub"` or `"def"` -- useful for CSS.           |
 
 Note:
 
 - Some attributes point to other objects that have attributes. For example,
   `branches[0].commit.parent` will work as expected.
 - "file" includes directories and symbolic links.
+
+#### Diffs
+
+Each commit has a corresponding list of diffs. Each diff corresponds to the
+changes made to a single file. A diff's `new\_file` and `old\_file` will differ
+only if the file was renamed. The `status` can be one of: Unmodified, Added,
+Deleted, Modified, Renamed, Copied, Ignored, Untracked, TypeChange.
+
+A diff contains a series of 'hunks' that represent contiguous blocks of text
+within the file that were modified in some way. Each has a header that
+indicates where the hunk is in the file. The hunks each also expose a list of
+_lines_, each of which exposes the text content of that line, as well as a
+'class'. The class is a convenience attribute that can be used to set the CSS
+class of the line without needing to parse the line text from within a template
+file. This makes it easier to style additions and subtractions from other (def
+for default) lines.
 
 #### Descriptions
 
