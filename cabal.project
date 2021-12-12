@@ -1,1 +1,1 @@
-packages: ., ../gitlib/gitlib, ../gitlib/gitlib-libgit2
+packages: ., gitlib/gitlib, gitlib/gitlib-libgit2

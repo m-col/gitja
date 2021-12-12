@@ -2,8 +2,8 @@ resolver: lts-18.18
 
 packages:
 - .
-- ../gitlib/gitlib
-- ../gitlib/gitlib-libgit2
+- gitlib/gitlib
+- gitlib/gitlib-libgit2
 
 extra-deps:
 #- gitlib-3.1.3@sha256:7e8f940b380f6155be3bf20be9f363c3bfd3285bd26e0368f406a1c431994598,2935
