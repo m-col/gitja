@@ -11,7 +11,7 @@ extra-deps:
 - ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
 
 ghc-options:
-  "$targets": -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+  "gitserve": -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
     -Wincomplete-record-updates -Wredundant-constraints -Wpartial-fields
     -Wmissing-deriving-strategies -Wunused-packages -fno-warn-unused-do-bind
     -fno-warn-orphans
