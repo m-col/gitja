@@ -9,22 +9,30 @@ module Repositories (
     run,
 ) where
 
+import qualified Bindings.Libgit2 as LG
 import Conduit (runConduit, sinkList, (.|))
 import Control.Exception (try)
 import Control.Monad (filterM, unless, when, (<=<))
 import Control.Monad.Extra (ifM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
+import Data.Bool (bool)
+import qualified Data.ByteString as B
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as HashMap
+import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
 import Data.Maybe (catMaybes, fromJust, listToMaybe, mapMaybe)
 import Data.Tagged (Tagged (..), untag)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Encoding.Error as T
+import Foreign.C.String (CString)
+import Foreign.C.Types (CChar, CFloat, CInt, CSize)
+import Foreign.Ptr (Ptr)
+import Foreign.Storable (peek)
 import qualified Git
-import Git.Libgit2 (LgRepo, lgFactory)
+import Git.Libgit2 (LgRepo, lgDiffTreeToTree, lgFactory)
 import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (</>))
 import Path.IO (doesFileExist, ensureDir)
 import qualified System.Directory as D
@@ -194,8 +202,79 @@ loadDiff gitCommit = do
             Nothing ->
                 return Nothing
 
-    diffs <- Git.diffTreeToTree oldTree (Just newTree)
-    return $ Commit gitCommit diffs
+    ioref <- liftIO . newIORef $ []
+    lgDiffTreeToTree
+        (fileCallback ioref)
+        (hunkCallback ioref)
+        (dataCallback ioref)
+        oldTree
+        (Just newTree)
+    diffs <- liftIO . readIORef $ ioref
+
+    return . Commit gitCommit . fmap fixupLists $ diffs
+  where
+    fileCallback ::
+        IORef [Diff] ->
+        Ptr LG.C'git_diff_delta ->
+        CFloat ->
+        Ptr () ->
+        IO CInt
+    fileCallback ioref dPtr _progress _payload = do
+        delta <- peek dPtr
+        newFile <- B.packCString . LG.c'git_diff_file'path . LG.c'git_diff_delta'new_file $ delta
+        oldFile <- B.packCString . LG.c'git_diff_file'path . LG.c'git_diff_delta'old_file $ delta
+        let oldFile' = bool Nothing (Just oldFile) (newFile /= oldFile)
+            status = toEnum . fromIntegral . LG.c'git_diff_delta'status $ delta
+            diff = Diff newFile oldFile' status []
+        modifyIORef ioref (diff :)
+        return 0
+
+    hunkCallback ::
+        IORef [Diff] ->
+        Ptr LG.C'git_diff_delta ->
+        Ptr LG.C'git_diff_range ->
+        CString ->
+        CSize ->
+        Ptr () ->
+        IO CInt
+    hunkCallback ioref _dPtr _range header headerLen _payload = do
+        (cur : _, rest) <- splitAt 1 <$> readIORef ioref
+        bs <- curry B.packCStringLen header (fromIntegral headerLen)
+        let hunk = Hunk bs []
+        writeIORef ioref $ cur{diffHunks = hunk : diffHunks cur} : rest
+        return 0
+
+    dataCallback ::
+        IORef [Diff] ->
+        Ptr LG.C'git_diff_delta ->
+        Ptr LG.C'git_diff_range ->
+        CChar ->
+        CString ->
+        CSize ->
+        Ptr () ->
+        IO CInt
+    dataCallback ioref _dPtr _range lineOrigin content contentLen _payload = do
+        bs <- curry B.packCStringLen content (fromIntegral contentLen)
+        let bs' = B.cons (fromIntegral lineOrigin) bs
+        (cur : _, rest) <- splitAt 1 <$> readIORef ioref
+        let (curHunk : _, restHunks) = splitAt 1 . diffHunks $ cur
+        let updated =
+                cur
+                    { diffHunks =
+                        curHunk
+                            { hunkLines = bs' : hunkLines curHunk
+                            } :
+                        restHunks
+                    }
+        writeIORef ioref $ updated : rest
+        return 0
+
+    -- The callbacks prepend and then we put the lists the right way round here.
+    -- This avoids traversing the lists every time we add an item.
+    fixupLists :: Diff -> Diff
+    fixupLists diff = diff{diffHunks = fmap fixupLines . reverse . diffHunks $ diff}
+      where
+        fixupLines hunk = hunk{hunkLines = reverse . hunkLines $ hunk}
 
 {-
 Collect tree information for the given commit. Recurses on directories to list their

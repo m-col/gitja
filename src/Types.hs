@@ -81,7 +81,7 @@ GVal implementation for commits, allowing them to be rendered in Ginger template
 -}
 data Commit = Commit
     { commitGit :: Git.Commit LgRepo
-    , commitDiffs :: [Git.Diff]
+    , commitDiffs :: [Diff]
     }
 
 instance ToGVal m Commit where
@@ -118,36 +118,63 @@ With `Diff`s there is a hierarchy:
 - Each diff has 1 or more hunks
 - Each hunk has a number of lines
 -}
-instance ToGVal m Git.Diff where
-    toGVal :: Git.Diff -> GVal m
+data Diff = Diff
+    { diffNewFile :: Git.TreeFilePath
+    , diffOldFile :: Maybe Git.TreeFilePath
+    , diffStatus :: Delta
+    , diffHunks :: [Hunk]
+    }
+
+data Delta
+    = Unmodified
+    | Added
+    | Deleted
+    | Modified
+    | Renamed
+    | Copied
+    | Ignored
+    | Untracked
+    | Typechange
+    deriving stock (Eq, Ord, Enum, Show)
+
+type HunkHeader = ByteString
+type DiffLine = ByteString
+
+data Hunk = Hunk
+    { hunkHeader :: HunkHeader
+    , hunkLines :: [DiffLine]
+    }
+
+instance ToGVal m Diff where
+    toGVal :: Diff -> GVal m
     toGVal diff =
         def
-            { asHtml = html . bsToText . Git.diffNewFile $ diff
-            , asText = bsToText . Git.diffNewFile $ diff
+            { asHtml = html . bsToText . diffNewFile $ diff
+            , asText = bsToText . diffNewFile $ diff
             , asLookup = Just . diffAsLookup $ diff
             }
 
-diffAsLookup :: Git.Diff -> Text -> Maybe (GVal m)
+diffAsLookup :: Diff -> Text -> Maybe (GVal m)
 diffAsLookup diff = \case
-    "new_file" -> Just . toGVal . Git.diffNewFile $ diff
-    "old_file" -> toGVal <$> Git.diffOldFile diff
-    "status" -> Just . toGVal . drop 5 . show . Git.diffStatus $ diff
-    "hunks" -> Just . toGVal . Git.diffHunks $ diff
+    "new_file" -> Just . toGVal . diffNewFile $ diff
+    "old_file" -> toGVal <$> diffOldFile diff
+    "status" -> Just . toGVal . show . diffStatus $ diff
+    "hunks" -> Just . toGVal . diffHunks $ diff
     _ -> Nothing
 
-instance ToGVal m Git.Hunk where
-    toGVal :: Git.Hunk -> GVal m
+instance ToGVal m Hunk where
+    toGVal :: Hunk -> GVal m
     toGVal hunk =
         def
-            { asHtml = html . bsToText . Git.hunkHeader $ hunk
-            , asText = bsToText . Git.hunkHeader $ hunk
+            { asHtml = html . bsToText . hunkHeader $ hunk
+            , asText = bsToText . hunkHeader $ hunk
             , asLookup = Just . hunkAsLookup $ hunk
             }
 
-hunkAsLookup :: Git.Hunk -> Text -> Maybe (GVal m)
+hunkAsLookup :: Hunk -> Text -> Maybe (GVal m)
 hunkAsLookup hunk = \case
-    "lines" -> Just . toGVal . fmap makeLine . Git.hunkLines $ hunk
-    "header" -> Just . toGVal . bsToText . Git.hunkHeader $ hunk
+    "lines" -> Just . toGVal . fmap makeLine . hunkLines $ hunk
+    "header" -> Just . toGVal . bsToText . hunkHeader $ hunk
     _ -> Nothing
 
 {-
@@ -160,7 +187,7 @@ data Line = Line
     , lineClass :: String
     }
 
-makeLine :: Git.DiffLine -> Line
+makeLine :: DiffLine -> Line
 makeLine line = Line text (cls . T.head $ text)
   where
     text = bsToText line
