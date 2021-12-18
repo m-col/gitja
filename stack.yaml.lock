@@ -27,7 +27,7 @@ packages:
     hackage: ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
 snapshots:
 - completed:
-    size: 586296
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/18.yaml
-    sha256: 63539429076b7ebbab6daa7656cfb079393bf644971156dc349d7c0453694ac2
-  original: lts-18.18
+    size: 609534
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/12/8.yaml
+    sha256: 4cdabfc8979b965a4d937356f316ae38d817a7a3fcbd35e1b125d73fb7045186
+  original: nightly-2021-12-08
