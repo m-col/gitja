@@ -1,1 +1,8 @@
-packages: ., gitlib/gitlib, gitlib/gitlib-libgit2
+packages: .
+
+
+source-repository-package
+    type: git
+    location: https://github.com/m-col/gitlib
+    tag: 7166ed78aa59734999fbc4bf92404d404756a9f9
+    subdir: gitlib gitlib-libgit2
