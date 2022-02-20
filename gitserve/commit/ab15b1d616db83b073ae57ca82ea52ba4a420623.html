@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,30 @@
 <b>Committed:</b> 2021-11-28 16:02:14 +0000
 
 add CI step to deplay to gh-pages branch
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>.github/workflows/ci.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -36,6 +36,13 @@
+
+
+  <pre><span class="def">       run: |
+</span><span class="def">         bash test/test.sh
+</span><span class="def"> 
+</span><span class="sub">-    - name: Test docs generation
+</span><span class="add">+    - name: Generate docs
+</span><span class="def">       run: |
+</span><span class="sub">-        stack run -- -c ./config.dhall
+</span><span class="add">+        stack run -- -c ./config.dhall -q
+</span><span class="add">+
+</span><span class="add">+    - name: Deploy docs
+</span><span class="add">+      if: github.event_name == &apos;push&apos;
+</span><span class="add">+      uses: JamesIves/github-pages-deploy-action@4.1.7
+</span><span class="add">+      with:
+</span><span class="add">+        branch: gh-pages
+</span><span class="add">+        folder: output
+</span></pre></div>    </div>
   </body>
 </html>

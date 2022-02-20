@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,50 @@
 print -&gt; putStrLn
 
 The latter doesn&apos;t add unnecessary quotation marks
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -108,7 +108,7 @@
+
+
+  <pre><span class="def">     parseGingerFile includeResolver path &gt;&gt;= \case
+</span><span class="def">         Right parsed -&gt; return . Just . Template path $ parsed
+</span><span class="def">         Left err -&gt; do
+</span><span class="sub">-            print . peErrorMessage $ err
+</span><span class="add">+            putStrLn . peErrorMessage $ err
+</span><span class="def">             return Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -72,7 +72,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; do
+</span><span class="sub">-            liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="add">+            liftIO . putStrLn $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">             return repo
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="def">             let gitHead = Tagged commitID
+</span></pre>@@ -243,6 +243,6 @@
+
+
+  <pre><span class="def">     let output&apos; = output &lt;/&gt; category target &lt;/&gt; identify target
+</span><span class="def">     exists &lt;- liftIO . doesFileExist $ output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="sub">-        liftIO $ putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;
+</span><span class="add">+        liftIO . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;
+</span><span class="def">         let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
+</span><span class="def">         generate output&apos; scope&apos; template
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -48,7 +48,89 @@ a tree entry listing that is a directory) be represented as a list of
 more tree entries. Recursive properties should work as expected.
 
 Closes #5
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -60,7 +60,7 @@
+
+
+  <pre><span class="def">     , treeFileMode :: TreeEntryMode
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="sub">-data TreeFileContents = FileContents Text | FolderContents [TreeFilePath]
+</span><span class="add">+data TreeFileContents = FileContents Text | FolderContents [TreeFile]
+</span><span class="def"> 
+</span><span class="def"> data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
+</span><span class="def">     deriving stock (Show)
+</span></pre>@@ -109,11 +109,11 @@
+
+
+  <pre><span class="def"> instance ToGVal m TreeFileContents where
+</span><span class="def">     toGVal :: TreeFileContents -&gt; GVal m
+</span><span class="def">     toGVal (FileContents text) = toGVal text
+</span><span class="sub">-    toGVal (FolderContents filePaths) =
+</span><span class="add">+    toGVal (FolderContents treeFiles) =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . pack . show $ filePaths
+</span><span class="sub">-            , asText = pack . show $ filePaths
+</span><span class="sub">-            , asList = Just . fmap toGVal $ filePaths
+</span><span class="add">+            { asHtml = html . pack . show . fmap (toString . treeFilePath) $ treeFiles
+</span><span class="add">+            , asText = pack . show . fmap (toString . treeFilePath) $ treeFiles
+</span><span class="add">+            , asList = Just . fmap toGVal $ treeFiles
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="def"> treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal m)
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -119,19 +119,28 @@
+
+
+  <pre><span class="def"> loadCommit _ = Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-Collect tree information.
+</span><span class="add">+Collect tree information for the given commit. Recurses on directories to list their
+</span><span class="add">+contents.
+</span><span class="def"> -}
+</span><span class="def"> getTree :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="sub">-getTree commitID = do
+</span><span class="sub">-    entries &lt;- listTreeEntries =&lt;&lt; lookupTree . commitTree =&lt;&lt; lookupCommit commitID
+</span><span class="sub">-    contents &lt;- mapM (getEntryContents . snd) entries
+</span><span class="sub">-    modes &lt;- mapM (getEntryModes . snd) entries
+</span><span class="sub">-    return $ zipWith3 TreeFile (fmap fst entries) contents modes
+</span><span class="sub">-
+</span><span class="sub">-getEntryContents :: TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="sub">-getEntryContents (BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode &lt;$&gt; catBlob oid
+</span><span class="sub">-getEntryContents (TreeEntry oid) = FolderContents . fmap fst &lt;$&gt; (listTreeEntries =&lt;&lt; lookupTree oid)
+</span><span class="sub">-getEntryContents (CommitEntry oid) = return . FileContents . pack . show . untag $ oid
+</span><span class="add">+getTree = getTree&apos; &quot;&quot; . commitTree &lt;=&lt; lookupCommit
+</span><span class="add">+
+</span><span class="add">+getTree&apos; :: TreeFilePath -&gt; TreeOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="add">+getTree&apos; parent toid = do
+</span><span class="add">+    entries &lt;- listTreeEntries =&lt;&lt; lookupTree toid
+</span><span class="add">+    let entries&apos; = fmap (prependParent parent) entries
+</span><span class="add">+    contents &lt;- mapM getEntryContents entries&apos;
+</span><span class="add">+    modes &lt;- mapM (getEntryModes . snd) entries&apos;
+</span><span class="add">+    return $ zipWith3 TreeFile (fmap fst entries&apos;) contents modes
+</span><span class="add">+
+</span><span class="add">+prependParent :: TreeFilePath -&gt; (TreeFilePath, TreeEntry LgRepo) -&gt; (TreeFilePath, TreeEntry LgRepo)
+</span><span class="add">+prependParent &quot;&quot; pathentry = pathentry
+</span><span class="add">+prependParent parent (path, entry) = (mconcat [parent, &quot;/&quot;, path], entry)
+</span><span class="add">+
+</span><span class="add">+getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="add">+getEntryContents (_, BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode &lt;$&gt; catBlob oid
+</span><span class="add">+getEntryContents (path, TreeEntry oid) = FolderContents &lt;$&gt; getTree&apos; path oid
+</span><span class="add">+getEntryContents (_, CommitEntry oid) = return . FileContents . pack . show . untag $ oid
+</span><span class="def"> 
+</span><span class="def"> getEntryModes :: TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeEntryMode
+</span><span class="def"> getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
+</span></pre></div>    </div>
   </body>
 </html>

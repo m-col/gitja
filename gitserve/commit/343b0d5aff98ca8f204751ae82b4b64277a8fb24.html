@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -49,7 +49,1180 @@ Redesign templating logic
 
 Closes #9
 Closes #7
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/tree.html</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,29 +0,0 @@
+
+
+  <pre><span class="sub">-{% extends &quot;template.html.include&quot; %}
+</span><span class="sub">-
+</span><span class="sub">-{%- block title -%}
+</span><span class="sub">-{{ name }} - target
+</span><span class="sub">-{%- endblock -%}
+</span><span class="sub">-
+</span><span class="sub">-{% block body %}
+</span><span class="sub">-{% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="sub">-
+</span><span class="sub">-&lt;div id=&quot;content&quot;&gt;
+</span><span class="sub">-  &lt;table id=&quot;files&quot;&gt;
+</span><span class="sub">-    &lt;thead&gt;
+</span><span class="sub">-      &lt;tr&gt;
+</span><span class="sub">-        &lt;td&gt;&lt;b&gt;Mode&lt;/b&gt;&lt;/td&gt;
+</span><span class="sub">-        &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="sub">-      &lt;/tr&gt;
+</span><span class="sub">-    &lt;/thead&gt;
+</span><span class="sub">-
+</span><span class="sub">-    &lt;tbody&gt;
+</span><span class="sub">-      {% for file in tree %}
+</span><span class="sub">-      &lt;tr&gt;
+</span><span class="sub">-        &lt;td&gt;{{ file.mode_symbolic }}&lt;/td&gt;
+</span><span class="sub">-        &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ file.href }}&quot;&gt;{{ file.path }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="sub">-      &lt;/tr&gt;
+</span><span class="sub">-      {% endfor %}
+</span><span class="sub">-    &lt;/tbody&gt;
+</span><span class="sub">-  &lt;/table&gt;
+</span><span class="sub">-&lt;/div&gt;
+</span><span class="sub">-{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/repo/tree.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,29 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title -%}
+</span><span class="add">+{{ name }} - target
+</span><span class="add">+{%- endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block body %}
+</span><span class="add">+{% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+&lt;div id=&quot;content&quot;&gt;
+</span><span class="add">+  &lt;table id=&quot;files&quot;&gt;
+</span><span class="add">+    &lt;thead&gt;
+</span><span class="add">+      &lt;tr&gt;
+</span><span class="add">+        &lt;td&gt;&lt;b&gt;Mode&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+        &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;/tr&gt;
+</span><span class="add">+    &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="add">+    &lt;tbody&gt;
+</span><span class="add">+      {% for file in tree %}
+</span><span class="add">+      &lt;tr&gt;
+</span><span class="add">+        &lt;td&gt;{{ file.mode_symbolic }}&lt;/td&gt;
+</span><span class="add">+        &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ file.href }}&quot;&gt;{{ file.path }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;/tr&gt;
+</span><span class="add">+      {% endfor %}
+</span><span class="add">+    &lt;/tbody&gt;
+</span><span class="add">+  &lt;/table&gt;
+</span><span class="add">+&lt;/div&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/repo/repo-table-header.html.include</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,24 @@
+
+
+  <pre><span class="add">+{#- This block is rendered at the top of every page. -#}
+</span><span class="add">+
+</span><span class="add">+&lt;table id=&quot;head&quot;&gt;
+</span><span class="add">+  &lt;tr&gt;
+</span><span class="add">+    &lt;td width=&quot;32px&quot; rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;&lt;img src=&quot;{{ host }}/avatar.png&quot; id=&quot;avatar&quot;/&gt;&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;td rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;{{ host }}&lt;/a&gt; / &lt;a href=&quot;{{ host }}&quot;&gt;code&lt;/a&gt; / &lt;a href=&quot;{{ host }}/{{ name }}&quot;&gt;{{ name }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/posts.html&quot;&gt;posts&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+  &lt;/tr&gt;
+</span><span class="add">+  &lt;tr&gt;
+</span><span class="add">+    &lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/about.html&quot;&gt;about&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+  &lt;/tr&gt;
+</span><span class="add">+&lt;/table&gt;
+</span><span class="add">+&lt;hr&gt;
+</span><span class="add">+
+</span><span class="add">+&lt;table&gt;
+</span><span class="add">+  &lt;tr&gt;&lt;td&gt;&lt;span class=&quot;desc&quot;&gt;{{ description }}&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+  &lt;tr class=&quot;url&quot;&gt;&lt;td&gt;git clone &lt;a href=&quot;{{ host }}/{{ name }}&quot;&gt;{{ host }}/{{ name }}&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+  &lt;tr&gt;&lt;td&gt;
+</span><span class="add">+    &lt;a href=&quot;{{ host }}/{{ name }}/tree.html&quot;&gt;Files&lt;/a&gt; | &lt;a href=&quot;{{ host }}/{{ name }}/refs.html&quot;&gt;Refs&lt;/a&gt;
+</span><span class="add">+    {% if readme %} | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ readme.href }}&quot;&gt;Readme&lt;/a&gt;{% endif %}
+</span><span class="add">+    {% if license %} | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ license.href }}&quot;&gt;License&lt;/a&gt;{% endif %}
+</span><span class="add">+  &lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+&lt;/table&gt;
+</span><span class="add">+&lt;hr&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/repo/refs.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,37 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title -%}
+</span><span class="add">+{{ name }} - Refs
+</span><span class="add">+{%- endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block body %}
+</span><span class="add">+{% include  &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+&lt;div id=&quot;content&quot;&gt;
+</span><span class="add">+  &lt;h2&gt;Branches&lt;/h2&gt;
+</span><span class="add">+  &lt;table id=&quot;branches&quot;&gt;
+</span><span class="add">+    &lt;thead&gt;
+</span><span class="add">+      &lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+    &lt;/thead&gt;
+</span><span class="add">+    &lt;tbody&gt;
+</span><span class="add">+      {% for branch in branches %}
+</span><span class="add">+      &lt;tr&gt;&lt;td&gt;{{ branch.name }}&lt;/td&gt;&lt;td&gt;{{ branch.authored[:16] }}&lt;/td&gt;&lt;td&gt;{{ branch.title }}&lt;/td&gt;&lt;td&gt;{{ branch.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+      {% endfor %}
+</span><span class="add">+    &lt;/tbody&gt;
+</span><span class="add">+  &lt;/table&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;br&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;h2&gt;Tags&lt;/h2&gt;
+</span><span class="add">+  &lt;table id=&quot;tags&quot;&gt;
+</span><span class="add">+    &lt;thead&gt;
+</span><span class="add">+      &lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+    &lt;/thead&gt;
+</span><span class="add">+    &lt;tbody&gt;
+</span><span class="add">+      {% for tag in tags %}
+</span><span class="add">+      &lt;tr&gt;&lt;td&gt;{{ tag.name }}&lt;/td&gt;&lt;td&gt;{{ tag.authored[:16] }}&lt;/td&gt;&lt;td&gt;{{ tag.title }}&lt;/td&gt;&lt;td&gt;{{ tag.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+      {% endfor %}
+</span><span class="add">+    &lt;/tbody&gt;
+</span><span class="add">+  &lt;/table&gt;
+</span><span class="add">+&lt;/div&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/repo/index.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,27 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title -%}
+</span><span class="add">+{{ description }}
+</span><span class="add">+{%- endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block body %}
+</span><span class="add">+{% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+&lt;div id=&quot;content&quot;&gt;
+</span><span class="add">+  &lt;table id=&quot;log&quot;&gt;
+</span><span class="add">+    &lt;thead&gt;
+</span><span class="add">+      &lt;tr&gt;
+</span><span class="add">+        &lt;td&gt;&lt;b&gt;Date&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+        &lt;td&gt;&lt;b&gt;Commit message&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+        &lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;/tr&gt;
+</span><span class="add">+    &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="add">+    &lt;tbody&gt;
+</span><span class="add">+      {% for commit in commits[:50] %}
+</span><span class="add">+      &lt;tr&gt;&lt;td&gt;{{ commit.authored[:16] }}&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;commit/{{ commit.id }}.html&quot;&gt;{{ commit.title }}&lt;/a&gt;&lt;/td&gt;&lt;td&gt;{{ commit.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+      {% endfor %}
+</span><span class="add">+    &lt;/tbody&gt;
+</span><span class="add">+  &lt;/table&gt;
+</span><span class="add">+&lt;/div&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/repo/file.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,39 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title -%}
+</span><span class="add">+{{ name }} - {{ file }}
+</span><span class="add">+{%- endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block body %}
+</span><span class="add">+{% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+&lt;div id=&quot;content&quot;&gt;
+</span><span class="add">+  &lt;p&gt;{{ file.mode_symbolic }} {{ file }}&lt;/p&gt;&lt;hr&gt;
+</span><span class="add">+
+</span><span class="add">+{% if file.is_directory %}
+</span><span class="add">+  &lt;table id=&quot;files&quot;&gt;
+</span><span class="add">+    &lt;thead&gt;
+</span><span class="add">+      &lt;tr&gt;
+</span><span class="add">+        &lt;td&gt;&lt;b&gt;Mode&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+        &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;/tr&gt;
+</span><span class="add">+    &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="add">+    &lt;tbody&gt;
+</span><span class="add">+      {% for child in file.contents %}
+</span><span class="add">+      &lt;tr&gt;
+</span><span class="add">+        &lt;td&gt;{{ child.mode_symbolic }}&lt;/td&gt;
+</span><span class="add">+        &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ child.href }}&quot;&gt;{{ child.path }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;/tr&gt;
+</span><span class="add">+      {% endfor %}
+</span><span class="add">+    &lt;/tbody&gt;
+</span><span class="add">+  &lt;/table&gt;
+</span><span class="add">+{% else %}
+</span><span class="add">+  &lt;pre id=&quot;blob&quot;&gt;
+</span><span class="add">+{% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="add">+&lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%7v&quot;, loop.index) }}&lt;/a&gt; {{ line }}
+</span><span class="add">+{% endfor %}
+</span><span class="add">+{% endif %}
+</span><span class="add">+  &lt;/pre&gt;
+</span><span class="add">+&lt;/div&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/repo/commit.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,21 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title -%}
+</span><span class="add">+{{ name }} - {{ commit.title }}
+</span><span class="add">+{%- endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block body %}
+</span><span class="add">+{% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+&lt;div id=&quot;content&quot;&gt;
+</span><span class="add">+  &lt;pre&gt;&lt;b&gt;Commit&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.id }}&lt;/a&gt;
+</span><span class="add">+&lt;b&gt;Parent:&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.parent }}.html&quot;&gt;{{ commit.parent }}&lt;/a&gt;
+</span><span class="add">+&lt;b&gt;Author:&lt;/b&gt; {{ commit.author }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.author_email }}&quot;&gt;{{ commit.author_email }}&lt;/a&gt;&amp;gt;
+</span><span class="add">+&lt;b&gt;Date:&lt;/b&gt; {{ commit.authored }}
+</span><span class="add">+&lt;b&gt;Committer:&lt;/b&gt; {{ commit.committer }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.committer_email }}&quot;&gt;{{ commit.committer_email }}&lt;/a&gt;&amp;gt;
+</span><span class="add">+&lt;b&gt;Committed:&lt;/b&gt; {{ commit.committed }}
+</span><span class="add">+
+</span><span class="add">+{{ commit.message }}
+</span><span class="add">+&lt;/pre&gt;
+</span><span class="add">+&lt;/div&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/repo-table-header.html.include</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,24 +0,0 @@
+
+
+  <pre><span class="sub">-{#- This block is rendered at the top of every page. -#}
+</span><span class="sub">-
+</span><span class="sub">-&lt;table id=&quot;head&quot;&gt;
+</span><span class="sub">-  &lt;tr&gt;
+</span><span class="sub">-    &lt;td width=&quot;32px&quot; rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;&lt;img src=&quot;{{ host }}/avatar.png&quot; id=&quot;avatar&quot;/&gt;&lt;/a&gt;&lt;/td&gt;
+</span><span class="sub">-    &lt;td rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;{{ host }}&lt;/a&gt; / &lt;a href=&quot;{{ host }}&quot;&gt;code&lt;/a&gt; / &lt;a href=&quot;{{ host }}/{{ name }}&quot;&gt;{{ name }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="sub">-    &lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/posts.html&quot;&gt;posts&lt;/a&gt;&lt;/td&gt;
+</span><span class="sub">-  &lt;/tr&gt;
+</span><span class="sub">-  &lt;tr&gt;
+</span><span class="sub">-    &lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/about.html&quot;&gt;about&lt;/a&gt;&lt;/td&gt;
+</span><span class="sub">-  &lt;/tr&gt;
+</span><span class="sub">-&lt;/table&gt;
+</span><span class="sub">-&lt;hr&gt;
+</span><span class="sub">-
+</span><span class="sub">-&lt;table&gt;
+</span><span class="sub">-  &lt;tr&gt;&lt;td&gt;&lt;span class=&quot;desc&quot;&gt;{{ description }}&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-  &lt;tr class=&quot;url&quot;&gt;&lt;td&gt;git clone &lt;a href=&quot;{{ host }}/{{ name }}&quot;&gt;{{ host }}/{{ name }}&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-  &lt;tr&gt;&lt;td&gt;
+</span><span class="sub">-    &lt;a href=&quot;{{ host }}/{{ name }}/tree.html&quot;&gt;Files&lt;/a&gt; | &lt;a href=&quot;{{ host }}/{{ name }}/refs.html&quot;&gt;Refs&lt;/a&gt;
+</span><span class="sub">-    {% if readme %} | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ readme.href }}&quot;&gt;Readme&lt;/a&gt;{% endif %}
+</span><span class="sub">-    {% if license %} | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ license.href }}&quot;&gt;License&lt;/a&gt;{% endif %}
+</span><span class="sub">-  &lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-&lt;/table&gt;
+</span><span class="sub">-&lt;hr&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/refs.html</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,37 +0,0 @@
+
+
+  <pre><span class="sub">-{% extends &quot;template.html.include&quot; %}
+</span><span class="sub">-
+</span><span class="sub">-{%- block title -%}
+</span><span class="sub">-{{ name }} - Refs
+</span><span class="sub">-{%- endblock -%}
+</span><span class="sub">-
+</span><span class="sub">-{% block body %}
+</span><span class="sub">-{% include  &quot;repo-table-header.html.include&quot; %}
+</span><span class="sub">-
+</span><span class="sub">-&lt;div id=&quot;content&quot;&gt;
+</span><span class="sub">-  &lt;h2&gt;Branches&lt;/h2&gt;
+</span><span class="sub">-  &lt;table id=&quot;branches&quot;&gt;
+</span><span class="sub">-    &lt;thead&gt;
+</span><span class="sub">-      &lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-    &lt;/thead&gt;
+</span><span class="sub">-    &lt;tbody&gt;
+</span><span class="sub">-      {% for branch in branches %}
+</span><span class="sub">-      &lt;tr&gt;&lt;td&gt;{{ branch.name }}&lt;/td&gt;&lt;td&gt;{{ branch.authored[:16] }}&lt;/td&gt;&lt;td&gt;{{ branch.title }}&lt;/td&gt;&lt;td&gt;{{ branch.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-      {% endfor %}
+</span><span class="sub">-    &lt;/tbody&gt;
+</span><span class="sub">-  &lt;/table&gt;
+</span><span class="sub">-
+</span><span class="sub">-  &lt;br&gt;
+</span><span class="sub">-
+</span><span class="sub">-  &lt;h2&gt;Tags&lt;/h2&gt;
+</span><span class="sub">-  &lt;table id=&quot;tags&quot;&gt;
+</span><span class="sub">-    &lt;thead&gt;
+</span><span class="sub">-      &lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-    &lt;/thead&gt;
+</span><span class="sub">-    &lt;tbody&gt;
+</span><span class="sub">-      {% for tag in tags %}
+</span><span class="sub">-      &lt;tr&gt;&lt;td&gt;{{ tag.name }}&lt;/td&gt;&lt;td&gt;{{ tag.authored[:16] }}&lt;/td&gt;&lt;td&gt;{{ tag.title }}&lt;/td&gt;&lt;td&gt;{{ tag.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-      {% endfor %}
+</span><span class="sub">-    &lt;/tbody&gt;
+</span><span class="sub">-  &lt;/table&gt;
+</span><span class="sub">-&lt;/div&gt;
+</span><span class="sub">-{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/index.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,25 +1,26 @@
+
+
+  <pre><span class="def"> {% extends &quot;template.html.include&quot; %}
+</span><span class="def"> 
+</span><span class="def"> {%- block title -%}
+</span><span class="sub">-{{ description }}
+</span><span class="add">+gitserve - Index
+</span><span class="def"> {%- endblock -%}
+</span><span class="def"> 
+</span><span class="def"> {% block body %}
+</span><span class="sub">-{% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+&lt;table id=&quot;head&quot;&gt;
+</span><span class="add">+  &lt;tr&gt;&lt;td width=&quot;32px&quot; rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;&lt;img src=&quot;{{ host }}/avatar.png&quot; id=&quot;avatar&quot;/&gt;&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;td rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;{{ host }}&lt;/a&gt; / &lt;a href=&quot;{{ host }}&quot;&gt;code&lt;/a&gt;&lt;/td&gt;&lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/posts.html&quot;&gt;posts&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/about.html&quot;&gt;about&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+&lt;/table&gt;
+</span><span class="add">+
+</span><span class="add">+&lt;hr&gt;
+</span><span class="def"> 
+</span><span class="def"> &lt;div id=&quot;content&quot;&gt;
+</span><span class="sub">-  &lt;table id=&quot;log&quot;&gt;
+</span><span class="add">+  &lt;table id=&quot;index&quot;&gt;
+</span><span class="def">     &lt;thead&gt;
+</span><span class="sub">-      &lt;tr&gt;
+</span><span class="sub">-        &lt;td&gt;&lt;b&gt;Date&lt;/b&gt;&lt;/td&gt;
+</span><span class="sub">-        &lt;td&gt;&lt;b&gt;Commit message&lt;/b&gt;&lt;/td&gt;
+</span><span class="sub">-        &lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;
+</span><span class="sub">-      &lt;/tr&gt;
+</span><span class="add">+      &lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Description&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="def">     &lt;/thead&gt;
+</span><span class="def"> 
+</span><span class="def">     &lt;tbody&gt;
+</span><span class="sub">-      {% for commit in commits[:50] %}
+</span><span class="sub">-      &lt;tr&gt;&lt;td&gt;{{ commit.authored[:16] }}&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;commit/{{ commit.id }}.html&quot;&gt;{{ commit.title }}&lt;/a&gt;&lt;/td&gt;&lt;td&gt;{{ commit.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+      {% for repo in repositories %}
+</span><span class="add">+      &lt;tr&gt;&lt;td&gt;&lt;a href=&quot;{{ repo.name }}&quot;&gt;{{ repo.name }}&lt;/a&gt;&lt;/td&gt;&lt;td&gt;{{ repo.description }}&lt;/td&gt;&lt;td&gt;{{ repo.updated[:16] }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="def">       {% endfor %}
+</span><span class="def">     &lt;/tbody&gt;
+</span><span class="def">   &lt;/table&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/index-main.html</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,28 +0,0 @@
+
+
+  <pre><span class="sub">-{% extends &quot;template.html.include&quot; %}
+</span><span class="sub">-
+</span><span class="sub">-{%- block title -%}
+</span><span class="sub">-gitserve - Index
+</span><span class="sub">-{%- endblock -%}
+</span><span class="sub">-
+</span><span class="sub">-{% block body %}
+</span><span class="sub">-&lt;table id=&quot;head&quot;&gt;
+</span><span class="sub">-  &lt;tr&gt;&lt;td width=&quot;32px&quot; rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;&lt;img src=&quot;{{ host }}/avatar.png&quot; id=&quot;avatar&quot;/&gt;&lt;/a&gt;&lt;/td&gt;
+</span><span class="sub">-    &lt;td rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;{{ host }}&lt;/a&gt; / &lt;a href=&quot;{{ host }}&quot;&gt;code&lt;/a&gt;&lt;/td&gt;&lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/posts.html&quot;&gt;posts&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/about.html&quot;&gt;about&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-&lt;/table&gt;
+</span><span class="sub">-
+</span><span class="sub">-&lt;hr&gt;
+</span><span class="sub">-
+</span><span class="sub">-&lt;div id=&quot;content&quot;&gt;
+</span><span class="sub">-  &lt;table id=&quot;index&quot;&gt;
+</span><span class="sub">-    &lt;thead&gt;
+</span><span class="sub">-      &lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Description&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-    &lt;/thead&gt;
+</span><span class="sub">-
+</span><span class="sub">-    &lt;tbody&gt;
+</span><span class="sub">-      {% for repo in repositories %}
+</span><span class="sub">-      &lt;tr&gt;&lt;td&gt;&lt;a href=&quot;{{ repo.name }}&quot;&gt;{{ repo.name }}&lt;/a&gt;&lt;/td&gt;&lt;td&gt;{{ repo.description }}&lt;/td&gt;&lt;td&gt;{{ repo.updated[:16] }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-      {% endfor %}
+</span><span class="sub">-    &lt;/tbody&gt;
+</span><span class="sub">-  &lt;/table&gt;
+</span><span class="sub">-&lt;/div&gt;
+</span><span class="sub">-{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/file.html</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,39 +0,0 @@
+
+
+  <pre><span class="sub">-{% extends &quot;template.html.include&quot; %}
+</span><span class="sub">-
+</span><span class="sub">-{%- block title -%}
+</span><span class="sub">-{{ name }} - {{ file }}
+</span><span class="sub">-{%- endblock -%}
+</span><span class="sub">-
+</span><span class="sub">-{% block body %}
+</span><span class="sub">-{% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="sub">-
+</span><span class="sub">-&lt;div id=&quot;content&quot;&gt;
+</span><span class="sub">-  &lt;p&gt;{{ file.mode_symbolic }} {{ file }}&lt;/p&gt;&lt;hr&gt;
+</span><span class="sub">-
+</span><span class="sub">-{% if file.is_directory %}
+</span><span class="sub">-  &lt;table id=&quot;files&quot;&gt;
+</span><span class="sub">-    &lt;thead&gt;
+</span><span class="sub">-      &lt;tr&gt;
+</span><span class="sub">-        &lt;td&gt;&lt;b&gt;Mode&lt;/b&gt;&lt;/td&gt;
+</span><span class="sub">-        &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="sub">-      &lt;/tr&gt;
+</span><span class="sub">-    &lt;/thead&gt;
+</span><span class="sub">-
+</span><span class="sub">-    &lt;tbody&gt;
+</span><span class="sub">-      {% for child in file.contents %}
+</span><span class="sub">-      &lt;tr&gt;
+</span><span class="sub">-        &lt;td&gt;{{ child.mode_symbolic }}&lt;/td&gt;
+</span><span class="sub">-        &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ child.href }}&quot;&gt;{{ child.path }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="sub">-      &lt;/tr&gt;
+</span><span class="sub">-      {% endfor %}
+</span><span class="sub">-    &lt;/tbody&gt;
+</span><span class="sub">-  &lt;/table&gt;
+</span><span class="sub">-{% else %}
+</span><span class="sub">-  &lt;pre id=&quot;blob&quot;&gt;
+</span><span class="sub">-{% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="sub">-&lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%7v&quot;, loop.index) }}&lt;/a&gt; {{ line }}
+</span><span class="sub">-{% endfor %}
+</span><span class="sub">-{% endif %}
+</span><span class="sub">-  &lt;/pre&gt;
+</span><span class="sub">-&lt;/div&gt;
+</span><span class="sub">-{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/commit.html</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,21 +0,0 @@
+
+
+  <pre><span class="sub">-{% extends &quot;template.html.include&quot; %}
+</span><span class="sub">-
+</span><span class="sub">-{%- block title -%}
+</span><span class="sub">-{{ name }} - {{ commit.title }}
+</span><span class="sub">-{%- endblock -%}
+</span><span class="sub">-
+</span><span class="sub">-{% block body %}
+</span><span class="sub">-{% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="sub">-
+</span><span class="sub">-&lt;div id=&quot;content&quot;&gt;
+</span><span class="sub">-  &lt;pre&gt;&lt;b&gt;Commit&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.id }}&lt;/a&gt;
+</span><span class="sub">-&lt;b&gt;Parent:&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.parent }}.html&quot;&gt;{{ commit.parent }}&lt;/a&gt;
+</span><span class="sub">-&lt;b&gt;Author:&lt;/b&gt; {{ commit.author }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.author_email }}&quot;&gt;{{ commit.author_email }}&lt;/a&gt;&amp;gt;
+</span><span class="sub">-&lt;b&gt;Date:&lt;/b&gt; {{ commit.authored }}
+</span><span class="sub">-&lt;b&gt;Committer:&lt;/b&gt; {{ commit.committer }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.committer_email }}&quot;&gt;{{ commit.committer_email }}&lt;/a&gt;&amp;gt;
+</span><span class="sub">-&lt;b&gt;Committed:&lt;/b&gt; {{ commit.committed }}
+</span><span class="sub">-
+</span><span class="sub">-{{ commit.message }}
+</span><span class="sub">-&lt;/pre&gt;
+</span><span class="sub">-&lt;/div&gt;
+</span><span class="sub">-{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -21,7 +21,7 @@
+
+
+  <pre><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (LgRepo)
+</span><span class="sub">-import System.FilePath (takeFileName)
+</span><span class="add">+import Path (Abs, Dir, Path, dirname, toFilePath)
+</span><span class="def"> import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
+</span><span class="def"> import Text.Ginger.Html (Html, html)
+</span><span class="def"> import Text.Ginger.Parse (SourcePos)
+</span></pre>@@ -37,23 +37,27 @@
+
+
+  <pre><span class="def"> as well as in a list of all repositories in the index template.
+</span><span class="def"> -}
+</span><span class="def"> data Repo = Repo
+</span><span class="sub">-    { repositoryPath :: FilePath
+</span><span class="add">+    { repositoryPath :: Path Abs Dir
+</span><span class="def">     , repositoryDescription :: Text
+</span><span class="def">     , repositoryHead :: Maybe (Commit LgRepo)
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="add">+instance ToGVal m (Path b t) where
+</span><span class="add">+    toGVal :: Path b t -&gt; GVal m
+</span><span class="add">+    toGVal = toGVal . toFilePath
+</span><span class="add">+
+</span><span class="def"> instance ToGVal m Repo where
+</span><span class="def">     toGVal :: Repo -&gt; GVal m
+</span><span class="def">     toGVal repo =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . pack . show . takeFileName . repositoryPath $ repo
+</span><span class="sub">-            , asText = pack . show . takeFileName . repositoryPath $ repo
+</span><span class="add">+            { asHtml = html . pack . show . dirname . repositoryPath $ repo
+</span><span class="add">+            , asText = pack . show . dirname . repositoryPath $ repo
+</span><span class="def">             , asLookup = Just . repoAsLookup $ repo
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="def"> repoAsLookup :: Repo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> repoAsLookup repo = \case
+</span><span class="sub">-    &quot;name&quot; -&gt; Just . toGVal . takeFileName . repositoryPath $ repo
+</span><span class="add">+    &quot;name&quot; -&gt; Just . toGVal . dirname . repositoryPath $ repo
+</span><span class="def">     &quot;description&quot; -&gt; Just . toGVal . repositoryDescription $ repo
+</span><span class="def">     &quot;head&quot; -&gt; Just . toGVal . repositoryHead $ repo
+</span><span class="def">     &quot;updated&quot; -&gt; toGVal . show . signatureWhen . commitCommitter &lt;$&gt; repositoryHead repo
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,36 +1,25 @@
+
+
+  <pre><span class="def"> {-# LANGUAGE LambdaCase #-}
+</span><span class="add">+{-# LANGUAGE OverloadedStrings #-}
+</span><span class="def"> 
+</span><span class="def"> module Templates (
+</span><span class="sub">-    -- The Env data type and its constructors.
+</span><span class="sub">-    Env,
+</span><span class="sub">-    envConfig,
+</span><span class="sub">-    envTemplates,
+</span><span class="sub">-    envIndexTemplate,
+</span><span class="sub">-    envCommitTemplate,
+</span><span class="sub">-    envFileTemplate,
+</span><span class="sub">-    envForce,
+</span><span class="sub">-    -- The Template data type and its constructors.
+</span><span class="sub">-    Template,
+</span><span class="sub">-    templatePath,
+</span><span class="sub">-    templateGinger,
+</span><span class="sub">-    -- The entrypoint used by main.
+</span><span class="sub">-    loadTemplates,
+</span><span class="sub">-    -- The core functionality for which templates are used.
+</span><span class="add">+    Env (..),
+</span><span class="add">+    Template (..),
+</span><span class="add">+    loadEnv,
+</span><span class="def">     generate,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="sub">-import Control.Monad (void, (&lt;=&lt;))
+</span><span class="add">+import Control.Monad (join, void, (&lt;=&lt;))
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="sub">-import Data.Char (toLower)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="sub">-import Data.List (isSuffixOf)
+</span><span class="add">+import Data.List (find)
+</span><span class="def"> import Data.Maybe (catMaybes)
+</span><span class="def"> import Data.Text (Text, unpack)
+</span><span class="def"> import Git.Libgit2 (LgRepo)
+</span><span class="sub">-import Path (Abs, Dir, File, Path, dirname, filename, parseAbsDir, toFilePath, (&lt;/&gt;))
+</span><span class="sub">-import Path.IO (copyDirRecur, copyFile, ensureDir, listDir)
+</span><span class="sub">-import System.Directory (makeAbsolute)
+</span><span class="add">+import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (&lt;/&gt;))
+</span><span class="add">+import Path.IO (copyDirRecur, copyFile, doesDirExist, ensureDir, listDir)
+</span><span class="add">+import System.Directory (canonicalizePath)
+</span><span class="add">+import qualified System.FilePath as FP
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import Text.Ginger.GVal (GVal)
+</span></pre>@@ -38,7 +27,7 @@
+
+
+  <pre><span class="def"> import Text.Ginger.Parse (ParserError (..), SourcePos, parseGingerFile)
+</span><span class="def"> import Text.Ginger.Run (easyContext, runGingerT)
+</span><span class="def"> 
+</span><span class="sub">-import Config
+</span><span class="add">+import Config (Config (..))
+</span><span class="def"> import Types
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -47,136 +36,116 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> data Env = Env
+</span><span class="def">     { envConfig :: Config
+</span><span class="sub">-    , envTemplates :: [Template]
+</span><span class="sub">-    , envIndexTemplate :: Maybe Template
+</span><span class="add">+    , envIndexTemplates :: [Template]
+</span><span class="def">     , envCommitTemplate :: Maybe Template
+</span><span class="def">     , envFileTemplate :: Maybe Template
+</span><span class="add">+    , envRepoTemplates :: [Template]
+</span><span class="add">+    , envOutputDirectory :: Path Abs Dir
+</span><span class="add">+    , envRepoPaths :: [Path Abs Dir]
+</span><span class="add">+    , envHost :: Text
+</span><span class="def">     , envForce :: Bool
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> data Template = Template
+</span><span class="sub">-    { templatePath :: FilePath
+</span><span class="add">+    { templatePath :: Path Rel File
+</span><span class="def">     , templateGinger :: G.Template SourcePos
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This creates the runtime environment, collecting the config and loading template data
+</span><span class="sub">-from file.
+</span><span class="add">+from the template directory.
+</span><span class="def"> -}
+</span><span class="sub">-loadTemplates :: Bool -&gt; Config -&gt; IO Env
+</span><span class="sub">-loadTemplates force config = do
+</span><span class="add">+loadEnv :: Bool -&gt; Config -&gt; IO Env
+</span><span class="add">+loadEnv force config = do
+</span><span class="add">+    -- First ensure that the output directory exists
+</span><span class="add">+    output &lt;- parseAbsDir &lt;=&lt; canonicalizePath . outputDirectory $ config
+</span><span class="add">+    ensureDir output
+</span><span class="add">+
+</span><span class="add">+    -- Parse repos for env
+</span><span class="add">+    repoPaths&apos; &lt;- mapM (parseAbsDir &lt;=&lt; canonicalizePath) . repoPaths $ config
+</span><span class="add">+
+</span><span class="add">+    -- Find template files, copying the static files as is
+</span><span class="add">+    (dirs, files) &lt;- ls . templateDirectory $ config
+</span><span class="add">+    (_, filesRepo) &lt;- ls $ templateDirectory config FP.&lt;/&gt; &quot;repo&quot;
+</span><span class="add">+    copyStaticDirs output dirs
+</span><span class="add">+    copyStaticFiles output files
+</span><span class="add">+
+</span><span class="def">     -- Load files from template directory
+</span><span class="sub">-    templateFiles &lt;- getFiles config
+</span><span class="sub">-    templates &lt;- mapM loadTemplate (fmap toFilePath templateFiles)
+</span><span class="sub">-    -- Scoped templates
+</span><span class="sub">-    indexT &lt;- loadTemplate . indexTemplate $ config
+</span><span class="sub">-    commitT &lt;- loadTemplate . commitTemplate $ config
+</span><span class="sub">-    fileT &lt;- loadTemplate . fileTemplate $ config
+</span><span class="add">+    indexT &lt;- collectTemplates files
+</span><span class="add">+    commitT &lt;- fmap join . mapM loadTemplate . find ((==) &quot;commit.html&quot; . toFilePath . filename) $ filesRepo
+</span><span class="add">+    fileT &lt;- fmap join . mapM loadTemplate . find ((==) &quot;file.html&quot; . toFilePath . filename) $ filesRepo
+</span><span class="add">+    repoT &lt;- collectTemplates . filter (flip notElem [&quot;commit.html&quot;, &quot;file.html&quot;] . toFilePath . filename) $ filesRepo
+</span><span class="add">+
+</span><span class="def">     -- Global environment
+</span><span class="def">     return
+</span><span class="def">         Env
+</span><span class="def">             { envConfig = config
+</span><span class="sub">-            , envTemplates = catMaybes templates
+</span><span class="sub">-            , envIndexTemplate = indexT
+</span><span class="add">+            , envIndexTemplates = indexT
+</span><span class="def">             , envCommitTemplate = commitT
+</span><span class="def">             , envFileTemplate = fileT
+</span><span class="add">+            , envRepoTemplates = repoT
+</span><span class="add">+            , envOutputDirectory = output
+</span><span class="add">+            , envRepoPaths = repoPaths&apos;
+</span><span class="add">+            , envHost = host config
+</span><span class="def">             , envForce = force
+</span><span class="def">             }
+</span><span class="add">+  where
+</span><span class="add">+    collectTemplates :: [Path Abs File] -&gt; IO [Template]
+</span><span class="add">+    collectTemplates = fmap catMaybes . mapM loadTemplate . filter ((==) &quot;.html&quot; . FP.takeExtension . toFilePath)
+</span><span class="add">+
+</span><span class="add">+    ls :: FilePath -&gt; IO ([Path Abs Dir], [Path Abs File])
+</span><span class="add">+    ls dir = do
+</span><span class="add">+        canon &lt;- parseAbsDir =&lt;&lt; canonicalizePath dir
+</span><span class="add">+        exists &lt;- doesDirExist canon
+</span><span class="add">+        if exists
+</span><span class="add">+            then listDir canon
+</span><span class="add">+            else return ([], [])
+</span><span class="add">+
+</span><span class="add">+    copyStaticDirs :: Path Abs Dir -&gt; [Path Abs Dir] -&gt; IO ()
+</span><span class="add">+    copyStaticDirs output = mapM_ (\p -&gt; copyDirRecur p (output &lt;/&gt; dirname p)) . filterStaticDirs
+</span><span class="add">+    filterStaticDirs = filter ((/=) &quot;repo&quot; . toFilePath)
+</span><span class="add">+
+</span><span class="add">+    copyStaticFiles :: Path Abs Dir -&gt; [Path Abs File] -&gt; IO ()
+</span><span class="add">+    copyStaticFiles output = mapM_ (\p -&gt; copyFile p (output &lt;/&gt; filename p)) . filterStaticFiles
+</span><span class="add">+    filterStaticFiles = filter (flip notElem [&quot;.html&quot;, &quot;.include&quot;] . FP.takeExtension . toFilePath)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the generator function that receives repository-specific variables and uses
+</span><span class="def"> Ginger to render templates using them.
+</span><span class="def"> -}
+</span><span class="def"> generate ::
+</span><span class="sub">-    FilePath -&gt;
+</span><span class="add">+    Path Abs File -&gt;
+</span><span class="def">     HashMap.HashMap Text (GVal RunRepo) -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="def">     ReaderT LgRepo IO ()
+</span><span class="def"> generate output context template = do
+</span><span class="sub">-    liftIO $ writeFile output &quot;&quot; -- Clear contents of file if it exists
+</span><span class="sub">-    void . runGingerT (easyContext (writeTo output) context) . templateGinger $ template
+</span><span class="sub">-
+</span><span class="sub">-----------------------------------------------------------------------------------------
+</span><span class="sub">--- Private -----------------------------------------------------------------------------
+</span><span class="add">+    let output&apos; = toFilePath output
+</span><span class="add">+    liftIO $ writeFile output&apos; &quot;&quot; -- Clear contents of file if it exists
+</span><span class="add">+    void . runGingerT (easyContext (writeTo output&apos;) context) . templateGinger $ template
+</span><span class="add">+  where
+</span><span class="add">+    -- This function gets the output HTML data and is responsible for saving it to file.
+</span><span class="add">+    writeTo :: FilePath -&gt; Html -&gt; ReaderT LgRepo IO ()
+</span><span class="add">+    writeTo path = liftIO . appendFile path . unpack . htmlSource
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This takes the session&apos;s `Config` and maybe returns a loaded template for the
+</span><span class="def"> ``indexTemplate`` setting.
+</span><span class="def"> -}
+</span><span class="sub">-loadTemplate :: FilePath -&gt; IO (Maybe Template)
+</span><span class="add">+loadTemplate :: Path Abs File -&gt; IO (Maybe Template)
+</span><span class="def"> loadTemplate path =
+</span><span class="sub">-    parseGingerFile includeResolver path &gt;&gt;= \case
+</span><span class="sub">-        Right parsed -&gt; return . Just . Template path $ parsed
+</span><span class="add">+    parseGingerFile includeResolver (toFilePath path) &gt;&gt;= \case
+</span><span class="add">+        Right parsed -&gt; return . Just . Template (filename path) $ parsed
+</span><span class="def">         Left err -&gt; do
+</span><span class="sub">-            informError err
+</span><span class="add">+            informError (toFilePath path) err
+</span><span class="def">             return Nothing
+</span><span class="def">   where
+</span><span class="def">     -- An attempt at pretty printing the error message.
+</span><span class="sub">-    informError :: ParserError -&gt; IO ()
+</span><span class="sub">-    informError (ParserError msg Nothing) =
+</span><span class="sub">-        putStr $ &quot;Template error: &quot; &lt;&gt; path &lt;&gt; &quot;\n&quot; &lt;&gt; indent msg
+</span><span class="sub">-    informError (ParserError msg (Just pos)) =
+</span><span class="sub">-        putStrLn $ &quot;Template error: &quot; &lt;&gt; path &lt;&gt; &quot;\n&quot; &lt;&gt; indent (show pos &lt;&gt; &quot;\n&quot; &lt;&gt; msg)
+</span><span class="add">+    informError p (ParserError msg Nothing) =
+</span><span class="add">+        putStr $ &quot;Template error: &quot; &lt;&gt; p &lt;&gt; &quot;\n&quot; &lt;&gt; indent msg
+</span><span class="add">+    informError p (ParserError msg (Just pos)) =
+</span><span class="add">+        putStrLn $ &quot;Template error: &quot; &lt;&gt; p &lt;&gt; &quot;\n&quot; &lt;&gt; indent (show pos &lt;&gt; &quot;\n&quot; &lt;&gt; msg)
+</span><span class="def">     indent = unlines . map (mappend &quot;    &quot;) . lines
+</span><span class="def"> 
+</span><span class="sub">-{-
+</span><span class="sub">-This resolves Ginger&apos;s template includes.
+</span><span class="sub">--}
+</span><span class="sub">-includeResolver :: FilePath -&gt; IO (Maybe String)
+</span><span class="sub">-includeResolver path = either (const Nothing) Just &lt;$&gt; tryIOError (readFile path)
+</span><span class="sub">-
+</span><span class="sub">-{-
+</span><span class="sub">-getFiles will look inside the template directory and generate a list of paths to likely
+</span><span class="sub">-valid template files and another for static files.
+</span><span class="sub">-
+</span><span class="sub">-It&apos;s not very pretty, but we also copy the static files and folders from here because
+</span><span class="sub">-I&apos;m too lazy to work with Path too much.
+</span><span class="sub">--}
+</span><span class="sub">-getFiles :: Config -&gt; IO [Path Abs File]
+</span><span class="sub">-getFiles config = do
+</span><span class="sub">-    (dirs, files) &lt;- ls . templateDirectory $ config
+</span><span class="sub">-    let files&apos; = filter (not . isSuffixOf &quot;include&quot; . toFilePath) files
+</span><span class="sub">-    let templates = filter (isTemplate config) files&apos;
+</span><span class="sub">-    let statics = filter (`notElem` templates) files&apos;
+</span><span class="sub">-    output &lt;- parseAbsDir &lt;=&lt; makeAbsolute . outputDirectory $ config
+</span><span class="sub">-    ensureDir output
+</span><span class="sub">-    copyStaticDirs output dirs
+</span><span class="sub">-    copyStaticFiles output statics
+</span><span class="sub">-    return templates
+</span><span class="sub">-  where
+</span><span class="sub">-    -- This gets fully qualified paths of the directory&apos;s contents
+</span><span class="sub">-    ls :: FilePath -&gt; IO ([Path Abs Dir], [Path Abs File])
+</span><span class="sub">-    ls = listDir &lt;=&lt; parseAbsDir &lt;=&lt; makeAbsolute
+</span><span class="sub">-
+</span><span class="sub">-{-
+</span><span class="sub">-This is used to filter files in the template directory so that we only try to load HTML
+</span><span class="sub">-files.
+</span><span class="sub">--}
+</span><span class="sub">-isTemplate :: Config -&gt; Path Abs File -&gt; Bool
+</span><span class="sub">-isTemplate config = isTemplate&apos; . map toLower . toFilePath
+</span><span class="sub">-  where
+</span><span class="sub">-    isTemplate&apos; :: FilePath -&gt; Bool
+</span><span class="sub">-    isTemplate&apos; p = isSuffixOf &quot;html&quot; p &amp;&amp; not (isTargeted config p)
+</span><span class="sub">-    isTargeted :: Config -&gt; FilePath -&gt; Bool
+</span><span class="sub">-    isTargeted c p = p `elem` [indexTemplate c, commitTemplate c, fileTemplate c]
+</span><span class="sub">-
+</span><span class="sub">-{-
+</span><span class="sub">-These copies static files/folders into the output folder unchanged.
+</span><span class="sub">--}
+</span><span class="sub">-copyStaticFiles :: Path Abs Dir -&gt; [Path Abs File] -&gt; IO ()
+</span><span class="sub">-copyStaticFiles output = mapM_ copy
+</span><span class="sub">-  where
+</span><span class="sub">-    copy :: Path Abs File -&gt; IO ()
+</span><span class="sub">-    copy path = copyFile path $ output &lt;/&gt; filename path
+</span><span class="sub">-
+</span><span class="sub">-copyStaticDirs :: Path Abs Dir -&gt; [Path Abs Dir] -&gt; IO ()
+</span><span class="sub">-copyStaticDirs output = mapM_ copy
+</span><span class="sub">-  where
+</span><span class="sub">-    copy :: Path Abs Dir -&gt; IO ()
+</span><span class="sub">-    copy path = copyDirRecur path $ output &lt;/&gt; dirname path
+</span><span class="sub">-
+</span><span class="sub">-{-
+</span><span class="sub">-This function gets the output HTML data and is responsible for saving it to file.
+</span><span class="sub">--}
+</span><span class="sub">-writeTo :: FilePath -&gt; Html -&gt; ReaderT LgRepo IO ()
+</span><span class="sub">-writeTo path = liftIO . appendFile path . unpack . htmlSource
+</span><span class="add">+    -- This resolves template &apos;includes&apos;.
+</span><span class="add">+    includeResolver :: FilePath -&gt; IO (Maybe String)
+</span><span class="add">+    includeResolver p = either (const Nothing) Just &lt;$&gt; tryIOError (readFile p)
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -22,13 +22,13 @@
+
+
+  <pre><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (LgRepo, lgFactory)
+</span><span class="sub">-import System.Directory (createDirectoryIfMissing, doesFileExist)
+</span><span class="sub">-import System.FilePath (takeFileName, (&lt;/&gt;))
+</span><span class="add">+import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
+</span><span class="add">+import Path.IO (doesFileExist, ensureDir)
+</span><span class="add">+import qualified System.FilePath as FP
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+</span><span class="def"> 
+</span><span class="sub">-import Config
+</span><span class="sub">-import Templates
+</span><span class="add">+import Templates (Env (..), Template (..), generate)
+</span><span class="def"> import Types
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -46,16 +46,15 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> loadRepos :: Env -&gt; IO [Repo]
+</span><span class="def"> loadRepos env = do
+</span><span class="add">+    let paths = envRepoPaths env
+</span><span class="def">     descs &lt;- mapM getDescription paths
+</span><span class="sub">-    return $ ($ Nothing) &lt;$&gt; zipWith Repo paths descs
+</span><span class="sub">-  where
+</span><span class="sub">-    paths = repoPaths . envConfig $ env
+</span><span class="add">+    return . fmap ($ Nothing) . zipWith Repo paths $ descs
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Pass the repository&apos;s folder, get its description.
+</span><span class="def"> -}
+</span><span class="sub">-getDescription :: FilePath -&gt; IO Text
+</span><span class="sub">-getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap pack . readFile . (&lt;/&gt; &quot;description&quot;)
+</span><span class="add">+getDescription :: Path Abs Dir -&gt; IO Text
+</span><span class="add">+getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap pack . readFile . flip FP.combine &quot;description&quot; . toFilePath
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This receives a file path to a single repository and tries to process it. If the
+</span></pre>@@ -63,16 +62,16 @@
+
+
+  <pre><span class="def"> (after informing the user of course).
+</span><span class="def"> -}
+</span><span class="def"> processRepo :: Env -&gt; Repo -&gt; IO Repo
+</span><span class="sub">-processRepo env repo = withRepository lgFactory (repositoryPath repo) $ processRepo&apos; env repo
+</span><span class="add">+processRepo env repo = withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo&apos; env repo
+</span><span class="def"> 
+</span><span class="def"> processRepo&apos; :: Env -&gt; Repo -&gt; ReaderT LgRepo IO Repo
+</span><span class="def"> processRepo&apos; env repo = do
+</span><span class="sub">-    let name = takeFileName . repositoryPath $ repo
+</span><span class="sub">-    let output = outputDirectory (envConfig env) &lt;/&gt; name
+</span><span class="add">+    let name = dirname . repositoryPath $ repo
+</span><span class="add">+    let output = envOutputDirectory env &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; do
+</span><span class="sub">-            liftIO . putStrLn $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="add">+            liftIO . putStrLn $ &quot;gitserve: &quot; &lt;&gt; show name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">             return repo
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="def">             let gitHead = Tagged commitID
+</span></pre>@@ -85,12 +84,14 @@
+
+
+  <pre><span class="def">             let scope = package env name (repositoryDescription repo) commits tree tags branches
+</span><span class="def"> 
+</span><span class="def">             -- Create the destination folders
+</span><span class="sub">-            liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;commit&quot;
+</span><span class="sub">-            liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;file&quot;
+</span><span class="add">+            commitDir &lt;- liftIO . parseRelDir $ &quot;commit&quot;
+</span><span class="add">+            fileDir &lt;- liftIO . parseRelDir $ &quot;file&quot;
+</span><span class="add">+            liftIO . ensureDir $ output &lt;/&gt; commitDir
+</span><span class="add">+            liftIO . ensureDir $ output &lt;/&gt; fileDir
+</span><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="def">             let force = envForce env
+</span><span class="sub">-            mapM_ (genRepo output scope) $ envTemplates env
+</span><span class="add">+            mapM_ (genRepo output scope) $ envRepoTemplates env
+</span><span class="def">             mapM_ (genTarget output scope force $ envCommitTemplate env) commits
+</span><span class="def">             mapM_ (genTarget output scope True $ envFileTemplate env) tree -- TODO: detect file changes
+</span><span class="def"> 
+</span></pre>@@ -105,7 +106,7 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> package ::
+</span><span class="def">     Env -&gt;
+</span><span class="sub">-    FilePath -&gt;
+</span><span class="add">+    Path Rel Dir -&gt;
+</span><span class="def">     Text -&gt;
+</span><span class="def">     [Commit LgRepo] -&gt;
+</span><span class="def">     [TreeFile] -&gt;
+</span></pre>@@ -114,8 +115,8 @@
+
+
+  <pre><span class="def">     HashMap.HashMap Text (GVal RunRepo)
+</span><span class="def"> package env name description commits tree tags branches =
+</span><span class="def">     HashMap.fromList
+</span><span class="sub">-        [ (&quot;host&quot;, toGVal . host . envConfig $ env)
+</span><span class="sub">-        , (&quot;name&quot;, toGVal . pack $ name)
+</span><span class="add">+        [ (&quot;host&quot;, toGVal . envHost $ env)
+</span><span class="add">+        , (&quot;name&quot;, toGVal . pack . init . toFilePath $ name)
+</span><span class="def">         , (&quot;description&quot;, toGVal description)
+</span><span class="def">         , (&quot;commits&quot;, toGVal . reverse $ commits) -- Could be optimised
+</span><span class="def">         , (&quot;tree&quot;, toGVal tree)
+</span></pre>@@ -200,13 +201,13 @@
+
+
+  <pre><span class="def">     dropName Nothing _ = Nothing
+</span><span class="def"> 
+</span><span class="def"> genRepo ::
+</span><span class="sub">-    FilePath -&gt;
+</span><span class="add">+    Path Abs Dir -&gt;
+</span><span class="def">     HashMap.HashMap Text (GVal RunRepo) -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="def">     ReaderT LgRepo IO ()
+</span><span class="def"> genRepo output scope template = generate output&apos; scope template
+</span><span class="def">   where
+</span><span class="sub">-    output&apos; = (&lt;/&gt;) output . takeFileName . templatePath $ template
+</span><span class="add">+    output&apos; = output &lt;/&gt; templatePath template
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Targets -----------------------------------------------------------------------------
+</span></pre>@@ -221,6 +222,11 @@
+
+
+  <pre><span class="def"> class ToGVal RunRepo a =&gt; Target a where
+</span><span class="def">     identify :: a -&gt; FilePath
+</span><span class="def">     category :: a -&gt; FilePath
+</span><span class="add">+    dest :: a -&gt; IO (Path Rel File)
+</span><span class="add">+    dest t = do
+</span><span class="add">+        dir &lt;- parseRelDir . category $ t
+</span><span class="add">+        file &lt;- parseRelFile . identify $ t
+</span><span class="add">+        return $ dir &lt;/&gt; file
+</span><span class="def"> 
+</span><span class="def"> instance Target (Commit LgRepo) where
+</span><span class="def">     identify = (++ &quot;.html&quot;) . show . untag . commitOid
+</span></pre>@@ -232,7 +238,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> genTarget ::
+</span><span class="def">     Target a =&gt;
+</span><span class="sub">-    FilePath -&gt;
+</span><span class="add">+    Path Abs Dir -&gt;
+</span><span class="def">     HashMap.HashMap Text (GVal RunRepo) -&gt;
+</span><span class="def">     Bool -&gt;
+</span><span class="def">     Maybe Template -&gt;
+</span></pre>@@ -240,9 +246,10 @@
+
+
+  <pre><span class="def">     ReaderT LgRepo IO ()
+</span><span class="def"> genTarget _ _ _ Nothing _ = return ()
+</span><span class="def"> genTarget output scope force (Just template) target = do
+</span><span class="sub">-    let output&apos; = output &lt;/&gt; category target &lt;/&gt; identify target
+</span><span class="add">+    outFile &lt;- liftIO . dest $ target
+</span><span class="add">+    let output&apos; = output &lt;/&gt; outFile
+</span><span class="def">     exists &lt;- liftIO . doesFileExist $ output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="sub">-        liftIO . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;
+</span><span class="add">+        liftIO . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
+</span><span class="def">         let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
+</span><span class="def">         generate output&apos; scope&apos; template
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -8,12 +8,11 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Data.Version (showVersion)
+</span><span class="def"> import qualified Options.Applicative as O
+</span><span class="sub">-import System.Directory (createDirectoryIfMissing)
+</span><span class="def"> 
+</span><span class="sub">-import Config (getConfig, outputDirectory)
+</span><span class="add">+import Config (getConfig)
+</span><span class="def"> import Index (runIndex)
+</span><span class="def"> import Repositories (run)
+</span><span class="sub">-import Templates (loadTemplates)
+</span><span class="add">+import Templates (loadEnv)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Command line options
+</span></pre>@@ -63,6 +62,5 @@
+
+
+  <pre><span class="def">         then putStrLn $ &quot;Your gitserve version is: &quot; &lt;&gt; showVersion version
+</span><span class="def">         else do
+</span><span class="def">             conf &lt;- getConfig (config options)
+</span><span class="sub">-            createDirectoryIfMissing True $ outputDirectory conf
+</span><span class="sub">-            env &lt;- loadTemplates (force options) conf
+</span><span class="add">+            env &lt;- loadEnv (force options) conf
+</span><span class="def">             runIndex env =&lt;&lt; run env
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -7,49 +7,46 @@
+
+
+  <pre><span class="def"> import Control.Monad (void)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Text (Text, unpack)
+</span><span class="sub">-import System.FilePath ((&lt;/&gt;))
+</span><span class="add">+import Path (toFilePath)
+</span><span class="add">+import System.FilePath (combine)
+</span><span class="def"> import Text.Ginger.GVal (GVal, toGVal)
+</span><span class="def"> import Text.Ginger.Html (Html, htmlSource)
+</span><span class="def"> import Text.Ginger.Parse (SourcePos)
+</span><span class="def"> import Text.Ginger.Run (Run, easyRenderM)
+</span><span class="def"> 
+</span><span class="sub">-import Config
+</span><span class="sub">-import Templates
+</span><span class="add">+import Templates (Env (..), Template (..))
+</span><span class="def"> import Types
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-This creates the main index file from the index template, using information from all
+</span><span class="add">+This creates the main index files from the index templates, using information from all
+</span><span class="def"> configured respositories.
+</span><span class="def"> -}
+</span><span class="def"> runIndex :: Env -&gt; [Repo] -&gt; IO ()
+</span><span class="sub">-runIndex env repos =
+</span><span class="sub">-    case envIndexTemplate env of
+</span><span class="sub">-        Nothing -&gt;
+</span><span class="sub">-            return ()
+</span><span class="sub">-        Just template -&gt; do
+</span><span class="sub">-            putStrLn $ &quot;Writing &quot; &lt;&gt; output
+</span><span class="sub">-            writeFile output &quot;&quot; -- Clear contents of file if it exists
+</span><span class="sub">-            void $
+</span><span class="sub">-                easyRenderM
+</span><span class="sub">-                    (appendFile output . unpack . htmlSource)
+</span><span class="sub">-                    (packageIndex config repos)
+</span><span class="sub">-                    (templateGinger template)
+</span><span class="sub">-          where
+</span><span class="sub">-            config = envConfig env
+</span><span class="sub">-            output = outputDirectory config &lt;/&gt; &quot;index.html&quot;
+</span><span class="add">+runIndex env repos = mapM_ (runIndexFile env repos) . envIndexTemplates $ env
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Private -----------------------------------------------------------------------------
+</span><span class="def"> 
+</span><span class="add">+runIndexFile :: Env -&gt; [Repo] -&gt; Template -&gt; IO ()
+</span><span class="add">+runIndexFile env repos template = do
+</span><span class="add">+    let output = combine (toFilePath . envOutputDirectory $ env) . toFilePath . templatePath $ template
+</span><span class="add">+    putStrLn $ &quot;Writing &quot; &lt;&gt; output
+</span><span class="add">+    writeFile output &quot;&quot; -- Clear contents of file if it exists
+</span><span class="add">+    void $
+</span><span class="add">+        easyRenderM
+</span><span class="add">+            (appendFile output . unpack . htmlSource)
+</span><span class="add">+            (packageIndex env repos)
+</span><span class="add">+            (templateGinger template)
+</span><span class="add">+
+</span><span class="def"> {-
+</span><span class="sub">-This packages the variables that are available inside the index template.
+</span><span class="add">+This packages the variables that are available inside the index scope.
+</span><span class="def"> -}
+</span><span class="def"> packageIndex ::
+</span><span class="sub">-    Config -&gt;
+</span><span class="add">+    Env -&gt;
+</span><span class="def">     [Repo] -&gt;
+</span><span class="def">     HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-packageIndex config repos =
+</span><span class="add">+packageIndex env repos =
+</span><span class="def">     HashMap.fromList
+</span><span class="sub">-        [ (&quot;host&quot;, toGVal $ host config)
+</span><span class="add">+        [ (&quot;host&quot;, toGVal $ envHost env)
+</span><span class="def">         , (&quot;repositories&quot;, toGVal repos)
+</span><span class="def">         ]
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,15 +3,8 @@
+
+
+  <pre><span class="def"> {-# LANGUAGE DerivingStrategies #-}
+</span><span class="def"> 
+</span><span class="def"> module Config (
+</span><span class="sub">-    Config,
+</span><span class="sub">-    repoPaths,
+</span><span class="sub">-    templateDirectory,
+</span><span class="sub">-    indexTemplate,
+</span><span class="sub">-    commitTemplate,
+</span><span class="sub">-    fileTemplate,
+</span><span class="add">+    Config (..),
+</span><span class="def">     getConfig,
+</span><span class="sub">-    outputDirectory,
+</span><span class="sub">-    host,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Control.Monad ((&lt;=&lt;))
+</span></pre>@@ -22,9 +15,6 @@
+
+
+  <pre><span class="def"> data Config = Config
+</span><span class="def">     { repoPaths :: [FilePath]
+</span><span class="def">     , templateDirectory :: FilePath
+</span><span class="sub">-    , indexTemplate :: FilePath
+</span><span class="sub">-    , commitTemplate :: FilePath
+</span><span class="sub">-    , fileTemplate :: FilePath
+</span><span class="def">     , outputDirectory :: FilePath
+</span><span class="def">     , host :: Text
+</span><span class="def">     }
+</span></pre></div><div class="diff">
+  <p>
+    <b>config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,9 +14,6 @@
+
+
+  <pre><span class="def"> let config =
+</span><span class="def">     { repoPaths = folders
+</span><span class="def">     , templateDirectory = &quot;./templates&quot;
+</span><span class="sub">-    , indexTemplate = &quot;./templates/index-main.html&quot;
+</span><span class="sub">-    , commitTemplate = &quot;./templates/commit.html&quot;
+</span><span class="sub">-    , fileTemplate = &quot;./templates/file.html&quot;
+</span><span class="def">     , outputDirectory = &quot;./output&quot;
+</span><span class="def">     , host = &quot;http://localhost:8000&quot;
+</span><span class="def">     }
+</span></pre></div>    </div>
   </body>
 </html>

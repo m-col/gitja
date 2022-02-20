@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,91 @@
 Make repo list available in all templates
 
 Closes #8
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -36,7 +36,9 @@
+
+
+  <pre><span class="def"> their web pages using the loaded templates.
+</span><span class="def"> -}
+</span><span class="def"> run :: Env -&gt; IO [Repo]
+</span><span class="sub">-run env = mapM (processRepo env) =&lt;&lt; loadRepos env
+</span><span class="add">+run env = do
+</span><span class="add">+    repos &lt;- loadRepos env
+</span><span class="add">+    mapM (processRepo env repos) repos
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Private -----------------------------------------------------------------------------
+</span></pre>@@ -61,11 +63,12 @@
+
+
+  <pre><span class="def"> repository doesn&apos;t exist or is unreadable in any way we can forget about it and move on
+</span><span class="def"> (after informing the user of course).
+</span><span class="def"> -}
+</span><span class="sub">-processRepo :: Env -&gt; Repo -&gt; IO Repo
+</span><span class="sub">-processRepo env repo = withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo&apos; env repo
+</span><span class="add">+processRepo :: Env -&gt; [Repo] -&gt; Repo -&gt; IO Repo
+</span><span class="add">+processRepo env repos repo =
+</span><span class="add">+    withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo&apos; env repos repo
+</span><span class="def"> 
+</span><span class="sub">-processRepo&apos; :: Env -&gt; Repo -&gt; ReaderT LgRepo IO Repo
+</span><span class="sub">-processRepo&apos; env repo = do
+</span><span class="add">+processRepo&apos; :: Env -&gt; [Repo] -&gt; Repo -&gt; ReaderT LgRepo IO Repo
+</span><span class="add">+processRepo&apos; env repos repo = do
+</span><span class="def">     let name = dirname . repositoryPath $ repo
+</span><span class="def">     let output = envOutputDirectory env &lt;/&gt; name
+</span><span class="def"> 
+</span></pre>@@ -81,7 +84,7 @@
+
+
+  <pre><span class="def">             tree &lt;- getTree gitHead
+</span><span class="def">             tags &lt;- getRefs &quot;refs/tags/&quot;
+</span><span class="def">             branches &lt;- getRefs &quot;refs/heads/&quot;
+</span><span class="sub">-            let scope = package env name (repositoryDescription repo) commits tree tags branches
+</span><span class="add">+            let scope = package env repos name (repositoryDescription repo) commits tree tags branches
+</span><span class="def"> 
+</span><span class="def">             -- Create the destination folders
+</span><span class="def">             commitDir &lt;- liftIO . parseRelDir $ &quot;commit&quot;
+</span></pre>@@ -97,7 +100,8 @@
+
+
+  <pre><span class="def">             mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="def">             -- Return the repo with the head so the index page can use it. --
+</span><span class="sub">-            return $ repo{repositoryHead = Just . head $ commits}
+</span><span class="add">+            return
+</span><span class="add">+                repo{repositoryHead = Just . head $ commits}
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The role of the function above is to gather information about a git repository and
+</span></pre>@@ -107,6 +111,7 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> package ::
+</span><span class="def">     Env -&gt;
+</span><span class="add">+    [Repo] -&gt;
+</span><span class="def">     Path Rel Dir -&gt;
+</span><span class="def">     Text -&gt;
+</span><span class="def">     [Commit LgRepo] -&gt;
+</span></pre>@@ -114,9 +119,10 @@
+
+
+  <pre><span class="def">     [Ref] -&gt;
+</span><span class="def">     [Ref] -&gt;
+</span><span class="def">     HashMap.HashMap Text (GVal RunRepo)
+</span><span class="sub">-package env name description commits tree tags branches =
+</span><span class="add">+package env repos name description commits tree tags branches =
+</span><span class="def">     HashMap.fromList
+</span><span class="def">         [ (&quot;host&quot;, toGVal . envHost $ env)
+</span><span class="add">+        , (&quot;repos&quot;, toGVal repos)
+</span><span class="def">         , (&quot;name&quot;, toGVal . pack . init . toFilePath $ name)
+</span><span class="def">         , (&quot;description&quot;, toGVal description)
+</span><span class="def">         , (&quot;commits&quot;, toGVal . reverse $ commits) -- Could be optimised
+</span></pre></div>    </div>
   </body>
 </html>

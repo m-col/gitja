@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,25 @@
 <b>Committed:</b> 2021-09-25 12:11:27 +0100
 
 Clear contents of target files if they exist
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -103,6 +103,7 @@
+
+
+  <pre><span class="def">     -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="def">     -&gt; Template
+</span><span class="def">     -&gt; IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
+</span><span class="sub">-generate output context template = easyRenderM writeToPath context (templateGinger template)
+</span><span class="sub">-  where
+</span><span class="sub">-    writeToPath = writeTo $ output &lt;/&gt; (takeFileName . templatePath $ template)
+</span><span class="add">+generate output context template = do
+</span><span class="add">+    let target = (&lt;/&gt;) output . takeFileName . templatePath $ template
+</span><span class="add">+    writeFile target &quot;&quot;  -- Clear contents of file if it exists
+</span><span class="add">+    easyRenderM (writeTo target) context . templateGinger $ template
+</span></pre></div>    </div>
   </body>
 </html>

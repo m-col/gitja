@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,87 @@
 <b>Committed:</b> 2021-11-27 18:47:18 +0000
 
 fix folder content test
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/test.sh</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -36,7 +36,7 @@
+
+
+  <pre><span class="def">     &quot;static/a_nice_file&quot;
+</span><span class="def">     &quot;gitserve/index.html&quot;
+</span><span class="def">     &quot;gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html&quot;
+</span><span class="sub">-    &quot;gitserve/file/test.templates.html&quot;
+</span><span class="add">+    &quot;gitserve/file/test.expected.gitserve.file.html&quot;
+</span><span class="def">     &quot;gitserve/file/test.templates.style.css.html&quot;
+</span><span class="def"> )
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/file/test.templates.html</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,23 +0,0 @@
+
+
+  <pre><span class="sub">-test/templates
+</span><span class="sub">-scope: file
+</span><span class="sub">-file: test/templates
+</span><span class="sub">-file.path: test/templates
+</span><span class="sub">-file.href: test.templates.html
+</span><span class="sub">-file.contents: [&amp;quot;test/templates/index.html&amp;quot;,&amp;quot;test/templates/repo&amp;quot;,&amp;quot;test/templates/repo/commit.html&amp;quot;,&amp;quot;test/templates/repo/file.html&amp;quot;,&amp;quot;test/templates/repo/index.html&amp;quot;,&amp;quot;test/templates/static&amp;quot;,&amp;quot;test/templates/static/a_nice_file&amp;quot;,&amp;quot;test/templates/style.css&amp;quot;,&amp;quot;test/templates/title.html.include&amp;quot;]
+</span><span class="sub">-file.mode: Directory
+</span><span class="sub">-file.mode_octal: 40000
+</span><span class="sub">-file.mode_symbolic: drwxr-xr-x
+</span><span class="sub">-if file.is_directory then &quot;directory&quot; else &quot;file&quot;: &quot;directory&quot;
+</span><span class="sub">-
+</span><span class="sub">-file scope also should have data from repo scope available:
+</span><span class="sub">-host: https://github.com/m-col/gitserve
+</span><span class="sub">-repos: gitserve
+</span><span class="sub">-name: gitserve
+</span><span class="sub">-description: 🐙 Templated web page generator for your git repositories
+</span><span class="sub">-commits: (skipped)
+</span><span class="sub">-tree: (skipped)
+</span><span class="sub">-tags: (skipped)
+</span><span class="sub">-branches: master
+</span><span class="sub">-    branches[0].name: master
+</span><span class="sub">-readme.path: README.rst
+</span><span class="sub">-license.path: LICENSE
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/file/test.expected.gitserve.file.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,23 @@
+
+
+  <pre><span class="add">+test/expected/gitserve/file
+</span><span class="add">+scope: file
+</span><span class="add">+file: test/expected/gitserve/file
+</span><span class="add">+file.path: test/expected/gitserve/file
+</span><span class="add">+file.href: test.expected.gitserve.file.html
+</span><span class="add">+file.contents: [&amp;quot;test/expected/gitserve/file/test.expected.gitserve.file.html&amp;quot;,&amp;quot;test/expected/gitserve/file/test.templates.style.css.html&amp;quot;]
+</span><span class="add">+file.mode: Directory
+</span><span class="add">+file.mode_octal: 40000
+</span><span class="add">+file.mode_symbolic: drwxr-xr-x
+</span><span class="add">+if file.is_directory then &quot;directory&quot; else &quot;file&quot;: &quot;directory&quot;
+</span><span class="add">+
+</span><span class="add">+file scope also should have data from repo scope available:
+</span><span class="add">+host: https://github.com/m-col/gitserve
+</span><span class="add">+repos: gitserve
+</span><span class="add">+name: gitserve
+</span><span class="add">+description: 🐙 Templated web page generator for your git repositories
+</span><span class="add">+commits: (skipped)
+</span><span class="add">+tree: (skipped)
+</span><span class="add">+tags: (skipped)
+</span><span class="add">+branches: master
+</span><span class="add">+    branches[0].name: master
+</span><span class="add">+readme.path: README.rst
+</span><span class="add">+license.path: LICENSE
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,389 @@
 Expose whether a file is considered binary by git
 
 Closes #14
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/test.sh</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -33,11 +33,13 @@
+
+
+  <pre><span class="def">     &quot;index.html&quot;
+</span><span class="def">     &quot;link.html&quot;
+</span><span class="def">     &quot;style.css&quot;
+</span><span class="add">+    &quot;so_called_binary_file&quot;
+</span><span class="def">     &quot;static/a_nice_file&quot;
+</span><span class="def">     &quot;gitserve/index.html&quot;
+</span><span class="def">     &quot;gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html&quot;
+</span><span class="def">     &quot;gitserve/file/test.expected.gitserve.file.html&quot;
+</span><span class="def">     &quot;gitserve/file/test.templates.style.css.html&quot;
+</span><span class="add">+    &quot;gitserve/file/test.templates.so_called_binary_file.html&quot;
+</span><span class="def"> )
+</span><span class="def"> 
+</span><span class="def"> stack run -- -c test/config.dhall -q || exit 1
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/style.css</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1 +1 @@
+
+
+  <pre><span class="sub">-👄
+</span><span class="add">+html
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/so_called_binary_file</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1 @@
+
+
+  <pre><span class="add">+👄
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/repo/file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -6,7 +6,8 @@
+
+
+  <pre><span class="def"> file: {{ file }}
+</span><span class="def"> file.path: {{ file.path }}
+</span><span class="def"> file.href: {{ file.href }}
+</span><span class="sub">-file.contents: {{ file.contents }}
+</span><span class="add">+file.contents: {% if file.is_binary %}(binary){% else %}{{ file.contents }}{% endif %}
+</span><span class="add">+
+</span><span class="def"> file.mode: {{ file.mode }}
+</span><span class="def"> file.mode_octal: {{ file.mode_octal }}
+</span><span class="def"> file.mode_symbolic: {{ file.mode_symbolic }}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/style.css</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1 +1 @@
+
+
+  <pre><span class="sub">-👄
+</span><span class="add">+html
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/so_called_binary_file</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1 @@
+
+
+  <pre><span class="add">+👄
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/file/test.templates.style.css.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,7 +3,7 @@
+
+
+  <pre><span class="def"> file: test/templates/style.css
+</span><span class="def"> file.path: test/templates/style.css
+</span><span class="def"> file.href: test.templates.style.css.html
+</span><span class="sub">-file.contents: 👄
+</span><span class="add">+file.contents: html
+</span><span class="def"> file.mode: Plain
+</span><span class="def"> file.mode_octal: 00644
+</span><span class="def"> file.mode_symbolic: -rw-r--r--
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/file/test.templates.so_called_binary_file.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,22 @@
+
+
+  <pre><span class="add">+test/templates/so_called_binary_file
+</span><span class="add">+scope: file
+</span><span class="add">+file: test/templates/so_called_binary_file
+</span><span class="add">+file.path: test/templates/so_called_binary_file
+</span><span class="add">+file.href: test.templates.so_called_binary_file.html
+</span><span class="add">+file.contents: (binary)
+</span><span class="add">+file.mode: Plain
+</span><span class="add">+file.mode_octal: 00644
+</span><span class="add">+file.mode_symbolic: -rw-r--r--
+</span><span class="add">+if file.is_directory then &quot;directory&quot; else &quot;file&quot;: &quot;file&quot;
+</span><span class="add">+
+</span><span class="add">+file scope also should have data from repo scope available:
+</span><span class="add">+host: https://github.com/m-col/gitserve
+</span><span class="add">+repos: gitserve
+</span><span class="add">+name: gitserve
+</span><span class="add">+description: 🐙 Templated web page generator for your git repositories
+</span><span class="add">+commits: (skipped)
+</span><span class="add">+tree: (skipped)
+</span><span class="add">+tags: 1
+</span><span class="add">+branches: 1
+</span><span class="add">+readme.path: README.rst
+</span><span class="add">+license.path: LICENSE
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/file/test.expected.gitserve.file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,7 +3,7 @@
+
+
+  <pre><span class="def"> file: test/expected/gitserve/file
+</span><span class="def"> file.path: test/expected/gitserve/file
+</span><span class="def"> file.href: test.expected.gitserve.file.html
+</span><span class="sub">-file.contents: [&amp;quot;test/expected/gitserve/file/test.expected.gitserve.file.html&amp;quot;,&amp;quot;test/expected/gitserve/file/test.templates.style.css.html&amp;quot;]
+</span><span class="add">+file.contents: [&amp;quot;test/expected/gitserve/file/test.expected.gitserve.file.html&amp;quot;,&amp;quot;test/expected/gitserve/file/test.templates.so_called_binary_file.html&amp;quot;,&amp;quot;test/expected/gitserve/file/test.templates.style.css.html&amp;quot;]
+</span><span class="def"> file.mode: Directory
+</span><span class="def"> file.mode_octal: 40000
+</span><span class="def"> file.mode_symbolic: drwxr-xr-x
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/stagit/repo/file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -29,11 +29,13 @@
+
+
+  <pre><span class="def">     &lt;/tbody&gt;
+</span><span class="def">   &lt;/table&gt;
+</span><span class="def"> {% else %}
+</span><span class="sub">-  &lt;pre id=&quot;blob&quot;&gt;
+</span><span class="sub">-{% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="add">+  {% if file.is_binary %}
+</span><span class="add">+  (File is binary)
+</span><span class="add">+  {% else %}
+</span><span class="add">+&lt;pre id=&quot;blob&quot;&gt;{% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="def"> &lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%7v&quot;, loop.index) }}&lt;/a&gt; {{ line }}
+</span><span class="sub">-{% endfor %}
+</span><span class="add">+{% endfor %}&lt;/pre&gt;
+</span><span class="add">+  {% endif %}
+</span><span class="def"> {% endif %}
+</span><span class="sub">-  &lt;/pre&gt;
+</span><span class="def"> &lt;/div&gt;
+</span><span class="def"> {% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/docs/repo/file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -24,10 +24,12 @@
+
+
+  <pre><span class="def">   &lt;/tbody&gt;
+</span><span class="def"> &lt;/table&gt;
+</span><span class="def"> {% else %}
+</span><span class="sub">-  &lt;pre id=&quot;blob&quot;&gt;
+</span><span class="sub">-{% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="add">+  {% if file.is_binary %}
+</span><span class="add">+  (File is binary)
+</span><span class="add">+  {% else %}
+</span><span class="add">+&lt;pre id=&quot;blob&quot;&gt;{% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="def"> &lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%5v&quot;, loop.index) }}&lt;/a&gt;  {{ line }}
+</span><span class="sub">-{% endfor %}
+</span><span class="add">+{% endfor %}&lt;/pre&gt;
+</span><span class="add">+  {% endif %}
+</span><span class="def"> {% endif %}
+</span><span class="sub">-&lt;/pre&gt;
+</span><span class="def"> {% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/base/repo/file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -24,10 +24,12 @@
+
+
+  <pre><span class="def">   &lt;/tbody&gt;
+</span><span class="def"> &lt;/table&gt;
+</span><span class="def"> {% else %}
+</span><span class="sub">-  &lt;pre&gt;
+</span><span class="sub">-{% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="add">+  {% if file.is_binary %}
+</span><span class="add">+  (File is binary)
+</span><span class="add">+  {% else %}
+</span><span class="add">+&lt;pre&gt;{% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="def"> &lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%5v&quot;, loop.index) }}&lt;/a&gt;  {{ line }}
+</span><span class="sub">-{% endfor %}
+</span><span class="add">+{% endfor %}&lt;/pre&gt;
+</span><span class="add">+{% endif %}
+</span><span class="def"> {% endif %}
+</span><span class="sub">-&lt;/pre&gt;
+</span><span class="def"> {% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -10,6 +10,10 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> module Types where
+</span><span class="def"> 
+</span><span class="add">+import Bindings.Libgit2.Blob (c&apos;git_blob_is_binary, c&apos;git_blob_lookup)
+</span><span class="add">+import Control.Monad (when)
+</span><span class="add">+import Control.Monad.Catch (throwM)
+</span><span class="add">+import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import Data.ByteString.UTF8 (toString)
+</span><span class="def"> import Data.Default (def)
+</span></pre>@@ -19,8 +23,10 @@
+
+
+  <pre><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import Data.Text.Encoding (decodeUtf8With)
+</span><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="add">+import Foreign (peek)
+</span><span class="add">+import Foreign.ForeignPtr (mallocForeignPtr, withForeignPtr)
+</span><span class="def"> import Git
+</span><span class="sub">-import Git.Libgit2 (LgRepo)
+</span><span class="add">+import Git.Libgit2 (LgRepo, getOid, repoObj)
+</span><span class="def"> import Path (Abs, Dir, Path, dirname, toFilePath)
+</span><span class="def"> import System.FilePath (takeFileName)
+</span><span class="def"> import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
+</span></pre>@@ -106,7 +112,7 @@
+
+
+  <pre><span class="def">     , treeFileMode :: TreeEntryMode
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="sub">-data TreeFileContents = FileContents Text | FolderContents [TreeFile]
+</span><span class="add">+data TreeFileContents = BinaryContents | FileContents Text | FolderContents [TreeFile]
+</span><span class="def"> 
+</span><span class="def"> data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
+</span><span class="def">     deriving stock (Show)
+</span></pre>@@ -136,6 +142,24 @@
+
+
+  <pre><span class="def"> modeToSymbolic ModeSubmodule = &quot;git-module&quot;
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="add">+This
+</span><span class="add">+-}
+</span><span class="add">+getBlobContents :: BlobOid LgRepo -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="add">+getBlobContents oid = do
+</span><span class="add">+    repo &lt;- getRepository
+</span><span class="add">+    blobPtr &lt;- liftIO mallocForeignPtr
+</span><span class="add">+    isBinary &lt;- liftIO . withForeignPtr (repoObj repo) $ \repoPtr -&gt;
+</span><span class="add">+        withForeignPtr blobPtr $ \blobPtr&apos; -&gt;
+</span><span class="add">+            withForeignPtr (getOid . untag $ oid) $ \oidPtr -&gt; do
+</span><span class="add">+                r1 &lt;- c&apos;git_blob_lookup blobPtr&apos; repoPtr oidPtr
+</span><span class="add">+                when (r1 &lt; 0) $ throwM (Git.BackendError &quot;Could not lookup blob&quot;)
+</span><span class="add">+                c&apos;git_blob_is_binary =&lt;&lt; peek blobPtr&apos;
+</span><span class="add">+
+</span><span class="add">+    if toEnum . fromEnum $ isBinary -- This reads weird, but it goes CInt, to Int, to Bool.
+</span><span class="add">+        then return BinaryContents
+</span><span class="add">+        else FileContents . decodeUtf8With lenientDecode &lt;$&gt; catBlob oid
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="def"> GVal implementations for data definitions above, allowing commits to be rendered in
+</span><span class="def"> Ginger templates.
+</span><span class="def"> -}
+</span></pre>@@ -151,6 +175,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> instance ToGVal RunRepo TreeFileContents where
+</span><span class="def">     toGVal :: TreeFileContents -&gt; GVal RunRepo
+</span><span class="add">+    toGVal BinaryContents = def
+</span><span class="def">     toGVal (FileContents text) = toGVal . strip $ text
+</span><span class="def">     toGVal (FolderContents treeFiles) =
+</span><span class="def">         def
+</span></pre>@@ -168,13 +193,19 @@
+
+
+  <pre><span class="def">     &quot;mode&quot; -&gt; Just . toGVal . drop 4 . show . treeFileMode $ treefile
+</span><span class="def">     &quot;mode_octal&quot; -&gt; Just . toGVal . modeToOctal . treeFileMode $ treefile
+</span><span class="def">     &quot;mode_symbolic&quot; -&gt; Just . toGVal . modeToSymbolic . treeFileMode $ treefile
+</span><span class="add">+    &quot;is_binary&quot; -&gt; Just . toGVal . treeFileIsBinary $ treefile
+</span><span class="def">     &quot;is_directory&quot; -&gt; Just . toGVal . treeFileIsDirectory $ treefile
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="add">+treeFileIsBinary :: TreeFile -&gt; Bool
+</span><span class="add">+treeFileIsBinary treefile = case treeFileContents treefile of
+</span><span class="add">+    BinaryContents -&gt; True
+</span><span class="add">+    _ -&gt; False
+</span><span class="add">+
+</span><span class="def"> treeFileIsDirectory :: TreeFile -&gt; Bool
+</span><span class="def"> treeFileIsDirectory treefile = case treeFileContents treefile of
+</span><span class="sub">-    FileContents _ -&gt; False
+</span><span class="def">     FolderContents _ -&gt; True
+</span><span class="add">+    _ -&gt; False
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Get the name of a tree file path&apos;s HTML file.
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -163,7 +163,7 @@
+
+
+  <pre><span class="def"> prependParent parent (path, entry) = (mconcat [parent, &quot;/&quot;, path], entry)
+</span><span class="def"> 
+</span><span class="def"> getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="sub">-getEntryContents (_, BlobEntry oid _) = FileContents . decodeUtf8With lenientDecode &lt;$&gt; catBlob oid
+</span><span class="add">+getEntryContents (_, BlobEntry oid _) = getBlobContents oid
+</span><span class="def"> getEntryContents (path, TreeEntry oid) = FolderContents &lt;$&gt; getTree&apos; path oid
+</span><span class="def"> getEntryContents (_, CommitEntry oid) = return . FileContents . pack . show . untag $ oid
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -25,12 +25,14 @@
+
+
+  <pre><span class="def">                      , data-default
+</span><span class="def">                      , dhall
+</span><span class="def">                      , directory
+</span><span class="add">+                     , exceptions
+</span><span class="def">                      , extra
+</span><span class="def">                      , file-embed
+</span><span class="def">                      , filepath
+</span><span class="def">                      , ginger &gt;= 0.10.4.0
+</span><span class="def">                      , gitlib
+</span><span class="def">                      , gitlib-libgit2
+</span><span class="add">+                     , hlibgit2
+</span><span class="def">                      , optparse-applicative
+</span><span class="def">                      , path
+</span><span class="def">                      , path-io &gt;= 1.3.0
+</span></pre></div><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -181,6 +181,7 @@
+
+
+  <pre><span class="def"> |            | mode\_octal      | Mode in octal form e.g. &quot;00644&quot; for plain files.         |
+</span><span class="def"> |            | mode\_symbolic   | Mode in symbolic form e.g. &quot;&quot;-rw-r--r--&quot; for plain files.|
+</span><span class="def"> |            | is\_directory    | A boolean, useful for ginger conditionals.               |
+</span><span class="add">+|            | is\_binary       | A boolean, tells you if the contents can be rendered.    |
+</span><span class="def"> | ref        | name             | The tag or branch name.                                  |
+</span><span class="def"> |            | commit           | The commit pointed to by the tag or branch.              |
+</span><span class="def"> 
+</span></pre></div>    </div>
   </body>
 </html>

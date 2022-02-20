@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - Use updated diff_tree_to_tree interface</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/736b7d20dc133a5abd301c680355aa540c5bfde5.html">736b7d20dc133a5abd301c680355aa540c5bfde5</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/e35832110107b726d9329b763897520da195ecc9.html">e35832110107b726d9329b763897520da195ecc9</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-12-12 14:14:42 +0300
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-12-12 14:15:25 +0300
+
+Use updated diff_tree_to_tree interface
+</pre><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -81,7 +81,7 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> data Commit = Commit
+</span><span class="def">     { commitGit :: Git.Commit LgRepo
+</span><span class="sub">-    , commitDiffs :: [Git.Diff]
+</span><span class="add">+    , commitDiffs :: [Diff]
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> instance ToGVal m Commit where
+</span></pre>@@ -118,36 +118,63 @@
+
+
+  <pre><span class="def"> - Each diff has 1 or more hunks
+</span><span class="def"> - Each hunk has a number of lines
+</span><span class="def"> -}
+</span><span class="sub">-instance ToGVal m Git.Diff where
+</span><span class="sub">-    toGVal :: Git.Diff -&gt; GVal m
+</span><span class="add">+data Diff = Diff
+</span><span class="add">+    { diffNewFile :: Git.TreeFilePath
+</span><span class="add">+    , diffOldFile :: Maybe Git.TreeFilePath
+</span><span class="add">+    , diffStatus :: Delta
+</span><span class="add">+    , diffHunks :: [Hunk]
+</span><span class="add">+    }
+</span><span class="add">+
+</span><span class="add">+data Delta
+</span><span class="add">+    = Unmodified
+</span><span class="add">+    | Added
+</span><span class="add">+    | Deleted
+</span><span class="add">+    | Modified
+</span><span class="add">+    | Renamed
+</span><span class="add">+    | Copied
+</span><span class="add">+    | Ignored
+</span><span class="add">+    | Untracked
+</span><span class="add">+    | Typechange
+</span><span class="add">+    deriving stock (Eq, Ord, Enum, Show)
+</span><span class="add">+
+</span><span class="add">+type HunkHeader = ByteString
+</span><span class="add">+type DiffLine = ByteString
+</span><span class="add">+
+</span><span class="add">+data Hunk = Hunk
+</span><span class="add">+    { hunkHeader :: HunkHeader
+</span><span class="add">+    , hunkLines :: [DiffLine]
+</span><span class="add">+    }
+</span><span class="add">+
+</span><span class="add">+instance ToGVal m Diff where
+</span><span class="add">+    toGVal :: Diff -&gt; GVal m
+</span><span class="def">     toGVal diff =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . bsToText . Git.diffNewFile $ diff
+</span><span class="sub">-            , asText = bsToText . Git.diffNewFile $ diff
+</span><span class="add">+            { asHtml = html . bsToText . diffNewFile $ diff
+</span><span class="add">+            , asText = bsToText . diffNewFile $ diff
+</span><span class="def">             , asLookup = Just . diffAsLookup $ diff
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-diffAsLookup :: Git.Diff -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+diffAsLookup :: Diff -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> diffAsLookup diff = \case
+</span><span class="sub">-    &quot;new_file&quot; -&gt; Just . toGVal . Git.diffNewFile $ diff
+</span><span class="sub">-    &quot;old_file&quot; -&gt; toGVal &lt;$&gt; Git.diffOldFile diff
+</span><span class="sub">-    &quot;status&quot; -&gt; Just . toGVal . drop 5 . show . Git.diffStatus $ diff
+</span><span class="sub">-    &quot;hunks&quot; -&gt; Just . toGVal . Git.diffHunks $ diff
+</span><span class="add">+    &quot;new_file&quot; -&gt; Just . toGVal . diffNewFile $ diff
+</span><span class="add">+    &quot;old_file&quot; -&gt; toGVal &lt;$&gt; diffOldFile diff
+</span><span class="add">+    &quot;status&quot; -&gt; Just . toGVal . show . diffStatus $ diff
+</span><span class="add">+    &quot;hunks&quot; -&gt; Just . toGVal . diffHunks $ diff
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="sub">-instance ToGVal m Git.Hunk where
+</span><span class="sub">-    toGVal :: Git.Hunk -&gt; GVal m
+</span><span class="add">+instance ToGVal m Hunk where
+</span><span class="add">+    toGVal :: Hunk -&gt; GVal m
+</span><span class="def">     toGVal hunk =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . bsToText . Git.hunkHeader $ hunk
+</span><span class="sub">-            , asText = bsToText . Git.hunkHeader $ hunk
+</span><span class="add">+            { asHtml = html . bsToText . hunkHeader $ hunk
+</span><span class="add">+            , asText = bsToText . hunkHeader $ hunk
+</span><span class="def">             , asLookup = Just . hunkAsLookup $ hunk
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-hunkAsLookup :: Git.Hunk -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+hunkAsLookup :: Hunk -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> hunkAsLookup hunk = \case
+</span><span class="sub">-    &quot;lines&quot; -&gt; Just . toGVal . fmap makeLine . Git.hunkLines $ hunk
+</span><span class="sub">-    &quot;header&quot; -&gt; Just . toGVal . bsToText . Git.hunkHeader $ hunk
+</span><span class="add">+    &quot;lines&quot; -&gt; Just . toGVal . fmap makeLine . hunkLines $ hunk
+</span><span class="add">+    &quot;header&quot; -&gt; Just . toGVal . bsToText . hunkHeader $ hunk
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -160,7 +187,7 @@
+
+
+  <pre><span class="def">     , lineClass :: String
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="sub">-makeLine :: Git.DiffLine -&gt; Line
+</span><span class="add">+makeLine :: DiffLine -&gt; Line
+</span><span class="def"> makeLine line = Line text (cls . T.head $ text)
+</span><span class="def">   where
+</span><span class="def">     text = bsToText line
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -9,22 +9,30 @@
+
+
+  <pre><span class="def">     run,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="add">+import qualified Bindings.Libgit2 as LG
+</span><span class="def"> import Conduit (runConduit, sinkList, (.|))
+</span><span class="def"> import Control.Exception (try)
+</span><span class="def"> import Control.Monad (filterM, unless, when, (&lt;=&lt;))
+</span><span class="def"> import Control.Monad.Extra (ifM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="add">+import Data.Bool (bool)
+</span><span class="add">+import qualified Data.ByteString as B
+</span><span class="def"> import Data.Either (isRight)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="add">+import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, listToMaybe, mapMaybe)
+</span><span class="def"> import Data.Tagged (Tagged (..), untag)
+</span><span class="def"> import Data.Text (Text)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import qualified Data.Text.Encoding as T
+</span><span class="def"> import qualified Data.Text.Encoding.Error as T
+</span><span class="add">+import Foreign.C.String (CString)
+</span><span class="add">+import Foreign.C.Types (CChar, CFloat, CInt, CSize)
+</span><span class="add">+import Foreign.Ptr (Ptr)
+</span><span class="add">+import Foreign.Storable (peek)
+</span><span class="def"> import qualified Git
+</span><span class="sub">-import Git.Libgit2 (LgRepo, lgFactory)
+</span><span class="add">+import Git.Libgit2 (LgRepo, lgDiffTreeToTree, lgFactory)
+</span><span class="def"> import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
+</span><span class="def"> import Path.IO (doesFileExist, ensureDir)
+</span><span class="def"> import qualified System.Directory as D
+</span></pre>@@ -194,8 +202,79 @@
+
+
+  <pre><span class="def">             Nothing -&gt;
+</span><span class="def">                 return Nothing
+</span><span class="def"> 
+</span><span class="sub">-    diffs &lt;- Git.diffTreeToTree oldTree (Just newTree)
+</span><span class="sub">-    return $ Commit gitCommit diffs
+</span><span class="add">+    ioref &lt;- liftIO . newIORef $ []
+</span><span class="add">+    lgDiffTreeToTree
+</span><span class="add">+        (fileCallback ioref)
+</span><span class="add">+        (hunkCallback ioref)
+</span><span class="add">+        (dataCallback ioref)
+</span><span class="add">+        oldTree
+</span><span class="add">+        (Just newTree)
+</span><span class="add">+    diffs &lt;- liftIO . readIORef $ ioref
+</span><span class="add">+
+</span><span class="add">+    return . Commit gitCommit . fmap fixupLists $ diffs
+</span><span class="add">+  where
+</span><span class="add">+    fileCallback ::
+</span><span class="add">+        IORef [Diff] -&gt;
+</span><span class="add">+        Ptr LG.C&apos;git_diff_delta -&gt;
+</span><span class="add">+        CFloat -&gt;
+</span><span class="add">+        Ptr () -&gt;
+</span><span class="add">+        IO CInt
+</span><span class="add">+    fileCallback ioref dPtr _progress _payload = do
+</span><span class="add">+        delta &lt;- peek dPtr
+</span><span class="add">+        newFile &lt;- B.packCString . LG.c&apos;git_diff_file&apos;path . LG.c&apos;git_diff_delta&apos;new_file $ delta
+</span><span class="add">+        oldFile &lt;- B.packCString . LG.c&apos;git_diff_file&apos;path . LG.c&apos;git_diff_delta&apos;old_file $ delta
+</span><span class="add">+        let oldFile&apos; = bool Nothing (Just oldFile) (newFile /= oldFile)
+</span><span class="add">+            status = toEnum . fromIntegral . LG.c&apos;git_diff_delta&apos;status $ delta
+</span><span class="add">+            diff = Diff newFile oldFile&apos; status []
+</span><span class="add">+        modifyIORef ioref (diff :)
+</span><span class="add">+        return 0
+</span><span class="add">+
+</span><span class="add">+    hunkCallback ::
+</span><span class="add">+        IORef [Diff] -&gt;
+</span><span class="add">+        Ptr LG.C&apos;git_diff_delta -&gt;
+</span><span class="add">+        Ptr LG.C&apos;git_diff_range -&gt;
+</span><span class="add">+        CString -&gt;
+</span><span class="add">+        CSize -&gt;
+</span><span class="add">+        Ptr () -&gt;
+</span><span class="add">+        IO CInt
+</span><span class="add">+    hunkCallback ioref _dPtr _range header headerLen _payload = do
+</span><span class="add">+        (cur : _, rest) &lt;- splitAt 1 &lt;$&gt; readIORef ioref
+</span><span class="add">+        bs &lt;- curry B.packCStringLen header (fromIntegral headerLen)
+</span><span class="add">+        let hunk = Hunk bs []
+</span><span class="add">+        writeIORef ioref $ cur{diffHunks = hunk : diffHunks cur} : rest
+</span><span class="add">+        return 0
+</span><span class="add">+
+</span><span class="add">+    dataCallback ::
+</span><span class="add">+        IORef [Diff] -&gt;
+</span><span class="add">+        Ptr LG.C&apos;git_diff_delta -&gt;
+</span><span class="add">+        Ptr LG.C&apos;git_diff_range -&gt;
+</span><span class="add">+        CChar -&gt;
+</span><span class="add">+        CString -&gt;
+</span><span class="add">+        CSize -&gt;
+</span><span class="add">+        Ptr () -&gt;
+</span><span class="add">+        IO CInt
+</span><span class="add">+    dataCallback ioref _dPtr _range lineOrigin content contentLen _payload = do
+</span><span class="add">+        bs &lt;- curry B.packCStringLen content (fromIntegral contentLen)
+</span><span class="add">+        let bs&apos; = B.cons (fromIntegral lineOrigin) bs
+</span><span class="add">+        (cur : _, rest) &lt;- splitAt 1 &lt;$&gt; readIORef ioref
+</span><span class="add">+        let (curHunk : _, restHunks) = splitAt 1 . diffHunks $ cur
+</span><span class="add">+        let updated =
+</span><span class="add">+                cur
+</span><span class="add">+                    { diffHunks =
+</span><span class="add">+                        curHunk
+</span><span class="add">+                            { hunkLines = bs&apos; : hunkLines curHunk
+</span><span class="add">+                            } :
+</span><span class="add">+                        restHunks
+</span><span class="add">+                    }
+</span><span class="add">+        writeIORef ioref $ updated : rest
+</span><span class="add">+        return 0
+</span><span class="add">+
+</span><span class="add">+    -- The callbacks prepend and then we put the lists the right way round here.
+</span><span class="add">+    -- This avoids traversing the lists every time we add an item.
+</span><span class="add">+    fixupLists :: Diff -&gt; Diff
+</span><span class="add">+    fixupLists diff = diff{diffHunks = fmap fixupLines . reverse . diffHunks $ diff}
+</span><span class="add">+      where
+</span><span class="add">+        fixupLines hunk = hunk{hunkLines = reverse . hunkLines $ hunk}
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Collect tree information for the given commit. Recurses on directories to list their
+</span></pre></div>    </div>
+  </body>
+</html>

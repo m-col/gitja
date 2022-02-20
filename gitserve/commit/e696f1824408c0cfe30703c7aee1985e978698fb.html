@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-09-25 01:23:12 +0100
 
 Stop cartesian product when loading templates
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -40,7 +40,7 @@
+
+
+  <pre><span class="def">     files &lt;- getFiles config
+</span><span class="def">     let files&apos; = filter ((/=) $ indexTemplate config) files
+</span><span class="def">     parsed &lt;- sequence $ parseGingerFile includeResolver &lt;$&gt; files&apos;
+</span><span class="sub">-    return $ Template &lt;$&gt; files&apos; &lt;*&gt; rights parsed
+</span><span class="add">+    return $ zipWith ($) (Template &lt;$&gt; files&apos;) (rights parsed)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This takes the session&apos;s `Config` and maybe returns a loaded template for the
+</span></pre></div>    </div>
   </body>
 </html>

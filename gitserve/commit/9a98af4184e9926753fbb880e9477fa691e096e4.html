@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,121 @@
 <b>Committed:</b> 2021-11-26 00:55:22 +0000
 
 add test for index scope
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/test.sh</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -29,6 +29,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> declare -a TESTS
+</span><span class="def"> TESTS=(
+</span><span class="add">+    &quot;index.html&quot;
+</span><span class="def">     &quot;gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html&quot;
+</span><span class="def">     &quot;gitserve/file/test.templates.style.css.html&quot;
+</span><span class="def"> )
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/title.html.include</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -2,3 +2,5 @@
+
+
+  <pre><span class="def"> {#- This file should not appear in the outputfolder. -#}
+</span><span class="def"> 
+</span><span class="def"> {% block title %}{% endblock %}
+</span><span class="add">+
+</span><span class="add">+{% block body %}{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/index.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,6 +1,5 @@
+
+
+  <pre><span class="def"> {% extends &quot;title.html.include&quot; %}
+</span><span class="def"> {%- block title -%}{{ host }}{%- endblock -%}
+</span><span class="sub">-
+</span><span class="def"> {% block body %}
+</span><span class="sub">-index
+</span><span class="add">+{{ repositories }}
+</span><span class="def"> {% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/index.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,2 @@
+
+
+  <pre><span class="add">+https://github.com/m-col/gitserve
+</span><span class="add">+gitserve
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/file/test.templates.style.css.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1 +1,2 @@
+
+
+  <pre><span class="sub">-test/templates/style.css</span><span class="def">
+
+\ No newline at end of file
+</span><span class="add">+test/templates/style.css
+</span><span class="add">+file
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1 +1,2 @@
+
+
+  <pre><span class="def"> 0292014748caae952bbc8dd6225680d83c0a5135
+</span><span class="add">+commit
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -50,19 +50,22 @@
+
+
+  <pre><span class="def">     toGVal :: Repo -&gt; GVal m
+</span><span class="def">     toGVal repo =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . pack . show . dirname . repositoryPath $ repo
+</span><span class="add">+            { asHtml = html . pack . init . showNoQuote . dirname . repositoryPath $ repo
+</span><span class="def">             , asText = pack . show . dirname . repositoryPath $ repo
+</span><span class="def">             , asLookup = Just . repoAsLookup $ repo
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="def"> repoAsLookup :: Repo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> repoAsLookup repo = \case
+</span><span class="sub">-    &quot;name&quot; -&gt; Just . toGVal . dirname . repositoryPath $ repo
+</span><span class="add">+    &quot;name&quot; -&gt; Just . toGVal . init . showNoQuote . dirname . repositoryPath $ repo
+</span><span class="def">     &quot;description&quot; -&gt; Just . toGVal . repositoryDescription $ repo
+</span><span class="def">     &quot;head&quot; -&gt; Just . toGVal . repositoryHead $ repo
+</span><span class="def">     &quot;updated&quot; -&gt; toGVal . show . signatureWhen . commitCommitter &lt;$&gt; repositoryHead repo
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="add">+showNoQuote :: Show a =&gt; a -&gt; String
+</span><span class="add">+showNoQuote = tail . init . show
+</span><span class="add">+
+</span><span class="def"> {-
+</span><span class="def"> GVal implementation for `Git.Commit r`, allowing commits to be rendered in Ginger
+</span><span class="def"> templates.
+</span></pre></div>    </div>
   </body>
 </html>

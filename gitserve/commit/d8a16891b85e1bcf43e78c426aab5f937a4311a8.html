@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,122 @@
 <b>Committed:</b> 2021-12-04 00:09:26 +0300
 
 Add conf prefix to config options in the code
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -78,20 +78,20 @@
+
+
+  <pre><span class="def"> loadEnv :: Bool -&gt; Bool -&gt; Config -&gt; IO Env
+</span><span class="def"> loadEnv quiet force config = do
+</span><span class="def">     -- First ensure that the output directory exists
+</span><span class="sub">-    output &lt;- parseAbsDir &lt;=&lt; canonicalizePath . outputDirectory $ config
+</span><span class="add">+    output &lt;- parseAbsDir &lt;=&lt; canonicalizePath . confOutputDirectory $ config
+</span><span class="def">     ensureDir output
+</span><span class="def"> 
+</span><span class="def">     -- Parse repos for env
+</span><span class="sub">-    repoPaths&apos; &lt;-
+</span><span class="sub">-        if scanRepoPaths config
+</span><span class="add">+    repoPaths &lt;-
+</span><span class="add">+        if confScanRepoPaths config
+</span><span class="def">             then do
+</span><span class="sub">-                ps &lt;- fmap concat . mapM (fmap fst . ls) . repoPaths $ config
+</span><span class="add">+                ps &lt;- fmap concat . mapM (fmap fst . ls) . confRepoPaths $ config
+</span><span class="def">                 return . filter ((/=) &quot;.git&quot; . toFilePath . dirname) $ ps
+</span><span class="sub">-            else mapM (parseAbsDir &lt;=&lt; canonicalizePath) . repoPaths $ config
+</span><span class="add">+            else mapM (parseAbsDir &lt;=&lt; canonicalizePath) . confRepoPaths $ config
+</span><span class="def"> 
+</span><span class="def">     -- Find template files, copying the static files as is
+</span><span class="sub">-    (dirs, files) &lt;- ls . templateDirectory $ config
+</span><span class="sub">-    (_, filesRepo) &lt;- ls $ templateDirectory config FP.&lt;/&gt; &quot;repo&quot;
+</span><span class="add">+    (dirs, files) &lt;- ls . confTemplateDirectory $ config
+</span><span class="add">+    (_, filesRepo) &lt;- ls $ confTemplateDirectory config FP.&lt;/&gt; &quot;repo&quot;
+</span><span class="def">     copyStaticDirs output dirs
+</span><span class="def">     copyStaticFiles output files
+</span><span class="def"> 
+</span></pre>@@ -113,8 +113,8 @@
+
+
+  <pre><span class="def">             , envFileTemplate = fileT
+</span><span class="def">             , envRepoTemplates = repoT
+</span><span class="def">             , envOutputDirectory = output
+</span><span class="sub">-            , envRepoPaths = repoPaths&apos;
+</span><span class="sub">-            , envHost = host config
+</span><span class="add">+            , envRepoPaths = repoPaths
+</span><span class="add">+            , envHost = confHost config
+</span><span class="def">             , envQuiet = quiet
+</span><span class="def">             , envForce = force
+</span><span class="def">             }
+</span></pre>@@ -187,13 +187,13 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The logic for copying static files and folders. Any file or folder in the
+</span><span class="sub">-``templateDirectory`` is considered static if:
+</span><span class="add">+``confTemplateDirectory`` is considered static if:
+</span><span class="def"> 
+</span><span class="def"> - it is a symbolic link, or
+</span><span class="def"> - it does not end in &quot;.html&quot; or &quot;.include&quot;.
+</span><span class="def"> 
+</span><span class="def"> Symbolic links are not followed and are copied as is. This means that a symbolic link
+</span><span class="sub">-from `templateDirectory/link.html` to `gitserve/index.html` will be copied, keeping the
+</span><span class="add">+from `confTemplateDirectory/link.html` to `gitserve/index.html` will be copied, keeping the
+</span><span class="def"> link intact, resulting in a symbolic link at `outputDirectory/link.html` essentially
+</span><span class="def"> pointing to `outputDirectory/gitserve/index.html`.
+</span><span class="def"> -}
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,6 +1,8 @@
+
+
+  <pre><span class="def"> -- Required by Dhall
+</span><span class="add">+{-# LANGUAGE DataKinds #-}
+</span><span class="def"> {-# LANGUAGE DeriveGeneric #-}
+</span><span class="sub">-{-# LANGUAGE DerivingStrategies #-}
+</span><span class="add">+{-# LANGUAGE DerivingVia #-}
+</span><span class="add">+{-# LANGUAGE TypeOperators #-}
+</span><span class="def"> 
+</span><span class="def"> module Config (
+</span><span class="def">     Config (..),
+</span></pre>@@ -10,18 +12,20 @@
+
+
+  <pre><span class="def"> import Control.Monad ((&lt;=&lt;))
+</span><span class="def"> import Data.Text (pack)
+</span><span class="def"> import Dhall
+</span><span class="add">+import Dhall.Deriving
+</span><span class="def"> import System.Directory (makeAbsolute)
+</span><span class="def"> 
+</span><span class="def"> data Config = Config
+</span><span class="sub">-    { repoPaths :: [FilePath]
+</span><span class="sub">-    , scanRepoPaths :: Bool
+</span><span class="sub">-    , templateDirectory :: FilePath
+</span><span class="sub">-    , outputDirectory :: FilePath
+</span><span class="sub">-    , host :: Text
+</span><span class="add">+    { confRepoPaths :: [FilePath]
+</span><span class="add">+    , confScanRepoPaths :: Bool
+</span><span class="add">+    , confTemplateDirectory :: FilePath
+</span><span class="add">+    , confOutputDirectory :: FilePath
+</span><span class="add">+    , confHost :: Text
+</span><span class="def">     }
+</span><span class="sub">-    deriving stock (Generic, Show)
+</span><span class="sub">-
+</span><span class="sub">-instance FromDhall Config
+</span><span class="add">+    deriving stock (Generic)
+</span><span class="add">+    deriving
+</span><span class="add">+        (FromDhall)
+</span><span class="add">+        via Codec (Field (CamelCase &lt;&lt;&lt; DropPrefix &quot;conf&quot;)) Config
+</span><span class="def"> 
+</span><span class="def"> getConfig :: String -&gt; IO Config
+</span><span class="def"> getConfig = input auto . pack &lt;=&lt; makeAbsolute
+</span></pre></div>    </div>
   </body>
 </html>

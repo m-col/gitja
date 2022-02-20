@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,159 @@
 Add `scanRepoPaths` config option to instead scan for repos
 
 Closes #17
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,5 +1,6 @@
+
+
+  <pre><span class="def"> let config =
+</span><span class="def">     { repoPaths = [&quot;.&quot;]
+</span><span class="add">+    , scanRepoPaths = False
+</span><span class="def">     , templateDirectory = &quot;./test/templates&quot;
+</span><span class="def">     , outputDirectory = &quot;./test/result&quot;
+</span><span class="def">     , host = &quot;https://github.com/m-col/gitserve&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,6 +13,7 @@
+
+
+  <pre><span class="def"> -- You may want to replace the relative paths for absolute paths.
+</span><span class="def"> let config =
+</span><span class="def">     { repoPaths = folders
+</span><span class="add">+    , scanRepoPaths = True
+</span><span class="def">     , templateDirectory = &quot;./template&quot;
+</span><span class="def">     , outputDirectory = &quot;./output&quot;
+</span><span class="def">     , host = &quot;http://localhost:8000&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -82,7 +82,12 @@
+
+
+  <pre><span class="def">     ensureDir output
+</span><span class="def"> 
+</span><span class="def">     -- Parse repos for env
+</span><span class="sub">-    repoPaths&apos; &lt;- mapM (parseAbsDir &lt;=&lt; canonicalizePath) . repoPaths $ config
+</span><span class="add">+    repoPaths&apos; &lt;-
+</span><span class="add">+        if scanRepoPaths config
+</span><span class="add">+            then do
+</span><span class="add">+                ps &lt;- fmap concat . mapM (fmap fst . ls) . repoPaths $ config
+</span><span class="add">+                return . filter ((/=) &quot;.git&quot; . toFilePath . dirname) $ ps
+</span><span class="add">+            else mapM (parseAbsDir &lt;=&lt; canonicalizePath) . repoPaths $ config
+</span><span class="def"> 
+</span><span class="def">     -- Find template files, copying the static files as is
+</span><span class="def">     (dirs, files) &lt;- ls . templateDirectory $ config
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -10,10 +10,11 @@
+
+
+  <pre><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Conduit (runConduit, sinkList, (.|))
+</span><span class="sub">-import Control.Monad (unless, when, (&lt;=&lt;))
+</span><span class="add">+import Control.Exception (try)
+</span><span class="add">+import Control.Monad (filterM, unless, when, (&lt;=&lt;))
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="sub">-import Data.Either (fromRight)
+</span><span class="add">+import Data.Either (fromRight, isRight)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, mapMaybe)
+</span><span class="def"> import Data.Tagged
+</span></pre>@@ -45,9 +46,12 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> loadRepos :: Env -&gt; IO [Repo]
+</span><span class="def"> loadRepos env = do
+</span><span class="sub">-    let paths = envRepoPaths env
+</span><span class="sub">-    descs &lt;- mapM getDescription paths
+</span><span class="sub">-    return . fmap ($ Nothing) . zipWith Repo paths $ descs
+</span><span class="add">+    paths&apos; &lt;- filterM (fmap isRight . okRepo) . envRepoPaths $ env
+</span><span class="add">+    descs &lt;- mapM getDescription paths&apos;
+</span><span class="add">+    return . fmap ($ Nothing) . zipWith Repo paths&apos; $ descs
+</span><span class="add">+  where
+</span><span class="add">+    okRepo :: Path Abs Dir -&gt; IO (Either GitException LgRepo)
+</span><span class="add">+    okRepo p = try . liftIO . openRepository lgFactory $ defaultRepositoryOptions{repoPath = toFilePath p}
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Pass the repository&apos;s folder, get its description.
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,6 +14,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> data Config = Config
+</span><span class="def">     { repoPaths :: [FilePath]
+</span><span class="add">+    , scanRepoPaths :: Bool
+</span><span class="def">     , templateDirectory :: FilePath
+</span><span class="def">     , outputDirectory :: FilePath
+</span><span class="def">     , host :: Text
+</span></pre></div><div class="diff">
+  <p>
+    <b>config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,6 +13,7 @@
+
+
+  <pre><span class="def"> -- If copying, you may want to replace the relative paths for absolute paths.
+</span><span class="def"> let config =
+</span><span class="def">     { repoPaths = folders
+</span><span class="add">+    , scanRepoPaths = False
+</span><span class="def">     , templateDirectory = &quot;./templates/docs&quot;
+</span><span class="def">     , outputDirectory = &quot;./output&quot;
+</span><span class="def">     , host = &quot;http://localhost:8000&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -16,12 +16,13 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> It requires the following settings:
+</span><span class="def"> 
+</span><span class="sub">-| Setting              | Description                                         |
+</span><span class="sub">-| -------------------- | --------------------------------------------------- |
+</span><span class="sub">-| `repoPaths`          | A list of folders containing your git repositories. |
+</span><span class="sub">-| `templateDirectory`  | The folder containing the template (see below).     |
+</span><span class="sub">-| `outputDirectory`    | Where to put the generated files.                   |
+</span><span class="sub">-| `host`               | The host URL, which is needed for creating links.   |
+</span><span class="add">+| Setting             | Description                                         |
+</span><span class="add">+| ------------------- | --------------------------------------------------- |
+</span><span class="add">+| `repoPaths`         | A list of folders containing your git repositories. |
+</span><span class="add">+| `scanRepoPaths`     | Whether `repoPaths` lists repos or folders containing nested repos. |
+</span><span class="add">+| `templateDirectory` | The folder containing the template (see below).     |
+</span><span class="add">+| `outputDirectory`   | Where to put the generated files.                   |
+</span><span class="add">+| `host`              | The host URL, which is needed for creating links.   |
+</span><span class="def"> 
+</span><span class="def"> Then, pass the config file to gitserve.
+</span><span class="def"> 
+</span></pre></div>    </div>
   </body>
 </html>

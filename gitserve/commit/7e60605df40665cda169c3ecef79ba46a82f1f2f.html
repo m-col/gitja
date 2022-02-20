@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,40 @@
 <b>Committed:</b> 2021-11-20 21:19:23 +0000
 
 Remove redundant brackets as per hlint
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -158,7 +158,7 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> findFile :: Text -&gt; [TreeFile] -&gt; Maybe TreeFile
+</span><span class="def"> findFile _ [] = Nothing
+</span><span class="sub">-findFile prefix (f:fs) = if (isReadme f) then (Just f) else (findFile prefix fs)
+</span><span class="add">+findFile prefix (f:fs) = if isReadme f then Just f else findFile prefix fs
+</span><span class="def">   where
+</span><span class="def">     isReadme = isPrefixOf prefix . toLower . decodeUtf8With lenientDecode . treeFilePath
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -52,7 +52,7 @@
+
+
+  <pre><span class="def"> main :: IO ()
+</span><span class="def"> main = do
+</span><span class="def">     options &lt;- parser
+</span><span class="sub">-    if (version options)
+</span><span class="add">+    if version options
+</span><span class="def">         then
+</span><span class="def">             putStrLn $ &quot;Your gitserve version is: &quot; &lt;&gt; currentVersion
+</span><span class="def">         else do
+</span></pre></div>    </div>
   </body>
 </html>

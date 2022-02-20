@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,38 @@
 <b>Committed:</b> 2021-09-30 10:32:32 +0100
 
 Reorder Template exports
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,10 +1,6 @@
+
+
+  <pre><span class="def"> {-# Language LambdaCase #-}
+</span><span class="def"> 
+</span><span class="def"> module Templates (
+</span><span class="sub">-    -- The Template data type and its constructors.
+</span><span class="sub">-    Template,
+</span><span class="sub">-    templatePath,
+</span><span class="sub">-    templateGinger,
+</span><span class="def">     -- The Env data type and its constructors.
+</span><span class="def">     Env,
+</span><span class="def">     envConfig,
+</span></pre>@@ -12,6 +8,10 @@
+
+
+  <pre><span class="def">     envIndexTemplate,
+</span><span class="def">     envCommitTemplate,
+</span><span class="def">     envFileTemplate,
+</span><span class="add">+    -- The Template data type and its constructors.
+</span><span class="add">+    Template,
+</span><span class="add">+    templatePath,
+</span><span class="add">+    templateGinger,
+</span><span class="def">     -- The entrypoint used by main.
+</span><span class="def">     loadTemplates,
+</span><span class="def">     -- The core functionality for which templates are used.
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,132 @@
 <b>Committed:</b> 2021-11-26 01:55:55 +0000
 
 add repo scope variables to file scope test
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/templates/repo/file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -12,4 +12,18 @@
+
+
+  <pre><span class="def"> file.mode_symbolic: {{ file.mode_symbolic }}
+</span><span class="def"> if file.is_directory then &quot;directory&quot; else &quot;file&quot;:
+</span><span class="def"> 	{%- if file.is_directory %} &quot;directory&quot;{% else %} &quot;file&quot;{% endif %}
+</span><span class="add">+
+</span><span class="add">+
+</span><span class="add">+file scope also should have data from repo scope available:
+</span><span class="add">+host: {{ host }}
+</span><span class="add">+repos: {{ repos }}
+</span><span class="add">+name: {{ name }}
+</span><span class="add">+description: {{ description }}
+</span><span class="add">+commits: (skipped)
+</span><span class="add">+tree: (skipped)
+</span><span class="add">+tags: (skipped)
+</span><span class="add">+branches: {{ branches }}
+</span><span class="add">+    branches[0].name: {{ branches[0].name }}
+</span><span class="add">+readme.path: {{ readme.path }}
+</span><span class="add">+license.path: {{ license.path }}
+</span><span class="def"> {% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/index.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -5,4 +5,3 @@
+
+
+  <pre><span class="def">     repositories[0]: gitserve
+</span><span class="def">     repositories[0].name: gitserve
+</span><span class="def">     repositories[0].description: 🐙 Templated web page generator for your git repositories
+</span><span class="sub">-
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/file/test.templates.style.css.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -7,4 +7,17 @@
+
+
+  <pre><span class="def"> file.mode: Plain
+</span><span class="def"> file.mode_octal: 00644
+</span><span class="def"> file.mode_symbolic: -rw-r--r--
+</span><span class="sub">-if file.is_directory then &quot;directory&quot; else &quot;file&quot;: &quot;file&quot;</span><span class="def">
+
+\ No newline at end of file
+</span><span class="add">+if file.is_directory then &quot;directory&quot; else &quot;file&quot;: &quot;file&quot;
+</span><span class="add">+
+</span><span class="add">+file scope also should have data from repo scope available:
+</span><span class="add">+host: https://github.com/m-col/gitserve
+</span><span class="add">+repos: gitserve
+</span><span class="add">+name: gitserve
+</span><span class="add">+description: 🐙 Templated web page generator for your git repositories
+</span><span class="add">+commits: (skipped)
+</span><span class="add">+tree: (skipped)
+</span><span class="add">+tags: (skipped)
+</span><span class="add">+branches: master
+</span><span class="add">+    branches[0].name: master
+</span><span class="add">+readme.path: README.rst
+</span><span class="add">+license.path: LICENSE
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/file/test.templates.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -7,4 +7,17 @@
+
+
+  <pre><span class="def"> file.mode: Directory
+</span><span class="def"> file.mode_octal: 40000
+</span><span class="def"> file.mode_symbolic: drwxr-xr-x
+</span><span class="sub">-if file.is_directory then &quot;directory&quot; else &quot;file&quot;: &quot;directory&quot;</span><span class="def">
+
+\ No newline at end of file
+</span><span class="add">+if file.is_directory then &quot;directory&quot; else &quot;file&quot;: &quot;directory&quot;
+</span><span class="add">+
+</span><span class="add">+file scope also should have data from repo scope available:
+</span><span class="add">+host: https://github.com/m-col/gitserve
+</span><span class="add">+repos: gitserve
+</span><span class="add">+name: gitserve
+</span><span class="add">+description: 🐙 Templated web page generator for your git repositories
+</span><span class="add">+commits: (skipped)
+</span><span class="add">+tree: (skipped)
+</span><span class="add">+tags: (skipped)
+</span><span class="add">+branches: master
+</span><span class="add">+    branches[0].name: master
+</span><span class="add">+readme.path: README.rst
+</span><span class="add">+license.path: LICENSE
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -17,7 +17,7 @@
+
+
+  <pre><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, mapMaybe)
+</span><span class="def"> import Data.Tagged
+</span><span class="sub">-import Data.Text (Text, isPrefixOf, pack, stripPrefix, toLower, unpack)
+</span><span class="add">+import Data.Text (Text, isPrefixOf, pack, strip, stripPrefix, toLower, unpack)
+</span><span class="def"> import Data.Text.Encoding (decodeUtf8With)
+</span><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="def"> import Git
+</span></pre>@@ -53,7 +53,7 @@
+
+
+  <pre><span class="def"> Pass the repository&apos;s folder, get its description.
+</span><span class="def"> -}
+</span><span class="def"> getDescription :: Path Abs Dir -&gt; IO Text
+</span><span class="sub">-getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap pack . readFile . flip FP.combine &quot;description&quot; . toFilePath
+</span><span class="add">+getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap (strip . pack) . readFile . flip FP.combine &quot;description&quot; . toFilePath
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This receives a file path to a single repository and tries to process it. If the
+</span></pre></div>    </div>
   </body>
 </html>

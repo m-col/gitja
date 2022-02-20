@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,34 @@
 <b>Committed:</b> 2021-11-21 01:15:37 +0000
 
 update comments in example config
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -2,14 +2,15 @@
+
+
+  <pre><span class="def"> -- It uses the Dhall configuration language: dhall-lang.org
+</span><span class="def"> 
+</span><span class="def"> -- This is a folder containing repositories.
+</span><span class="sub">-let root = &quot;..&quot;
+</span><span class="add">+let repos = &quot;..&quot;
+</span><span class="def"> 
+</span><span class="sub">--- And these are relative paths from root to those repositories.
+</span><span class="add">+-- And these are relative paths from &apos;repos&apos; to those repositories.
+</span><span class="def"> let folders =
+</span><span class="sub">-    [ &quot;${root}/gitserve&quot;
+</span><span class="add">+    [ &quot;${repos}/gitserve&quot;
+</span><span class="def">     ]
+</span><span class="def"> 
+</span><span class="sub">--- This is the configuration object that is used by gitserve
+</span><span class="add">+-- These are the configurable options that are used by gitserve.
+</span><span class="add">+-- If copying, you may want to replace the relative paths for absolute paths.
+</span><span class="def"> let config =
+</span><span class="def">     { repoPaths = folders
+</span><span class="def">     , templateDirectory = &quot;./templates&quot;
+</span></pre></div>    </div>
   </body>
 </html>

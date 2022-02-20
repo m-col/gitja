@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,90 @@
 <b>Committed:</b> 2021-11-26 20:00:58 +0000
 
 rename ci workflow
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>.github/workflows/haskell.yml</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,33 +0,0 @@
+
+
+  <pre><span class="sub">-name: CI
+</span><span class="sub">-
+</span><span class="sub">-on:
+</span><span class="sub">-  push:
+</span><span class="sub">-    branches: [ master ]
+</span><span class="sub">-  pull_request:
+</span><span class="sub">-    branches: [ master ]
+</span><span class="sub">-
+</span><span class="sub">-jobs:
+</span><span class="sub">-  ci:
+</span><span class="sub">-    runs-on: ubuntu-latest
+</span><span class="sub">-
+</span><span class="sub">-    steps:
+</span><span class="sub">-    - uses: actions/checkout@v1
+</span><span class="sub">-
+</span><span class="sub">-    - uses: haskell/actions/setup@v1
+</span><span class="sub">-      with:
+</span><span class="sub">-        enable-stack: true
+</span><span class="sub">-
+</span><span class="sub">-    - uses: actions/cache@v1
+</span><span class="sub">-      env:
+</span><span class="sub">-        cache-name: cache-stack-modules
+</span><span class="sub">-      with:
+</span><span class="sub">-        path: /home/runner/.stack/
+</span><span class="sub">-        key: ${{ hashFiles(&apos;**/stack.yaml.lock&apos;) }}
+</span><span class="sub">-
+</span><span class="sub">-    - name: Build
+</span><span class="sub">-      run: |
+</span><span class="sub">-        stack --no-terminal --silent build
+</span><span class="sub">-
+</span><span class="sub">-    - name: Test
+</span><span class="sub">-      run: |
+</span><span class="sub">-        bash test/test.sh
+</span></pre></div><div class="diff">
+  <p>
+    <b>.github/workflows/ci.yaml</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,33 @@
+
+
+  <pre><span class="add">+name: CI
+</span><span class="add">+
+</span><span class="add">+on:
+</span><span class="add">+  push:
+</span><span class="add">+    branches: [ master ]
+</span><span class="add">+  pull_request:
+</span><span class="add">+    branches: [ master ]
+</span><span class="add">+
+</span><span class="add">+jobs:
+</span><span class="add">+  ci:
+</span><span class="add">+    runs-on: ubuntu-latest
+</span><span class="add">+
+</span><span class="add">+    steps:
+</span><span class="add">+    - uses: actions/checkout@v1
+</span><span class="add">+
+</span><span class="add">+    - uses: haskell/actions/setup@v1
+</span><span class="add">+      with:
+</span><span class="add">+        enable-stack: true
+</span><span class="add">+
+</span><span class="add">+    - uses: actions/cache@v1
+</span><span class="add">+      env:
+</span><span class="add">+        cache-name: cache-stack-modules
+</span><span class="add">+      with:
+</span><span class="add">+        path: /home/runner/.stack/
+</span><span class="add">+        key: ${{ hashFiles(&apos;**/stack.yaml.lock&apos;) }}
+</span><span class="add">+
+</span><span class="add">+    - name: Build
+</span><span class="add">+      run: |
+</span><span class="add">+        stack --no-terminal --silent build
+</span><span class="add">+
+</span><span class="add">+    - name: Test
+</span><span class="add">+      run: |
+</span><span class="add">+        bash test/test.sh
+</span></pre></div>    </div>
   </body>
 </html>

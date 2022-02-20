@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-11-27 02:07:09 +0000
 
 repo scope: repos -&gt; repositories
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -119,7 +119,7 @@
+
+
+  <pre><span class="def"> package env repos name description commits tree tags branches =
+</span><span class="def">     HashMap.fromList
+</span><span class="def">         [ (&quot;host&quot;, toGVal . envHost $ env)
+</span><span class="sub">-        , (&quot;repos&quot;, toGVal repos)
+</span><span class="add">+        , (&quot;repositories&quot;, toGVal repos)
+</span><span class="def">         , (&quot;name&quot;, toGVal . pack . init . toFilePath $ name)
+</span><span class="def">         , (&quot;description&quot;, toGVal description)
+</span><span class="def">         , (&quot;commits&quot;, toGVal . reverse $ commits) -- Could be optimised
+</span></pre></div>    </div>
   </body>
 </html>

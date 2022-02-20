@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,40 @@
 <b>Committed:</b> 2021-10-02 23:43:59 +0100
 
 flip (&lt;/&gt;) &quot;description&quot; -&gt; (&lt;/&gt; &quot;description&quot;)
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -83,7 +83,7 @@
+
+
+  <pre><span class="def">     -&gt; Template
+</span><span class="def">     -&gt; IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
+</span><span class="def"> generate output context template = do
+</span><span class="sub">-    let target = (&lt;/&gt;) output . takeFileName . templatePath $ template
+</span><span class="add">+    let target = (output &lt;/&gt;) . takeFileName . templatePath $ template
+</span><span class="def">     writeFile target &quot;&quot;  -- Clear contents of file if it exists
+</span><span class="def">     easyRenderM (writeTo target) context . templateGinger $ template
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -49,7 +49,7 @@
+
+
+  <pre><span class="def"> use it too.
+</span><span class="def"> -}
+</span><span class="def"> getDescription :: FilePath -&gt; IO Text
+</span><span class="sub">-getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap pack . readFile . flip (&lt;/&gt;) &quot;description&quot;
+</span><span class="add">+getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap pack . readFile . (&lt;/&gt; &quot;description&quot;)
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Private -----------------------------------------------------------------------------
+</span></pre></div>    </div>
   </body>
 </html>

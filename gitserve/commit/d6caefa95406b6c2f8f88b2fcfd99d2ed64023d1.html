@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,34 @@
 <b>Committed:</b> 2021-10-04 23:06:57 +0100
 
 untag commits when rendering in templates
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -154,7 +154,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> commitAsLookup :: Commit LgRepo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> commitAsLookup commit = \case
+</span><span class="sub">-    &quot;id&quot; -&gt; Just . toGVal . show . commitOid $ commit
+</span><span class="add">+    &quot;id&quot; -&gt; Just . toGVal . show . untag . commitOid $ commit
+</span><span class="def">     &quot;title&quot; -&gt; Just . toGVal . strip . T.takeWhile (/= &apos;\n&apos;) . commitLog $ commit
+</span><span class="def">     &quot;body&quot; -&gt; Just . toGVal . strip . T.dropWhile (/= &apos;\n&apos;) . commitLog $ commit
+</span><span class="def">     &quot;message&quot; -&gt; Just . toGVal . strip . commitLog $ commit
+</span></pre>@@ -221,7 +221,7 @@
+
+
+  <pre><span class="def">     category :: a -&gt; FilePath
+</span><span class="def"> 
+</span><span class="def"> instance Target (Commit LgRepo) where
+</span><span class="sub">-    identify = (++ &quot;.html&quot;) . show . commitOid
+</span><span class="add">+    identify = (++ &quot;.html&quot;) . show . untag . commitOid
+</span><span class="def">     category = const &quot;commit&quot;
+</span><span class="def"> 
+</span><span class="def"> instance Target TreeFile where
+</span></pre></div>    </div>
   </body>
 </html>

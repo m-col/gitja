@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,151 @@
 <b>Committed:</b> 2021-11-20 21:18:19 +0000
 
 Add command line arg parsing
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -45,6 +45,7 @@
+
+
+  <pre><span class="def">     , envIndexTemplate :: Maybe Template
+</span><span class="def">     , envCommitTemplate :: Maybe Template
+</span><span class="def">     , envFileTemplate :: Maybe Template
+</span><span class="add">+    , envForce :: Bool
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> data Template = Template
+</span></pre>@@ -56,8 +57,8 @@
+
+
+  <pre><span class="def"> This creates the runtime environment, collecting the config and loading template data
+</span><span class="def"> from file.
+</span><span class="def"> -}
+</span><span class="sub">-loadTemplates :: Config -&gt; IO Env
+</span><span class="sub">-loadTemplates config = do
+</span><span class="add">+loadTemplates :: Bool -&gt; Config -&gt; IO Env
+</span><span class="add">+loadTemplates force config = do
+</span><span class="def">     -- Custom templates
+</span><span class="def">     files &lt;- getFiles config
+</span><span class="def">     templates &lt;- mapM loadTemplate files
+</span></pre>@@ -71,6 +72,7 @@
+
+
+  <pre><span class="def">     , envIndexTemplate = indexT
+</span><span class="def">     , envCommitTemplate = commitT
+</span><span class="def">     , envFileTemplate = fileT
+</span><span class="add">+    , envForce = force
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,13 +4,62 @@
+
+
+  <pre><span class="def">     main
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="add">+import Data.Text (Text)
+</span><span class="add">+import qualified Options.Applicative as O
+</span><span class="add">+
+</span><span class="def"> import Config (getConfig)
+</span><span class="def"> import Index (runIndex)
+</span><span class="def"> import Templates (loadTemplates)
+</span><span class="def"> import Repositories (run)
+</span><span class="def"> 
+</span><span class="add">+{-
+</span><span class="add">+Command line options
+</span><span class="add">+-}
+</span><span class="add">+data Options = Options
+</span><span class="add">+    { config :: Text
+</span><span class="add">+    , force :: Bool
+</span><span class="add">+    , version :: Bool
+</span><span class="add">+    }
+</span><span class="add">+
+</span><span class="add">+opts :: O.Parser Options
+</span><span class="add">+opts = Options
+</span><span class="add">+    &lt;$&gt; O.strOption (
+</span><span class="add">+        O.long &quot;config&quot; &lt;&gt;
+</span><span class="add">+        O.short &apos;c&apos; &lt;&gt;
+</span><span class="add">+        O.metavar &quot;CONFIG&quot; &lt;&gt;
+</span><span class="add">+        O.value &quot;./config.dhall&quot; &lt;&gt;
+</span><span class="add">+        O.help &quot;Configuration file to use (Default: ./config.dhall)&quot;
+</span><span class="add">+        )
+</span><span class="add">+    &lt;*&gt; O.switch (
+</span><span class="add">+        O.long &quot;force&quot; &lt;&gt;
+</span><span class="add">+        O.short &apos;f&apos; &lt;&gt;
+</span><span class="add">+        O.help &quot;Force regeneration of all files&quot;
+</span><span class="add">+        )
+</span><span class="add">+    &lt;*&gt; O.switch (
+</span><span class="add">+        O.long &quot;version&quot; &lt;&gt;
+</span><span class="add">+        O.short &apos;v&apos; &lt;&gt;
+</span><span class="add">+        O.help &quot;Print the gitserve&apos;s version&quot;
+</span><span class="add">+        )
+</span><span class="add">+
+</span><span class="add">+parser :: IO Options
+</span><span class="add">+parser = O.execParser $ O.info (opts O.&lt;**&gt; O.helper)
+</span><span class="add">+    ( O.progDesc &quot;🐙 Templated web page generator for your git repositories&quot;
+</span><span class="add">+    )
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+Main logic
+</span><span class="add">+-}
+</span><span class="def"> main :: IO ()
+</span><span class="def"> main = do
+</span><span class="sub">-    env &lt;- loadTemplates =&lt;&lt; getConfig &quot;./config.dhall&quot;
+</span><span class="sub">-    runIndex env
+</span><span class="sub">-    run env
+</span><span class="add">+    options &lt;- parser
+</span><span class="add">+    if (version options)
+</span><span class="add">+        then
+</span><span class="add">+            putStrLn $ &quot;Your gitserve version is: &quot; &lt;&gt; currentVersion
+</span><span class="add">+        else do
+</span><span class="add">+            conf &lt;- getConfig (config options)
+</span><span class="add">+            env &lt;- loadTemplates (force options) conf
+</span><span class="add">+            runIndex env
+</span><span class="add">+            run env
+</span><span class="add">+
+</span><span class="add">+currentVersion :: String
+</span><span class="add">+currentVersion = &quot;0.0.0&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -27,6 +27,7 @@
+
+
+  <pre><span class="def">                      , ginger &gt;= 0.10.3
+</span><span class="def">                      , gitlib
+</span><span class="def">                      , gitlib-libgit2
+</span><span class="add">+                     , optparse-applicative
+</span><span class="def">                      , tagged
+</span><span class="def">                      , text
+</span><span class="def">                      , transformers
+</span></pre></div><div class="diff">
+  <p>
+    <b>README.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -31,7 +31,6 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> - Commit diffs
+</span><span class="def"> - Write guide
+</span><span class="sub">-- Specify config on the command line
+</span><span class="def"> - Improve performance
+</span><span class="def"> 
+</span><span class="def"> Meta
+</span></pre></div>    </div>
   </body>
 </html>

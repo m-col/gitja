@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,732 @@
 Auto-format with fourmolu
 
 Default settings i.e. fourmolu -m inplace src/*
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,23 +1,26 @@
+
+
+  <pre><span class="sub">-{-# Language DerivingStrategies #-}
+</span><span class="sub">-{-# Language LambdaCase #-}
+</span><span class="sub">-{-# Language OverloadedStrings #-}
+</span><span class="sub">-{-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
+</span><span class="sub">-{-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
+</span><span class="sub">-{-# Language InstanceSigs #-}  -- Needed for toGVal type signature
+</span><span class="add">+{-# LANGUAGE DerivingStrategies #-}
+</span><span class="add">+-- Needed for `instance ToGVal`
+</span><span class="add">+{-# LANGUAGE FlexibleInstances #-}
+</span><span class="add">+-- Needed for toGVal type signature
+</span><span class="add">+{-# LANGUAGE InstanceSigs #-}
+</span><span class="add">+{-# LANGUAGE LambdaCase #-}
+</span><span class="add">+-- Needed for `instance ToGVal`
+</span><span class="add">+{-# LANGUAGE MultiParamTypeClasses #-}
+</span><span class="add">+{-# LANGUAGE OverloadedStrings #-}
+</span><span class="def"> 
+</span><span class="def"> module Types where
+</span><span class="def"> 
+</span><span class="def"> import Data.ByteString.UTF8 (toString)
+</span><span class="def"> import Data.Default (def)
+</span><span class="def"> import Data.Tagged (untag)
+</span><span class="sub">-import Data.Text (pack, Text, strip)
+</span><span class="add">+import Data.Text (Text, pack, strip)
+</span><span class="add">+import qualified Data.Text as T
+</span><span class="def"> import Data.Text.Encoding (decodeUtf8With)
+</span><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (LgRepo)
+</span><span class="sub">-import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup, asList, asBoolean)
+</span><span class="add">+import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
+</span><span class="def"> import Text.Ginger.Html (html)
+</span><span class="sub">-import qualified Data.Text as T
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> GVal implementation for `Git.Commit r`, allowing commits to be rendered in Ginger
+</span></pre>@@ -25,11 +28,12 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> instance ToGVal m (Commit LgRepo) where
+</span><span class="def">     toGVal :: Commit LgRepo -&gt; GVal m
+</span><span class="sub">-    toGVal commit = def
+</span><span class="sub">-        { asHtml = html . pack . show . commitLog $ commit
+</span><span class="sub">-        , asText = pack . show . commitLog $ commit
+</span><span class="sub">-        , asLookup = Just . commitAsLookup $ commit
+</span><span class="sub">-        }
+</span><span class="add">+    toGVal commit =
+</span><span class="add">+        def
+</span><span class="add">+            { asHtml = html . pack . show . commitLog $ commit
+</span><span class="add">+            , asText = pack . show . commitLog $ commit
+</span><span class="add">+            , asLookup = Just . commitAsLookup $ commit
+</span><span class="add">+            }
+</span><span class="def"> 
+</span><span class="def"> commitAsLookup :: Commit LgRepo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> commitAsLookup commit = \case
+</span></pre>@@ -59,7 +63,7 @@
+
+
+  <pre><span class="def"> data TreeFileContents = FileContents Text | FolderContents [TreeFilePath]
+</span><span class="def"> 
+</span><span class="def"> data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
+</span><span class="sub">-    deriving stock Show
+</span><span class="add">+    deriving stock (Show)
+</span><span class="def"> 
+</span><span class="def"> showMode :: TreeEntryMode -&gt; String
+</span><span class="def"> showMode = drop 4 . show
+</span></pre>@@ -75,18 +79,18 @@
+
+
+  <pre><span class="def"> blobkindToMode SymlinkBlob = ModeSymlink
+</span><span class="def"> 
+</span><span class="def"> modeToOctal :: TreeEntryMode -&gt; String
+</span><span class="sub">-modeToOctal ModeDirectory  = &quot;40000&quot;
+</span><span class="sub">-modeToOctal ModePlain      = &quot;00644&quot;
+</span><span class="add">+modeToOctal ModeDirectory = &quot;40000&quot;
+</span><span class="add">+modeToOctal ModePlain = &quot;00644&quot;
+</span><span class="def"> modeToOctal ModeExecutable = &quot;00755&quot;
+</span><span class="sub">-modeToOctal ModeSymlink    = &quot;20000&quot;
+</span><span class="sub">-modeToOctal ModeSubmodule  = &quot;60000&quot;
+</span><span class="add">+modeToOctal ModeSymlink = &quot;20000&quot;
+</span><span class="add">+modeToOctal ModeSubmodule = &quot;60000&quot;
+</span><span class="def"> 
+</span><span class="def"> modeToSymbolic :: TreeEntryMode -&gt; String
+</span><span class="sub">-modeToSymbolic ModeDirectory  = &quot;drwxr-xr-x&quot;
+</span><span class="sub">-modeToSymbolic ModePlain      = &quot;-rw-r--r--&quot;
+</span><span class="add">+modeToSymbolic ModeDirectory = &quot;drwxr-xr-x&quot;
+</span><span class="add">+modeToSymbolic ModePlain = &quot;-rw-r--r--&quot;
+</span><span class="def"> modeToSymbolic ModeExecutable = &quot;-rwxr-xr-x&quot;
+</span><span class="sub">-modeToSymbolic ModeSymlink    = &quot;l---------&quot;
+</span><span class="sub">-modeToSymbolic ModeSubmodule  = &quot;git-module&quot;
+</span><span class="add">+modeToSymbolic ModeSymlink = &quot;l---------&quot;
+</span><span class="add">+modeToSymbolic ModeSubmodule = &quot;git-module&quot;
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> GVal implementations for data definitions above, allowing commits to be rendered in
+</span></pre>@@ -94,21 +98,23 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> instance ToGVal m TreeFile where
+</span><span class="def">     toGVal :: TreeFile -&gt; GVal m
+</span><span class="sub">-    toGVal treefile = def
+</span><span class="sub">-        { asHtml = html . pack . toString . treeFilePath $ treefile
+</span><span class="sub">-        , asText = pack . show . treeFilePath $ treefile
+</span><span class="sub">-        , asLookup = Just . treeAsLookup $ treefile
+</span><span class="sub">-        , asBoolean = True  -- Used for conditionally checking readme/license template variables.
+</span><span class="sub">-        }
+</span><span class="add">+    toGVal treefile =
+</span><span class="add">+        def
+</span><span class="add">+            { asHtml = html . pack . toString . treeFilePath $ treefile
+</span><span class="add">+            , asText = pack . show . treeFilePath $ treefile
+</span><span class="add">+            , asLookup = Just . treeAsLookup $ treefile
+</span><span class="add">+            , asBoolean = True -- Used for conditionally checking readme/license template variables.
+</span><span class="add">+            }
+</span><span class="def"> 
+</span><span class="def"> instance ToGVal m TreeFileContents where
+</span><span class="def">     toGVal :: TreeFileContents -&gt; GVal m
+</span><span class="def">     toGVal (FileContents text) = toGVal text
+</span><span class="sub">-    toGVal (FolderContents filePaths) = def
+</span><span class="sub">-        { asHtml = html . pack . show $ filePaths
+</span><span class="sub">-        , asText = pack . show $ filePaths
+</span><span class="sub">-        , asList = Just . fmap toGVal $ filePaths
+</span><span class="sub">-        }
+</span><span class="add">+    toGVal (FolderContents filePaths) =
+</span><span class="add">+        def
+</span><span class="add">+            { asHtml = html . pack . show $ filePaths
+</span><span class="add">+            , asText = pack . show $ filePaths
+</span><span class="add">+            , asList = Just . fmap toGVal $ filePaths
+</span><span class="add">+            }
+</span><span class="def"> 
+</span><span class="def"> treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> treeAsLookup treefile = \case
+</span></pre>@@ -130,7 +136,7 @@
+
+
+  <pre><span class="def"> Get the name of a tree file path&apos;s HTML file.
+</span><span class="def"> -}
+</span><span class="def"> treePathToHref :: TreeFilePath -&gt; Text
+</span><span class="sub">-treePathToHref = flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; .  decodeUtf8With lenientDecode
+</span><span class="add">+treePathToHref = flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; . decodeUtf8With lenientDecode
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Data to store information about references: tags and branches.
+</span></pre>@@ -142,11 +148,12 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> instance ToGVal m Ref where
+</span><span class="def">     toGVal :: Ref -&gt; GVal m
+</span><span class="sub">-    toGVal ref = def
+</span><span class="sub">-        { asHtml = html . refName $ ref
+</span><span class="sub">-        , asText = refName ref
+</span><span class="sub">-        , asLookup = Just . refAsLookup $ ref
+</span><span class="sub">-        }
+</span><span class="add">+    toGVal ref =
+</span><span class="add">+        def
+</span><span class="add">+            { asHtml = html . refName $ ref
+</span><span class="add">+            , asText = refName ref
+</span><span class="add">+            , asLookup = Just . refAsLookup $ ref
+</span><span class="add">+            }
+</span><span class="def"> 
+</span><span class="def"> refAsLookup :: Ref -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> refAsLookup ref = \case
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,4 +1,4 @@
+
+
+  <pre><span class="sub">-{-# Language LambdaCase #-}
+</span><span class="add">+{-# LANGUAGE LambdaCase #-}
+</span><span class="def"> 
+</span><span class="def"> module Templates (
+</span><span class="def">     -- The Env data type and its constructors.
+</span></pre>@@ -21,18 +21,18 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Control.Monad (filterM, void)
+</span><span class="def"> import Data.Char (toLower)
+</span><span class="add">+import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.List (isSuffixOf)
+</span><span class="def"> import Data.Maybe (catMaybes)
+</span><span class="sub">-import Data.Text (unpack, Text)
+</span><span class="sub">-import qualified Data.HashMap.Strict as HashMap
+</span><span class="add">+import Data.Text (Text, unpack)
+</span><span class="def"> import System.Directory (doesFileExist, getDirectoryContents)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;))
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="sub">-import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
+</span><span class="def"> import Text.Ginger.GVal (GVal)
+</span><span class="sub">-import Text.Ginger.Html (htmlSource, Html)
+</span><span class="sub">-import Text.Ginger.Run (easyRenderM, Run)
+</span><span class="add">+import Text.Ginger.Html (Html, htmlSource)
+</span><span class="add">+import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
+</span><span class="add">+import Text.Ginger.Run (Run, easyRenderM)
+</span><span class="def"> 
+</span><span class="def"> import Config
+</span><span class="def"> 
+</span></pre>@@ -68,25 +68,27 @@
+
+
+  <pre><span class="def">     commitT &lt;- loadTemplate . commitTemplate $ config
+</span><span class="def">     fileT &lt;- loadTemplate . fileTemplate $ config
+</span><span class="def">     -- Global environment
+</span><span class="sub">-    return Env { envConfig = config
+</span><span class="sub">-    , envTemplates = catMaybes templates
+</span><span class="sub">-    , envIndexTemplate = indexT
+</span><span class="sub">-    , envCommitTemplate = commitT
+</span><span class="sub">-    , envFileTemplate = fileT
+</span><span class="sub">-    , envForce = force
+</span><span class="sub">-    }
+</span><span class="add">+    return
+</span><span class="add">+        Env
+</span><span class="add">+            { envConfig = config
+</span><span class="add">+            , envTemplates = catMaybes templates
+</span><span class="add">+            , envIndexTemplate = indexT
+</span><span class="add">+            , envCommitTemplate = commitT
+</span><span class="add">+            , envFileTemplate = fileT
+</span><span class="add">+            , envForce = force
+</span><span class="add">+            }
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the generator function that receives repository-specific variables and uses
+</span><span class="def"> Ginger to render templates using them.
+</span><span class="def"> -}
+</span><span class="sub">-generate
+</span><span class="sub">-    :: FilePath
+</span><span class="sub">-    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-    -&gt; Template
+</span><span class="sub">-    -&gt; IO ()
+</span><span class="add">+generate ::
+</span><span class="add">+    FilePath -&gt;
+</span><span class="add">+    HashMap.HashMap Text (GVal (Run SourcePos IO Html)) -&gt;
+</span><span class="add">+    Template -&gt;
+</span><span class="add">+    IO ()
+</span><span class="def"> generate output context template = do
+</span><span class="sub">-    writeFile output &quot;&quot;  -- Clear contents of file if it exists
+</span><span class="add">+    writeFile output &quot;&quot; -- Clear contents of file if it exists
+</span><span class="def">     void $ easyRenderM (writeTo output) context . templateGinger $ template
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span></pre>@@ -97,11 +99,12 @@
+
+
+  <pre><span class="def"> ``indexTemplate`` setting.
+</span><span class="def"> -}
+</span><span class="def"> loadTemplate :: FilePath -&gt; IO (Maybe Template)
+</span><span class="sub">-loadTemplate path = parseGingerFile includeResolver path &gt;&gt;= \case
+</span><span class="sub">-    Right parsed -&gt; return . Just . Template path $ parsed
+</span><span class="sub">-    Left err -&gt; do
+</span><span class="sub">-        print . peErrorMessage $ err
+</span><span class="sub">-        return Nothing
+</span><span class="add">+loadTemplate path =
+</span><span class="add">+    parseGingerFile includeResolver path &gt;&gt;= \case
+</span><span class="add">+        Right parsed -&gt; return . Just . Template path $ parsed
+</span><span class="add">+        Left err -&gt; do
+</span><span class="add">+            print . peErrorMessage $ err
+</span><span class="add">+            return Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is a Ginger `IncludeResolver` that will eventually be extended to enable caching of
+</span></pre>@@ -127,9 +130,9 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> isTargeted :: Config -&gt; FilePath -&gt; Bool
+</span><span class="def"> isTargeted config path =
+</span><span class="sub">-    path == indexTemplate config ||
+</span><span class="sub">-    path == commitTemplate config ||
+</span><span class="sub">-    path == fileTemplate config
+</span><span class="add">+    path == indexTemplate config
+</span><span class="add">+        || path == commitTemplate config
+</span><span class="add">+        || path == fileTemplate config
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This wraps getDirectoryContents so that we get a list of fully qualified paths of the
+</span></pre>@@ -143,7 +146,7 @@
+
+
+  <pre><span class="def"> valid template files.
+</span><span class="def"> -}
+</span><span class="def"> getFiles :: Config -&gt; IO [FilePath]
+</span><span class="sub">-getFiles = ((&gt;&gt;=) . listTemplates . templateDirectory) &lt;*&gt; (filterM  . isTemplate)
+</span><span class="add">+getFiles = ((&gt;&gt;=) . listTemplates . templateDirectory) &lt;*&gt; (filterM . isTemplate)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This function gets the output HTML data and is responsible for saving it to file.
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,30 +1,32 @@
+
+
+  <pre><span class="sub">-{-# Language LambdaCase #-}
+</span><span class="sub">-{-# Language OverloadedStrings #-}
+</span><span class="sub">-{-# Language FlexibleInstances #-}  -- Needed for the Target class type constraints
+</span><span class="sub">-{-# Language FlexibleContexts #-}  -- Needed for the Target class type constraints
+</span><span class="add">+-- Needed for the Target class type constraints
+</span><span class="add">+{-# LANGUAGE FlexibleContexts #-}
+</span><span class="add">+-- Needed for the Target class type constraints
+</span><span class="add">+{-# LANGUAGE FlexibleInstances #-}
+</span><span class="add">+{-# LANGUAGE LambdaCase #-}
+</span><span class="add">+{-# LANGUAGE OverloadedStrings #-}
+</span><span class="def"> 
+</span><span class="def"> module Repositories (
+</span><span class="def">     run,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="sub">-import Conduit (runConduit, (.|), sinkList)
+</span><span class="sub">-import Control.Monad ((&lt;=&lt;), when)
+</span><span class="add">+import Conduit (runConduit, sinkList, (.|))
+</span><span class="add">+import Control.Monad (when, (&lt;=&lt;))
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="add">+import qualified Data.HashMap.Strict as HashMap
+</span><span class="add">+import Data.Maybe (catMaybes, fromJust, mapMaybe)
+</span><span class="def"> import Data.Tagged
+</span><span class="sub">-import Data.Text (pack, unpack, Text, isPrefixOf, stripPrefix, toLower)
+</span><span class="add">+import Data.Text (Text, isPrefixOf, pack, stripPrefix, toLower, unpack)
+</span><span class="def"> import Data.Text.Encoding (decodeUtf8With)
+</span><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="sub">-import Data.Maybe (mapMaybe, catMaybes, fromJust)
+</span><span class="def"> import Git
+</span><span class="sub">-import Git.Libgit2 (lgFactory, LgRepo)
+</span><span class="add">+import Git.Libgit2 (LgRepo, lgFactory)
+</span><span class="def"> import System.Directory (createDirectoryIfMissing, doesFileExist)
+</span><span class="sub">-import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="sub">-import Text.Ginger.GVal (GVal, toGVal, ToGVal)
+</span><span class="add">+import System.FilePath (takeFileName, (&lt;/&gt;))
+</span><span class="add">+import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+</span><span class="def"> import Text.Ginger.Html (Html)
+</span><span class="sub">-import Text.Ginger.Run (Run)
+</span><span class="def"> import Text.Ginger.Parse (SourcePos)
+</span><span class="sub">-import qualified Data.HashMap.Strict as HashMap
+</span><span class="add">+import Text.Ginger.Run (Run)
+</span><span class="def"> 
+</span><span class="def"> import Config
+</span><span class="def"> import Index
+</span></pre>@@ -38,7 +40,6 @@
+
+
+  <pre><span class="def"> run :: Env -&gt; [Repo] -&gt; IO ()
+</span><span class="def"> run = mapM_ . processRepo
+</span><span class="def"> 
+</span><span class="sub">-
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Private -----------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre>@@ -72,7 +73,7 @@
+
+
+  <pre><span class="def">             liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;commits&quot;
+</span><span class="def">             liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;files&quot;
+</span><span class="def">             liftIO . mapM_ (genTarget output scope force $ envCommitTemplate env) $ commits
+</span><span class="sub">-            liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree  -- TODO: detect file changes
+</span><span class="add">+            liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The role of the function above is to gather information about a git repository and
+</span></pre>@@ -80,34 +81,36 @@
+
+
+  <pre><span class="def"> Ginger templates. `package` takes these pieces of information and places it all into a
+</span><span class="def"> hashmap which Ginger can use to look up variables.
+</span><span class="def"> -}
+</span><span class="sub">-package
+</span><span class="sub">-    :: Env
+</span><span class="sub">-    -&gt; FilePath
+</span><span class="sub">-    -&gt; Text
+</span><span class="sub">-    -&gt; [Commit LgRepo]
+</span><span class="sub">-    -&gt; [TreeFile]
+</span><span class="sub">-    -&gt; [Ref]
+</span><span class="sub">-    -&gt; [Ref]
+</span><span class="sub">-    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-package env name description commits tree tags branches = HashMap.fromList
+</span><span class="sub">-    [ (&quot;host&quot;, toGVal . host . envConfig $ env)
+</span><span class="sub">-    , (&quot;name&quot;, toGVal . pack $ name)
+</span><span class="sub">-    , (&quot;description&quot;, toGVal description)
+</span><span class="sub">-    , (&quot;commits&quot;, toGVal . reverse $ commits)  -- Could be optimised
+</span><span class="sub">-    , (&quot;tree&quot;, toGVal tree)
+</span><span class="sub">-    , (&quot;tags&quot;, toGVal tags)
+</span><span class="sub">-    , (&quot;branches&quot;, toGVal branches)
+</span><span class="sub">-    , (&quot;readme&quot;, toGVal . findFile &quot;readme&quot; $ tree)
+</span><span class="sub">-    , (&quot;license&quot;, toGVal . findFile &quot;license&quot; $ tree)
+</span><span class="sub">-    ]
+</span><span class="add">+package ::
+</span><span class="add">+    Env -&gt;
+</span><span class="add">+    FilePath -&gt;
+</span><span class="add">+    Text -&gt;
+</span><span class="add">+    [Commit LgRepo] -&gt;
+</span><span class="add">+    [TreeFile] -&gt;
+</span><span class="add">+    [Ref] -&gt;
+</span><span class="add">+    [Ref] -&gt;
+</span><span class="add">+    HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="add">+package env name description commits tree tags branches =
+</span><span class="add">+    HashMap.fromList
+</span><span class="add">+        [ (&quot;host&quot;, toGVal . host . envConfig $ env)
+</span><span class="add">+        , (&quot;name&quot;, toGVal . pack $ name)
+</span><span class="add">+        , (&quot;description&quot;, toGVal description)
+</span><span class="add">+        , (&quot;commits&quot;, toGVal . reverse $ commits) -- Could be optimised
+</span><span class="add">+        , (&quot;tree&quot;, toGVal tree)
+</span><span class="add">+        , (&quot;tags&quot;, toGVal tags)
+</span><span class="add">+        , (&quot;branches&quot;, toGVal branches)
+</span><span class="add">+        , (&quot;readme&quot;, toGVal . findFile &quot;readme&quot; $ tree)
+</span><span class="add">+        , (&quot;license&quot;, toGVal . findFile &quot;license&quot; $ tree)
+</span><span class="add">+        ]
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Collect commit information.
+</span><span class="def"> -}
+</span><span class="def"> getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit LgRepo]
+</span><span class="def"> getCommits commitID =
+</span><span class="sub">-    sequence . mapMaybe loadCommit &lt;=&lt;
+</span><span class="sub">-    runConduit $ sourceObjects Nothing commitID False .| sinkList
+</span><span class="add">+    sequence . mapMaybe loadCommit
+</span><span class="add">+        &lt;=&lt; runConduit
+</span><span class="add">+        $ sourceObjects Nothing commitID False .| sinkList
+</span><span class="def"> 
+</span><span class="def"> loadCommit :: ObjectOid LgRepo -&gt; Maybe (ReaderT LgRepo IO (Commit LgRepo))
+</span><span class="def"> loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
+</span></pre>@@ -139,7 +142,7 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> findFile :: Text -&gt; [TreeFile] -&gt; Maybe TreeFile
+</span><span class="def"> findFile _ [] = Nothing
+</span><span class="sub">-findFile prefix (f:fs) = if isReadme f then Just f else findFile prefix fs
+</span><span class="add">+findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
+</span><span class="def">   where
+</span><span class="def">     isReadme = isPrefixOf prefix . toLower . decodeUtf8With lenientDecode . treeFilePath
+</span><span class="def"> 
+</span></pre>@@ -156,7 +159,6 @@
+
+
+  <pre><span class="def">     maybeCommits &lt;- mapM refObjToCommit objs
+</span><span class="def">     let names&apos;&apos; = map (fromJust . stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names&apos;
+</span><span class="def">     return . zipWith Ref names&apos;&apos; . catMaybes $ maybeCommits
+</span><span class="sub">-
+</span><span class="def">   where
+</span><span class="def">     refObjToCommit :: Object r m -&gt; ReaderT LgRepo IO (Maybe (Commit r))
+</span><span class="def">     refObjToCommit (CommitObj obj) = return . Just $ obj
+</span></pre>@@ -166,11 +168,11 @@
+
+
+  <pre><span class="def">     dropName (Just _) name = Just name
+</span><span class="def">     dropName Nothing _ = Nothing
+</span><span class="def"> 
+</span><span class="sub">-genRepo
+</span><span class="sub">-    :: FilePath
+</span><span class="sub">-    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-    -&gt; Template
+</span><span class="sub">-    -&gt; IO ()
+</span><span class="add">+genRepo ::
+</span><span class="add">+    FilePath -&gt;
+</span><span class="add">+    HashMap.HashMap Text (GVal (Run SourcePos IO Html)) -&gt;
+</span><span class="add">+    Template -&gt;
+</span><span class="add">+    IO ()
+</span><span class="def"> genRepo output scope template = generate output&apos; scope template
+</span><span class="def">   where
+</span><span class="def">     output&apos; = (&lt;/&gt;) output . takeFileName . templatePath $ template
+</span></pre>@@ -197,14 +199,14 @@
+
+
+  <pre><span class="def">     identify = unpack . treePathToHref . treeFilePath
+</span><span class="def">     category = const &quot;file&quot;
+</span><span class="def"> 
+</span><span class="sub">-genTarget
+</span><span class="sub">-    :: Target a
+</span><span class="sub">-    =&gt; FilePath
+</span><span class="sub">-    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-    -&gt; Bool
+</span><span class="sub">-    -&gt; Maybe Template
+</span><span class="sub">-    -&gt; a
+</span><span class="sub">-    -&gt; IO ()
+</span><span class="add">+genTarget ::
+</span><span class="add">+    Target a =&gt;
+</span><span class="add">+    FilePath -&gt;
+</span><span class="add">+    HashMap.HashMap Text (GVal (Run SourcePos IO Html)) -&gt;
+</span><span class="add">+    Bool -&gt;
+</span><span class="add">+    Maybe Template -&gt;
+</span><span class="add">+    a -&gt;
+</span><span class="add">+    IO ()
+</span><span class="def"> genTarget _ _ _ Nothing _ = return ()
+</span><span class="def"> genTarget output scope force (Just template) target = do
+</span><span class="def">     let output&apos; = output &lt;/&gt; category target &lt;/&gt; identify target
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,7 +1,7 @@
+
+
+  <pre><span class="def"> {-# LANGUAGE OverloadedStrings #-}
+</span><span class="def"> 
+</span><span class="def"> module Main (
+</span><span class="sub">-    main
+</span><span class="add">+    main,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Paths_gitserve (version)
+</span></pre>@@ -12,8 +12,8 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Config (getConfig)
+</span><span class="def"> import Index (runIndex)
+</span><span class="sub">-import Templates (loadTemplates)
+</span><span class="def"> import Repositories (run)
+</span><span class="add">+import Templates (loadTemplates)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Command line options
+</span></pre>@@ -25,29 +25,33 @@
+
+
+  <pre><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> opts :: O.Parser Options
+</span><span class="sub">-opts = Options
+</span><span class="sub">-    &lt;$&gt; O.strOption (
+</span><span class="sub">-        O.long &quot;config&quot; &lt;&gt;
+</span><span class="sub">-        O.short &apos;c&apos; &lt;&gt;
+</span><span class="sub">-        O.metavar &quot;CONFIG&quot; &lt;&gt;
+</span><span class="sub">-        O.value &quot;./config.dhall&quot; &lt;&gt;
+</span><span class="sub">-        O.help &quot;Configuration file to use (Default: ./config.dhall)&quot;
+</span><span class="sub">-        )
+</span><span class="sub">-    &lt;*&gt; O.switch (
+</span><span class="sub">-        O.long &quot;force&quot; &lt;&gt;
+</span><span class="sub">-        O.short &apos;f&apos; &lt;&gt;
+</span><span class="sub">-        O.help &quot;Force regeneration of all files&quot;
+</span><span class="sub">-        )
+</span><span class="sub">-    &lt;*&gt; O.switch (
+</span><span class="sub">-        O.long &quot;version&quot; &lt;&gt;
+</span><span class="sub">-        O.short &apos;v&apos; &lt;&gt;
+</span><span class="sub">-        O.help &quot;Print the gitserve&apos;s version&quot;
+</span><span class="sub">-        )
+</span><span class="add">+opts =
+</span><span class="add">+    Options
+</span><span class="add">+        &lt;$&gt; O.strOption
+</span><span class="add">+            ( O.long &quot;config&quot;
+</span><span class="add">+                &lt;&gt; O.short &apos;c&apos;
+</span><span class="add">+                &lt;&gt; O.metavar &quot;CONFIG&quot;
+</span><span class="add">+                &lt;&gt; O.value &quot;./config.dhall&quot;
+</span><span class="add">+                &lt;&gt; O.help &quot;Configuration file to use (Default: ./config.dhall)&quot;
+</span><span class="add">+            )
+</span><span class="add">+        &lt;*&gt; O.switch
+</span><span class="add">+            ( O.long &quot;force&quot;
+</span><span class="add">+                &lt;&gt; O.short &apos;f&apos;
+</span><span class="add">+                &lt;&gt; O.help &quot;Force regeneration of all files&quot;
+</span><span class="add">+            )
+</span><span class="add">+        &lt;*&gt; O.switch
+</span><span class="add">+            ( O.long &quot;version&quot;
+</span><span class="add">+                &lt;&gt; O.short &apos;v&apos;
+</span><span class="add">+                &lt;&gt; O.help &quot;Print the gitserve&apos;s version&quot;
+</span><span class="add">+            )
+</span><span class="def"> 
+</span><span class="def"> parser :: IO Options
+</span><span class="sub">-parser = O.execParser $ O.info (opts O.&lt;**&gt; O.helper)
+</span><span class="sub">-    ( O.progDesc &quot;🐙 Templated web page generator for your git repositories&quot;
+</span><span class="sub">-    )
+</span><span class="add">+parser =
+</span><span class="add">+    O.execParser $
+</span><span class="add">+        O.info
+</span><span class="add">+            (opts O.&lt;**&gt; O.helper)
+</span><span class="add">+            ( O.progDesc &quot;🐙 Templated web page generator for your git repositories&quot;
+</span><span class="add">+            )
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Main logic
+</span></pre>@@ -56,8 +60,7 @@
+
+
+  <pre><span class="def"> main = do
+</span><span class="def">     options &lt;- parser
+</span><span class="def">     if printVersion options
+</span><span class="sub">-        then
+</span><span class="sub">-            putStrLn $ &quot;Your gitserve version is: &quot; &lt;&gt; showVersion version
+</span><span class="add">+        then putStrLn $ &quot;Your gitserve version is: &quot; &lt;&gt; showVersion version
+</span><span class="def">         else do
+</span><span class="def">             conf &lt;- getConfig (config options)
+</span><span class="def">             env &lt;- loadTemplates (force options) conf
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,8 +1,11 @@
+
+
+  <pre><span class="sub">-{-# Language LambdaCase #-}
+</span><span class="sub">-{-# Language OverloadedStrings #-}
+</span><span class="sub">-{-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
+</span><span class="sub">-{-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
+</span><span class="sub">-{-# Language InstanceSigs #-}  -- Needed for toGVal type signature
+</span><span class="add">+-- Needed for `instance ToGVal`
+</span><span class="add">+{-# LANGUAGE FlexibleInstances #-}
+</span><span class="add">+-- Needed for toGVal type signature
+</span><span class="add">+{-# LANGUAGE InstanceSigs #-}
+</span><span class="add">+{-# LANGUAGE LambdaCase #-}
+</span><span class="add">+-- Needed for `instance ToGVal`
+</span><span class="add">+{-# LANGUAGE MultiParamTypeClasses #-}
+</span><span class="add">+{-# LANGUAGE OverloadedStrings #-}
+</span><span class="def"> 
+</span><span class="def"> module Index (
+</span><span class="def">     runIndex,
+</span></pre>@@ -14,15 +17,15 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Data.Default (def)
+</span><span class="def"> import Data.Either (fromRight)
+</span><span class="sub">-import Data.Text (pack, Text)
+</span><span class="add">+import qualified Data.HashMap.Strict as HashMap
+</span><span class="add">+import Data.Text (Text, pack)
+</span><span class="def"> import System.Directory (createDirectoryIfMissing)
+</span><span class="sub">-import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="add">+import System.FilePath (takeFileName, (&lt;/&gt;))
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="sub">-import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup)
+</span><span class="add">+import Text.Ginger.GVal (GVal, ToGVal, asHtml, asLookup, asText, toGVal)
+</span><span class="def"> import Text.Ginger.Html (Html, html)
+</span><span class="def"> import Text.Ginger.Parse (SourcePos)
+</span><span class="def"> import Text.Ginger.Run (Run)
+</span><span class="sub">-import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> 
+</span><span class="def"> import Config
+</span><span class="def"> import Templates
+</span></pre>@@ -58,11 +61,12 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> instance ToGVal m Repo where
+</span><span class="def">     toGVal :: Repo -&gt; GVal m
+</span><span class="sub">-    toGVal repo = def
+</span><span class="sub">-        { asHtml = html . pack . show . takeFileName . repoPath $ repo
+</span><span class="sub">-        , asText = pack . show . takeFileName . repoPath $ repo
+</span><span class="sub">-        , asLookup = Just . repoAsLookup $ repo
+</span><span class="sub">-        }
+</span><span class="add">+    toGVal repo =
+</span><span class="add">+        def
+</span><span class="add">+            { asHtml = html . pack . show . takeFileName . repoPath $ repo
+</span><span class="add">+            , asText = pack . show . takeFileName . repoPath $ repo
+</span><span class="add">+            , asLookup = Just . repoAsLookup $ repo
+</span><span class="add">+            }
+</span><span class="def"> 
+</span><span class="def"> repoAsLookup :: Repo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> repoAsLookup repo = \case
+</span></pre>@@ -70,21 +74,21 @@
+
+
+  <pre><span class="def">     &quot;description&quot; -&gt; Just . toGVal . repoDescription $ repo
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="sub">-
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Private -----------------------------------------------------------------------------
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This packages the variables that are available inside the index template.
+</span><span class="def"> -}
+</span><span class="sub">-packageIndex
+</span><span class="sub">-    :: Config
+</span><span class="sub">-    -&gt; [Repo]
+</span><span class="sub">-    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-packageIndex config repos = HashMap.fromList
+</span><span class="sub">-    [ (&quot;host&quot;, toGVal $ host config)
+</span><span class="sub">-    , (&quot;repositories&quot;, toGVal repos)
+</span><span class="sub">-    ]
+</span><span class="add">+packageIndex ::
+</span><span class="add">+    Config -&gt;
+</span><span class="add">+    [Repo] -&gt;
+</span><span class="add">+    HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="add">+packageIndex config repos =
+</span><span class="add">+    HashMap.fromList
+</span><span class="add">+        [ (&quot;host&quot;, toGVal $ host config)
+</span><span class="add">+        , (&quot;repositories&quot;, toGVal repos)
+</span><span class="add">+        ]
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Get paths along with their descriptions.
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,4 +1,5 @@
+
+
+  <pre><span class="sub">-{-# LANGUAGE DeriveGeneric #-}  -- Required by Dhall
+</span><span class="add">+-- Required by Dhall
+</span><span class="add">+{-# LANGUAGE DeriveGeneric #-}
+</span><span class="def"> {-# LANGUAGE DerivingStrategies #-}
+</span><span class="def"> 
+</span><span class="def"> module Config (
+</span></pre>@@ -10,7 +11,7 @@
+
+
+  <pre><span class="def">     fileTemplate,
+</span><span class="def">     getConfig,
+</span><span class="def">     outputDirectory,
+</span><span class="sub">-    host
+</span><span class="add">+    host,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Dhall
+</span></pre></div>    </div>
   </body>
 </html>

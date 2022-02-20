@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,47 @@
 <b>Committed:</b> 2021-09-19 21:47:23 +0100
 
 Read repo description from file
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,6 +13,7 @@
+
+
+  <pre><span class="def"> import Git.Libgit2 (lgFactory, LgRepo)
+</span><span class="def"> import System.Directory (createDirectoryIfMissing)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="add">+import System.IO.Error (tryIOError)
+</span><span class="def"> import Text.Ginger (runGingerT, makeContextHtmlM, toGVal, GVal)
+</span><span class="def"> import Text.Ginger.Html (htmlSource)
+</span><span class="def"> 
+</span></pre>@@ -41,6 +42,7 @@
+
+
+  <pre><span class="def">     case ref of
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; (takeFileName path) &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="add">+            description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="def">             head &lt;- lookupCommit (Tagged commitID)
+</span><span class="def">             nodes &lt;- lookupTree (commitTree head) &gt;&gt;= listTreeEntries
+</span><span class="def">             return ()
+</span></pre>@@ -49,6 +51,12 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
+</span><span class="def"> 
+</span><span class="add">+getDescription :: FilePath -&gt; IO (Maybe String)
+</span><span class="add">+getDescription path = tryIOError (readFile path) &gt;&gt;= \e -&gt;
+</span><span class="add">+    case e of
+</span><span class="add">+        Right contents -&gt; return $ Just contents
+</span><span class="add">+        Left err -&gt; return Nothing
+</span><span class="add">+
+</span><span class="def"> -- Variables:
+</span><span class="def"> --title = &quot;gitserve&quot;
+</span><span class="def"> --description = &quot;&quot;
+</span></pre></div>    </div>
   </body>
 </html>

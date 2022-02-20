@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,41 @@
 <b>Committed:</b> 2021-09-18 18:40:19 +0100
 
 Pass templates to processRepo
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,10 +15,11 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the entrypoint that receives the ``Config`` and uses it to map over our
+</span><span class="sub">-repositories, reading from them and writing out their web pages.
+</span><span class="add">+repositories, reading from them and writing out their web pages using the given
+</span><span class="add">+templates.
+</span><span class="def"> -}
+</span><span class="def"> run :: Config -&gt; [Template] -&gt; IO ()
+</span><span class="sub">-run config templates = foldMap processRepo . repoPaths $ config
+</span><span class="add">+run config templates = foldMap (processRepo templates) . repoPaths $ config
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre>@@ -27,8 +28,8 @@
+
+
+  <pre><span class="def"> repository doesn&apos;t exist or is unreadable in any way we can forget about it and move on
+</span><span class="def"> (after informing the user of course).
+</span><span class="def"> -}
+</span><span class="sub">-processRepo :: FilePath -&gt; IO ()
+</span><span class="sub">-processRepo path = withRepository lgFactory path $ do
+</span><span class="add">+processRepo :: [Template] -&gt; FilePath -&gt; IO ()
+</span><span class="add">+processRepo templates path = withRepository lgFactory path $ do
+</span><span class="def">     maybeObjID &lt;- resolveReference &quot;HEAD&quot;
+</span><span class="def">     case maybeObjID of
+</span><span class="def">         Just commitID -&gt; do
+</span></pre></div>    </div>
   </body>
 </html>

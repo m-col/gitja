@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-09-25 18:55:43 +0100
 
 Only output information on last 50 commits to log example
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/log.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,7 +13,7 @@
+
+
+  <pre><span class="def">     &lt;hr&gt;
+</span><span class="def">     &lt;p&gt;{{- description }}&lt;/p&gt;
+</span><span class="def">     &lt;p&gt;git clone {{ host }}/{{- name }}&lt;/p&gt;
+</span><span class="sub">-    {% for commit in commits %}
+</span><span class="add">+    {% for commit in commits[:50] %}
+</span><span class="def">     &lt;p&gt;{{- commit.title }}&lt;/p&gt;
+</span><span class="def">     {% endfor %}
+</span><span class="def">   &lt;/body&gt;
+</span></pre></div>    </div>
   </body>
 </html>

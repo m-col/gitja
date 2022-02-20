@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,146 @@
 <b>Committed:</b> 2021-09-24 11:10:46 +0100
 
 Let hashmap accept other GVals and add instance for commits
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -17,7 +17,7 @@
+
+
+  <pre><span class="def"> import System.FilePath ((&lt;/&gt;))
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="sub">-import qualified Text.Ginger.Parse as G
+</span><span class="add">+import Text.Ginger.Parse (SourcePos, parseGingerFile)
+</span><span class="def"> import Text.Ginger.GVal (GVal)
+</span><span class="def"> import Text.Ginger.Html (htmlSource, Html)
+</span><span class="def"> import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
+</span></pre>@@ -26,7 +26,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> data Template = Template
+</span><span class="def">     { templatePath :: FilePath
+</span><span class="sub">-    , templateGinger :: G.Template G.SourcePos
+</span><span class="add">+    , templateGinger :: G.Template SourcePos
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -36,7 +36,7 @@
+
+
+  <pre><span class="def"> loadTemplates :: Config -&gt; IO [Template]
+</span><span class="def"> loadTemplates config = do
+</span><span class="def">     files &lt;- getFiles config
+</span><span class="sub">-    parsed &lt;- sequence $ G.parseGingerFile includeResolver &lt;$&gt; files 
+</span><span class="add">+    parsed &lt;- sequence $ parseGingerFile includeResolver &lt;$&gt; files
+</span><span class="def">     return $ Template &lt;$&gt; files &lt;*&gt; rights parsed
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span></pre>@@ -87,7 +87,7 @@
+
+
+  <pre><span class="def"> Ginger to render templates using them.
+</span><span class="def"> -}
+</span><span class="def"> generate
+</span><span class="sub">-    :: HashMap.HashMap Text Text
+</span><span class="add">+    :: HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="def">     -&gt; Template
+</span><span class="sub">-    -&gt; IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
+</span><span class="add">+    -&gt; IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
+</span><span class="def"> generate context template = easyRenderM writeTo context (templateGinger template)
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,5 +1,7 @@
+
+
+  <pre><span class="def"> {-# Language LambdaCase #-}
+</span><span class="def"> {-# Language OverloadedStrings #-}  -- Needed for resolveReference
+</span><span class="add">+{-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
+</span><span class="add">+{-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
+</span><span class="def"> 
+</span><span class="def"> module Repositories (
+</span><span class="def">     run
+</span></pre>@@ -9,6 +11,7 @@
+
+
+  <pre><span class="def"> import Control.Monad ((&lt;=&lt;))
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="add">+import Data.Default (def)
+</span><span class="def"> import Data.Either (fromRight)
+</span><span class="def"> import Data.Tagged
+</span><span class="def"> import Data.Text (pack, Text)
+</span></pre>@@ -18,6 +21,10 @@
+
+
+  <pre><span class="def"> import System.Directory (createDirectoryIfMissing)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="add">+import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml)
+</span><span class="add">+import Text.Ginger.Html (Html, html)
+</span><span class="add">+import Text.Ginger.Run (Run)
+</span><span class="add">+import Text.Ginger.Parse (SourcePos)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> 
+</span><span class="def"> import Config (Config, repoPaths, outputDirectory, host)
+</span></pre>@@ -82,13 +89,13 @@
+
+
+  <pre><span class="def">     -&gt; Text
+</span><span class="def">     -&gt; [Commit LgRepo]
+</span><span class="def">     -&gt; [(TreeFilePath, TreeEntry r)]
+</span><span class="sub">-    -&gt; HashMap.HashMap Text Text
+</span><span class="add">+    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="def"> package config name description commits tree = HashMap.fromList
+</span><span class="sub">-    [ (&quot;host&quot;, host config)
+</span><span class="sub">-    , (&quot;name&quot;, pack name)
+</span><span class="sub">-    , (&quot;description&quot;, description)
+</span><span class="sub">-    , (&quot;commits&quot;, &quot;commits&quot;)
+</span><span class="sub">-    , (&quot;tree&quot;, &quot;tree&quot;)
+</span><span class="add">+    [ (&quot;host&quot;, toGVal $ host config)
+</span><span class="add">+    , (&quot;name&quot;, toGVal $ pack name)
+</span><span class="add">+    , (&quot;description&quot;, toGVal description)
+</span><span class="add">+    , (&quot;commits&quot;, toGVal commits)
+</span><span class="add">+    , (&quot;tree&quot;, toGVal (&quot;tree&quot; :: String))
+</span><span class="def">     ]
+</span><span class="def"> 
+</span><span class="def"> getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit LgRepo]
+</span></pre>@@ -105,3 +112,9 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> getDescription :: FilePath -&gt; IO Text
+</span><span class="def"> getDescription path = fromRight &quot;&quot; &lt;$&gt; tryIOError (pack &lt;$&gt; readFile path)
+</span><span class="add">+
+</span><span class="add">+instance ToGVal m (Commit LgRepo) where
+</span><span class="add">+    toGVal x = def
+</span><span class="add">+        { asHtml = html . pack . show . commitLog $ x
+</span><span class="add">+        , asText = pack . show . commitLog $ x
+</span><span class="add">+        }
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -20,6 +20,7 @@
+
+
+  <pre><span class="def">   default-language:    Haskell2010
+</span><span class="def">   build-depends:       base &gt;= 4.7 &amp;&amp; &lt; 5
+</span><span class="def">                      , conduit
+</span><span class="add">+                     , data-default
+</span><span class="def">                      , dhall
+</span><span class="def">                      , directory
+</span><span class="def">                      , filepath
+</span></pre></div>    </div>
   </body>
 </html>

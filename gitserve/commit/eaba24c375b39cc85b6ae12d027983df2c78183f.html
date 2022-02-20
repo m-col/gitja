@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - Qualify external imports</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/eaba24c375b39cc85b6ae12d027983df2c78183f.html">eaba24c375b39cc85b6ae12d027983df2c78183f</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb4d5ba0308a64f94d5bb04cb3806b5506a</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-12-06 18:49:42 +0300
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-12-06 18:49:42 +0300
+
+Qualify external imports
+</pre><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -24,7 +24,7 @@
+
+
+  <pre><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="def"> import Foreign (peek)
+</span><span class="def"> import Foreign.ForeignPtr (mallocForeignPtr, withForeignPtr)
+</span><span class="sub">-import Git
+</span><span class="add">+import qualified Git
+</span><span class="def"> import Git.Libgit2 (LgRepo, getOid, repoObj)
+</span><span class="def"> import Path (Abs, Dir, Path, dirname, toFilePath)
+</span><span class="def"> import qualified System.FilePath as FP
+</span></pre>@@ -45,7 +45,7 @@
+
+
+  <pre><span class="def"> data Repo = Repo
+</span><span class="def">     { repositoryPath :: Path Abs Dir
+</span><span class="def">     , repositoryDescription :: Text
+</span><span class="sub">-    , repositoryHead :: Maybe (Commit LgRepo)
+</span><span class="add">+    , repositoryHead :: Maybe (Git.Commit LgRepo)
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> instance ToGVal m (Path b t) where
+</span></pre>@@ -69,37 +69,37 @@
+
+
+  <pre><span class="def">     &quot;name&quot; -&gt; Just . toGVal . init . unquote . show . dirname . repositoryPath $ repo
+</span><span class="def">     &quot;description&quot; -&gt; Just . toGVal . repositoryDescription $ repo
+</span><span class="def">     &quot;head&quot; -&gt; Just . toGVal . repositoryHead $ repo
+</span><span class="sub">-    &quot;updated&quot; -&gt; toGVal . show . signatureWhen . commitCommitter &lt;$&gt; repositoryHead repo
+</span><span class="add">+    &quot;updated&quot; -&gt; toGVal . show . Git.signatureWhen . Git.commitCommitter &lt;$&gt; repositoryHead repo
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> GVal implementation for `Git.Commit r`, allowing commits to be rendered in Ginger
+</span><span class="def"> templates.
+</span><span class="def"> -}
+</span><span class="sub">-instance ToGVal m (Commit LgRepo) where
+</span><span class="sub">-    toGVal :: Commit LgRepo -&gt; GVal m
+</span><span class="add">+instance ToGVal m (Git.Commit LgRepo) where
+</span><span class="add">+    toGVal :: Git.Commit LgRepo -&gt; GVal m
+</span><span class="def">     toGVal commit =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . strip . T.takeWhile (/= &apos;\n&apos;) . commitLog $ commit
+</span><span class="sub">-            , asText = pack . show . commitLog $ commit
+</span><span class="add">+            { asHtml = html . strip . T.takeWhile (/= &apos;\n&apos;) . Git.commitLog $ commit
+</span><span class="add">+            , asText = pack . show . Git.commitLog $ commit
+</span><span class="def">             , asLookup = Just . commitAsLookup $ commit
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-commitAsLookup :: Commit LgRepo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+commitAsLookup :: Git.Commit LgRepo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> commitAsLookup commit = \case
+</span><span class="sub">-    &quot;id&quot; -&gt; Just . toGVal . show . untag . commitOid $ commit
+</span><span class="sub">-    &quot;href&quot; -&gt; Just . toGVal . (&lt;&gt; &quot;.html&quot;) . show . untag . commitOid $ commit
+</span><span class="sub">-    &quot;title&quot; -&gt; Just . toGVal . strip . T.takeWhile (/= &apos;\n&apos;) . commitLog $ commit
+</span><span class="sub">-    &quot;body&quot; -&gt; Just . toGVal . strip . T.dropWhile (/= &apos;\n&apos;) . commitLog $ commit
+</span><span class="sub">-    &quot;message&quot; -&gt; Just . toGVal . strip . commitLog $ commit
+</span><span class="sub">-    &quot;author&quot; -&gt; Just . toGVal . strip . signatureName . commitAuthor $ commit
+</span><span class="sub">-    &quot;committer&quot; -&gt; Just . toGVal . strip . signatureName . commitCommitter $ commit
+</span><span class="sub">-    &quot;author_email&quot; -&gt; Just . toGVal . strip . signatureEmail . commitAuthor $ commit
+</span><span class="sub">-    &quot;committer_email&quot; -&gt; Just . toGVal . strip . signatureEmail . commitCommitter $ commit
+</span><span class="sub">-    &quot;authored&quot; -&gt; Just . toGVal . show . signatureWhen . commitAuthor $ commit
+</span><span class="sub">-    &quot;committed&quot; -&gt; Just . toGVal . show . signatureWhen . commitCommitter $ commit
+</span><span class="sub">-    &quot;encoding&quot; -&gt; Just . toGVal . strip . commitEncoding $ commit
+</span><span class="sub">-    &quot;parent&quot; -&gt; toGVal . show . untag &lt;$&gt; (listToMaybe . commitParents $ commit)
+</span><span class="add">+    &quot;id&quot; -&gt; Just . toGVal . show . untag . Git.commitOid $ commit
+</span><span class="add">+    &quot;href&quot; -&gt; Just . toGVal . (&lt;&gt; &quot;.html&quot;) . show . untag . Git.commitOid $ commit
+</span><span class="add">+    &quot;title&quot; -&gt; Just . toGVal . strip . T.takeWhile (/= &apos;\n&apos;) . Git.commitLog $ commit
+</span><span class="add">+    &quot;body&quot; -&gt; Just . toGVal . strip . T.dropWhile (/= &apos;\n&apos;) . Git.commitLog $ commit
+</span><span class="add">+    &quot;message&quot; -&gt; Just . toGVal . strip . Git.commitLog $ commit
+</span><span class="add">+    &quot;author&quot; -&gt; Just . toGVal . strip . Git.signatureName . Git.commitAuthor $ commit
+</span><span class="add">+    &quot;committer&quot; -&gt; Just . toGVal . strip . Git.signatureName . Git.commitCommitter $ commit
+</span><span class="add">+    &quot;author_email&quot; -&gt; Just . toGVal . strip . Git.signatureEmail . Git.commitAuthor $ commit
+</span><span class="add">+    &quot;committer_email&quot; -&gt; Just . toGVal . strip . Git.signatureEmail . Git.commitCommitter $ commit
+</span><span class="add">+    &quot;authored&quot; -&gt; Just . toGVal . show . Git.signatureWhen . Git.commitAuthor $ commit
+</span><span class="add">+    &quot;committed&quot; -&gt; Just . toGVal . show . Git.signatureWhen . Git.commitCommitter $ commit
+</span><span class="add">+    &quot;encoding&quot; -&gt; Just . toGVal . strip . Git.commitEncoding $ commit
+</span><span class="add">+    &quot;parent&quot; -&gt; toGVal . show . untag &lt;$&gt; (listToMaybe . Git.commitParents $ commit)
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -122,10 +122,10 @@
+
+
+  <pre><span class="def"> and then from that to Git&apos;s octal representation, as seen when calling `git ls-tree
+</span><span class="def"> &lt;tree-ish&gt;`
+</span><span class="def"> -}
+</span><span class="sub">-blobkindToMode :: BlobKind -&gt; TreeEntryMode
+</span><span class="sub">-blobkindToMode PlainBlob = ModePlain
+</span><span class="sub">-blobkindToMode ExecutableBlob = ModeExecutable
+</span><span class="sub">-blobkindToMode SymlinkBlob = ModeSymlink
+</span><span class="add">+blobkindToMode :: Git.BlobKind -&gt; TreeEntryMode
+</span><span class="add">+blobkindToMode Git.PlainBlob = ModePlain
+</span><span class="add">+blobkindToMode Git.ExecutableBlob = ModeExecutable
+</span><span class="add">+blobkindToMode Git.SymlinkBlob = ModeSymlink
+</span><span class="def"> 
+</span><span class="def"> modeToOctal :: TreeEntryMode -&gt; String
+</span><span class="def"> modeToOctal ModeDirectory = &quot;40000&quot;
+</span></pre>@@ -144,9 +144,9 @@
+
+
+  <pre><span class="def"> {-
+</span><span class="def"> This
+</span><span class="def"> -}
+</span><span class="sub">-getBlobContents :: BlobOid LgRepo -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="add">+getBlobContents :: Git.BlobOid LgRepo -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="def"> getBlobContents oid = do
+</span><span class="sub">-    repo &lt;- getRepository
+</span><span class="add">+    repo &lt;- Git.getRepository
+</span><span class="def">     blobPtr &lt;- liftIO mallocForeignPtr
+</span><span class="def">     isBinary &lt;- liftIO . withForeignPtr (repoObj repo) $ \repoPtr -&gt;
+</span><span class="def">         withForeignPtr blobPtr $ \blobPtr&apos; -&gt;
+</span></pre>@@ -157,7 +157,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     if toEnum . fromEnum $ isBinary -- This reads weird, but it goes CInt, to Int, to Bool.
+</span><span class="def">         then return BinaryContents
+</span><span class="sub">-        else FileContents . decodeUtf8With lenientDecode &lt;$&gt; catBlob oid
+</span><span class="add">+        else FileContents . decodeUtf8With lenientDecode &lt;$&gt; Git.catBlob oid
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> GVal implementations for data definitions above, allowing commits to be rendered in
+</span></pre>@@ -229,8 +229,8 @@
+
+
+  <pre><span class="def"> Data to store information about references: tags and branches.
+</span><span class="def"> -}
+</span><span class="def"> data Ref = Ref
+</span><span class="sub">-    { refName :: RefName
+</span><span class="sub">-    , refCommit :: Commit LgRepo
+</span><span class="add">+    { refName :: Git.RefName
+</span><span class="add">+    , refCommit :: Git.Commit LgRepo
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> instance ToGVal RunRepo Ref where
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -18,12 +18,12 @@
+
+
+  <pre><span class="def"> import Data.Either (isRight)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, mapMaybe)
+</span><span class="sub">-import Data.Tagged
+</span><span class="add">+import Data.Tagged (Tagged (..), untag)
+</span><span class="def"> import Data.Text (Text)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import qualified Data.Text.Encoding as T
+</span><span class="def"> import qualified Data.Text.Encoding.Error as T
+</span><span class="sub">-import Git
+</span><span class="add">+import qualified Git
+</span><span class="def"> import Git.Libgit2 (LgRepo, lgFactory)
+</span><span class="def"> import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
+</span><span class="def"> import Path.IO (doesFileExist, ensureDir)
+</span></pre>@@ -53,8 +53,10 @@
+
+
+  <pre><span class="def">     descs &lt;- mapM getDescription paths&apos;
+</span><span class="def">     return . fmap ($ Nothing) . zipWith Repo paths&apos; $ descs
+</span><span class="def">   where
+</span><span class="sub">-    okRepo :: Path Abs Dir -&gt; IO (Either GitException LgRepo)
+</span><span class="sub">-    okRepo p = try . liftIO . openRepository lgFactory $ defaultRepositoryOptions{repoPath = toFilePath p}
+</span><span class="add">+    okRepo :: Path Abs Dir -&gt; IO (Either Git.GitException LgRepo)
+</span><span class="add">+    okRepo p =
+</span><span class="add">+        try . liftIO . Git.openRepository lgFactory $
+</span><span class="add">+            Git.defaultRepositoryOptions{Git.repoPath = toFilePath p}
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Pass the repository&apos;s folder, get its description. The algorithm is:
+</span></pre>@@ -90,14 +92,14 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> processRepo :: Env -&gt; [Repo] -&gt; Repo -&gt; IO Repo
+</span><span class="def"> processRepo env repos repo =
+</span><span class="sub">-    withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo&apos; env repos repo
+</span><span class="add">+    Git.withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo&apos; env repos repo
+</span><span class="def"> 
+</span><span class="def"> processRepo&apos; :: Env -&gt; [Repo] -&gt; Repo -&gt; ReaderT LgRepo IO Repo
+</span><span class="def"> processRepo&apos; env repos repo = do
+</span><span class="def">     let name = dirname . repositoryPath $ repo
+</span><span class="def">     let output = envOutput env &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="sub">-    resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="add">+    Git.resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; do
+</span><span class="def">             liftIO . unless (envQuiet env) . putStrLn $ &quot;gitserve: &quot; &lt;&gt; show name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">             return repo
+</span></pre>@@ -134,7 +136,7 @@
+
+
+  <pre><span class="def">                 liftIO . envRepoCopyStatics env $ output
+</span><span class="def"> 
+</span><span class="def">             -- Return the repo with the head so the index page can use it. --
+</span><span class="sub">-            repoHead &lt;- lookupCommit gitHead -- Do this in case the block above is skipped.
+</span><span class="add">+            repoHead &lt;- Git.lookupCommit gitHead -- Do this in case the block above is skipped.
+</span><span class="def">             return
+</span><span class="def">                 repo{repositoryHead = Just repoHead}
+</span><span class="def"> 
+</span></pre>@@ -149,7 +151,7 @@
+
+
+  <pre><span class="def">     [Repo] -&gt;
+</span><span class="def">     Path Rel Dir -&gt;
+</span><span class="def">     Text -&gt;
+</span><span class="sub">-    [Commit LgRepo] -&gt;
+</span><span class="add">+    [Git.Commit LgRepo] -&gt;
+</span><span class="def">     [TreeFile] -&gt;
+</span><span class="def">     [Ref] -&gt;
+</span><span class="def">     [Ref] -&gt;
+</span></pre>@@ -172,46 +174,46 @@
+
+
+  <pre><span class="def"> {-
+</span><span class="def"> Collect commit information.
+</span><span class="def"> -}
+</span><span class="sub">-getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit LgRepo]
+</span><span class="add">+getCommits :: Git.CommitOid LgRepo -&gt; ReaderT LgRepo IO [Git.Commit LgRepo]
+</span><span class="def"> getCommits commitID =
+</span><span class="def">     fmap reverse . sequence . mapMaybe loadCommit
+</span><span class="def">         &lt;=&lt; runConduit
+</span><span class="sub">-        $ sourceObjects Nothing commitID False .| sinkList
+</span><span class="add">+        $ Git.sourceObjects Nothing commitID False .| sinkList
+</span><span class="def"> 
+</span><span class="sub">-loadCommit :: ObjectOid LgRepo -&gt; Maybe (ReaderT LgRepo IO (Commit LgRepo))
+</span><span class="sub">-loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
+</span><span class="add">+loadCommit :: Git.ObjectOid LgRepo -&gt; Maybe (ReaderT LgRepo IO (Git.Commit LgRepo))
+</span><span class="add">+loadCommit (Git.CommitObjOid oid) = Just $ Git.lookupCommit oid
+</span><span class="def"> loadCommit _ = Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Collect tree information for the given commit. Recurses on directories to list their
+</span><span class="def"> contents.
+</span><span class="def"> -}
+</span><span class="sub">-getTree :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="sub">-getTree = getTree&apos; &quot;&quot; . commitTree &lt;=&lt; lookupCommit
+</span><span class="add">+getTree :: Git.CommitOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="add">+getTree = getTree&apos; &quot;&quot; . Git.commitTree &lt;=&lt; Git.lookupCommit
+</span><span class="def"> 
+</span><span class="sub">-getTree&apos; :: TreeFilePath -&gt; TreeOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="add">+getTree&apos; :: Git.TreeFilePath -&gt; Git.TreeOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="def"> getTree&apos; parent toid = do
+</span><span class="sub">-    entries &lt;- listTreeEntries =&lt;&lt; lookupTree toid
+</span><span class="add">+    entries &lt;- Git.listTreeEntries =&lt;&lt; Git.lookupTree toid
+</span><span class="def">     let entries&apos; = fmap (prependParent parent) entries
+</span><span class="def">     contents &lt;- mapM getEntryContents entries&apos;
+</span><span class="def">     modes &lt;- mapM (getEntryModes . snd) entries&apos;
+</span><span class="def">     return $ zipWith3 TreeFile (fmap treePaths entries&apos;) contents modes
+</span><span class="def"> 
+</span><span class="sub">-prependParent :: TreeFilePath -&gt; (TreeFilePath, TreeEntry LgRepo) -&gt; (TreeFilePath, TreeEntry LgRepo)
+</span><span class="add">+prependParent :: Git.TreeFilePath -&gt; (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; (Git.TreeFilePath, Git.TreeEntry LgRepo)
+</span><span class="def"> prependParent &quot;&quot; pathentry = pathentry
+</span><span class="def"> prependParent parent (path, entry) = (mconcat [parent, &quot;/&quot;, path], entry)
+</span><span class="def"> 
+</span><span class="sub">-getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="sub">-getEntryContents (_, BlobEntry oid _) = getBlobContents oid
+</span><span class="sub">-getEntryContents (path, TreeEntry oid) = FolderContents &lt;$&gt; getTree&apos; path oid
+</span><span class="sub">-getEntryContents (_, CommitEntry oid) = return . FileContents . T.pack . show . untag $ oid
+</span><span class="add">+getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="add">+getEntryContents (_, Git.BlobEntry oid _) = getBlobContents oid
+</span><span class="add">+getEntryContents (path, Git.TreeEntry oid) = FolderContents &lt;$&gt; getTree&apos; path oid
+</span><span class="add">+getEntryContents (_, Git.CommitEntry oid) = return . FileContents . T.pack . show . untag $ oid
+</span><span class="def"> 
+</span><span class="sub">-getEntryModes :: TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeEntryMode
+</span><span class="sub">-getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
+</span><span class="sub">-getEntryModes (TreeEntry _) = return ModeDirectory
+</span><span class="sub">-getEntryModes (CommitEntry _) = return ModeSubmodule
+</span><span class="add">+getEntryModes :: Git.TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeEntryMode
+</span><span class="add">+getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
+</span><span class="add">+getEntryModes (Git.TreeEntry _) = return ModeDirectory
+</span><span class="add">+getEntryModes (Git.CommitEntry _) = return ModeSubmodule
+</span><span class="def"> 
+</span><span class="sub">-treePaths :: (TreeFilePath, TreeEntry LgRepo) -&gt; Text
+</span><span class="add">+treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; Text
+</span><span class="def"> treePaths = T.decodeUtf8With T.lenientDecode . fst
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -230,19 +232,19 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> getRefs :: Text -&gt; ReaderT LgRepo IO [Ref]
+</span><span class="def"> getRefs ref = do
+</span><span class="sub">-    names &lt;- filter (T.isPrefixOf ref) &lt;$&gt; listReferences
+</span><span class="sub">-    maybeOids &lt;- mapM resolveReference names
+</span><span class="add">+    names &lt;- filter (T.isPrefixOf ref) &lt;$&gt; Git.listReferences
+</span><span class="add">+    maybeOids &lt;- mapM Git.resolveReference names
+</span><span class="def">     let names&apos; = catMaybes . zipWith dropName maybeOids $ names
+</span><span class="sub">-    objs &lt;- mapM lookupObject . catMaybes $ maybeOids
+</span><span class="add">+    objs &lt;- mapM Git.lookupObject . catMaybes $ maybeOids
+</span><span class="def">     maybeCommits &lt;- mapM refObjToCommit objs
+</span><span class="def">     let names&apos;&apos; = map (fromJust . T.stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names&apos;
+</span><span class="def">     return . zipWith Ref names&apos;&apos; . catMaybes $ maybeCommits
+</span><span class="def">   where
+</span><span class="sub">-    refObjToCommit :: Object r (ReaderT LgRepo IO) -&gt; ReaderT LgRepo IO (Maybe (Commit r))
+</span><span class="sub">-    refObjToCommit (CommitObj obj) = return . Just $ obj
+</span><span class="add">+    refObjToCommit :: Git.Object r (ReaderT LgRepo IO) -&gt; ReaderT LgRepo IO (Maybe (Git.Commit r))
+</span><span class="add">+    refObjToCommit (Git.CommitObj obj) = return . Just $ obj
+</span><span class="def">     refObjToCommit _ = return Nothing
+</span><span class="def"> 
+</span><span class="sub">-    dropName :: Maybe a -&gt; RefName -&gt; Maybe RefName
+</span><span class="add">+    dropName :: Maybe a -&gt; Git.RefName -&gt; Maybe Git.RefName
+</span><span class="def">     dropName (Just _) name = Just name
+</span><span class="def">     dropName Nothing _ = Nothing
+</span><span class="def"> 
+</span></pre>@@ -273,8 +275,8 @@
+
+
+  <pre><span class="def">         file &lt;- parseRelFile . identify $ t
+</span><span class="def">         return $ dir &lt;/&gt; file
+</span><span class="def"> 
+</span><span class="sub">-instance Target (Commit LgRepo) where
+</span><span class="sub">-    identify = (++ &quot;.html&quot;) . show . untag . commitOid
+</span><span class="add">+instance Target (Git.Commit LgRepo) where
+</span><span class="add">+    identify = (++ &quot;.html&quot;) . show . untag . Git.commitOid
+</span><span class="def">     category = const &quot;commit&quot;
+</span><span class="def"> 
+</span><span class="def"> instance Target TreeFile where
+</span></pre></div>    </div>
+  </body>
+</html>

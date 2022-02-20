@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -105,7 +105,7 @@
 <a href="#l67" class="line" id="l67">   67</a>  
 <a href="#l68" class="line" id="l68">   68</a>  #docs h3 {
 <a href="#l69" class="line" id="l69">   69</a>      text-decoration: underline #aaa;
-<a href="#l70" class="line" id="l70">   70</a>      padding: 0.5em 0;
+<a href="#l70" class="line" id="l70">   70</a>      padding: 1em 0 0;
 <a href="#l71" class="line" id="l71">   71</a>  }
 <a href="#l72" class="line" id="l72">   72</a>  
 <a href="#l73" class="line" id="l73">   73</a>  #docs p {
@@ -136,25 +136,44 @@
 <a href="#l98" class="line" id="l98">   98</a>      border-collapse: collapse;
 <a href="#l99" class="line" id="l99">   99</a>  }
 <a href="#l100" class="line" id="l100">  100</a>  
-<a href="#l101" class="line" id="l101">  101</a>  
-<a href="#l102" class="line" id="l102">  102</a>  th {
-<a href="#l103" class="line" id="l103">  103</a>      background-color: #fcfaff;
-<a href="#l104" class="line" id="l104">  104</a>      text-decoration: underline #aaa;
-<a href="#l105" class="line" id="l105">  105</a>  }
-<a href="#l106" class="line" id="l106">  106</a>  
-<a href="#l107" class="line" id="l107">  107</a>  tr:nth-child(even) {
-<a href="#l108" class="line" id="l108">  108</a>      background-color: #fcfaff;
-<a href="#l109" class="line" id="l109">  109</a>  }
-<a href="#l110" class="line" id="l110">  110</a>  
-<a href="#l111" class="line" id="l111">  111</a>  .line {
-<a href="#l112" class="line" id="l112">  112</a>      text-decoration: none;
-<a href="#l113" class="line" id="l113">  113</a>      color: #5d479d50;
-<a href="#l114" class="line" id="l114">  114</a>  }
-<a href="#l115" class="line" id="l115">  115</a>  
-<a href="#l116" class="line" id="l116">  116</a>  .line:hover {
-<a href="#l117" class="line" id="l117">  117</a>      background-color: #5d479d50;
-<a href="#l118" class="line" id="l118">  118</a>      color: #333;
-<a href="#l119" class="line" id="l119">  119</a>  }
+<a href="#l101" class="line" id="l101">  101</a>  th {
+<a href="#l102" class="line" id="l102">  102</a>      background-color: #fcfaff;
+<a href="#l103" class="line" id="l103">  103</a>      text-decoration: underline #aaa;
+<a href="#l104" class="line" id="l104">  104</a>  }
+<a href="#l105" class="line" id="l105">  105</a>  
+<a href="#l106" class="line" id="l106">  106</a>  tr:nth-child(even) {
+<a href="#l107" class="line" id="l107">  107</a>      background-color: #fcfaff;
+<a href="#l108" class="line" id="l108">  108</a>  }
+<a href="#l109" class="line" id="l109">  109</a>  
+<a href="#l110" class="line" id="l110">  110</a>  .line {
+<a href="#l111" class="line" id="l111">  111</a>      text-decoration: none;
+<a href="#l112" class="line" id="l112">  112</a>      color: #5d479d50;
+<a href="#l113" class="line" id="l113">  113</a>  }
+<a href="#l114" class="line" id="l114">  114</a>  
+<a href="#l115" class="line" id="l115">  115</a>  .line:hover {
+<a href="#l116" class="line" id="l116">  116</a>      background-color: #5d479d50;
+<a href="#l117" class="line" id="l117">  117</a>      color: #333;
+<a href="#l118" class="line" id="l118">  118</a>  }
+<a href="#l119" class="line" id="l119">  119</a>  
+<a href="#l120" class="line" id="l120">  120</a>  .diff {
+<a href="#l121" class="line" id="l121">  121</a>      background-color: #eee;
+<a href="#l122" class="line" id="l122">  122</a>      padding: 0.6em;
+<a href="#l123" class="line" id="l123">  123</a>      overflow-x: scroll;
+<a href="#l124" class="line" id="l124">  124</a>      margin: 20px 0;
+<a href="#l125" class="line" id="l125">  125</a>  }
+<a href="#l126" class="line" id="l126">  126</a>  
+<a href="#l127" class="line" id="l127">  127</a>  .diff .status {
+<a href="#l128" class="line" id="l128">  128</a>      color: #666;
+<a href="#l129" class="line" id="l129">  129</a>      float: right;
+<a href="#l130" class="line" id="l130">  130</a>  }
+<a href="#l131" class="line" id="l131">  131</a>  
+<a href="#l132" class="line" id="l132">  132</a>  .diff .add {
+<a href="#l133" class="line" id="l133">  133</a>      color: #0a0;
+<a href="#l134" class="line" id="l134">  134</a>  }
+<a href="#l135" class="line" id="l135">  135</a>  
+<a href="#l136" class="line" id="l136">  136</a>  .diff .sub {
+<a href="#l137" class="line" id="l137">  137</a>      color: #a00;
+<a href="#l138" class="line" id="l138">  138</a>  }
 </pre>
       </div>
   </body>

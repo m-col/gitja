@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,143 @@
 <b>Committed:</b> 2021-09-23 21:48:32 +0100
 
 Add first (compiling) use of Ginger
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,20 +1,25 @@
+
+
+  <pre><span class="def"> module Templates (
+</span><span class="def">     Template,
+</span><span class="def">     templateGinger,
+</span><span class="sub">-    templatePath,
+</span><span class="def">     loadTemplates,
+</span><span class="add">+    generate,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Control.Monad (filterM, (&lt;=&lt;))
+</span><span class="def"> import Data.Char (toLower)
+</span><span class="sub">-import Data.Either (rights)
+</span><span class="add">+import Data.Either (rights, Either)
+</span><span class="def"> import Data.List (isSuffixOf)
+</span><span class="def"> import Data.Maybe (catMaybes)
+</span><span class="add">+import Data.Text (unpack, Text)
+</span><span class="add">+import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import System.Directory (doesFileExist, getDirectoryContents)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;), FilePath)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import qualified Text.Ginger.Parse as G
+</span><span class="add">+import Text.Ginger.GVal (toGVal, GVal, ToGVal)
+</span><span class="add">+import Text.Ginger.Html (htmlSource, Html)
+</span><span class="add">+import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
+</span><span class="def"> 
+</span><span class="def"> import Config (Config, templateDirectory)
+</span><span class="def"> 
+</span></pre>@@ -71,3 +76,17 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> getFiles :: Config -&gt; IO [FilePath]
+</span><span class="def"> getFiles = filterM isTemplate &lt;=&lt; listTemplates . templateDirectory
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+This function gets the output HTML data and is responsible for saving it to file.
+</span><span class="add">+-}
+</span><span class="add">+writeTo :: Html -&gt; IO ()
+</span><span class="add">+writeTo = putStr . unpack . htmlSource
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+This is the generator function that receives repository-specific variables and uses
+</span><span class="add">+Ginger to render templates using them.
+</span><span class="add">+-}
+</span><span class="add">+generate :: HashMap.HashMap Text Text -&gt; Template -&gt;
+</span><span class="add">+    IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
+</span><span class="add">+generate context template = easyRenderM writeTo context (templateGinger template)
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -10,18 +10,17 @@
+
+
+  <pre><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import Data.Foldable (foldMap)
+</span><span class="def"> import Data.Tagged
+</span><span class="sub">-import Data.Text (unpack, Text)
+</span><span class="add">+import Data.Text (Text)
+</span><span class="def"> import Git
+</span><span class="def"> import Git.Types (RefTarget)
+</span><span class="def"> import Git.Libgit2 (lgFactory, LgRepo)
+</span><span class="add">+import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import System.Directory (createDirectoryIfMissing)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="sub">-import Text.Ginger (runGingerT, makeContextHtmlM, toGVal, GVal)
+</span><span class="sub">-import Text.Ginger.Html (htmlSource)
+</span><span class="def"> 
+</span><span class="def"> import Config (Config, repoPaths, outputDirectory)
+</span><span class="sub">-import Templates (Template, templateGinger, templatePath)
+</span><span class="add">+import Templates (Template, generate)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the entrypoint that receives the ``Config`` and uses it to map over our
+</span></pre>@@ -63,13 +62,14 @@
+
+
+  <pre><span class="def">             -- tree: A list of `(TreeFilePath, TreeEntry r)` objects at HEAD.
+</span><span class="def">             tree &lt;- getTree head
+</span><span class="def"> 
+</span><span class="add">+            -- Run the generator --
+</span><span class="add">+            let repo = package description commits tree
+</span><span class="add">+            liftIO . sequence . map (generate repo) $ templates
+</span><span class="def">             return ()
+</span><span class="def">   where
+</span><span class="def">     name = takeFileName path
+</span><span class="def">     outPath = outputDirectory &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="sub">-    --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
+</span><span class="sub">-
+</span><span class="def"> getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit LgRepo]
+</span><span class="def"> getCommits commitID = sequence . fmap loadCommit &lt;=&lt;
+</span><span class="def">     runConduit $ sourceObjects Nothing commitID False .| sinkList
+</span></pre>@@ -79,8 +79,14 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> getTree :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [(TreeFilePath, TreeEntry LgRepo)]
+</span><span class="def"> getTree commitID = do
+</span><span class="sub">-    headc &lt;- lookupCommit commitID
+</span><span class="sub">-    lookupTree (commitTree headc) &gt;&gt;= listTreeEntries
+</span><span class="add">+    head &lt;- lookupCommit commitID
+</span><span class="add">+    lookupTree (commitTree head) &gt;&gt;= listTreeEntries
+</span><span class="def"> 
+</span><span class="def"> getDescription :: FilePath -&gt; IO String
+</span><span class="def"> getDescription path = either (const &quot;&quot;) id &lt;$&gt; tryIOError (readFile path)
+</span><span class="add">+
+</span><span class="add">+package description commits tree = HashMap.fromList
+</span><span class="add">+    [ (&quot;commits&quot;, &quot;commits&quot;)
+</span><span class="add">+    , (&quot;description&quot;, &quot;description&quot;)
+</span><span class="add">+    , (&quot;tree&quot;, &quot;tree&quot;)
+</span><span class="add">+    ]
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -29,3 +29,4 @@
+
+
+  <pre><span class="def">                      , tagged
+</span><span class="def">                      , text
+</span><span class="def">                      , transformers
+</span><span class="add">+                     , unordered-containers
+</span></pre></div>    </div>
   </body>
 </html>

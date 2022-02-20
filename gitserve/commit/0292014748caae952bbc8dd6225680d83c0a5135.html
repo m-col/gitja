@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,43 @@
 <b>Committed:</b> 2021-11-25 00:05:26 +0000
 
 Printy print template error messages
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -35,7 +35,7 @@
+
+
+  <pre><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import Text.Ginger.GVal (GVal)
+</span><span class="def"> import Text.Ginger.Html (Html, htmlSource)
+</span><span class="sub">-import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
+</span><span class="add">+import Text.Ginger.Parse (ParserError (..), SourcePos, parseGingerFile)
+</span><span class="def"> import Text.Ginger.Run (easyContext, runGingerT)
+</span><span class="def"> 
+</span><span class="def"> import Config
+</span></pre>@@ -108,8 +108,16 @@
+
+
+  <pre><span class="def">     parseGingerFile includeResolver path &gt;&gt;= \case
+</span><span class="def">         Right parsed -&gt; return . Just . Template path $ parsed
+</span><span class="def">         Left err -&gt; do
+</span><span class="sub">-            putStrLn . peErrorMessage $ err
+</span><span class="add">+            informError err
+</span><span class="def">             return Nothing
+</span><span class="add">+  where
+</span><span class="add">+    -- An attempt at pretty printing the error message.
+</span><span class="add">+    informError :: ParserError -&gt; IO ()
+</span><span class="add">+    informError (ParserError msg Nothing) =
+</span><span class="add">+        putStr $ &quot;Template error: &quot; &lt;&gt; path &lt;&gt; &quot;\n&quot; &lt;&gt; indent msg
+</span><span class="add">+    informError (ParserError msg (Just pos)) =
+</span><span class="add">+        putStrLn $ &quot;Template error: &quot; &lt;&gt; path &lt;&gt; &quot;\n&quot; &lt;&gt; indent (show pos &lt;&gt; &quot;\n&quot; &lt;&gt; msg)
+</span><span class="add">+    indent = unlines . map (mappend &quot;    &quot;) . lines
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This resolves Ginger&apos;s template includes.
+</span></pre></div>    </div>
   </body>
 </html>

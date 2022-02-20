@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-11-25 21:27:48 +0000
 
 disable terminal output for stack in CI
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>.github/workflows/haskell.yml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -28,7 +28,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     - name: Build
+</span><span class="def">       run: |
+</span><span class="sub">-        stack build
+</span><span class="add">+        stack --no-terminal build
+</span><span class="def"> 
+</span><span class="def">     - name: Test
+</span><span class="def">       run: |
+</span></pre></div>    </div>
   </body>
 </html>

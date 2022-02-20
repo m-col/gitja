@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,75 @@
 <b>Committed:</b> 2021-10-07 20:38:34 +0100
 
 Clean up readme
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>README.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,44 +1,24 @@
+
+
+  <pre><span class="def"> gitserve
+</span><span class="def"> ========
+</span><span class="def"> 
+</span><span class="sub">-This is all a work in progress and so nothing is implemented.
+</span><span class="add">+``gitserve`` generates pretty web pages from your git repositories using custom
+</span><span class="add">+Jinja_\* HTML templates.
+</span><span class="def"> 
+</span><span class="sub">-gitserve generates pretty web pages from your git repositories using custom
+</span><span class="sub">-HTML templates.
+</span><span class="add">+This was inspired by stagit_, which generates content with a hard-coded style,
+</span><span class="add">+so if you like that style and don&apos;t want to edit templates, you may prefer to
+</span><span class="add">+use that.
+</span><span class="def"> 
+</span><span class="sub">-It has two modes of operations:
+</span><span class="add">+\* The templating engine is not Jinja_ per se, but ginger_, an implementation
+</span><span class="add">+of the Jinja language for Haskell.
+</span><span class="def"> 
+</span><span class="sub">-*Dynamic mode*: In this mode, gitserve serves generated web pages in response
+</span><span class="sub">-to HTTP requests. Changes to the served git repositories are reflected
+</span><span class="sub">-immediately as gitserve will generate new pages when needed.
+</span><span class="add">+Remaining tasks
+</span><span class="add">+---------------
+</span><span class="def"> 
+</span><span class="sub">-*Static mode*: In this mode, gitserve will save generated web pages to file so
+</span><span class="sub">-that other software can serve the output from the filesystem as static files.
+</span><span class="sub">-Updates to the served git repositories are not reflected in the output until
+</span><span class="sub">-gitserve is called again.
+</span><span class="add">+- Commit diffs
+</span><span class="add">+- Write guide
+</span><span class="add">+- Specify config on the command line
+</span><span class="add">+- Improve performance
+</span><span class="def"> 
+</span><span class="sub">-
+</span><span class="sub">-Template variables
+</span><span class="sub">-------------------
+</span><span class="sub">-
+</span><span class="sub">-There are two variable scopes. Only one is available in a given template:
+</span><span class="sub">-
+</span><span class="sub">-- *Repository scope*: This exposes information that pertains to a single
+</span><span class="sub">-  repository. Most templates are rendered once per configured repository.
+</span><span class="sub">-- *Index scope*: This exposes information about the whole set of repositories.
+</span><span class="sub">-  The index template is rendered once in total and uses this scope. This
+</span><span class="sub">-  template is specified in the ``indexTemplate`` setting.
+</span><span class="sub">-
+</span><span class="sub">-
+</span><span class="sub">-To do
+</span><span class="sub">------
+</span><span class="sub">-
+</span><span class="sub">-[x] Generate html file per commit with commit scope
+</span><span class="sub">-[x] Generate html file per tree file with file scope
+</span><span class="sub">-[x] Expose readme url in repo scope for convenient hyperlinking
+</span><span class="sub">-[x] Expose license url in repo scope for convenient hyperlinking
+</span><span class="sub">-[x] Expose repo branches and tags in repo scope
+</span><span class="sub">-[ ] Commit diffs
+</span><span class="sub">-[x] Tree entry filemodes
+</span><span class="sub">-[ ] Generate RSS?
+</span><span class="sub">-[ ] Write guide in readme
+</span><span class="add">+.. _Jinja: https://jinja.palletsprojects.com
+</span><span class="add">+.. _stagit: https://codemadness.org/git/stagit
+</span><span class="add">+.. _ginger: https://ginger.tobiasdammers.nl
+</span></pre></div>    </div>
   </body>
 </html>

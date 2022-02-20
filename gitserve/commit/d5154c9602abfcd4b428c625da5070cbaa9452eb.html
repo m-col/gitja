@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,62 @@
 <b>Committed:</b> 2021-11-21 01:19:20 +0000
 
 Make config path absolute so dhall doesn&apos;t complain
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -6,7 +6,6 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Paths_gitserve (version)
+</span><span class="def"> 
+</span><span class="sub">-import Data.Text (Text)
+</span><span class="def"> import Data.Version (showVersion)
+</span><span class="def"> import qualified Options.Applicative as O
+</span><span class="def"> 
+</span></pre>@@ -19,7 +18,7 @@
+
+
+  <pre><span class="def"> Command line options
+</span><span class="def"> -}
+</span><span class="def"> data Options = Options
+</span><span class="sub">-    { config :: Text
+</span><span class="add">+    { config :: FilePath
+</span><span class="def">     , force :: Bool
+</span><span class="def">     , printVersion :: Bool
+</span><span class="def">     }
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,7 +14,10 @@
+
+
+  <pre><span class="def">     host,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="add">+import Control.Monad ((&lt;=&lt;))
+</span><span class="add">+import Data.Text (pack)
+</span><span class="def"> import Dhall
+</span><span class="add">+import System.Directory (makeAbsolute)
+</span><span class="def"> 
+</span><span class="def"> data Config = Config
+</span><span class="def">     { repoPaths :: [FilePath]
+</span></pre>@@ -29,5 +32,5 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> instance FromDhall Config
+</span><span class="def"> 
+</span><span class="sub">-getConfig :: Text -&gt; IO Config
+</span><span class="sub">-getConfig = input auto
+</span><span class="add">+getConfig :: String -&gt; IO Config
+</span><span class="add">+getConfig = input auto . pack &lt;=&lt; makeAbsolute
+</span></pre></div>    </div>
   </body>
 </html>

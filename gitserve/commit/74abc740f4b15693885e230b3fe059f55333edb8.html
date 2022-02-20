@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,76 @@
 <b>Committed:</b> 2021-09-21 23:13:41 +0100
 
 Add first conduit pieces
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,7 +4,9 @@
+
+
+  <pre><span class="def">     run
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="add">+import Conduit (runConduit, (.|), sinkList)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="add">+import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import Data.Foldable (foldMap)
+</span><span class="def"> import Data.Tagged
+</span><span class="def"> import Data.Text (unpack, Text)
+</span></pre>@@ -36,15 +38,23 @@
+
+
+  <pre><span class="def"> (after informing the user of course).
+</span><span class="def"> -}
+</span><span class="def"> processRepo :: [Template] -&gt; FilePath -&gt; FilePath -&gt; IO ()
+</span><span class="sub">-processRepo templates outputDirectory path = withRepository lgFactory path $ do
+</span><span class="add">+processRepo templates outputDirectory path = withRepository lgFactory path $
+</span><span class="add">+    processRepo&apos; templates outputDirectory path
+</span><span class="add">+
+</span><span class="add">+-- This is split out to make type reasoning a bit easier.
+</span><span class="add">+processRepo&apos; :: [Template] -&gt; FilePath -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="add">+processRepo&apos; templates outputDirectory path = do
+</span><span class="def">     liftIO $ createDirectoryIfMissing True outPath
+</span><span class="def">     ref &lt;- resolveReference &quot;HEAD&quot;
+</span><span class="def">     case ref of
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="def">             description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="sub">-            head &lt;- lookupCommit (Tagged commitID)
+</span><span class="sub">-            nodes &lt;- lookupTree (commitTree head) &gt;&gt;= listTreeEntries
+</span><span class="add">+            headc &lt;- lookupCommit $ Tagged commitID
+</span><span class="add">+            obj &lt;- runConduit $ sourceObjects Nothing (Tagged commitID) False .| sinkList
+</span><span class="add">+            --a &lt;- loadObject . head $ obj
+</span><span class="add">+            --liftIO . print . loadObject &lt;$&gt; obj
+</span><span class="add">+            nodes &lt;- lookupTree (commitTree headc) &gt;&gt;= listTreeEntries
+</span><span class="def">             return ()
+</span><span class="def">   where
+</span><span class="def">     name = takeFileName path
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -19,6 +19,7 @@
+
+
+  <pre><span class="def">   other-modules:       Config, Repositories, Templates
+</span><span class="def">   default-language:    Haskell2010
+</span><span class="def">   build-depends:       base &gt;= 4.7 &amp;&amp; &lt; 5
+</span><span class="add">+                     , conduit
+</span><span class="def">                      , dhall
+</span><span class="def">                      , directory
+</span><span class="def">                      , filepath
+</span></pre>@@ -27,3 +28,4 @@
+
+
+  <pre><span class="def">                      , gitlib-libgit2
+</span><span class="def">                      , tagged
+</span><span class="def">                      , text
+</span><span class="add">+                     , transformers
+</span></pre></div>    </div>
   </body>
 </html>

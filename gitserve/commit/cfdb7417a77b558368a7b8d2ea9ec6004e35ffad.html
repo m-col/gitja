@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,77 @@
 <b>Committed:</b> 2021-09-25 00:43:20 +0100
 
 Output to file
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,7 +15,7 @@
+
+
+  <pre><span class="def"> import Data.Text (unpack, Text)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import System.Directory (doesFileExist, getDirectoryContents)
+</span><span class="sub">-import System.FilePath ((&lt;/&gt;))
+</span><span class="add">+import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
+</span></pre>@@ -91,15 +91,18 @@
+
+
+  <pre><span class="def"> {-
+</span><span class="def"> This function gets the output HTML data and is responsible for saving it to file.
+</span><span class="def"> -}
+</span><span class="sub">-writeTo :: Html -&gt; IO ()
+</span><span class="sub">-writeTo = putStr . unpack . htmlSource
+</span><span class="add">+writeTo :: FilePath -&gt; Html -&gt; IO ()
+</span><span class="add">+writeTo path html = appendFile path . unpack . htmlSource $ html
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the generator function that receives repository-specific variables and uses
+</span><span class="def"> Ginger to render templates using them.
+</span><span class="def"> -}
+</span><span class="def"> generate
+</span><span class="sub">-    :: HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="add">+    :: FilePath
+</span><span class="add">+    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="def">     -&gt; Template
+</span><span class="def">     -&gt; IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
+</span><span class="sub">-generate context template = easyRenderM writeTo context (templateGinger template)
+</span><span class="add">+generate output context template = easyRenderM writeToPath context (templateGinger template)
+</span><span class="add">+  where
+</span><span class="add">+    writeToPath = writeTo $ output &lt;/&gt; (takeFileName . templatePath $ template)
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -54,7 +54,8 @@
+
+
+  <pre><span class="def"> processRepo&apos; :: [Template] -&gt; Config -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="def"> processRepo&apos; templates config path = do
+</span><span class="def">     let name = takeFileName path
+</span><span class="sub">-    liftIO $ createDirectoryIfMissing True $ outputDirectory config &lt;/&gt; name
+</span><span class="add">+    let output = outputDirectory config &lt;/&gt; name
+</span><span class="add">+    liftIO $ createDirectoryIfMissing True output
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span></pre>@@ -73,7 +74,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="def">             let repo = package config name description commits tree
+</span><span class="sub">-            liftIO . mapM (generate repo) $ templates
+</span><span class="add">+            liftIO . mapM (generate output repo) $ templates
+</span><span class="def">             return ()
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div>    </div>
   </body>
 </html>

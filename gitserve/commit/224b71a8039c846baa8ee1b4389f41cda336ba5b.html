@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,46 @@
 Print message when generating template with gitserve -t
 
 Also print warning in case the output folder already exists.
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -8,6 +8,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Paths_gitserve (version)
+</span><span class="def"> 
+</span><span class="add">+import Control.Monad (when)
+</span><span class="def"> import qualified Data.ByteString as B
+</span><span class="def"> import qualified Data.ByteString.UTF8 as B
+</span><span class="def"> import Data.FileEmbed (embedDir, embedFile)
+</span></pre>@@ -95,11 +96,19 @@
+
+
+  <pre><span class="def">     tExists &lt;- D.doesPathExist &quot;./template&quot;
+</span><span class="def">     cExists &lt;- D.doesPathExist &quot;./config.dhall&quot;
+</span><span class="def">     if
+</span><span class="sub">-            | tExists -&gt; putStrLn &quot;Failed - &apos;./template&apos; already exists.&quot;
+</span><span class="sub">-            | cExists -&gt; putStrLn &quot;Failed - &apos;./config.dhall&apos; already exists.&quot;
+</span><span class="add">+            | tExists -&gt; putStrLn &quot;Failed - ./template already exists.&quot;
+</span><span class="add">+            | cExists -&gt; putStrLn &quot;Failed - ./config.dhall already exists.&quot;
+</span><span class="def">             | otherwise -&gt; do
+</span><span class="def">                 mapM_ (uncurry place) base
+</span><span class="def">                 B.writeFile &quot;./config.dhall&quot; config
+</span><span class="add">+                putStrLn &quot;A base template as been put at ./template.&quot;
+</span><span class="add">+                putStrLn &quot;A plain config has been put at ./config.dhall&quot;
+</span><span class="add">+                putStrLn &quot;Add a local git repository to repoPaths in the config&quot;
+</span><span class="add">+                putStrLn &quot;and run gitserve to generate HTML in ./output.&quot;
+</span><span class="add">+                oExists &lt;- D.doesPathExist &quot;./output&quot;
+</span><span class="add">+                when oExists . putStrLn $
+</span><span class="add">+                    &quot;WARNING: ./output ALREADY EXISTS AND WILL BE OVERWRITTEN\n&quot;
+</span><span class="add">+                        &lt;&gt; &quot;UNLESS YOU MOVE/RENAME IT OR CHANGE GITSERVE&apos;S outputDirectory.&quot;
+</span><span class="def">   where
+</span><span class="def">     base :: [(FilePath, B.ByteString)]
+</span><span class="def">     base = $(embedDir &quot;templates/base&quot;)
+</span></pre></div>    </div>
   </body>
 </html>

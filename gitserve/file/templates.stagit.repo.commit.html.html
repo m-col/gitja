@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -55,8 +55,33 @@
 <a href="#l17" class="line" id="l17">   17</a>  
 <a href="#l18" class="line" id="l18">   18</a>  {{ commit.message }}
 <a href="#l19" class="line" id="l19">   19</a>  &lt;/pre&gt;
-<a href="#l20" class="line" id="l20">   20</a>  &lt;/div&gt;
-<a href="#l21" class="line" id="l21">   21</a>  {% endblock %}
+<a href="#l20" class="line" id="l20">   20</a>  
+<a href="#l21" class="line" id="l21">   21</a>  {%- for diff in commit.diffs -%}
+<a href="#l22" class="line" id="l22">   22</a>  &lt;div class=&quot;diff&quot;&gt;
+<a href="#l23" class="line" id="l23">   23</a>    &lt;p&gt;
+<a href="#l24" class="line" id="l24">   24</a>      &lt;b&gt;{{ diff.new_file }}&lt;/b&gt;
+<a href="#l25" class="line" id="l25">   25</a>      &lt;span class=&quot;status&quot;&gt;{{ diff.status }}&lt;/span&gt;
+<a href="#l26" class="line" id="l26">   26</a>    &lt;/p&gt;
+<a href="#l27" class="line" id="l27">   27</a>  
+<a href="#l28" class="line" id="l28">   28</a>    {% if diff.newfile != diff.oldfile %}
+<a href="#l29" class="line" id="l29">   29</a>    &lt;p&gt;Renamed from {{ diff.old_file }}&lt;/p&gt;
+<a href="#l30" class="line" id="l30">   30</a>    {% endif %}
+<a href="#l31" class="line" id="l31">   31</a>  
+<a href="#l32" class="line" id="l32">   32</a>    {%- for hunk in diff.hunks -%}
+<a href="#l33" class="line" id="l33">   33</a>    {{ hunk.header }}
+<a href="#l34" class="line" id="l34">   34</a>  
+<a href="#l35" class="line" id="l35">   35</a>    &lt;pre&gt;
+<a href="#l36" class="line" id="l36">   36</a>      {%- for line in hunk.lines -%}
+<a href="#l37" class="line" id="l37">   37</a>        &lt;span class=&quot;{{ line.class }}&quot;&gt;{{ line.text }}&lt;/span&gt;
+<a href="#l38" class="line" id="l38">   38</a>      {%- endfor -%}
+<a href="#l39" class="line" id="l39">   39</a>    &lt;/pre&gt;
+<a href="#l40" class="line" id="l40">   40</a>  
+<a href="#l41" class="line" id="l41">   41</a>    {%- endfor -%}
+<a href="#l42" class="line" id="l42">   42</a>  &lt;/div&gt;
+<a href="#l43" class="line" id="l43">   43</a>  {%- endfor -%}
+<a href="#l44" class="line" id="l44">   44</a>  
+<a href="#l45" class="line" id="l45">   45</a>  &lt;/div&gt;
+<a href="#l46" class="line" id="l46">   46</a>  {% endblock %}
 </pre>
       </div>
   </body>

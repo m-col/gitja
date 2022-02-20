@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,55 @@
 <b>Committed:</b> 2021-11-26 23:30:52 +0000
 
 remove unnecessary lines from test script
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/test.sh</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -23,7 +23,7 @@
+
+
+  <pre><span class="def">     exit 1
+</span><span class="def"> fi
+</span><span class="def"> 
+</span><span class="sub">-let errors=&quot;0&quot; &quot;1&quot;
+</span><span class="add">+let errors=&quot;0&quot;
+</span><span class="def"> EXPECTED=&quot;test/expected&quot;
+</span><span class="def"> RESULT=&quot;test/result&quot;
+</span><span class="def"> rm -fr &quot;$RESULT&quot;
+</span></pre>@@ -39,12 +39,7 @@
+
+
+  <pre><span class="def">     &quot;gitserve/file/test.templates.style.css.html&quot;
+</span><span class="def"> )
+</span><span class="def"> 
+</span><span class="sub">-finish() {
+</span><span class="sub">-    rm -r &quot;$RESULT&quot;
+</span><span class="sub">-    exit $1
+</span><span class="sub">-}
+</span><span class="sub">-
+</span><span class="sub">-stack run -- -c test/config.dhall -q || finish 1
+</span><span class="add">+stack run -- -c test/config.dhall -q || exit 1
+</span><span class="def"> 
+</span><span class="def"> for test in &quot;${TESTS[@]}&quot;
+</span><span class="def"> do
+</span></pre>@@ -63,10 +58,11 @@
+
+
+  <pre><span class="def"> case &quot;$errors&quot; in
+</span><span class="def">     0)
+</span><span class="def"> 	echo &quot;All good!&quot;
+</span><span class="sub">-	finish 0
+</span><span class="def"> 	;;
+</span><span class="def">     *)
+</span><span class="def"> 	echo &quot;Had this many errors: $errors&quot;
+</span><span class="sub">-	finish $errors
+</span><span class="def"> 	;;
+</span><span class="def"> esac
+</span><span class="add">+
+</span><span class="add">+rm -r &quot;$RESULT&quot;
+</span><span class="add">+exit $errors
+</span></pre></div>    </div>
   </body>
 </html>

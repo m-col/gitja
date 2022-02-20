@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,50 @@
 <b>Committed:</b> 2021-12-04 15:35:29 +0300
 
 Add section to docs on static content
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -91,9 +91,7 @@
+
+
+  <pre><span class="def"> scope*, and are each parsed exactly once and output into the output directory
+</span><span class="def"> with the same name.
+</span><span class="def"> &quot;[include](https://ginger.tobiasdammers.nl/guide/syntax/statements/#include)&quot;
+</span><span class="sub">-files are never copied but can be used to assist in templating. The remaining
+</span><span class="sub">-files, and any folders not called &quot;repo&quot;, are copied as-is as static content,
+</span><span class="sub">-such as CSS, images, etc.
+</span><span class="add">+files are never copied but can be used to assist in templating.
+</span><span class="def"> 
+</span><span class="def"> The special folder &quot;repo&quot; has access to the *repo scope*, which exposes
+</span><span class="def"> information pertaining to a single git repository. The template files contained
+</span></pre>@@ -123,12 +121,16 @@
+
+
+  <pre><span class="def">                 ...
+</span><span class="def">         ...
+</span><span class="def"> 
+</span><span class="sub">-Note: symbolic links are considered static and will be copied unchanged and
+</span><span class="sub">-unresolved from template to output. This means that, for example, a symlink at
+</span><span class="sub">-`template/index.html` pointing to `gitserve/index.html` will produce a symlink
+</span><span class="sub">-at `output/index.html` with the same behaviour, with the effect that the served
+</span><span class="sub">-root index page will actually be the index page for the `gitserve` repository
+</span><span class="sub">-(if present).
+</span><span class="add">+#### Static files
+</span><span class="add">+
+</span><span class="add">+Files in the template folder that do not end in &quot;.html&quot; or &quot;.include&quot; or are
+</span><span class="add">+symbolic links, as well as directories that are not called &quot;repo&quot;, are
+</span><span class="add">+considered static content. These are copied unchanged (i.e. symbolic links are
+</span><span class="add">+copied as symbolic links) to the output folder. This is useful for putting CSS,
+</span><span class="add">+images etc into the output.
+</span><span class="add">+
+</span><span class="add">+Similarly, any static content found within the template&apos;s &quot;repo/&quot; folder is
+</span><span class="add">+copied unchanged into the output folder for every repository.
+</span><span class="def"> 
+</span><span class="def"> ### Scopes
+</span><span class="def"> 
+</span></pre></div>    </div>
   </body>
 </html>

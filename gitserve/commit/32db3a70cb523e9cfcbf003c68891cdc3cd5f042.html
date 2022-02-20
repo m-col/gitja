@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -46,7 +46,242 @@ Add branches and tags as available data in templates
 Adds `Ref` data type to represent them.
 
 Example template files are added for each one.
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/tags.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,21 @@
+
+
+  <pre><span class="add">+&lt;!doctype html&gt;
+</span><span class="add">+&lt;html lang=&quot;en&quot;&gt;
+</span><span class="add">+  &lt;head&gt;
+</span><span class="add">+    &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="add">+    &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="add">+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="add">+    &lt;title&gt;{{ name }} -- tags&lt;/title&gt;
+</span><span class="add">+    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="add">+  &lt;/head&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;body&gt;
+</span><span class="add">+    &lt;p&gt;{{ name }}&lt;/p&gt;
+</span><span class="add">+    &lt;hr&gt;
+</span><span class="add">+    &lt;p&gt;{{ description }}&lt;/p&gt;
+</span><span class="add">+    &lt;p&gt;git clone {{ host }}/{{ name }}&lt;/p&gt;
+</span><span class="add">+    &lt;hr&gt;
+</span><span class="add">+    {% for tag in tags %}
+</span><span class="add">+		&lt;p&gt;&lt;b&gt;{{ tag.name }}&lt;/b&gt; {{ tag.id[:7] }} {{ tag.title }}&lt;/p&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+  &lt;/body&gt;
+</span><span class="add">+&lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/index.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,5 +15,7 @@
+
+
+  <pre><span class="def">     &lt;p&gt;git clone {{ host }}/{{- name }}&lt;/p&gt;
+</span><span class="def"> 		&lt;p&gt;&lt;a href=&quot;./log.html&quot;&gt;Log&lt;/a&gt;&lt;/p&gt;
+</span><span class="def"> 		&lt;p&gt;&lt;a href=&quot;./tree.html&quot;&gt;Tree&lt;/a&gt;&lt;/p&gt;
+</span><span class="add">+		&lt;p&gt;&lt;a href=&quot;./tags.html&quot;&gt;Tags&lt;/a&gt;&lt;/p&gt;
+</span><span class="add">+		&lt;p&gt;&lt;a href=&quot;./branches.html&quot;&gt;Branches&lt;/a&gt;&lt;/p&gt;
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/branches.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,21 @@
+
+
+  <pre><span class="add">+&lt;!doctype html&gt;
+</span><span class="add">+&lt;html lang=&quot;en&quot;&gt;
+</span><span class="add">+  &lt;head&gt;
+</span><span class="add">+    &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="add">+    &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="add">+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="add">+    &lt;title&gt;{{ name }} -- tags&lt;/title&gt;
+</span><span class="add">+    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="add">+  &lt;/head&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;body&gt;
+</span><span class="add">+    &lt;p&gt;{{ name }}&lt;/p&gt;
+</span><span class="add">+    &lt;hr&gt;
+</span><span class="add">+    &lt;p&gt;{{ description }}&lt;/p&gt;
+</span><span class="add">+    &lt;p&gt;git clone {{ host }}/{{ name }}&lt;/p&gt;
+</span><span class="add">+    &lt;hr&gt;
+</span><span class="add">+    {% for branch in branches %}
+</span><span class="add">+		&lt;p&gt;&lt;b&gt;{{ branch.name }}&lt;/b&gt; {{ branch.id[:7] }} {{ branch.title }}&lt;/p&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+  &lt;/body&gt;
+</span><span class="add">+&lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -130,3 +130,25 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> treePathToHref :: TreeFilePath -&gt; Text
+</span><span class="def"> treePathToHref = flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; .  decodeUtf8With lenientDecode
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+Data to store information about references: tags and branches.
+</span><span class="add">+-}
+</span><span class="add">+data Ref = Ref
+</span><span class="add">+    { refName :: RefName
+</span><span class="add">+    , refCommit :: Commit LgRepo
+</span><span class="add">+    }
+</span><span class="add">+
+</span><span class="add">+instance ToGVal m Ref where
+</span><span class="add">+    toGVal :: Ref -&gt; GVal m
+</span><span class="add">+    toGVal ref = def
+</span><span class="add">+        { asHtml = html . refName $ ref
+</span><span class="add">+        , asText = refName ref
+</span><span class="add">+        , asLookup = Just . refAsLookup $ ref
+</span><span class="add">+        }
+</span><span class="add">+
+</span><span class="add">+refAsLookup :: Ref -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+refAsLookup ref = \case
+</span><span class="add">+    &quot;name&quot; -&gt; Just . toGVal . refName $ ref
+</span><span class="add">+    &quot;commit&quot; -&gt; Just . toGVal . refCommit $ ref
+</span><span class="add">+    key -&gt; commitAsLookup (refCommit ref) key
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,10 +14,10 @@
+
+
+  <pre><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import Data.Either (fromRight)
+</span><span class="def"> import Data.Tagged
+</span><span class="sub">-import Data.Text (pack, unpack, Text)
+</span><span class="add">+import Data.Text (pack, unpack, Text, isPrefixOf, stripPrefix)
+</span><span class="def"> import Data.Text.Encoding (decodeUtf8With)
+</span><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="sub">-import Data.Maybe (mapMaybe)
+</span><span class="add">+import Data.Maybe (mapMaybe, catMaybes, fromJust)
+</span><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (lgFactory, LgRepo)
+</span><span class="def"> import System.Directory (createDirectoryIfMissing)
+</span></pre>@@ -50,6 +50,7 @@
+
+
+  <pre><span class="def"> getDescription :: FilePath -&gt; IO Text
+</span><span class="def"> getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap pack . readFile . (&lt;/&gt; &quot;description&quot;)
+</span><span class="def"> 
+</span><span class="add">+
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Private -----------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre>@@ -76,14 +77,19 @@
+
+
+  <pre><span class="def">             -- it exists.
+</span><span class="def">             description &lt;- liftIO . getDescription $ path
+</span><span class="def"> 
+</span><span class="sub">-            -- commits: A list of `Git.Commit` objects to HEAD.
+</span><span class="add">+            -- commits: A list of `Commit` objects to HEAD.
+</span><span class="def">             commits &lt;- getCommits gitHead
+</span><span class="def"> 
+</span><span class="def">             -- tree: A list of `TreeFile` objects at HEAD.
+</span><span class="def">             tree &lt;- getTree gitHead
+</span><span class="def"> 
+</span><span class="add">+            -- tags and branches: Lists of `Ref` objects that wrap `Commit` and
+</span><span class="add">+            -- `Refname` (Text).
+</span><span class="add">+            tags &lt;- getRefs &quot;refs/tags/&quot;
+</span><span class="add">+            branches &lt;- getRefs &quot;refs/heads/&quot;
+</span><span class="add">+
+</span><span class="def">             -- Run the generator --
+</span><span class="sub">-            let scope = package env name description commits tree
+</span><span class="add">+            let scope = package env name description commits tree tags branches
+</span><span class="def">             liftIO . mapM (generate output scope) $ envTemplates env
+</span><span class="def">             liftIO . mapM (genTarget output scope $ envCommitTemplate env) $ commits
+</span><span class="def">             liftIO . mapM (genTarget output scope $ envFileTemplate env) $ tree
+</span></pre>@@ -101,13 +107,17 @@
+
+
+  <pre><span class="def">     -&gt; Text
+</span><span class="def">     -&gt; [Commit LgRepo]
+</span><span class="def">     -&gt; [TreeFile]
+</span><span class="add">+    -&gt; [Ref]
+</span><span class="add">+    -&gt; [Ref]
+</span><span class="def">     -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-package env name description commits tree = HashMap.fromList
+</span><span class="add">+package env name description commits tree tags branches = HashMap.fromList
+</span><span class="def">     [ (&quot;host&quot;, toGVal . host . envConfig $ env)
+</span><span class="def">     , (&quot;name&quot;, toGVal . pack $ name)
+</span><span class="def">     , (&quot;description&quot;, toGVal description)
+</span><span class="def">     , (&quot;commits&quot;, toGVal . reverse $ commits)  -- Could be optimised
+</span><span class="def">     , (&quot;tree&quot;, toGVal tree)
+</span><span class="add">+    , (&quot;tags&quot;, toGVal tags)
+</span><span class="add">+    , (&quot;branches&quot;, toGVal branches)
+</span><span class="def">     ]
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -142,6 +152,30 @@
+
+
+  <pre><span class="def"> getEntryModes (TreeEntry _) = return ModeDirectory
+</span><span class="def"> getEntryModes (CommitEntry _) = return ModeSubmodule
+</span><span class="def"> 
+</span><span class="add">+{-
+</span><span class="add">+Collect information about references. TODO: Find a more canonical way to split
+</span><span class="add">+references into tags or branches rather than filtering the refnames.
+</span><span class="add">+-}
+</span><span class="add">+getRefs :: Text -&gt; ReaderT LgRepo IO [Ref]
+</span><span class="add">+getRefs ref = do
+</span><span class="add">+    names &lt;- filter (isPrefixOf ref) &lt;$&gt; listReferences
+</span><span class="add">+    maybeOids &lt;- mapM resolveReference names
+</span><span class="add">+    let names&apos; = catMaybes . zipWith dropName maybeOids $ names
+</span><span class="add">+    objs &lt;- mapM lookupObject . catMaybes $ maybeOids
+</span><span class="add">+    maybeCommits &lt;- mapM refObjToCommit objs
+</span><span class="add">+    let names&apos;&apos; = map (fromJust . stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names&apos;
+</span><span class="add">+    return . zipWith Ref names&apos;&apos; . catMaybes $ maybeCommits
+</span><span class="add">+
+</span><span class="add">+  where
+</span><span class="add">+    refObjToCommit :: Object r m -&gt; ReaderT LgRepo IO (Maybe (Commit r))
+</span><span class="add">+    refObjToCommit (CommitObj obj) = return . Just $ obj
+</span><span class="add">+    refObjToCommit _ = return Nothing
+</span><span class="add">+
+</span><span class="add">+    dropName :: Maybe a -&gt; RefName -&gt; Maybe RefName
+</span><span class="add">+    dropName (Just _) name = Just name
+</span><span class="add">+    dropName Nothing _ = Nothing
+</span><span class="add">+
+</span><span class="add">+
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Targets -----------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>README.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -37,7 +37,7 @@
+
+
+  <pre><span class="def"> [x] Generate html file per tree file with file scope
+</span><span class="def"> [ ] Expose readme url in repo scope for convenient hyperlinking
+</span><span class="def"> [ ] Expose license url in repo scope for convenient hyperlinking
+</span><span class="sub">-[ ] Expose repo branches and tags in repo scope
+</span><span class="add">+[x] Expose repo branches and tags in repo scope
+</span><span class="def"> [ ] Commit diffs
+</span><span class="def"> [x] Tree entry filemodes
+</span><span class="def"> [ ] Generate RSS?
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,40 @@
 <b>Committed:</b> 2021-10-07 18:46:34 +0100
 
 mapM -&gt; mapM_ where appropriate
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -39,9 +39,7 @@
+
+
+  <pre><span class="def"> templates.
+</span><span class="def"> -}
+</span><span class="def"> run :: Env -&gt; IO ()
+</span><span class="sub">-run env = do
+</span><span class="sub">-    foldMap (processRepo env) . repoPaths . envConfig $ env  -- TODO: make concurrent
+</span><span class="sub">-    return ()
+</span><span class="add">+run env = mapM_ (processRepo env) (repoPaths . envConfig $ env)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Pass the repository&apos;s folder, get its description. This is exported so that Index.hs can
+</span></pre>@@ -90,9 +88,9 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="def">             let scope = package env name description commits tree tags branches
+</span><span class="sub">-            liftIO . mapM (generate output scope) $ envTemplates env
+</span><span class="sub">-            liftIO . mapM (genTarget output scope $ envCommitTemplate env) $ commits
+</span><span class="sub">-            liftIO . mapM (genTarget output scope $ envFileTemplate env) $ tree
+</span><span class="add">+            liftIO . mapM_ (generate output scope) $ envTemplates env
+</span><span class="add">+            liftIO . mapM_ (genTarget output scope $ envCommitTemplate env) $ commits
+</span><span class="add">+            liftIO . mapM_ (genTarget output scope $ envFileTemplate env) $ tree
+</span><span class="def">             return ()
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div>    </div>
   </body>
 </html>

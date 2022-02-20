@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,51 @@
 Exit early with message if no templates are found
 
 Closes #22
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,7 +14,7 @@
+
+
+  <pre><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.IORef (modifyIORef&apos;, newIORef, readIORef)
+</span><span class="sub">-import Data.Maybe (catMaybes, fromMaybe)
+</span><span class="add">+import Data.Maybe (catMaybes, fromMaybe, isNothing)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import qualified Data.Text.Lazy.Builder as TB
+</span><span class="def"> import qualified Data.Text.Lazy.IO as T
+</span></pre>@@ -38,6 +38,7 @@
+
+
+  <pre><span class="def">     pathIsSymbolicLink,
+</span><span class="def">     removeFile,
+</span><span class="def">  )
+</span><span class="add">+import System.Exit (die)
+</span><span class="def"> import qualified System.FilePath as FP
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span></pre>@@ -104,6 +105,15 @@
+
+
+  <pre><span class="def">             . filter (flip notElem [&quot;commit.html&quot;, &quot;file.html&quot;] . toFilePath . filename)
+</span><span class="def">             $ filesRepo
+</span><span class="def"> 
+</span><span class="add">+    -- Exit early if we didn&apos;t find any templates
+</span><span class="add">+    when
+</span><span class="add">+        ( null indexT
+</span><span class="add">+            &amp;&amp; isNothing commitT
+</span><span class="add">+            &amp;&amp; isNothing fileT
+</span><span class="add">+            &amp;&amp; null repoT
+</span><span class="add">+        )
+</span><span class="add">+        $ die &quot;No templates were found.&quot;
+</span><span class="add">+
+</span><span class="def">     -- App environment
+</span><span class="def">     return
+</span><span class="def">         Env
+</span></pre></div>    </div>
   </body>
 </html>

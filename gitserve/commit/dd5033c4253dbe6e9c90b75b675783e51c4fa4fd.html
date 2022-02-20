@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,165 @@
 <b>Committed:</b> 2021-09-25 13:48:44 +0100
 
 Generate index listing all repositories
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/index-main.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,19 @@
+
+
+  <pre><span class="add">+&lt;!doctype html&gt;
+</span><span class="add">+&lt;html lang=&quot;en&quot;&gt;
+</span><span class="add">+  &lt;head&gt;
+</span><span class="add">+    &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="add">+    &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="add">+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="add">+    &lt;title&gt;gitserve&lt;/title&gt;
+</span><span class="add">+    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="add">+  &lt;/head&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;body&gt;
+</span><span class="add">+    &lt;p&gt;gitserve&lt;/p&gt;
+</span><span class="add">+    &lt;hr&gt;
+</span><span class="add">+		&lt;p&gt;My git repositories - {{ host }}&lt;/p&gt;
+</span><span class="add">+    {% for repo in repositories %}
+</span><span class="add">+		&lt;p&gt;&lt;a href=&quot;{{- host }}/{{- repo.name }}&quot;&gt;{{- repo.name }}&lt;/a&gt; -- {{ repo.description }}&lt;/p&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+  &lt;/body&gt;
+</span><span class="add">+&lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -6,6 +6,7 @@
+
+
+  <pre><span class="def">     loadTemplates,
+</span><span class="def">     loadIndexTemplate,
+</span><span class="def">     generate,
+</span><span class="add">+    templatePath,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Control.Monad (filterM, (&lt;=&lt;))
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -29,15 +29,17 @@
+
+
+  <pre><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> 
+</span><span class="def"> import Config (Config, repoPaths, outputDirectory, host)
+</span><span class="sub">-import Templates (Template, generate)
+</span><span class="add">+import Templates (Template, generate, templatePath)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the entrypoint that receives the ``Config`` and uses it to map over our
+</span><span class="def"> repositories, reading from them and writing out their web pages using the given
+</span><span class="def"> templates.
+</span><span class="def"> -}
+</span><span class="sub">-run :: Config -&gt; [Template] -&gt; IO ()
+</span><span class="sub">-run config templates = foldMap (processRepo templates config) . repoPaths $ config
+</span><span class="add">+run :: Config -&gt; [Template] -&gt; Maybe Template -&gt; IO ()
+</span><span class="add">+run config templates index = do
+</span><span class="add">+    foldMap (processRepo templates config) . repoPaths $ config
+</span><span class="add">+    runIndex config index
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre>@@ -161,3 +163,52 @@
+
+
+  <pre><span class="def"> treeAsLookup treefile = \case
+</span><span class="def">     &quot;path&quot; -&gt; Just . toGVal . treeFilePath $ treefile
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="add">+
+</span><span class="add">+----------------------------------------------------------------------------------------
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+This creates the main index file from the index template, using information from all
+</span><span class="add">+configured respositories.
+</span><span class="add">+-}
+</span><span class="add">+runIndex :: Config -&gt; Maybe Template -&gt; IO ()
+</span><span class="add">+runIndex config Nothing = return ()
+</span><span class="add">+runIndex config (Just template) = do
+</span><span class="add">+    let paths = repoPaths config
+</span><span class="add">+    descriptions &lt;- sequence . fmap (getDescription . flip (&lt;/&gt;) &quot;description&quot;) $ paths
+</span><span class="add">+    let repos = zipWith ($) (Repo &lt;$&gt; takeFileName &lt;$&gt; paths) descriptions
+</span><span class="add">+    let indexScope = packageIndex config repos
+</span><span class="add">+    generate (outputDirectory config) indexScope (template { templatePath = &quot;index.html&quot; })
+</span><span class="add">+    return ()
+</span><span class="add">+
+</span><span class="add">+packageIndex
+</span><span class="add">+    :: Config
+</span><span class="add">+    -&gt; [Repo]
+</span><span class="add">+    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="add">+packageIndex config repos = HashMap.fromList
+</span><span class="add">+    [ (&quot;host&quot;, toGVal $ host config)
+</span><span class="add">+    , (&quot;repositories&quot;, toGVal repos)
+</span><span class="add">+    ]
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+The index template can access variables in the index scope. The primary variable here is
+</span><span class="add">+the list of repositories, which can be looped over and each repo entry has some
+</span><span class="add">+properties that can be accessed. These are defined here.
+</span><span class="add">+-}
+</span><span class="add">+data Repo = Repo
+</span><span class="add">+    { repoName :: FilePath
+</span><span class="add">+    , repoDescription :: Text
+</span><span class="add">+    }
+</span><span class="add">+
+</span><span class="add">+instance ToGVal m Repo where
+</span><span class="add">+    toGVal :: Repo -&gt; GVal m
+</span><span class="add">+    toGVal repo = def
+</span><span class="add">+        { asHtml = html . pack . show . repoName $ repo
+</span><span class="add">+        , asText = pack . show . repoName $ repo
+</span><span class="add">+        , asLookup = Just . repoAsLookup $ repo
+</span><span class="add">+        }
+</span><span class="add">+
+</span><span class="add">+repoAsLookup :: Repo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+repoAsLookup repo = \case
+</span><span class="add">+    &quot;name&quot; -&gt; Just . toGVal . repoName $ repo
+</span><span class="add">+    &quot;description&quot; -&gt; Just . toGVal . repoDescription $ repo
+</span><span class="add">+    _ -&gt; Nothing
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,4 +13,4 @@
+
+
+  <pre><span class="def">     config &lt;- getConfig &quot;./config.dhall&quot;
+</span><span class="def">     templates &lt;- loadTemplates config
+</span><span class="def">     index &lt;- loadIndexTemplate config
+</span><span class="sub">-    run config templates
+</span><span class="add">+    run config templates index
+</span></pre></div><div class="diff">
+  <p>
+    <b>config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,7 +13,7 @@
+
+
+  <pre><span class="def"> let config =
+</span><span class="def">     { repoPaths = folders
+</span><span class="def">     , templateDirectory = &quot;./templates&quot;
+</span><span class="sub">-    , indexTemplate = &quot;./templates/main_index.html&quot;
+</span><span class="add">+    , indexTemplate = &quot;./templates/index-main.html&quot;
+</span><span class="def">     , outputDirectory = &quot;./output&quot;
+</span><span class="def">     , host = &quot;http://localhost&quot;
+</span><span class="def">     }
+</span></pre></div>    </div>
   </body>
 </html>

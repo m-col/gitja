@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,42 @@
 <b>Committed:</b> 2021-11-26 00:26:44 +0000
 
 remove Private horizontal rules
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -40,9 +40,6 @@
+
+
+  <pre><span class="def">     repos &lt;- loadRepos env
+</span><span class="def">     mapM (processRepo env repos) repos
+</span><span class="def"> 
+</span><span class="sub">-----------------------------------------------------------------------------------------
+</span><span class="sub">--- Private -----------------------------------------------------------------------------
+</span><span class="sub">-
+</span><span class="def"> {-
+</span><span class="def"> Get paths along with their descriptions.
+</span><span class="def"> -}
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -24,9 +24,6 @@
+
+
+  <pre><span class="def"> runIndex :: Env -&gt; [Repo] -&gt; IO ()
+</span><span class="def"> runIndex env repos = mapM_ (runIndexFile env repos) . envIndexTemplates $ env
+</span><span class="def"> 
+</span><span class="sub">-----------------------------------------------------------------------------------------
+</span><span class="sub">--- Private -----------------------------------------------------------------------------
+</span><span class="sub">-
+</span><span class="def"> runIndexFile :: Env -&gt; [Repo] -&gt; Template -&gt; IO ()
+</span><span class="def"> runIndexFile env repos template = do
+</span><span class="def">     let output = combine (toFilePath . envOutputDirectory $ env) . toFilePath . templatePath $ template
+</span></pre></div>    </div>
   </body>
 </html>

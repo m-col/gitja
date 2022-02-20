@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,55 @@
 <b>Committed:</b> 2021-11-18 21:23:49 +0000
 
 Create haskell.yml
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>.github/workflows/haskell.yml</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,40 @@
+
+
+  <pre><span class="add">+name: Haskell CI
+</span><span class="add">+
+</span><span class="add">+on:
+</span><span class="add">+  push:
+</span><span class="add">+    branches: [ master ]
+</span><span class="add">+  pull_request:
+</span><span class="add">+    branches: [ master ]
+</span><span class="add">+
+</span><span class="add">+jobs:
+</span><span class="add">+  build:
+</span><span class="add">+
+</span><span class="add">+    runs-on: ubuntu-latest
+</span><span class="add">+
+</span><span class="add">+    steps:
+</span><span class="add">+    - uses: actions/checkout@v2
+</span><span class="add">+    - uses: actions/setup-haskell@v1
+</span><span class="add">+      with:
+</span><span class="add">+        ghc-version: &apos;8.10.3&apos;
+</span><span class="add">+        cabal-version: &apos;3.2&apos;
+</span><span class="add">+
+</span><span class="add">+    - name: Cache
+</span><span class="add">+      uses: actions/cache@v1
+</span><span class="add">+      env:
+</span><span class="add">+        cache-name: cache-cabal
+</span><span class="add">+      with:
+</span><span class="add">+        path: ~/.cabal
+</span><span class="add">+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles(&apos;**/*.cabal&apos;) }}-${{ hashFiles(&apos;**/cabal.project&apos;) }}
+</span><span class="add">+        restore-keys: |
+</span><span class="add">+          ${{ runner.os }}-build-${{ env.cache-name }}-
+</span><span class="add">+          ${{ runner.os }}-build-
+</span><span class="add">+          ${{ runner.os }}-
+</span><span class="add">+
+</span><span class="add">+    - name: Install dependencies
+</span><span class="add">+      run: |
+</span><span class="add">+        cabal update
+</span><span class="add">+        cabal build --only-dependencies --enable-tests --enable-benchmarks
+</span><span class="add">+    - name: Build
+</span><span class="add">+      run: cabal build --enable-tests --enable-benchmarks all
+</span><span class="add">+    - name: Run tests
+</span><span class="add">+      run: cabal test all
+</span></pre></div>    </div>
   </body>
 </html>

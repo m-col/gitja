@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,42 @@
 <b>Committed:</b> 2021-09-24 22:55:18 +0100
 
 Add section to readme about template variable scopes
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>README.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,7 +3,8 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> This is all a work in progress and so nothing is implemented.
+</span><span class="def"> 
+</span><span class="sub">-gitserve generates pretty web pages from your git repositories.
+</span><span class="add">+gitserve generates pretty web pages from your git repositories using custom
+</span><span class="add">+HTML templates.
+</span><span class="def"> 
+</span><span class="def"> It has two modes of operations:
+</span><span class="def"> 
+</span></pre>@@ -28,3 +29,15 @@
+
+
+  <pre><span class="def"> - Log index + page per commit
+</span><span class="def"> - Refs + tags index
+</span><span class="def"> - atom xml for repository
+</span><span class="add">+
+</span><span class="add">+
+</span><span class="add">+Template variables
+</span><span class="add">+------------------
+</span><span class="add">+
+</span><span class="add">+There are two variable scopes. Only one is available in a given template:
+</span><span class="add">+
+</span><span class="add">+- *Repository scope*: This exposes information that pertains to a single
+</span><span class="add">+  repository. Most templates are rendered once per configured repository.
+</span><span class="add">+- *Index scope*: This exposes information about the whole set of repositories.
+</span><span class="add">+  The index template is rendered once in total and uses this scope. This
+</span><span class="add">+  template is specified in the ``indexTemplate`` setting.
+</span></pre></div>    </div>
   </body>
 </html>

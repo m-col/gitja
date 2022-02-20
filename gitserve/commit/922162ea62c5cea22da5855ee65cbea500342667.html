@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,30 @@
 <b>Committed:</b> 2021-11-28 16:38:10 +0000
 
 Only generate docs on ubuntu CI
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>.github/workflows/ci.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -37,13 +37,13 @@
+
+
+  <pre><span class="def">         bash test/test.sh
+</span><span class="def"> 
+</span><span class="def">     - name: Generate docs
+</span><span class="sub">-      if: github.event_name == &apos;push&apos;
+</span><span class="add">+      if: matrix.os == &apos;ubuntu-latest&apos; &amp;&amp; github.event_name == &apos;push&apos;
+</span><span class="def">       run: |
+</span><span class="def">         sed -i &apos;s/localhost:8000/gitserve.mcol.xyz/&apos; config.dhall
+</span><span class="def">         stack run -- -c ./config.dhall -q
+</span><span class="def"> 
+</span><span class="def">     - name: Deploy docs
+</span><span class="sub">-      if: github.event_name == &apos;push&apos;
+</span><span class="add">+      if: matrix.os == &apos;ubuntu-latest&apos; &amp;&amp; github.event_name == &apos;push&apos;
+</span><span class="def">       uses: JamesIves/github-pages-deploy-action@4.1.7
+</span><span class="def">       with:
+</span><span class="def">         branch: gh-pages
+</span></pre></div>    </div>
   </body>
 </html>

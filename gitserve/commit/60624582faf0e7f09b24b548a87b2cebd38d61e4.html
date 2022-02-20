@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-11-26 21:12:02 +0000
 
 ci: temporarily disable test to cache deps
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/test.sh</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,6 +15,8 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> &apos;
+</span><span class="def"> 
+</span><span class="add">+exit 0
+</span><span class="add">+
+</span><span class="def"> set -ue
+</span><span class="def"> 
+</span><span class="def"> if [[ $(basename &quot;$PWD&quot;) != gitserve ]]
+</span></pre></div>    </div>
   </body>
 </html>

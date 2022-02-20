@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-11-21 01:19:46 +0000
 
 hlint redundant bracket
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -42,7 +42,7 @@
+
+
+  <pre><span class="def">         Just template -&gt; do
+</span><span class="def">             let config = envConfig env
+</span><span class="def">             createDirectoryIfMissing True $ outputDirectory config
+</span><span class="sub">-            let output = (outputDirectory config) &lt;/&gt; &quot;index.html&quot;
+</span><span class="add">+            let output = outputDirectory config &lt;/&gt; &quot;index.html&quot;
+</span><span class="def">             repos &lt;- loadRepos config
+</span><span class="def">             let scope = packageIndex config repos
+</span><span class="def">             generate output scope template
+</span></pre></div>    </div>
   </body>
 </html>

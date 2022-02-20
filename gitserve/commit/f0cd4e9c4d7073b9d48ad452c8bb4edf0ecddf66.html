@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,32 @@
 <b>Committed:</b> 2021-12-04 12:47:32 +0300
 
 Add newlines around where block functions
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -206,6 +206,7 @@
+
+
+  <pre><span class="def">         let isRepo = (toFilePath . dirname $ p) == &quot;repo/&quot;
+</span><span class="def">         isLink &lt;- pathIsSymbolicLink . toFilePath $ p
+</span><span class="def">         return $ not isRepo || isLink
+</span><span class="add">+
+</span><span class="def">     copy :: Path Abs Dir -&gt; IO ()
+</span><span class="def">     copy p = do
+</span><span class="def">         let output&apos; = output &lt;/&gt; dirname p
+</span></pre>@@ -226,6 +227,7 @@
+
+
+  <pre><span class="def">         let isTemplate = FP.takeExtension fp `elem` [&quot;.html&quot;, &quot;.include&quot;]
+</span><span class="def">         isLink &lt;- pathIsSymbolicLink fp
+</span><span class="def">         return $ not isTemplate || isLink
+</span><span class="add">+
+</span><span class="def">     copy :: Path Abs File -&gt; IO ()
+</span><span class="def">     copy p = do
+</span><span class="def">         let fp = toFilePath p
+</span></pre></div>    </div>
   </body>
 </html>

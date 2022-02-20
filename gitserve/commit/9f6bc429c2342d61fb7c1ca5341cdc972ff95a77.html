@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,26 @@
 <b>Committed:</b> 2021-09-21 23:14:40 +0100
 
 Return empty description if absent
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -62,8 +62,8 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
+</span><span class="def"> 
+</span><span class="sub">-getDescription :: FilePath -&gt; IO (Maybe String)
+</span><span class="add">+getDescription :: FilePath -&gt; IO String
+</span><span class="def"> getDescription path = tryIOError (readFile path) &gt;&gt;= \e -&gt;
+</span><span class="def">     case e of
+</span><span class="sub">-        Right contents -&gt; return $ Just contents
+</span><span class="sub">-        Left err -&gt; return Nothing
+</span><span class="add">+        Right contents -&gt; return contents
+</span><span class="add">+        Left err -&gt; return &quot;&quot;
+</span></pre></div>    </div>
   </body>
 </html>

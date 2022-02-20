@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-12-05 00:28:40 +0300
 
 Skip the last-commit-exists check when passing -f
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -109,7 +109,7 @@
+
+
+  <pre><span class="def">                 liftIO . D.doesFileExist $
+</span><span class="def">                     toFilePath output FP.&lt;/&gt; &quot;commit&quot; FP.&lt;/&gt; show commitID &lt;&gt; &quot;.html&quot;
+</span><span class="def"> 
+</span><span class="sub">-            unless exists $ do
+</span><span class="add">+            when (not exists || envForce env) $ do
+</span><span class="def">                 -- Collect variables available to the ginger templates --
+</span><span class="def">                 commits &lt;- getCommits gitHead
+</span><span class="def">                 tree &lt;- getTree gitHead
+</span></pre></div>    </div>
   </body>
 </html>

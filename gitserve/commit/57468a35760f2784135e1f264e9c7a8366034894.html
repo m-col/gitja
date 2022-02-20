@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,57 @@
 <b>Committed:</b> 2021-09-24 17:05:23 +0100
 
 Source description from right path
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -53,7 +53,8 @@
+
+
+  <pre><span class="def"> -- This is split out to make type reasoning a bit easier.
+</span><span class="def"> processRepo&apos; :: [Template] -&gt; Config -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="def"> processRepo&apos; templates config path = do
+</span><span class="sub">-    liftIO $ createDirectoryIfMissing True outPath
+</span><span class="add">+    let name = takeFileName path
+</span><span class="add">+    liftIO $ createDirectoryIfMissing True $ outputDirectory config &lt;/&gt; name
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span></pre>@@ -62,7 +63,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">             -- description: The description of the repository from repo/description, if
+</span><span class="def">             -- it exists.
+</span><span class="sub">-            description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="add">+            description &lt;- liftIO $ getDescription $ path &lt;/&gt; &quot;description&quot;
+</span><span class="def"> 
+</span><span class="def">             -- commits: A list of `Git.Commit` objects to HEAD.
+</span><span class="def">             commits &lt;- getCommits gitHead
+</span></pre>@@ -74,9 +75,6 @@
+
+
+  <pre><span class="def">             let repo = package config name description commits tree
+</span><span class="def">             liftIO . mapM (generate repo) $ templates
+</span><span class="def">             return ()
+</span><span class="sub">-  where
+</span><span class="sub">-    name = takeFileName path
+</span><span class="sub">-    outPath = outputDirectory config &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The role of the function above is to gather information about a git repository and
+</span></pre></div><div class="diff">
+  <p>
+    <b>description</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1 @@
+
+
+  <pre><span class="add">+This is a placeholder respository description used for testing!
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,52 @@
 <b>Committed:</b> 2021-09-25 19:05:18 +0100
 
 Add to do list to readme
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>README.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -18,19 +18,6 @@
+
+
+  <pre><span class="def"> gitserve is called again.
+</span><span class="def"> 
+</span><span class="def"> 
+</span><span class="sub">-Outputs
+</span><span class="sub">--------
+</span><span class="sub">-
+</span><span class="sub">-A single index showing basic information about all repositories. Then, per
+</span><span class="sub">-repository:
+</span><span class="sub">-
+</span><span class="sub">-- Rendered markdown/rst readme (+ log in sidebar)
+</span><span class="sub">-- File index + page per file in the tree
+</span><span class="sub">-- Log index + page per commit
+</span><span class="sub">-- Refs + tags index
+</span><span class="sub">-- atom xml for repository
+</span><span class="sub">-
+</span><span class="sub">-
+</span><span class="def"> Template variables
+</span><span class="def"> ------------------
+</span><span class="def"> 
+</span></pre>@@ -41,3 +28,15 @@
+
+
+  <pre><span class="def"> - *Index scope*: This exposes information about the whole set of repositories.
+</span><span class="def">   The index template is rendered once in total and uses this scope. This
+</span><span class="def">   template is specified in the ``indexTemplate`` setting.
+</span><span class="add">+
+</span><span class="add">+
+</span><span class="add">+To do
+</span><span class="add">+-----
+</span><span class="add">+
+</span><span class="add">+[ ] Generate html file per commit with commit scope
+</span><span class="add">+[ ] Generate html file per tree file with file scope
+</span><span class="add">+[ ] Expose readme url in repo scope for convenient hyperlinking
+</span><span class="add">+[ ] Expose license url in repo scope for convenient hyperlinking
+</span><span class="add">+[ ] Expose repo branches and tags in repo scope
+</span><span class="add">+[ ] Generate RSS?
+</span><span class="add">+[ ] Write guide in readme
+</span></pre></div>    </div>
   </body>
 </html>

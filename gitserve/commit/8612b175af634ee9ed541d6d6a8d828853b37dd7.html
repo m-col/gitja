@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,596 @@
 <b>Committed:</b> 2021-12-04 13:38:44 +0300
 
 Shuffle Env-related code with Config-related code into Env module
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -2,44 +2,22 @@
+
+
+  <pre><span class="def"> {-# LANGUAGE OverloadedStrings #-}
+</span><span class="def"> 
+</span><span class="def"> module Templates (
+</span><span class="sub">-    Env (..),
+</span><span class="def">     Template (..),
+</span><span class="sub">-    loadEnv,
+</span><span class="add">+    loadTemplate,
+</span><span class="def">     generate,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="sub">-import Control.Monad (filterM, join, when, (&lt;=&lt;))
+</span><span class="sub">-import Control.Monad.Extra (findM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.IORef (modifyIORef&apos;, newIORef, readIORef)
+</span><span class="sub">-import Data.Maybe (catMaybes, fromMaybe, isNothing)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import qualified Data.Text.Lazy.Builder as TB
+</span><span class="def"> import qualified Data.Text.Lazy.IO as T
+</span><span class="def"> import Git.Libgit2 (LgRepo)
+</span><span class="sub">-import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (&lt;/&gt;))
+</span><span class="sub">-import Path.IO (
+</span><span class="sub">-    copyDirRecur,
+</span><span class="sub">-    copyFile,
+</span><span class="sub">-    doesDirExist,
+</span><span class="sub">-    ensureDir,
+</span><span class="sub">-    forgivingAbsence,
+</span><span class="sub">-    ignoringAbsence,
+</span><span class="sub">-    isSymlink,
+</span><span class="sub">-    listDir,
+</span><span class="sub">- )
+</span><span class="sub">-import System.Directory (
+</span><span class="sub">-    canonicalizePath,
+</span><span class="sub">-    createDirectoryLink,
+</span><span class="sub">-    createFileLink,
+</span><span class="sub">-    getSymbolicLinkTarget,
+</span><span class="sub">-    pathIsSymbolicLink,
+</span><span class="sub">-    removeFile,
+</span><span class="sub">- )
+</span><span class="sub">-import System.Exit (die)
+</span><span class="sub">-import qualified System.FilePath as FP
+</span><span class="add">+import Path (Abs, File, Path, Rel, filename, toFilePath)
+</span><span class="add">+import Path.IO (ignoringAbsence)
+</span><span class="add">+import System.Directory (removeFile)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import Text.Ginger.GVal (GVal)
+</span></pre>@@ -47,109 +25,34 @@
+
+
+  <pre><span class="def"> import Text.Ginger.Parse (ParserError (..), SourcePos, parseGingerFile)
+</span><span class="def"> import Text.Ginger.Run (easyContext, runGingerT)
+</span><span class="def"> 
+</span><span class="sub">-import Config (Config (..))
+</span><span class="def"> import Types
+</span><span class="def"> 
+</span><span class="sub">-{-
+</span><span class="sub">-The Env data type represents all of the program&apos;s state, including user configuration
+</span><span class="sub">-and loaded template data. This can be accessed as immutable global state at any point.
+</span><span class="sub">--}
+</span><span class="sub">-data Env = Env
+</span><span class="sub">-    { envConfig :: Config
+</span><span class="sub">-    , envIndexTemplates :: [Template]
+</span><span class="sub">-    , envCommitTemplate :: Maybe Template
+</span><span class="sub">-    , envFileTemplate :: Maybe Template
+</span><span class="sub">-    , envRepoTemplates :: [Template]
+</span><span class="sub">-    , envOutput :: Path Abs Dir
+</span><span class="sub">-    , envRepos :: [Path Abs Dir]
+</span><span class="sub">-    , envHost :: T.Text
+</span><span class="sub">-    , envQuiet :: Bool
+</span><span class="sub">-    , envForce :: Bool
+</span><span class="sub">-    }
+</span><span class="sub">-
+</span><span class="def"> data Template = Template
+</span><span class="def">     { templatePath :: Path Rel File
+</span><span class="def">     , templateGinger :: G.Template SourcePos
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-This creates the runtime environment, collecting the config and loading template data
+</span><span class="sub">-from the template directory.
+</span><span class="add">+This tries to load a `Template` from the given file path.
+</span><span class="def"> -}
+</span><span class="sub">-loadEnv :: Bool -&gt; Bool -&gt; Config -&gt; IO Env
+</span><span class="sub">-loadEnv quiet force config = do
+</span><span class="sub">-    -- First ensure that the output directory exists
+</span><span class="sub">-    output &lt;- parseAbsDir &lt;=&lt; canonicalizePath . confOutput $ config
+</span><span class="sub">-    ensureDir output
+</span><span class="sub">-
+</span><span class="sub">-    -- Parse repos for env
+</span><span class="sub">-    repos &lt;-
+</span><span class="sub">-        if confScan config
+</span><span class="sub">-            then do
+</span><span class="sub">-                ps &lt;- fmap concat . mapM (fmap fst . ls) . confRepos $ config
+</span><span class="sub">-                return . filter ((/=) &quot;.git&quot; . toFilePath . dirname) $ ps
+</span><span class="sub">-            else mapM (parseAbsDir &lt;=&lt; canonicalizePath) . confRepos $ config
+</span><span class="sub">-
+</span><span class="sub">-    -- Find template files, copying the static files as is
+</span><span class="sub">-    (dirs, files) &lt;- ls . confTemplate $ config
+</span><span class="sub">-    (_, filesRepo) &lt;- ls $ confTemplate config FP.&lt;/&gt; &quot;repo&quot;
+</span><span class="sub">-    copyStaticDirs output dirs
+</span><span class="sub">-    copyStaticFiles output files
+</span><span class="sub">-
+</span><span class="sub">-    -- Load files from template directory
+</span><span class="sub">-    indexT &lt;- collectTemplates files
+</span><span class="sub">-    commitT &lt;- findTemplate &quot;commit.html&quot; filesRepo
+</span><span class="sub">-    fileT &lt;- findTemplate &quot;file.html&quot; filesRepo
+</span><span class="sub">-    repoT &lt;-
+</span><span class="sub">-        collectTemplates
+</span><span class="sub">-            . filter (flip notElem [&quot;commit.html&quot;, &quot;file.html&quot;] . toFilePath . filename)
+</span><span class="sub">-            $ filesRepo
+</span><span class="sub">-
+</span><span class="sub">-    -- Exit early if we didn&apos;t find any templates
+</span><span class="sub">-    when
+</span><span class="sub">-        ( null indexT
+</span><span class="sub">-            &amp;&amp; isNothing commitT
+</span><span class="sub">-            &amp;&amp; isNothing fileT
+</span><span class="sub">-            &amp;&amp; null repoT
+</span><span class="sub">-        )
+</span><span class="sub">-        $ die &quot;No templates were found.&quot;
+</span><span class="sub">-
+</span><span class="sub">-    -- App environment
+</span><span class="sub">-    return
+</span><span class="sub">-        Env
+</span><span class="sub">-            { envConfig = config
+</span><span class="sub">-            , envIndexTemplates = indexT
+</span><span class="sub">-            , envCommitTemplate = commitT
+</span><span class="sub">-            , envFileTemplate = fileT
+</span><span class="sub">-            , envRepoTemplates = repoT
+</span><span class="sub">-            , envOutput = output
+</span><span class="sub">-            , envRepos = repos
+</span><span class="sub">-            , envHost = confHost config
+</span><span class="sub">-            , envQuiet = quiet
+</span><span class="sub">-            , envForce = force
+</span><span class="sub">-            }
+</span><span class="add">+loadTemplate :: Path Abs File -&gt; IO (Maybe Template)
+</span><span class="add">+loadTemplate path =
+</span><span class="add">+    parseGingerFile includeResolver (toFilePath path) &gt;&gt;= \case
+</span><span class="add">+        Right parsed -&gt; return . Just . Template (filename path) $ parsed
+</span><span class="add">+        Left err -&gt; do
+</span><span class="add">+            informError (toFilePath path) err
+</span><span class="add">+            return Nothing
+</span><span class="def">   where
+</span><span class="sub">-    ls :: FilePath -&gt; IO ([Path Abs Dir], [Path Abs File])
+</span><span class="sub">-    ls dir = do
+</span><span class="sub">-        canon &lt;- parseAbsDir =&lt;&lt; canonicalizePath dir
+</span><span class="sub">-        exists &lt;- doesDirExist canon
+</span><span class="sub">-        if exists
+</span><span class="sub">-            then listDir canon
+</span><span class="sub">-            else return ([], [])
+</span><span class="sub">-
+</span><span class="sub">-    collectTemplates :: [Path Abs File] -&gt; IO [Template]
+</span><span class="sub">-    collectTemplates = fmap catMaybes . mapM loadTemplate &lt;=&lt; filterM isMatch
+</span><span class="sub">-      where
+</span><span class="sub">-        isMatch p = do
+</span><span class="sub">-            ((FP.takeExtension . toFilePath $ p) == &quot;.html&quot; &amp;&amp;)
+</span><span class="sub">-                &lt;$&gt; (fmap not . pathIsSymbolicLink . toFilePath $ p)
+</span><span class="add">+    -- An attempt at pretty printing the error message.
+</span><span class="add">+    informError p (ParserError msg Nothing) =
+</span><span class="add">+        putStr $ &quot;Template error: &quot; &lt;&gt; p &lt;&gt; &quot;\n&quot; &lt;&gt; indent msg
+</span><span class="add">+    informError p (ParserError msg (Just pos)) =
+</span><span class="add">+        putStrLn $ &quot;Template error: &quot; &lt;&gt; p &lt;&gt; &quot;\n&quot; &lt;&gt; indent (show pos &lt;&gt; &quot;\n&quot; &lt;&gt; msg)
+</span><span class="add">+    indent = unlines . map (mappend &quot;    &quot;) . lines
+</span><span class="def"> 
+</span><span class="sub">-    findTemplate :: FilePath -&gt; [Path Abs File] -&gt; IO (Maybe Template)
+</span><span class="sub">-    findTemplate name = fmap join . mapM loadTemplate &lt;=&lt; findM isMatch
+</span><span class="sub">-      where
+</span><span class="sub">-        isMatch p =
+</span><span class="sub">-            ((toFilePath . filename $ p) == name &amp;&amp;)
+</span><span class="sub">-                &lt;$&gt; (fmap not . pathIsSymbolicLink . toFilePath $ p)
+</span><span class="add">+    -- This resolves template &apos;includes&apos;.
+</span><span class="add">+    includeResolver :: FilePath -&gt; IO (Maybe String)
+</span><span class="add">+    includeResolver p = either (const Nothing) Just &lt;$&gt; tryIOError (readFile p)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the generator function that receives repository-specific variables and uses
+</span></pre>@@ -171,73 +74,3 @@
+
+
+  <pre><span class="def">     runGingerT (easyContext emit context) . templateGinger $ template
+</span><span class="def">     result &lt;- liftIO . readIORef $ content
+</span><span class="def">     liftIO . T.writeFile output&apos; . TB.toLazyText $ result
+</span><span class="sub">-
+</span><span class="sub">-{-
+</span><span class="sub">-This takes the session&apos;s `Config` and maybe returns a loaded template for the
+</span><span class="sub">-``indexTemplate`` setting.
+</span><span class="sub">--}
+</span><span class="sub">-loadTemplate :: Path Abs File -&gt; IO (Maybe Template)
+</span><span class="sub">-loadTemplate path =
+</span><span class="sub">-    parseGingerFile includeResolver (toFilePath path) &gt;&gt;= \case
+</span><span class="sub">-        Right parsed -&gt; return . Just . Template (filename path) $ parsed
+</span><span class="sub">-        Left err -&gt; do
+</span><span class="sub">-            informError (toFilePath path) err
+</span><span class="sub">-            return Nothing
+</span><span class="sub">-  where
+</span><span class="sub">-    -- An attempt at pretty printing the error message.
+</span><span class="sub">-    informError p (ParserError msg Nothing) =
+</span><span class="sub">-        putStr $ &quot;Template error: &quot; &lt;&gt; p &lt;&gt; &quot;\n&quot; &lt;&gt; indent msg
+</span><span class="sub">-    informError p (ParserError msg (Just pos)) =
+</span><span class="sub">-        putStrLn $ &quot;Template error: &quot; &lt;&gt; p &lt;&gt; &quot;\n&quot; &lt;&gt; indent (show pos &lt;&gt; &quot;\n&quot; &lt;&gt; msg)
+</span><span class="sub">-    indent = unlines . map (mappend &quot;    &quot;) . lines
+</span><span class="sub">-
+</span><span class="sub">-    -- This resolves template &apos;includes&apos;.
+</span><span class="sub">-    includeResolver :: FilePath -&gt; IO (Maybe String)
+</span><span class="sub">-    includeResolver p = either (const Nothing) Just &lt;$&gt; tryIOError (readFile p)
+</span><span class="sub">-
+</span><span class="sub">-{-
+</span><span class="sub">-The logic for copying static files and folders. Any file or folder in the
+</span><span class="sub">-``confTemplate`` is considered static if:
+</span><span class="sub">-
+</span><span class="sub">-- it is a symbolic link, or
+</span><span class="sub">-- it does not end in &quot;.html&quot; or &quot;.include&quot;.
+</span><span class="sub">-
+</span><span class="sub">-Symbolic links are not followed and are copied as is. This means that a symbolic link
+</span><span class="sub">-from `confTemplate/link.html` to `gitserve/index.html` will be copied, keeping the
+</span><span class="sub">-link intact, resulting in a symbolic link at `output/link.html` essentially
+</span><span class="sub">-pointing to `output/gitserve/index.html`.
+</span><span class="sub">--}
+</span><span class="sub">-copyStaticDirs :: Path Abs Dir -&gt; [Path Abs Dir] -&gt; IO ()
+</span><span class="sub">-copyStaticDirs output = mapM_ copy
+</span><span class="sub">-  where
+</span><span class="sub">-    copy :: Path Abs Dir -&gt; IO ()
+</span><span class="sub">-    copy p = do
+</span><span class="sub">-        let isRepo = (toFilePath . dirname $ p) == &quot;repo/&quot;
+</span><span class="sub">-        isLink &lt;- pathIsSymbolicLink . toFilePath $ p
+</span><span class="sub">-        when (not isRepo || isLink) $ do
+</span><span class="sub">-            let output&apos; = output &lt;/&gt; dirname p
+</span><span class="sub">-            let fp = FP.dropTrailingPathSeparator . toFilePath $ p
+</span><span class="sub">-            if isLink
+</span><span class="sub">-                then do
+</span><span class="sub">-                    target &lt;- getSymbolicLinkTarget fp
+</span><span class="sub">-                    createDirectoryLink target . FP.dropTrailingPathSeparator . toFilePath $ output&apos;
+</span><span class="sub">-                else copyDirRecur p output&apos;
+</span><span class="sub">-
+</span><span class="sub">-copyStaticFiles :: Path Abs Dir -&gt; [Path Abs File] -&gt; IO ()
+</span><span class="sub">-copyStaticFiles output = mapM_ copy
+</span><span class="sub">-  where
+</span><span class="sub">-    copy :: Path Abs File -&gt; IO ()
+</span><span class="sub">-    copy p = do
+</span><span class="sub">-        let fp = toFilePath p
+</span><span class="sub">-        let isTemplate = FP.takeExtension fp `elem` [&quot;.html&quot;, &quot;.include&quot;]
+</span><span class="sub">-        isLink &lt;- pathIsSymbolicLink fp
+</span><span class="sub">-        when (not isTemplate || isLink) $ do
+</span><span class="sub">-            let output&apos; = output &lt;/&gt; filename p
+</span><span class="sub">-            if isLink
+</span><span class="sub">-                then do
+</span><span class="sub">-                    target &lt;- getSymbolicLinkTarget fp
+</span><span class="sub">-                    maybeExists &lt;- forgivingAbsence . isSymlink $ output&apos;
+</span><span class="sub">-                    let exists = fromMaybe False maybeExists
+</span><span class="sub">-                    when exists . removeFile . toFilePath $ output&apos;
+</span><span class="sub">-                    createFileLink target . toFilePath $ output&apos;
+</span><span class="sub">-                else copyFile p output&apos;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -30,7 +30,8 @@
+
+
+  <pre><span class="def"> import qualified System.FilePath as FP
+</span><span class="def"> import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+</span><span class="def"> 
+</span><span class="sub">-import Templates (Env (..), Template (..), generate)
+</span><span class="add">+import Env (Env (..))
+</span><span class="add">+import Templates (Template (..), generate)
+</span><span class="def"> import Types
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -17,10 +17,9 @@
+
+
+  <pre><span class="def"> import qualified System.Directory as D
+</span><span class="def"> import System.FilePath (takeDirectory, (&lt;/&gt;))
+</span><span class="def"> 
+</span><span class="sub">-import Config (getConfig)
+</span><span class="add">+import Env (getConfig, loadEnv)
+</span><span class="def"> import Index (runIndex)
+</span><span class="def"> import Repositories (run)
+</span><span class="sub">-import Templates (loadEnv)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Command line options
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,7 +14,8 @@
+
+
+  <pre><span class="def"> import Text.Ginger.Parse (SourcePos)
+</span><span class="def"> import Text.Ginger.Run (Run, easyRenderM)
+</span><span class="def"> 
+</span><span class="sub">-import Templates (Env (..), Template (..))
+</span><span class="add">+import Env (Env (..))
+</span><span class="add">+import Templates (Template (..))
+</span><span class="def"> import Types
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Env.hs</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,206 @@
+
+
+  <pre><span class="add">+{-# LANGUAGE DataKinds #-}
+</span><span class="add">+{-# LANGUAGE DeriveGeneric #-}
+</span><span class="add">+{-# LANGUAGE DerivingVia #-}
+</span><span class="add">+{-# LANGUAGE OverloadedStrings #-}
+</span><span class="add">+{-# LANGUAGE TypeOperators #-}
+</span><span class="add">+
+</span><span class="add">+module Env (
+</span><span class="add">+    Config (..),
+</span><span class="add">+    getConfig,
+</span><span class="add">+    Env (..),
+</span><span class="add">+    loadEnv,
+</span><span class="add">+    generate,
+</span><span class="add">+) where
+</span><span class="add">+
+</span><span class="add">+import Control.Monad (filterM, join, when, (&lt;=&lt;))
+</span><span class="add">+import Control.Monad.Extra (findM)
+</span><span class="add">+import Data.Maybe (catMaybes, fromMaybe, isNothing)
+</span><span class="add">+import Data.Text (pack)
+</span><span class="add">+import qualified Data.Text as T
+</span><span class="add">+import Dhall
+</span><span class="add">+import Dhall.Deriving
+</span><span class="add">+import Path (Abs, Dir, File, Path, dirname, filename, parseAbsDir, toFilePath, (&lt;/&gt;))
+</span><span class="add">+import Path.IO (
+</span><span class="add">+    copyDirRecur,
+</span><span class="add">+    copyFile,
+</span><span class="add">+    doesDirExist,
+</span><span class="add">+    ensureDir,
+</span><span class="add">+    forgivingAbsence,
+</span><span class="add">+    isSymlink,
+</span><span class="add">+    listDir,
+</span><span class="add">+ )
+</span><span class="add">+import System.Directory (
+</span><span class="add">+    canonicalizePath,
+</span><span class="add">+    createDirectoryLink,
+</span><span class="add">+    createFileLink,
+</span><span class="add">+    getSymbolicLinkTarget,
+</span><span class="add">+    makeAbsolute,
+</span><span class="add">+    pathIsSymbolicLink,
+</span><span class="add">+    removeFile,
+</span><span class="add">+ )
+</span><span class="add">+import System.Exit (die)
+</span><span class="add">+import qualified System.FilePath as FP
+</span><span class="add">+
+</span><span class="add">+import Templates (Template (..), generate, loadTemplate)
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+The Config data type represents the configuration options available in the config file.
+</span><span class="add">+Each record of the type, without the &apos;conf&apos; prefix, is an option.
+</span><span class="add">+-}
+</span><span class="add">+data Config = Config
+</span><span class="add">+    { confRepos :: [FilePath]
+</span><span class="add">+    , confScan :: Bool
+</span><span class="add">+    , confTemplate :: FilePath
+</span><span class="add">+    , confOutput :: FilePath
+</span><span class="add">+    , confHost :: Text
+</span><span class="add">+    }
+</span><span class="add">+    deriving stock (Generic)
+</span><span class="add">+    deriving
+</span><span class="add">+        (FromDhall)
+</span><span class="add">+        via Codec (Field (CamelCase &lt;&lt;&lt; DropPrefix &quot;conf&quot;)) Config
+</span><span class="add">+
+</span><span class="add">+getConfig :: String -&gt; IO Config
+</span><span class="add">+getConfig = input auto . pack &lt;=&lt; makeAbsolute
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+The Env data type represents all of the program&apos;s state, including user configuration
+</span><span class="add">+and loaded template data. This can be accessed as immutable global state at any point.
+</span><span class="add">+-}
+</span><span class="add">+data Env = Env
+</span><span class="add">+    { envConfig :: Config
+</span><span class="add">+    , envIndexTemplates :: [Template]
+</span><span class="add">+    , envCommitTemplate :: Maybe Template
+</span><span class="add">+    , envFileTemplate :: Maybe Template
+</span><span class="add">+    , envRepoTemplates :: [Template]
+</span><span class="add">+    , envOutput :: Path Abs Dir
+</span><span class="add">+    , envRepos :: [Path Abs Dir]
+</span><span class="add">+    , envHost :: T.Text
+</span><span class="add">+    , envQuiet :: Bool
+</span><span class="add">+    , envForce :: Bool
+</span><span class="add">+    }
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+This creates the runtime environment, collecting the config and loading template data
+</span><span class="add">+from the template directory.
+</span><span class="add">+-}
+</span><span class="add">+loadEnv :: Bool -&gt; Bool -&gt; Config -&gt; IO Env
+</span><span class="add">+loadEnv quiet force config = do
+</span><span class="add">+    -- First ensure that the output directory exists
+</span><span class="add">+    output &lt;- parseAbsDir &lt;=&lt; canonicalizePath . confOutput $ config
+</span><span class="add">+    ensureDir output
+</span><span class="add">+
+</span><span class="add">+    -- Parse repos for env
+</span><span class="add">+    repos &lt;-
+</span><span class="add">+        if confScan config
+</span><span class="add">+            then do
+</span><span class="add">+                ps &lt;- fmap concat . mapM (fmap fst . ls) . confRepos $ config
+</span><span class="add">+                return . filter ((/=) &quot;.git&quot; . toFilePath . dirname) $ ps
+</span><span class="add">+            else mapM (parseAbsDir &lt;=&lt; canonicalizePath) . confRepos $ config
+</span><span class="add">+
+</span><span class="add">+    -- Find template files, copying the static files as is
+</span><span class="add">+    (dirs, files) &lt;- ls . confTemplate $ config
+</span><span class="add">+    (_, filesRepo) &lt;- ls $ confTemplate config FP.&lt;/&gt; &quot;repo&quot;
+</span><span class="add">+    copyStaticDirs output dirs
+</span><span class="add">+    copyStaticFiles output files
+</span><span class="add">+
+</span><span class="add">+    -- Load files from template directory
+</span><span class="add">+    indexT &lt;- collectTemplates files
+</span><span class="add">+    commitT &lt;- findTemplate &quot;commit.html&quot; filesRepo
+</span><span class="add">+    fileT &lt;- findTemplate &quot;file.html&quot; filesRepo
+</span><span class="add">+    repoT &lt;-
+</span><span class="add">+        collectTemplates
+</span><span class="add">+            . filter (flip notElem [&quot;commit.html&quot;, &quot;file.html&quot;] . toFilePath . filename)
+</span><span class="add">+            $ filesRepo
+</span><span class="add">+
+</span><span class="add">+    -- Exit early if we didn&apos;t find any templates
+</span><span class="add">+    when
+</span><span class="add">+        ( null indexT
+</span><span class="add">+            &amp;&amp; isNothing commitT
+</span><span class="add">+            &amp;&amp; isNothing fileT
+</span><span class="add">+            &amp;&amp; null repoT
+</span><span class="add">+        )
+</span><span class="add">+        $ die &quot;No templates were found.&quot;
+</span><span class="add">+
+</span><span class="add">+    -- App environment
+</span><span class="add">+    return
+</span><span class="add">+        Env
+</span><span class="add">+            { envConfig = config
+</span><span class="add">+            , envIndexTemplates = indexT
+</span><span class="add">+            , envCommitTemplate = commitT
+</span><span class="add">+            , envFileTemplate = fileT
+</span><span class="add">+            , envRepoTemplates = repoT
+</span><span class="add">+            , envOutput = output
+</span><span class="add">+            , envRepos = repos
+</span><span class="add">+            , envHost = confHost config
+</span><span class="add">+            , envQuiet = quiet
+</span><span class="add">+            , envForce = force
+</span><span class="add">+            }
+</span><span class="add">+  where
+</span><span class="add">+    ls :: FilePath -&gt; IO ([Path Abs Dir], [Path Abs File])
+</span><span class="add">+    ls dir = do
+</span><span class="add">+        canon &lt;- parseAbsDir =&lt;&lt; canonicalizePath dir
+</span><span class="add">+        exists &lt;- doesDirExist canon
+</span><span class="add">+        if exists
+</span><span class="add">+            then listDir canon
+</span><span class="add">+            else return ([], [])
+</span><span class="add">+
+</span><span class="add">+    collectTemplates :: [Path Abs File] -&gt; IO [Template]
+</span><span class="add">+    collectTemplates = fmap catMaybes . mapM loadTemplate &lt;=&lt; filterM isMatch
+</span><span class="add">+      where
+</span><span class="add">+        isMatch p = do
+</span><span class="add">+            ((FP.takeExtension . toFilePath $ p) == &quot;.html&quot; &amp;&amp;)
+</span><span class="add">+                &lt;$&gt; (fmap not . pathIsSymbolicLink . toFilePath $ p)
+</span><span class="add">+
+</span><span class="add">+    findTemplate :: FilePath -&gt; [Path Abs File] -&gt; IO (Maybe Template)
+</span><span class="add">+    findTemplate name = fmap join . mapM loadTemplate &lt;=&lt; findM isMatch
+</span><span class="add">+      where
+</span><span class="add">+        isMatch p =
+</span><span class="add">+            ((toFilePath . filename $ p) == name &amp;&amp;)
+</span><span class="add">+                &lt;$&gt; (fmap not . pathIsSymbolicLink . toFilePath $ p)
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+The logic for copying static files and folders. Any file or folder in the
+</span><span class="add">+``confTemplate`` is considered static if:
+</span><span class="add">+
+</span><span class="add">+- it is a symbolic link, or
+</span><span class="add">+- it does not end in &quot;.html&quot; or &quot;.include&quot;.
+</span><span class="add">+
+</span><span class="add">+Symbolic links are not followed and are copied as is. This means that a symbolic link
+</span><span class="add">+from `confTemplate/link.html` to `gitserve/index.html` will be copied, keeping the
+</span><span class="add">+link intact, resulting in a symbolic link at `output/link.html` essentially
+</span><span class="add">+pointing to `output/gitserve/index.html`.
+</span><span class="add">+-}
+</span><span class="add">+copyStaticDirs :: Path Abs Dir -&gt; [Path Abs Dir] -&gt; IO ()
+</span><span class="add">+copyStaticDirs output = mapM_ copy
+</span><span class="add">+  where
+</span><span class="add">+    copy :: Path Abs Dir -&gt; IO ()
+</span><span class="add">+    copy p = do
+</span><span class="add">+        let isRepo = (toFilePath . dirname $ p) == &quot;repo/&quot;
+</span><span class="add">+        isLink &lt;- pathIsSymbolicLink . toFilePath $ p
+</span><span class="add">+        when (not isRepo || isLink) $ do
+</span><span class="add">+            let output&apos; = output &lt;/&gt; dirname p
+</span><span class="add">+            let fp = FP.dropTrailingPathSeparator . toFilePath $ p
+</span><span class="add">+            if isLink
+</span><span class="add">+                then do
+</span><span class="add">+                    target &lt;- getSymbolicLinkTarget fp
+</span><span class="add">+                    createDirectoryLink target . FP.dropTrailingPathSeparator . toFilePath $ output&apos;
+</span><span class="add">+                else copyDirRecur p output&apos;
+</span><span class="add">+
+</span><span class="add">+copyStaticFiles :: Path Abs Dir -&gt; [Path Abs File] -&gt; IO ()
+</span><span class="add">+copyStaticFiles output = mapM_ copy
+</span><span class="add">+  where
+</span><span class="add">+    copy :: Path Abs File -&gt; IO ()
+</span><span class="add">+    copy p = do
+</span><span class="add">+        let fp = toFilePath p
+</span><span class="add">+        let isTemplate = FP.takeExtension fp `elem` [&quot;.html&quot;, &quot;.include&quot;]
+</span><span class="add">+        isLink &lt;- pathIsSymbolicLink fp
+</span><span class="add">+        when (not isTemplate || isLink) $ do
+</span><span class="add">+            let output&apos; = output &lt;/&gt; filename p
+</span><span class="add">+            if isLink
+</span><span class="add">+                then do
+</span><span class="add">+                    target &lt;- getSymbolicLinkTarget fp
+</span><span class="add">+                    maybeExists &lt;- forgivingAbsence . isSymlink $ output&apos;
+</span><span class="add">+                    let exists = fromMaybe False maybeExists
+</span><span class="add">+                    when exists . removeFile . toFilePath $ output&apos;
+</span><span class="add">+                    createFileLink target . toFilePath $ output&apos;
+</span><span class="add">+                else copyFile p output&apos;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,31 +0,0 @@
+
+
+  <pre><span class="sub">--- Required by Dhall
+</span><span class="sub">-{-# LANGUAGE DataKinds #-}
+</span><span class="sub">-{-# LANGUAGE DeriveGeneric #-}
+</span><span class="sub">-{-# LANGUAGE DerivingVia #-}
+</span><span class="sub">-{-# LANGUAGE TypeOperators #-}
+</span><span class="sub">-
+</span><span class="sub">-module Config (
+</span><span class="sub">-    Config (..),
+</span><span class="sub">-    getConfig,
+</span><span class="sub">-) where
+</span><span class="sub">-
+</span><span class="sub">-import Control.Monad ((&lt;=&lt;))
+</span><span class="sub">-import Data.Text (pack)
+</span><span class="sub">-import Dhall
+</span><span class="sub">-import Dhall.Deriving
+</span><span class="sub">-import System.Directory (makeAbsolute)
+</span><span class="sub">-
+</span><span class="sub">-data Config = Config
+</span><span class="sub">-    { confRepos :: [FilePath]
+</span><span class="sub">-    , confScan :: Bool
+</span><span class="sub">-    , confTemplate :: FilePath
+</span><span class="sub">-    , confOutput :: FilePath
+</span><span class="sub">-    , confHost :: Text
+</span><span class="sub">-    }
+</span><span class="sub">-    deriving stock (Generic)
+</span><span class="sub">-    deriving
+</span><span class="sub">-        (FromDhall)
+</span><span class="sub">-        via Codec (Field (CamelCase &lt;&lt;&lt; DropPrefix &quot;conf&quot;)) Config
+</span><span class="sub">-
+</span><span class="sub">-getConfig :: String -&gt; IO Config
+</span><span class="sub">-getConfig = input auto . pack &lt;=&lt; makeAbsolute
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -17,7 +17,7 @@
+
+
+  <pre><span class="def"> executable gitserve
+</span><span class="def">   hs-source-dirs:      src
+</span><span class="def">   main-is:             Main.hs
+</span><span class="sub">-  other-modules:       Config, Index, Repositories, Templates, Types, Paths_gitserve
+</span><span class="add">+  other-modules:       Index, Env, Repositories, Templates, Types, Paths_gitserve
+</span><span class="def">   default-language:    Haskell2010
+</span><span class="def">   build-depends:       base &gt;= 4.7 &amp;&amp; &lt; 5
+</span><span class="def">                      , conduit
+</span></pre></div>    </div>
   </body>
 </html>

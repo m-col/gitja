@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,120 @@
 Add some docs about descriptions and allow use of .git/description
 
 Closes #20
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -12,9 +12,10 @@
+
+
+  <pre><span class="def"> import Conduit (runConduit, sinkList, (.|))
+</span><span class="def"> import Control.Exception (try)
+</span><span class="def"> import Control.Monad (filterM, unless, when, (&lt;=&lt;))
+</span><span class="add">+import Control.Monad.Extra (ifM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="sub">-import Data.Either (fromRight, isRight)
+</span><span class="add">+import Data.Either (isRight)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, mapMaybe)
+</span><span class="def"> import Data.Tagged
+</span></pre>@@ -25,8 +26,8 @@
+
+
+  <pre><span class="def"> import Git.Libgit2 (LgRepo, lgFactory)
+</span><span class="def"> import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
+</span><span class="def"> import Path.IO (doesFileExist, ensureDir)
+</span><span class="add">+import qualified System.Directory as D
+</span><span class="def"> import qualified System.FilePath as FP
+</span><span class="sub">-import System.IO.Error (tryIOError)
+</span><span class="def"> import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+</span><span class="def"> 
+</span><span class="def"> import Templates (Env (..), Template (..), generate)
+</span></pre>@@ -54,10 +55,31 @@
+
+
+  <pre><span class="def">     okRepo p = try . liftIO . openRepository lgFactory $ defaultRepositoryOptions{repoPath = toFilePath p}
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-Pass the repository&apos;s folder, get its description.
+</span><span class="add">+Pass the repository&apos;s folder, get its description. The algorithm is:
+</span><span class="add">+
+</span><span class="add">+    1. Check for a description in repo/description
+</span><span class="add">+    2. Check for a description in repo/.git/description
+</span><span class="add">+    3. Fallback to the repo folder&apos;s name.
+</span><span class="add">+
+</span><span class="def"> -}
+</span><span class="def"> getDescription :: Path Abs Dir -&gt; IO Text
+</span><span class="sub">-getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap (strip . pack) . readFile . flip FP.combine &quot;description&quot; . toFilePath
+</span><span class="add">+getDescription dir =
+</span><span class="add">+    ifM
+</span><span class="add">+        (D.doesFileExist inTop)
+</span><span class="add">+        (return . Just $ inTop)
+</span><span class="add">+        ( ifM
+</span><span class="add">+            (D.doesFileExist inGit)
+</span><span class="add">+            (return . Just $ inGit)
+</span><span class="add">+            (return Nothing)
+</span><span class="add">+        )
+</span><span class="add">+        &gt;&gt;= \case
+</span><span class="add">+            Just file -&gt;
+</span><span class="add">+                strip . pack &lt;$&gt; readFile file
+</span><span class="add">+            Nothing -&gt;
+</span><span class="add">+                return . pack . toFilePath . dirname $ dir
+</span><span class="add">+  where
+</span><span class="add">+    inTop = toFilePath dir FP.&lt;/&gt; &quot;description&quot;
+</span><span class="add">+    inGit = toFilePath dir FP.&lt;/&gt; &quot;.git&quot; FP.&lt;/&gt; &quot;description&quot;
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This receives a file path to a single repository and tries to process it. If the
+</span></pre></div><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -140,7 +140,7 @@
+
+
+  <pre><span class="def"> |        | repositories | A list of all of the git repositories.                |
+</span><span class="def"> | Repo   |              | *In addition to the variables from the index scope...*|
+</span><span class="def"> |        | name         | The repository name, taken from its folder name.      |
+</span><span class="sub">-|        | description  | A description taken from a file called &quot;description&quot; in that folder.|
+</span><span class="add">+|        | description  | The repository&apos;s description (see below).             |
+</span><span class="def"> |        | commits      | A list of the repository&apos;s commits.                   |
+</span><span class="def"> |        | tree         | A list of the repository&apos;s files.                     |
+</span><span class="def"> |        | tags         | A list of the refs corresponding to tags.             |
+</span></pre>@@ -163,7 +163,7 @@
+
+
+  <pre><span class="def"> | Object     | Attribute        | Description                                              |
+</span><span class="def"> | ---------- | ---------------- | -------------------------------------------------------- |
+</span><span class="def"> | repository | name             | The repository&apos;s name, taken from the folder name.       |
+</span><span class="sub">-|            | description      | A description taken from a file called &quot;description&quot; in that folder.|
+</span><span class="add">+|            | description      | The repository&apos;s description (see below).                |
+</span><span class="def"> |            | head             | The current git commit.                                  |
+</span><span class="def"> |            | updated          | The time when the current commit was committed.          |
+</span><span class="def"> | commit     | id               | The SHA of the given commit.                             |
+</span></pre>@@ -197,6 +197,15 @@
+
+
+  <pre><span class="def">   `branches[0].commit.parent` will work as expected.
+</span><span class="def"> - &quot;file&quot; includes directories and symbolic links.
+</span><span class="def"> 
+</span><span class="add">+#### Descriptions
+</span><span class="add">+
+</span><span class="add">+Each repository can have a description that is available in the templates. This
+</span><span class="add">+is how the description for a given respository is determined:
+</span><span class="add">+
+</span><span class="add">+1. Look for a file at `repo/description`, and if found read from there.
+</span><span class="add">+2. Otherwise, look for a file at `repo/.git/description`, and if found read from there.
+</span><span class="add">+2. Otherwise, simply use the repository folder&apos;s name.
+</span><span class="add">+
+</span><span class="def"> Questions?
+</span><span class="def"> ----------
+</span><span class="def"> 
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,310 @@
 <b>Committed:</b> 2021-09-26 16:51:51 +0100
 
 Create html page per commit using commitTemplate setting
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/log.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,7 +14,7 @@
+
+
+  <pre><span class="def">     &lt;p&gt;{{- description }}&lt;/p&gt;
+</span><span class="def">     &lt;p&gt;git clone {{ host }}/{{- name }}&lt;/p&gt;
+</span><span class="def">     {% for commit in commits[:50] %}
+</span><span class="sub">-    &lt;p&gt;{{- commit.title }}&lt;/p&gt;
+</span><span class="add">+    &lt;p&gt;&lt;b&gt;&lt;a href=&quot;{{ host }}/{{ name }}/commits/{{ commit.id }}.html&quot;&gt;{{ commit.id[:7] }}&lt;/a&gt;&lt;/b&gt; {{ commit.title }}&lt;/p&gt;
+</span><span class="def">     {% endfor %}
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/commit.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,22 @@
+
+
+  <pre><span class="add">+&lt;!doctype html&gt;
+</span><span class="add">+&lt;html lang=&quot;en&quot;&gt;
+</span><span class="add">+  &lt;head&gt;
+</span><span class="add">+    &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="add">+    &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="add">+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="add">+		&lt;title&gt;{{ name }} -- {{ commit.id[:7] }}&lt;/title&gt;
+</span><span class="add">+    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="add">+  &lt;/head&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;body&gt;
+</span><span class="add">+    &lt;p&gt;{{- name }}&lt;/p&gt;
+</span><span class="add">+    &lt;hr&gt;
+</span><span class="add">+		&lt;p&gt;Commit &lt;b&gt;{{ commit.id }}&lt;/b&gt;&lt;/p&gt;
+</span><span class="add">+		&lt;p&gt;&lt;b&gt;{{ commit.title }}&lt;/b&gt;&lt;/p&gt;
+</span><span class="add">+    &lt;p&gt;{{ commit.body }}&lt;/p&gt;
+</span><span class="add">+    &lt;hr&gt;
+</span><span class="add">+		&lt;p&gt;Authored {{ commit.authored }} by: {{ commit.author }} ({{ commit.author_email }})&lt;/p&gt;
+</span><span class="add">+		&lt;p&gt;Committed {{ commit.committed }} by: {{ commit.committer }} ({{ commit.committer_email }})&lt;/p&gt;
+</span><span class="add">+    &lt;hr&gt;
+</span><span class="add">+  &lt;/body&gt;
+</span><span class="add">+&lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,7 +4,7 @@
+
+
+  <pre><span class="def">     Template,
+</span><span class="def">     templateGinger,
+</span><span class="def">     loadTemplates,
+</span><span class="sub">-    loadIndexTemplate,
+</span><span class="add">+    loadTemplate,
+</span><span class="def">     generate,
+</span><span class="def">     templatePath,
+</span><span class="def"> ) where
+</span></pre>@@ -47,14 +47,12 @@
+
+
+  <pre><span class="def"> This takes the session&apos;s `Config` and maybe returns a loaded template for the
+</span><span class="def"> ``indexTemplate`` setting.
+</span><span class="def"> -}
+</span><span class="sub">-loadIndexTemplate :: Config -&gt; IO (Maybe Template)
+</span><span class="sub">-loadIndexTemplate config = parseGingerFile includeResolver file &gt;&gt;= \case
+</span><span class="sub">-    Right parsed -&gt; return . Just . Template file $ parsed
+</span><span class="add">+loadTemplate :: FilePath -&gt; IO (Maybe Template)
+</span><span class="add">+loadTemplate path = parseGingerFile includeResolver path &gt;&gt;= \case
+</span><span class="add">+    Right parsed -&gt; return . Just . Template path $ parsed
+</span><span class="def">     Left err -&gt; do
+</span><span class="def">         print . peErrorMessage $ err
+</span><span class="def">         return Nothing
+</span><span class="sub">-  where
+</span><span class="sub">-    file = indexTemplate config
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre>@@ -80,7 +78,7 @@
+
+
+  <pre><span class="def"> config settings ``indexTemplate`` or ``commitTemplate``.
+</span><span class="def"> -}
+</span><span class="def"> isScoped :: Config -&gt; FilePath -&gt; Bool
+</span><span class="sub">-isScoped config path = path /= (indexTemplate config) &amp;&amp; path /= (commitTemplate config)
+</span><span class="add">+isScoped config path = path /= indexTemplate config &amp;&amp; path /= commitTemplate config
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This wraps getDirectoryContents so that we get a list of fully qualified paths of the
+</span></pre>@@ -101,7 +99,7 @@
+
+
+  <pre><span class="def"> This function gets the output HTML data and is responsible for saving it to file.
+</span><span class="def"> -}
+</span><span class="def"> writeTo :: FilePath -&gt; Html -&gt; IO ()
+</span><span class="sub">-writeTo path html = appendFile path . unpack . htmlSource $ html
+</span><span class="add">+writeTo path = appendFile path . unpack . htmlSource
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the generator function that receives repository-specific variables and uses
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,7 +15,7 @@
+
+
+  <pre><span class="def"> import Data.Default (def)
+</span><span class="def"> import Data.Either (fromRight)
+</span><span class="def"> import Data.Tagged
+</span><span class="sub">-import Data.Text (pack, Text, strip, breakOn)
+</span><span class="add">+import Data.Text (pack, unpack, Text, strip, breakOn)
+</span><span class="def"> import Data.Maybe (mapMaybe)
+</span><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (lgFactory, LgRepo)
+</span></pre>@@ -28,7 +28,7 @@
+
+
+  <pre><span class="def"> import Text.Ginger.Parse (SourcePos)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> 
+</span><span class="sub">-import Config (Config, repoPaths, outputDirectory, host)
+</span><span class="add">+import Config (Config, repoPaths, outputDirectory, host, commitTemplate)
+</span><span class="def"> import Templates (Template, generate, templatePath)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -36,10 +36,10 @@
+
+
+  <pre><span class="def"> repositories, reading from them and writing out their web pages using the given
+</span><span class="def"> templates.
+</span><span class="def"> -}
+</span><span class="sub">-run :: Config -&gt; [Template] -&gt; Maybe Template -&gt; IO ()
+</span><span class="sub">-run config templates index = do
+</span><span class="sub">-    foldMap (processRepo templates config) . repoPaths $ config
+</span><span class="sub">-    runIndex config index
+</span><span class="add">+run :: Config -&gt; [Template] -&gt; Maybe Template -&gt; Maybe Template -&gt; IO ()
+</span><span class="add">+run config templates indexT commitT = do
+</span><span class="add">+    foldMap (processRepo config templates commitT) . repoPaths $ config
+</span><span class="add">+    runIndex config indexT
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre>@@ -48,13 +48,13 @@
+
+
+  <pre><span class="def"> repository doesn&apos;t exist or is unreadable in any way we can forget about it and move on
+</span><span class="def"> (after informing the user of course).
+</span><span class="def"> -}
+</span><span class="sub">-processRepo :: [Template] -&gt; Config -&gt; FilePath -&gt; IO ()
+</span><span class="sub">-processRepo templates config path = withRepository lgFactory path $
+</span><span class="sub">-    processRepo&apos; templates config path
+</span><span class="add">+processRepo :: Config -&gt; [Template] -&gt; Maybe Template -&gt; FilePath -&gt; IO ()
+</span><span class="add">+processRepo config templates commitT path = withRepository lgFactory path $
+</span><span class="add">+    processRepo&apos; config templates commitT path
+</span><span class="def"> 
+</span><span class="def"> -- This is split out to make type reasoning a bit easier.
+</span><span class="sub">-processRepo&apos; :: [Template] -&gt; Config -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="sub">-processRepo&apos; templates config path = do
+</span><span class="add">+processRepo&apos; :: Config -&gt; [Template] -&gt; Maybe Template -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="add">+processRepo&apos; config templates commitT path = do
+</span><span class="def">     let name = takeFileName path
+</span><span class="def">     let output = outputDirectory config &lt;/&gt; name
+</span><span class="def">     liftIO $ createDirectoryIfMissing True output
+</span></pre>@@ -77,6 +77,8 @@
+
+
+  <pre><span class="def">             -- Run the generator --
+</span><span class="def">             let repo = package config name description commits tree
+</span><span class="def">             liftIO . mapM (generate output repo) $ templates
+</span><span class="add">+            let commitScope = packageCommit config name description
+</span><span class="add">+            liftIO . mapM (generateCommit config name commitScope commitT) $ commits
+</span><span class="def">             return ()
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -135,6 +137,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> commitAsLookup :: Commit LgRepo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> commitAsLookup commit = \case
+</span><span class="add">+    &quot;id&quot; -&gt; Just . toGVal . renderObjOid . commitOid $ commit
+</span><span class="def">     &quot;title&quot; -&gt; Just . toGVal . strip . fst . breakOn &quot;\n&quot; . commitLog $ commit
+</span><span class="def">     &quot;body&quot; -&gt; Just . toGVal . strip . snd . breakOn &quot;\n&quot; . commitLog $ commit
+</span><span class="def">     &quot;message&quot; -&gt; Just . toGVal . strip . commitLog $ commit
+</span></pre>@@ -174,8 +177,8 @@
+
+
+  <pre><span class="def"> runIndex _ Nothing = return ()
+</span><span class="def"> runIndex config (Just template) = do
+</span><span class="def">     let paths = repoPaths config
+</span><span class="sub">-    descriptions &lt;- sequence . fmap (getDescription . flip (&lt;/&gt;) &quot;description&quot;) $ paths
+</span><span class="sub">-    let repos = zipWith ($) (Repo &lt;$&gt; takeFileName &lt;$&gt; paths) descriptions
+</span><span class="add">+    descriptions &lt;- mapM (getDescription . flip (&lt;/&gt;) &quot;description&quot;) paths
+</span><span class="add">+    let repos = zipWith ($) (Repo . takeFileName &lt;$&gt; paths) descriptions
+</span><span class="def">     let indexScope = packageIndex config repos
+</span><span class="def">     generate (outputDirectory config) indexScope (template { templatePath = &quot;index.html&quot; })
+</span><span class="def">     return ()
+</span></pre>@@ -212,3 +215,34 @@
+
+
+  <pre><span class="def">     &quot;name&quot; -&gt; Just . toGVal . repoName $ repo
+</span><span class="def">     &quot;description&quot; -&gt; Just . toGVal . repoDescription $ repo
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="add">+
+</span><span class="add">+----------------------------------------------------------------------------------------
+</span><span class="add">+
+</span><span class="add">+generateCommit
+</span><span class="add">+    :: Config
+</span><span class="add">+    -&gt; FilePath
+</span><span class="add">+    -&gt; (Commit LgRepo -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html)))
+</span><span class="add">+    -&gt; Maybe Template
+</span><span class="add">+    -&gt; Commit LgRepo
+</span><span class="add">+    -&gt; IO ()
+</span><span class="add">+generateCommit _ _ _ Nothing _ = return ()
+</span><span class="add">+generateCommit config name commitScope (Just template) commit = do
+</span><span class="add">+    let id = unpack . renderObjOid . commitOid $ commit
+</span><span class="add">+    let template&apos; = template { templatePath = id ++ &quot;.html&quot; }
+</span><span class="add">+    let output = outputDirectory config &lt;/&gt; name &lt;/&gt; &quot;commits&quot;
+</span><span class="add">+    liftIO $ createDirectoryIfMissing True output
+</span><span class="add">+    generate output (commitScope commit) template&apos;
+</span><span class="add">+    return ()
+</span><span class="add">+
+</span><span class="add">+packageCommit
+</span><span class="add">+    :: Config
+</span><span class="add">+    -&gt; FilePath
+</span><span class="add">+    -&gt; Text
+</span><span class="add">+    -&gt; Commit LgRepo
+</span><span class="add">+    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="add">+packageCommit config name description commit = HashMap.fromList
+</span><span class="add">+    [ (&quot;host&quot;, toGVal $ host config)
+</span><span class="add">+    , (&quot;name&quot;, toGVal $ pack name)
+</span><span class="add">+    , (&quot;description&quot;, toGVal description)
+</span><span class="add">+    , (&quot;commit&quot;, toGVal commit)
+</span><span class="add">+    ]
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,13 +4,14 @@
+
+
+  <pre><span class="def">     main
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="sub">-import Config (getConfig)
+</span><span class="add">+import Config (getConfig, indexTemplate, commitTemplate)
+</span><span class="def"> import Repositories (run)
+</span><span class="sub">-import Templates (loadTemplates, loadIndexTemplate)
+</span><span class="add">+import Templates (loadTemplates, loadTemplate)
+</span><span class="def"> 
+</span><span class="def"> main :: IO ()
+</span><span class="def"> main = do
+</span><span class="def">     config &lt;- getConfig &quot;./config.dhall&quot;
+</span><span class="def">     templates &lt;- loadTemplates config
+</span><span class="sub">-    index &lt;- loadIndexTemplate config
+</span><span class="sub">-    run config templates index
+</span><span class="add">+    indexT &lt;- loadTemplate $ indexTemplate config
+</span><span class="add">+    commitT &lt;- loadTemplate $ commitTemplate config
+</span><span class="add">+    run config templates indexT commitT
+</span></pre></div><div class="diff">
+  <p>
+    <b>config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,6 +14,7 @@
+
+
+  <pre><span class="def">     { repoPaths = folders
+</span><span class="def">     , templateDirectory = &quot;./templates&quot;
+</span><span class="def">     , indexTemplate = &quot;./templates/index-main.html&quot;
+</span><span class="add">+    , commitTemplate = &quot;./templates/commit.html&quot;
+</span><span class="def">     , outputDirectory = &quot;./output&quot;
+</span><span class="def">     , host = &quot;http://localhost&quot;
+</span><span class="def">     }
+</span></pre></div><div class="diff">
+  <p>
+    <b>README.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -33,7 +33,7 @@
+
+
+  <pre><span class="def"> To do
+</span><span class="def"> -----
+</span><span class="def"> 
+</span><span class="sub">-[ ] Generate html file per commit with commit scope
+</span><span class="add">+[x] Generate html file per commit with commit scope
+</span><span class="def"> [ ] Generate html file per tree file with file scope
+</span><span class="def"> [ ] Expose readme url in repo scope for convenient hyperlinking
+</span><span class="def"> [ ] Expose license url in repo scope for convenient hyperlinking
+</span></pre></div>    </div>
   </body>
 </html>

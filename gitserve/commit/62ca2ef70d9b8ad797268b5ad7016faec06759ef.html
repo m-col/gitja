@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,72 @@
 <b>Committed:</b> 2021-11-21 00:35:56 +0000
 
 Import version data provided by cabal
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,7 +4,10 @@
+
+
+  <pre><span class="def">     main
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="add">+import Paths_gitserve (version)
+</span><span class="add">+
+</span><span class="def"> import Data.Text (Text)
+</span><span class="add">+import Data.Version (showVersion)
+</span><span class="def"> import qualified Options.Applicative as O
+</span><span class="def"> 
+</span><span class="def"> import Config (getConfig)
+</span></pre>@@ -18,7 +21,7 @@
+
+
+  <pre><span class="def"> data Options = Options
+</span><span class="def">     { config :: Text
+</span><span class="def">     , force :: Bool
+</span><span class="sub">-    , version :: Bool
+</span><span class="add">+    , printVersion :: Bool
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> opts :: O.Parser Options
+</span></pre>@@ -52,14 +55,11 @@
+
+
+  <pre><span class="def"> main :: IO ()
+</span><span class="def"> main = do
+</span><span class="def">     options &lt;- parser
+</span><span class="sub">-    if version options
+</span><span class="add">+    if printVersion options
+</span><span class="def">         then
+</span><span class="sub">-            putStrLn $ &quot;Your gitserve version is: &quot; &lt;&gt; currentVersion
+</span><span class="add">+            putStrLn $ &quot;Your gitserve version is: &quot; &lt;&gt; showVersion version
+</span><span class="def">         else do
+</span><span class="def">             conf &lt;- getConfig (config options)
+</span><span class="def">             env &lt;- loadTemplates (force options) conf
+</span><span class="def">             repos &lt;- runIndex env
+</span><span class="def">             run env repos
+</span><span class="sub">-
+</span><span class="sub">-currentVersion :: String
+</span><span class="sub">-currentVersion = &quot;0.1.0&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -16,7 +16,7 @@
+
+
+  <pre><span class="def"> executable gitserve
+</span><span class="def">   hs-source-dirs:      src
+</span><span class="def">   main-is:             Main.hs
+</span><span class="sub">-  other-modules:       Config, Index, Repositories, Templates, Types
+</span><span class="add">+  other-modules:       Config, Index, Repositories, Templates, Types, Paths_gitserve
+</span><span class="def">   default-language:    Haskell2010
+</span><span class="def">   build-depends:       base &gt;= 4.7 &amp;&amp; &lt; 5
+</span><span class="def">                      , conduit
+</span></pre></div>    </div>
   </body>
 </html>

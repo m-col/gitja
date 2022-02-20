@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,44 @@
 <b>Committed:</b> 2021-10-04 11:25:44 +0100
 
 Create treePathToHref helper function
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -179,11 +179,16 @@
+
+
+  <pre><span class="def"> treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> treeAsLookup treefile = \case
+</span><span class="def">     &quot;path&quot; -&gt; Just . toGVal . treeFilePath $ treefile
+</span><span class="sub">-    &quot;href&quot; -&gt; Just . toGVal . flip append &quot;.html&quot; . replace &quot;/&quot; &quot;.&quot; .
+</span><span class="sub">-        decodeUtf8With lenientDecode . treeFilePath $ treefile
+</span><span class="add">+    &quot;href&quot; -&gt; Just . toGVal . treePathToHref . treeFilePath $ treefile
+</span><span class="def">     &quot;contents&quot; -&gt; Just . toGVal . treeFileContents $ treefile
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="add">+{-
+</span><span class="add">+Get the name of a tree file path&apos;s HTML file.
+</span><span class="add">+-}
+</span><span class="add">+treePathToHref :: TreeFilePath -&gt; Text
+</span><span class="add">+treePathToHref = flip append &quot;.html&quot; . replace &quot;/&quot; &quot;.&quot; .  decodeUtf8With lenientDecode
+</span><span class="add">+
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -202,7 +207,7 @@
+
+
+  <pre><span class="def">     category = const &quot;commit&quot;
+</span><span class="def"> 
+</span><span class="def"> instance Target (TreeFile) where
+</span><span class="sub">-    identify = (++ &quot;.html&quot;) . unpack . replace &quot;/&quot; &quot;.&quot; . decodeUtf8With lenientDecode . treeFilePath
+</span><span class="add">+    identify = unpack . treePathToHref . treeFilePath
+</span><span class="def">     category = const &quot;file&quot;
+</span><span class="def"> 
+</span><span class="def"> genTarget
+</span></pre></div>    </div>
   </body>
 </html>

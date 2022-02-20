@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,31 @@
 <b>Committed:</b> 2021-11-21 18:23:51 +0000
 
 Ensure all folders are created ahead of generation
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -67,11 +67,13 @@
+
+
+  <pre><span class="def">             branches &lt;- getRefs &quot;refs/heads/&quot;
+</span><span class="def">             let scope = package env name (repoDescription repo) commits tree tags branches
+</span><span class="def"> 
+</span><span class="add">+            -- Create the destination folders
+</span><span class="add">+            liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;commit&quot;
+</span><span class="add">+            liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;file&quot;
+</span><span class="add">+
+</span><span class="def">             -- Run the generator --
+</span><span class="sub">-            liftIO . mapM_ (genRepo output scope) $ envTemplates env
+</span><span class="def">             let force = envForce env
+</span><span class="sub">-            liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;commits&quot;
+</span><span class="sub">-            liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;files&quot;
+</span><span class="add">+            liftIO . mapM_ (genRepo output scope) $ envTemplates env
+</span><span class="def">             liftIO . mapM_ (genTarget output scope force $ envCommitTemplate env) $ commits
+</span><span class="def">             liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree -- TODO: detect file changes
+</span><span class="def"> 
+</span></pre></div>    </div>
   </body>
 </html>

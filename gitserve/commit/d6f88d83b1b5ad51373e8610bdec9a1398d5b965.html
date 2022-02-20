@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-10-04 22:06:13 +0100
 
 remove redundant brackets
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -224,7 +224,7 @@
+
+
+  <pre><span class="def">     identify = (++ &quot;.html&quot;) . show . commitOid
+</span><span class="def">     category = const &quot;commit&quot;
+</span><span class="def"> 
+</span><span class="sub">-instance Target (TreeFile) where
+</span><span class="add">+instance Target TreeFile where
+</span><span class="def">     identify = unpack . treePathToHref . treeFilePath
+</span><span class="def">     category = const &quot;file&quot;
+</span><span class="def"> 
+</span></pre></div>    </div>
   </body>
 </html>

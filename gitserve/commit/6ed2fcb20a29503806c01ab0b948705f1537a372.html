@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,84 @@
 Add template variable to list tree non-recursively
 
 Closes #19
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,6 +15,7 @@
+
+
+  <pre><span class="def"> import Control.Monad.Extra (ifM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="add">+import Data.ByteString.UTF8 (toString)
+</span><span class="def"> import Data.Either (isRight)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, mapMaybe)
+</span></pre>@@ -153,7 +154,8 @@
+
+
+  <pre><span class="def">         , (&quot;name&quot;, toGVal . pack . init . toFilePath $ name)
+</span><span class="def">         , (&quot;description&quot;, toGVal description)
+</span><span class="def">         , (&quot;commits&quot;, toGVal commits)
+</span><span class="sub">-        , (&quot;tree&quot;, toGVal tree)
+</span><span class="add">+        , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . toString . treeFilePath) $ tree)
+</span><span class="add">+        , (&quot;tree_recursive&quot;, toGVal tree)
+</span><span class="def">         , (&quot;tags&quot;, toGVal tags)
+</span><span class="def">         , (&quot;branches&quot;, toGVal branches)
+</span><span class="def">         , (&quot;readme&quot;, toGVal . findFile &quot;readme&quot; $ tree)
+</span></pre></div><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -136,23 +136,24 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> The variables available within each scope are listed here for reference:
+</span><span class="def"> 
+</span><span class="sub">-| Scope  | Variable     | Description                                           |
+</span><span class="sub">-| ------ | ------------ | ----------------------------------------------------- |
+</span><span class="sub">-| Index  | host         | The string from the `host` config option.             |
+</span><span class="sub">-|        | repositories | A list of all of the git repositories.                |
+</span><span class="sub">-| Repo   |              | *In addition to the variables from the index scope...*|
+</span><span class="sub">-|        | name         | The repository name, taken from its folder name.      |
+</span><span class="sub">-|        | description  | The repository&apos;s description (see below).             |
+</span><span class="sub">-|        | commits      | A list of the repository&apos;s commits.                   |
+</span><span class="sub">-|        | tree         | A list of the repository&apos;s files.                     |
+</span><span class="sub">-|        | tags         | A list of the refs corresponding to tags.             |
+</span><span class="sub">-|        | branches     | A list of the refs corresponding to branches.         |
+</span><span class="sub">-|        | readme       | The repository&apos;s readme file, if it has one.          |
+</span><span class="sub">-|        | license      | The repository&apos;s license file, if it has one.         |
+</span><span class="sub">-| File   |              | *In addition to the variables from the Repo scope...* |
+</span><span class="sub">-|        | file         | A single file.                                        |
+</span><span class="sub">-| Commit |              | *In addition to the variables from the Repo scope...* |
+</span><span class="sub">-|        | commit       | A single commit.                                      |
+</span><span class="add">+| Scope  | Variable        | Description                                           |
+</span><span class="add">+| ------ | --------------- | ----------------------------------------------------- |
+</span><span class="add">+| Index  | host            | The string from the `host` config option.             |
+</span><span class="add">+|        | repositories    | A list of all of the git repositories.                |
+</span><span class="add">+| Repo   |                 | *In addition to the variables from the index scope...*|
+</span><span class="add">+|        | name            | The repository name, taken from its folder name.      |
+</span><span class="add">+|        | description     | The repository&apos;s description (see below).             |
+</span><span class="add">+|        | commits         | A list of the repository&apos;s commits.                   |
+</span><span class="add">+|        | tree            | A list of the top-level folder&apos;s contents.            |
+</span><span class="add">+|        | tree\_recursive | A list of *all* of the repository&apos;s contents.         |
+</span><span class="add">+|        | tags            | A list of the refs corresponding to tags.             |
+</span><span class="add">+|        | branches        | A list of the refs corresponding to branches.         |
+</span><span class="add">+|        | readme          | The repository&apos;s readme file, if it has one.          |
+</span><span class="add">+|        | license         | The repository&apos;s license file, if it has one.         |
+</span><span class="add">+| File   |                 | *In addition to the variables from the Repo scope...* |
+</span><span class="add">+|        | file            | A single file.                                        |
+</span><span class="add">+| Commit |                 | *In addition to the variables from the Repo scope...* |
+</span><span class="add">+|        | commit          | A single commit.                                      |
+</span><span class="def"> 
+</span><span class="def"> As in [Jinja](https://jinja.palletsprojects.com), a list can be accessed with
+</span><span class="def"> indexing, and attributes can be accessed using a dot notation. For example, a
+</span></pre></div>    </div>
   </body>
 </html>

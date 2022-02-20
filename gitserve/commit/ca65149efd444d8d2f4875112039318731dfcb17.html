@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,324 @@
 <b>Committed:</b> 2021-11-22 00:15:50 +0000
 
 Copy non-html files from templateDir to outputDir
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/style.css</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,169 @@
+
+
+  <pre><span class="add">+/*
+</span><span class="add">+Credit to much of the styling here goes to stagit: https://codemadness.org/git/stagit/
+</span><span class="add">+*/
+</span><span class="add">+
+</span><span class="add">+@viewport {
+</span><span class="add">+    width: device-width;
+</span><span class="add">+    zoom: 1.0;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+html {
+</span><span class="add">+    color: #000;
+</span><span class="add">+    font-family: monospace;
+</span><span class="add">+    font-size: 1em;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+body {
+</span><span class="add">+    max-width: 900px;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+p {
+</span><span class="add">+    margin: 15px 0;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+li {
+</span><span class="add">+    list-style-type: square;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+h1, h2 {
+</span><span class="add">+    font-size: 1em;
+</span><span class="add">+    margin: 0;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+h2 {
+</span><span class="add">+    font-weight: bold;
+</span><span class="add">+    text-decoration: underline;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+::selection {
+</span><span class="add">+    background: #5D479D;
+</span><span class="add">+    color: #fff;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+table td {
+</span><span class="add">+    padding: 0 0.4em;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+td.link {
+</span><span class="add">+    text-align: right;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+a:target {
+</span><span class="add">+    background-color: #ddd;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+#avatar {
+</span><span class="add">+    width: 32px;
+</span><span class="add">+    height: 32px;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+a.d, a.h, a.i, a.line {
+</span><span class="add">+    text-decoration: none;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+#blob a, .desc {
+</span><span class="add">+    color: #777;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+#blob a:hover {
+</span><span class="add">+    color: blue;
+</span><span class="add">+    text-decoration: none;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+table thead td {
+</span><span class="add">+    font-weight: bold;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+#content table td {
+</span><span class="add">+    vertical-align: top;
+</span><span class="add">+    white-space: nowrap;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+#head {
+</span><span class="add">+    width: 100%;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+#branches tr:hover td,
+</span><span class="add">+#tags tr:hover td,
+</span><span class="add">+#index tr:hover td,
+</span><span class="add">+#log tr:hover td,
+</span><span class="add">+#files tr:hover td {
+</span><span class="add">+    background-color: #eee;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+#index tr td:nth-child(2),
+</span><span class="add">+#tags tr td:nth-child(3),
+</span><span class="add">+#branches tr td:nth-child(3),
+</span><span class="add">+#log tr td:nth-child(2) {
+</span><span class="add">+    white-space: normal;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+td.num {
+</span><span class="add">+    text-align: right;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+hr {
+</span><span class="add">+    border: 0;
+</span><span class="add">+    border-top: 1px solid #777;
+</span><span class="add">+    height: 1px;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+pre a.h {
+</span><span class="add">+    color: #00a;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+.A,
+</span><span class="add">+span.i,
+</span><span class="add">+pre a.i {
+</span><span class="add">+    color: #070;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+.D,
+</span><span class="add">+span.d,
+</span><span class="add">+pre a.d {
+</span><span class="add">+    color: #e00;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+pre a.h:hover,
+</span><span class="add">+pre a.i:hover,
+</span><span class="add">+pre a.d:hover {
+</span><span class="add">+    text-decoration: none;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+.highlight, code {
+</span><span class="add">+    background: #eeeeef;
+</span><span class="add">+    color: black;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+.highlight {
+</span><span class="add">+    white-space: pre-wrap;
+</span><span class="add">+    word-wrap: break-word;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+.c, .ch, .cm, .cp, .cpf, .c1, .gh, .gp
+</span><span class="add">+{ color: #5D479D } /* comments */
+</span><span class="add">+
+</span><span class="add">+.err, .se, .o
+</span><span class="add">+{ color: #a53c21 } /* dark red */
+</span><span class="add">+
+</span><span class="add">+.sh, .si, .sx, .sr, .s1, .ss, .cs, .gd, .dl,
+</span><span class="add">+.s2, .nc, .vc, .vg, .vi, .vm, .nv, .sc, .s
+</span><span class="add">+{ color: #8f4ff0 } /* bright pink */
+</span><span class="add">+
+</span><span class="add">+.kn, .nb, .mb, .mf, .mh, .mi, .mo, .bp, .il, .m
+</span><span class="add">+{ color: #406794 } /* keywords (exit, eval) */
+</span><span class="add">+
+</span><span class="add">+.kt
+</span><span class="add">+{ color: #3e3e73 } /* light grey */
+</span><span class="add">+
+</span><span class="add">+.kc, .k, .ow, .kp, .kr
+</span><span class="add">+{ color: #406794 } /* key words */
+</span><span class="add">+
+</span><span class="add">+.esc, .l, .n, .x, .p, .gs, .ld, .na, .no, .ge
+</span><span class="add">+.nd, .ni, .nf, .nl, .nn, .nx, .py, .nt, .w, .fm, .g
+</span><span class="add">+{ color: black }
+</span><span class="add">+
+</span><span class="add">+.ne { color: #5fd75f }
+</span><span class="add">+
+</span><span class="add">+.gh, .gp, .cs, .gu, .ne, .cs
+</span><span class="add">+{ font-weight: bold }
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -19,14 +19,15 @@
+
+
+  <pre><span class="def">     generate,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="sub">-import Control.Monad (filterM, void)
+</span><span class="add">+import Control.Monad (void, (&lt;=&lt;))
+</span><span class="def"> import Data.Char (toLower)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.List (isSuffixOf)
+</span><span class="def"> import Data.Maybe (catMaybes)
+</span><span class="def"> import Data.Text (Text, unpack)
+</span><span class="sub">-import System.Directory (doesFileExist, getDirectoryContents)
+</span><span class="sub">-import System.FilePath ((&lt;/&gt;))
+</span><span class="add">+import Path (Abs, Dir, File, Path, dirname, filename, parseAbsDir, toFilePath, (&lt;/&gt;))
+</span><span class="add">+import Path.IO (copyDirRecur, copyFile, ensureDir, listDir)
+</span><span class="add">+import System.Directory (makeAbsolute)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import Text.Ginger.GVal (GVal)
+</span></pre>@@ -60,9 +61,9 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> loadTemplates :: Bool -&gt; Config -&gt; IO Env
+</span><span class="def"> loadTemplates force config = do
+</span><span class="sub">-    -- Custom templates
+</span><span class="sub">-    files &lt;- getFiles config
+</span><span class="sub">-    templates &lt;- mapM loadTemplate files
+</span><span class="add">+    -- Load files from template directory
+</span><span class="add">+    templateFiles &lt;- getFiles config
+</span><span class="add">+    templates &lt;- mapM loadTemplate (fmap toFilePath templateFiles)
+</span><span class="def">     -- Scoped templates
+</span><span class="def">     indexT &lt;- loadTemplate . indexTemplate $ config
+</span><span class="def">     commitT &lt;- loadTemplate . commitTemplate $ config
+</span></pre>@@ -113,39 +114,54 @@
+
+
+  <pre><span class="def"> includeResolver path = either (const Nothing) Just &lt;$&gt; tryIOError (readFile path)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-This is used to filter files in the template directory so that we only try to load
+</span><span class="sub">-HTML/CSS/JS files.
+</span><span class="add">+getFiles will look inside the template directory and generate a list of paths to likely
+</span><span class="add">+valid template files and another for static files.
+</span><span class="add">+
+</span><span class="add">+It&apos;s not very pretty, but we also copy the static files and folders from here because
+</span><span class="add">+I&apos;m too lazy to work with Path too much.
+</span><span class="def"> -}
+</span><span class="sub">-isTemplate :: Config -&gt; FilePath -&gt; IO Bool
+</span><span class="sub">-isTemplate config path = (&amp;&amp;) (isTemplate&apos; (map toLower path)) &lt;$&gt; doesFileExist path
+</span><span class="add">+getFiles :: Config -&gt; IO [Path Abs File]
+</span><span class="add">+getFiles config = do
+</span><span class="add">+    (dirs, files) &lt;- ls . templateDirectory $ config
+</span><span class="add">+    let files&apos; = filter (not . isSuffixOf &quot;include&quot; . toFilePath) files
+</span><span class="add">+    let templates = filter (isTemplate config) files&apos;
+</span><span class="add">+    let statics = filter (`notElem` templates) files&apos;
+</span><span class="add">+    output &lt;- parseAbsDir &lt;=&lt; makeAbsolute . outputDirectory $ config
+</span><span class="add">+    ensureDir output
+</span><span class="add">+    copyStaticDirs output dirs
+</span><span class="add">+    copyStaticFiles output statics
+</span><span class="add">+    return templates
+</span><span class="def">   where
+</span><span class="sub">-    isTemplate&apos; :: FilePath -&gt; Bool
+</span><span class="sub">-    isTemplate&apos; p =
+</span><span class="sub">-        not (isTargeted config p) &amp;&amp; or (flip isSuffixOf p &lt;$&gt; [&quot;html&quot;, &quot;css&quot;, &quot;js&quot;])
+</span><span class="add">+    -- This gets fully qualified paths of the directory&apos;s contents
+</span><span class="add">+    ls :: FilePath -&gt; IO ([Path Abs Dir], [Path Abs File])
+</span><span class="add">+    ls = listDir &lt;=&lt; parseAbsDir &lt;=&lt; makeAbsolute
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-This is used to filter files in the template directory to exclude those specified by the
+</span><span class="sub">-config settings ``indexTemplate``, ``commitTemplate`` or ``fileTemplate``.
+</span><span class="add">+This is used to filter files in the template directory so that we only try to load HTML
+</span><span class="add">+files.
+</span><span class="def"> -}
+</span><span class="sub">-isTargeted :: Config -&gt; FilePath -&gt; Bool
+</span><span class="sub">-isTargeted config path =
+</span><span class="sub">-    path == indexTemplate config
+</span><span class="sub">-        || path == commitTemplate config
+</span><span class="sub">-        || path == fileTemplate config
+</span><span class="add">+isTemplate :: Config -&gt; Path Abs File -&gt; Bool
+</span><span class="add">+isTemplate config = isTemplate&apos; . map toLower . toFilePath
+</span><span class="add">+  where
+</span><span class="add">+    isTemplate&apos; :: FilePath -&gt; Bool
+</span><span class="add">+    isTemplate&apos; p = isSuffixOf &quot;html&quot; p &amp;&amp; not (isTargeted config p)
+</span><span class="add">+    isTargeted :: Config -&gt; FilePath -&gt; Bool
+</span><span class="add">+    isTargeted c p = p `elem` [indexTemplate c, commitTemplate c, fileTemplate c]
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-This wraps getDirectoryContents so that we get a list of fully qualified paths of the
+</span><span class="sub">-directory&apos;s contents.
+</span><span class="add">+These copies static files/folders into the output folder unchanged.
+</span><span class="def"> -}
+</span><span class="sub">-listTemplates :: FilePath -&gt; IO [FilePath]
+</span><span class="sub">-listTemplates = (fmap . fmap . (&lt;/&gt;)) &lt;*&gt; getDirectoryContents
+</span><span class="add">+copyStaticFiles :: Path Abs Dir -&gt; [Path Abs File] -&gt; IO ()
+</span><span class="add">+copyStaticFiles output = mapM_ copy
+</span><span class="add">+  where
+</span><span class="add">+    copy :: Path Abs File -&gt; IO ()
+</span><span class="add">+    copy path = copyFile path $ output &lt;/&gt; filename path
+</span><span class="def"> 
+</span><span class="sub">-{-
+</span><span class="sub">-getFiles will look inside the template directory and generate a list of paths to likely
+</span><span class="sub">-valid template files.
+</span><span class="sub">--}
+</span><span class="sub">-getFiles :: Config -&gt; IO [FilePath]
+</span><span class="sub">-getFiles = ((&gt;&gt;=) . listTemplates . templateDirectory) &lt;*&gt; (filterM . isTemplate)
+</span><span class="add">+copyStaticDirs :: Path Abs Dir -&gt; [Path Abs Dir] -&gt; IO ()
+</span><span class="add">+copyStaticDirs output = mapM_ copy
+</span><span class="add">+  where
+</span><span class="add">+    copy :: Path Abs Dir -&gt; IO ()
+</span><span class="add">+    copy path = copyDirRecur path $ output &lt;/&gt; dirname path
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This function gets the output HTML data and is responsible for saving it to file.
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -28,6 +28,8 @@
+
+
+  <pre><span class="def">                      , gitlib
+</span><span class="def">                      , gitlib-libgit2
+</span><span class="def">                      , optparse-applicative
+</span><span class="add">+                     , path
+</span><span class="add">+                     , path-io
+</span><span class="def">                      , tagged
+</span><span class="def">                      , text
+</span><span class="def">                      , transformers
+</span></pre></div>    </div>
   </body>
 </html>

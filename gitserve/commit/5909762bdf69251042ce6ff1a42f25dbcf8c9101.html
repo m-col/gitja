@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,47 @@
 <b>Committed:</b> 2021-09-30 10:50:56 +0100
 
 Ensure loaded templates all have correct paths associated
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -20,8 +20,8 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Control.Monad (filterM, (&lt;=&lt;), ap)
+</span><span class="def"> import Data.Char (toLower)
+</span><span class="sub">-import Data.Either (rights)
+</span><span class="def"> import Data.List (isSuffixOf)
+</span><span class="add">+import Data.Maybe (catMaybes)
+</span><span class="def"> import Data.Text (unpack, Text)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import System.Directory (doesFileExist, getDirectoryContents)
+</span></pre>@@ -60,15 +60,14 @@
+
+
+  <pre><span class="def"> loadTemplates config = do
+</span><span class="def">     -- Custom templates
+</span><span class="def">     files &lt;- getFiles config
+</span><span class="sub">-    parsed &lt;- sequence $ parseGingerFile includeResolver &lt;$&gt; files
+</span><span class="sub">-    let templates = zipWith ($) (Template &lt;$&gt; files) (rights parsed)  -- TODO: lefts not filtered from files
+</span><span class="add">+    templates &lt;- sequence . fmap loadTemplate $ files
+</span><span class="def">     -- Scoped templates
+</span><span class="sub">-    indexT &lt;- loadTemplate $ indexTemplate config
+</span><span class="sub">-    commitT &lt;- loadTemplate $ commitTemplate config
+</span><span class="sub">-    fileT &lt;- loadTemplate $ fileTemplate config
+</span><span class="add">+    indexT &lt;- loadTemplate . indexTemplate $ config
+</span><span class="add">+    commitT &lt;- loadTemplate . commitTemplate $ config
+</span><span class="add">+    fileT &lt;- loadTemplate . fileTemplate $ config
+</span><span class="def">     -- Global environment
+</span><span class="def">     return Env { envConfig = config
+</span><span class="sub">-    , envTemplates = templates
+</span><span class="add">+    , envTemplates = catMaybes templates
+</span><span class="def">     , envIndexTemplate = indexT
+</span><span class="def">     , envCommitTemplate = commitT
+</span><span class="def">     , envFileTemplate = fileT
+</span></pre></div>    </div>
   </body>
 </html>

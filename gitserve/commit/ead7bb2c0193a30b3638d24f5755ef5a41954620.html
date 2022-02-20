@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,46 @@
 <b>Committed:</b> 2021-11-27 19:22:01 +0000
 
 remove existing file before creating symlink
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -8,7 +8,7 @@
+
+
+  <pre><span class="def">     generate,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="sub">-import Control.Monad (filterM, join, void, (&lt;=&lt;))
+</span><span class="add">+import Control.Monad (filterM, join, void, when, (&lt;=&lt;))
+</span><span class="def"> import Control.Monad.Extra (findM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span></pre>@@ -22,8 +22,10 @@
+
+
+  <pre><span class="def">     canonicalizePath,
+</span><span class="def">     createDirectoryLink,
+</span><span class="def">     createFileLink,
+</span><span class="add">+    doesPathExist,
+</span><span class="def">     getSymbolicLinkTarget,
+</span><span class="def">     pathIsSymbolicLink,
+</span><span class="add">+    removeFile,
+</span><span class="def">  )
+</span><span class="def"> import qualified System.FilePath as FP
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span></pre>@@ -213,5 +215,7 @@
+
+
+  <pre><span class="def">         if isLink
+</span><span class="def">             then do
+</span><span class="def">                 target &lt;- getSymbolicLinkTarget fp
+</span><span class="add">+                exists &lt;- doesPathExist . toFilePath $ output&apos;
+</span><span class="add">+                when exists . removeFile . toFilePath $ output&apos;
+</span><span class="def">                 createFileLink target . toFilePath $ output&apos;
+</span><span class="def">             else copyFile p output&apos;
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,74 @@
 <b>Committed:</b> 2021-09-24 22:55:06 +0100
 
 Don&apos;t print errors twice when failing to load index template
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -10,7 +10,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Control.Monad (filterM, (&lt;=&lt;))
+</span><span class="def"> import Data.Char (toLower)
+</span><span class="sub">-import Data.Either (rights)
+</span><span class="add">+import Data.Either (rights, either)
+</span><span class="def"> import Data.List (isSuffixOf)
+</span><span class="def"> import Data.Text (unpack, Text)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span></pre>@@ -18,7 +18,7 @@
+
+
+  <pre><span class="def"> import System.FilePath ((&lt;/&gt;))
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="sub">-import Text.Ginger.Parse (SourcePos, parseGingerFile)
+</span><span class="add">+import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
+</span><span class="def"> import Text.Ginger.GVal (GVal)
+</span><span class="def"> import Text.Ginger.Html (htmlSource, Html)
+</span><span class="def"> import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
+</span></pre>@@ -38,8 +38,9 @@
+
+
+  <pre><span class="def"> loadTemplates :: Config -&gt; IO [Template]
+</span><span class="def"> loadTemplates config = do
+</span><span class="def">     files &lt;- getFiles config
+</span><span class="sub">-    parsed &lt;- sequence $ parseGingerFile includeResolver &lt;$&gt; files
+</span><span class="sub">-    return $ Template &lt;$&gt; files &lt;*&gt; rights parsed
+</span><span class="add">+    let files&apos; = filter ((/=) $ indexTemplate config) files
+</span><span class="add">+    parsed &lt;- sequence $ parseGingerFile includeResolver &lt;$&gt; files&apos;
+</span><span class="add">+    return $ Template &lt;$&gt; files&apos; &lt;*&gt; rights parsed
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This takes the session&apos;s `Config` and maybe returns a loaded template for the
+</span></pre>@@ -49,7 +50,7 @@
+
+
+  <pre><span class="def"> loadIndexTemplate config = parseGingerFile includeResolver file &gt;&gt;= \case
+</span><span class="def">     Right parsed -&gt; return . Just . Template file $ parsed
+</span><span class="def">     Left err -&gt; do
+</span><span class="sub">-        print err
+</span><span class="add">+        print . peErrorMessage $ err
+</span><span class="def">         return Nothing
+</span><span class="def">   where
+</span><span class="def">     file = indexTemplate config
+</span></pre>@@ -61,11 +62,7 @@
+
+
+  <pre><span class="def"> includes.
+</span><span class="def"> -}
+</span><span class="def"> includeResolver :: FilePath -&gt; IO (Maybe String)
+</span><span class="sub">-includeResolver path = tryIOError (readFile path) &gt;&gt;= \case
+</span><span class="sub">-    Right contents -&gt; return $ Just contents
+</span><span class="sub">-    Left err -&gt; do
+</span><span class="sub">-        print err
+</span><span class="sub">-        return Nothing
+</span><span class="add">+includeResolver path = return . either (const Nothing) Just =&lt;&lt; tryIOError (readFile path)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is used to filter files in the template directory so that we only try to load
+</span></pre></div>    </div>
   </body>
 </html>

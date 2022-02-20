@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,55 @@
 <b>Committed:</b> 2021-09-24 00:15:32 +0100
 
 Add docstring to `package`
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -70,6 +70,23 @@
+
+
+  <pre><span class="def">     name = takeFileName path
+</span><span class="def">     outPath = directory &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="add">+{-
+</span><span class="add">+The role of the function above is to gather information about a git repository and
+</span><span class="add">+package it all together in such a way that various parts can be accessed and used by
+</span><span class="add">+Ginger templates. `package` takes these pieces of information and places it all into a
+</span><span class="add">+hashmap which Ginger can use to look up variables.
+</span><span class="add">+-}
+</span><span class="add">+package
+</span><span class="add">+    :: Text
+</span><span class="add">+    -&gt; [Commit LgRepo]
+</span><span class="add">+    -&gt; [(TreeFilePath, TreeEntry r)]
+</span><span class="add">+    -&gt; HashMap.HashMap Text Text
+</span><span class="add">+package description commits tree = HashMap.fromList
+</span><span class="add">+    [ (&quot;commits&quot;, &quot;commits&quot;)
+</span><span class="add">+    , (&quot;description&quot;, description)
+</span><span class="add">+    , (&quot;tree&quot;, &quot;tree&quot;)
+</span><span class="add">+    ]
+</span><span class="add">+
+</span><span class="def"> getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit LgRepo]
+</span><span class="def"> getCommits commitID =
+</span><span class="def">     sequence . mapMaybe loadCommit &lt;=&lt;
+</span></pre>@@ -84,14 +101,3 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> getDescription :: FilePath -&gt; IO Text
+</span><span class="def"> getDescription path = fromRight &quot;&quot; &lt;$&gt; tryIOError (pack &lt;$&gt; readFile path)
+</span><span class="sub">-
+</span><span class="sub">-package
+</span><span class="sub">-    :: Text
+</span><span class="sub">-    -&gt; [Commit LgRepo]
+</span><span class="sub">-    -&gt; [(TreeFilePath, TreeEntry r)]
+</span><span class="sub">-    -&gt; HashMap.HashMap Text Text
+</span><span class="sub">-package description commits tree = HashMap.fromList
+</span><span class="sub">-    [ (&quot;commits&quot;, &quot;commits&quot;)
+</span><span class="sub">-    , (&quot;description&quot;, description)
+</span><span class="sub">-    , (&quot;tree&quot;, &quot;tree&quot;)
+</span><span class="sub">-    ]
+</span></pre></div>    </div>
   </body>
 </html>

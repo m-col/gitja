@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,299 @@
 Qualify Text module &amp; strip leading periods from file.href
 
 Closes #23
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/test.sh</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -31,17 +31,18 @@
+
+
+  <pre><span class="def"> declare -a TESTS
+</span><span class="def"> TESTS=(
+</span><span class="def">     &quot;index.html&quot;
+</span><span class="sub">-    &quot;link.html&quot;
+</span><span class="sub">-    &quot;style.css&quot;
+</span><span class="add">+    &quot;link.html&quot;  # Symbolic link at top level
+</span><span class="add">+    &quot;style.css&quot;  # Static file at top level
+</span><span class="def">     &quot;so_called_binary_file&quot;
+</span><span class="sub">-    &quot;static/a_nice_file&quot;
+</span><span class="add">+    &quot;static/a_nice_file&quot;  # Static folder at top level
+</span><span class="def">     &quot;gitserve/index.html&quot;
+</span><span class="def">     &quot;gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html&quot;
+</span><span class="def">     &quot;gitserve/file/test.expected.gitserve.file.html&quot;
+</span><span class="def">     &quot;gitserve/file/test.templates.style.css.html&quot;
+</span><span class="def">     &quot;gitserve/file/test.templates.so_called_binary_file.html&quot;
+</span><span class="sub">-    &quot;gitserve/log.html&quot;
+</span><span class="sub">-    &quot;gitserve/static/another_file&quot;
+</span><span class="add">+    &quot;gitserve/file/github.FUNDING.yml.html&quot;  # Drops leading period
+</span><span class="add">+    &quot;gitserve/log.html&quot;  # Symbolic link inside repo/
+</span><span class="add">+    &quot;gitserve/static/another_file&quot;  # Static folder inside repo/
+</span><span class="def"> )
+</span><span class="def"> 
+</span><span class="def"> stack run -- -c test/config.dhall -q || exit 1
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/repo/file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,5 +1,5 @@
+
+
+  <pre><span class="def"> {% extends &quot;../title.html.include&quot; -%}
+</span><span class="sub">-{%- block title -%}{{ file.path }}{%- endblock -%}
+</span><span class="add">+{%- block title -%}{{ file }}{%- endblock -%}
+</span><span class="def"> 
+</span><span class="def"> {% block body %}
+</span><span class="def"> scope: file
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/file/github.FUNDING.yml.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,23 @@
+
+
+  <pre><span class="add">+.github/FUNDING.yml
+</span><span class="add">+scope: file
+</span><span class="add">+file: .github/FUNDING.yml
+</span><span class="add">+file.path: .github/FUNDING.yml
+</span><span class="add">+file.href: github.FUNDING.yml.html
+</span><span class="add">+file.contents: github: [&amp;quot;m-col&amp;quot;]
+</span><span class="add">+custom: [&amp;quot;https://liberapay.com/mcol&amp;quot;]
+</span><span class="add">+file.mode: Plain
+</span><span class="add">+file.mode_octal: 00644
+</span><span class="add">+file.mode_symbolic: -rw-r--r--
+</span><span class="add">+if file.is_directory then &quot;directory&quot; else &quot;file&quot;: &quot;file&quot;
+</span><span class="add">+
+</span><span class="add">+file scope also should have data from repo scope available:
+</span><span class="add">+host: https://github.com/m-col/gitserve
+</span><span class="add">+repos: gitserve
+</span><span class="add">+name: gitserve
+</span><span class="add">+description: 🐙 Templated web page generator for your git repositories
+</span><span class="add">+commits: (skipped)
+</span><span class="add">+tree: (skipped)
+</span><span class="add">+tags: 1
+</span><span class="add">+branches: 1
+</span><span class="add">+readme.path: README.rst
+</span><span class="add">+license.path: LICENSE
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,7 +15,6 @@
+
+
+  <pre><span class="def"> import Control.Monad.Catch (throwM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="sub">-import Data.ByteString.UTF8 (toString)
+</span><span class="def"> import Data.Default (def)
+</span><span class="def"> import Data.Maybe (listToMaybe)
+</span><span class="def"> import Data.Tagged (untag)
+</span></pre>@@ -108,7 +107,7 @@
+
+
+  <pre><span class="def"> objects contained therein.
+</span><span class="def"> -}
+</span><span class="def"> data TreeFile = TreeFile
+</span><span class="sub">-    { treeFilePath :: TreeFilePath
+</span><span class="add">+    { treeFilePath :: Text
+</span><span class="def">     , treeFileContents :: TreeFileContents
+</span><span class="def">     , treeFileMode :: TreeEntryMode
+</span><span class="def">     }
+</span></pre>@@ -168,8 +167,8 @@
+
+
+  <pre><span class="def">     toGVal :: TreeFile -&gt; GVal RunRepo
+</span><span class="def">     toGVal treefile =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . pack . toString . treeFilePath $ treefile
+</span><span class="sub">-            , asText = pack . show . treeFilePath $ treefile
+</span><span class="add">+            { asHtml = html . treeFilePath $ treefile
+</span><span class="add">+            , asText = treeFilePath treefile
+</span><span class="def">             , asLookup = Just . treeAsLookup $ treefile
+</span><span class="def">             , asBoolean = True -- Used for conditionally checking readme/license template variables.
+</span><span class="def">             }
+</span></pre>@@ -180,16 +179,16 @@
+
+
+  <pre><span class="def">     toGVal (FileContents text) = toGVal . strip $ text
+</span><span class="def">     toGVal (FolderContents treeFiles) =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . pack . show . fmap (toString . treeFilePath) $ treeFiles
+</span><span class="sub">-            , asText = pack . show . fmap (toString . treeFilePath) $ treeFiles
+</span><span class="add">+            { asHtml = html . pack . show . fmap treeFilePath $ treeFiles
+</span><span class="add">+            , asText = pack . show . fmap treeFilePath $ treeFiles
+</span><span class="def">             , asList = Just . fmap toGVal $ treeFiles
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="def"> treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal RunRepo)
+</span><span class="def"> treeAsLookup treefile = \case
+</span><span class="def">     &quot;path&quot; -&gt; Just . toGVal . treeFilePath $ treefile
+</span><span class="sub">-    &quot;name&quot; -&gt; Just . toGVal . takeFileName . toString . treeFilePath $ treefile
+</span><span class="sub">-    &quot;href&quot; -&gt; Just . toGVal . treePathToHref . treeFilePath $ treefile
+</span><span class="add">+    &quot;name&quot; -&gt; Just . toGVal . takeFileName . T.unpack . treeFilePath $ treefile
+</span><span class="add">+    &quot;href&quot; -&gt; Just . toGVal . treePathToHref $ treefile
+</span><span class="def">     &quot;contents&quot; -&gt; Just . toGVal . treeFileContents $ treefile
+</span><span class="def">     &quot;mode&quot; -&gt; Just . toGVal . drop 4 . show . treeFileMode $ treefile
+</span><span class="def">     &quot;mode_octal&quot; -&gt; Just . toGVal . modeToOctal . treeFileMode $ treefile
+</span></pre>@@ -209,10 +208,10 @@
+
+
+  <pre><span class="def">     _ -&gt; False
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-Get the name of a tree file path&apos;s HTML file.
+</span><span class="add">+Get the name of a tree file path&apos;s HTML file. Leading periods are dropped.
+</span><span class="def"> -}
+</span><span class="sub">-treePathToHref :: TreeFilePath -&gt; Text
+</span><span class="sub">-treePathToHref = flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; . decodeUtf8With lenientDecode
+</span><span class="add">+treePathToHref :: TreeFile -&gt; Text
+</span><span class="add">+treePathToHref = T.dropWhile (== &apos;.&apos;) . flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; . treeFilePath
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Data to store information about references: tags and branches.
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,14 +15,14 @@
+
+
+  <pre><span class="def"> import Control.Monad.Extra (ifM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="sub">-import Data.ByteString.UTF8 (toString)
+</span><span class="def"> import Data.Either (isRight)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, mapMaybe)
+</span><span class="def"> import Data.Tagged
+</span><span class="sub">-import Data.Text (Text, isPrefixOf, pack, strip, stripPrefix, toLower, unpack)
+</span><span class="sub">-import Data.Text.Encoding (decodeUtf8With)
+</span><span class="sub">-import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="add">+import Data.Text (Text)
+</span><span class="add">+import qualified Data.Text as T
+</span><span class="add">+import qualified Data.Text.Encoding as T
+</span><span class="add">+import qualified Data.Text.Encoding.Error as T
+</span><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (LgRepo, lgFactory)
+</span><span class="def"> import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
+</span></pre>@@ -76,9 +76,9 @@
+
+
+  <pre><span class="def">         )
+</span><span class="def">         &gt;&gt;= \case
+</span><span class="def">             Just file -&gt;
+</span><span class="sub">-                strip . pack &lt;$&gt; readFile file
+</span><span class="add">+                T.strip . T.pack &lt;$&gt; readFile file
+</span><span class="def">             Nothing -&gt;
+</span><span class="sub">-                return . pack . toFilePath . dirname $ dir
+</span><span class="add">+                return . T.pack . toFilePath . dirname $ dir
+</span><span class="def">   where
+</span><span class="def">     inTop = toFilePath dir FP.&lt;/&gt; &quot;description&quot;
+</span><span class="def">     inGit = toFilePath dir FP.&lt;/&gt; &quot;.git&quot; FP.&lt;/&gt; &quot;description&quot;
+</span></pre>@@ -151,10 +151,10 @@
+
+
+  <pre><span class="def">     HashMap.fromList
+</span><span class="def">         [ (&quot;host&quot;, toGVal . envHost $ env)
+</span><span class="def">         , (&quot;repositories&quot;, toGVal repos)
+</span><span class="sub">-        , (&quot;name&quot;, toGVal . pack . init . toFilePath $ name)
+</span><span class="add">+        , (&quot;name&quot;, toGVal . T.pack . init . toFilePath $ name)
+</span><span class="def">         , (&quot;description&quot;, toGVal description)
+</span><span class="def">         , (&quot;commits&quot;, toGVal commits)
+</span><span class="sub">-        , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . toString . treeFilePath) $ tree)
+</span><span class="add">+        , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
+</span><span class="def">         , (&quot;tree_recursive&quot;, toGVal tree)
+</span><span class="def">         , (&quot;tags&quot;, toGVal tags)
+</span><span class="def">         , (&quot;branches&quot;, toGVal branches)
+</span></pre>@@ -188,7 +188,7 @@
+
+
+  <pre><span class="def">     let entries&apos; = fmap (prependParent parent) entries
+</span><span class="def">     contents &lt;- mapM getEntryContents entries&apos;
+</span><span class="def">     modes &lt;- mapM (getEntryModes . snd) entries&apos;
+</span><span class="sub">-    return $ zipWith3 TreeFile (fmap fst entries&apos;) contents modes
+</span><span class="add">+    return $ zipWith3 TreeFile (fmap treePaths entries&apos;) contents modes
+</span><span class="def"> 
+</span><span class="def"> prependParent :: TreeFilePath -&gt; (TreeFilePath, TreeEntry LgRepo) -&gt; (TreeFilePath, TreeEntry LgRepo)
+</span><span class="def"> prependParent &quot;&quot; pathentry = pathentry
+</span></pre>@@ -197,13 +197,16 @@
+
+
+  <pre><span class="def"> getEntryContents :: (TreeFilePath, TreeEntry LgRepo) -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="def"> getEntryContents (_, BlobEntry oid _) = getBlobContents oid
+</span><span class="def"> getEntryContents (path, TreeEntry oid) = FolderContents &lt;$&gt; getTree&apos; path oid
+</span><span class="sub">-getEntryContents (_, CommitEntry oid) = return . FileContents . pack . show . untag $ oid
+</span><span class="add">+getEntryContents (_, CommitEntry oid) = return . FileContents . T.pack . show . untag $ oid
+</span><span class="def"> 
+</span><span class="def"> getEntryModes :: TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeEntryMode
+</span><span class="def"> getEntryModes (BlobEntry _ kind) = return . blobkindToMode $ kind
+</span><span class="def"> getEntryModes (TreeEntry _) = return ModeDirectory
+</span><span class="def"> getEntryModes (CommitEntry _) = return ModeSubmodule
+</span><span class="def"> 
+</span><span class="add">+treePaths :: (TreeFilePath, TreeEntry LgRepo) -&gt; Text
+</span><span class="add">+treePaths = T.decodeUtf8With T.lenientDecode . fst
+</span><span class="add">+
+</span><span class="def"> {-
+</span><span class="def"> Find a file in the tree starting with the specified prefix. The prefix is looked for on
+</span><span class="def"> the full path, so will only find files in the top level directory.
+</span></pre>@@ -212,7 +215,7 @@
+
+
+  <pre><span class="def"> findFile _ [] = Nothing
+</span><span class="def"> findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
+</span><span class="def">   where
+</span><span class="sub">-    isReadme = isPrefixOf prefix . toLower . decodeUtf8With lenientDecode . treeFilePath
+</span><span class="add">+    isReadme = T.isPrefixOf prefix . T.toLower . treeFilePath
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Collect information about references. TODO: Find a more canonical way to split
+</span></pre>@@ -220,12 +223,12 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> getRefs :: Text -&gt; ReaderT LgRepo IO [Ref]
+</span><span class="def"> getRefs ref = do
+</span><span class="sub">-    names &lt;- filter (isPrefixOf ref) &lt;$&gt; listReferences
+</span><span class="add">+    names &lt;- filter (T.isPrefixOf ref) &lt;$&gt; listReferences
+</span><span class="def">     maybeOids &lt;- mapM resolveReference names
+</span><span class="def">     let names&apos; = catMaybes . zipWith dropName maybeOids $ names
+</span><span class="def">     objs &lt;- mapM lookupObject . catMaybes $ maybeOids
+</span><span class="def">     maybeCommits &lt;- mapM refObjToCommit objs
+</span><span class="sub">-    let names&apos;&apos; = map (fromJust . stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names&apos;
+</span><span class="add">+    let names&apos;&apos; = map (fromJust . T.stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names&apos;
+</span><span class="def">     return . zipWith Ref names&apos;&apos; . catMaybes $ maybeCommits
+</span><span class="def">   where
+</span><span class="def">     refObjToCommit :: Object r (ReaderT LgRepo IO) -&gt; ReaderT LgRepo IO (Maybe (Commit r))
+</span></pre>@@ -268,7 +271,7 @@
+
+
+  <pre><span class="def">     category = const &quot;commit&quot;
+</span><span class="def"> 
+</span><span class="def"> instance Target TreeFile where
+</span><span class="sub">-    identify = unpack . treePathToHref . treeFilePath
+</span><span class="add">+    identify = T.unpack . treePathToHref
+</span><span class="def">     category = const &quot;file&quot;
+</span><span class="def"> 
+</span><span class="def"> genTarget ::
+</span></pre>@@ -287,5 +290,5 @@
+
+
+  <pre><span class="def">     exists &lt;- liftIO . doesFileExist $ output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="def">         liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
+</span><span class="sub">-        let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
+</span><span class="add">+        let scope&apos; = scope &lt;&gt; HashMap.fromList [(T.pack . category $ target, toGVal target)]
+</span><span class="def">         generate output&apos; scope&apos; template
+</span></pre></div>    </div>
   </body>
 </html>

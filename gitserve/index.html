@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -159,7 +159,7 @@ The resulting folder structure found in `output` will look like this (if
                 ...
         ...
 
-#### Static files
+### Static files
 
 Files in the template folder that do not end in &quot;.html&quot; or &quot;.include&quot; or are
 symbolic links, as well as directories that are not called &quot;repo&quot;, are
@@ -207,19 +207,6 @@ Here is the reference of attributes available on the variables that have them:
 |            | description      | The repository&apos;s description (see below).                |
 |            | head             | The current git commit.                                  |
 |            | updated          | The time when the current commit was committed.          |
-| commit     | id               | The SHA of the given commit.                             |
-|            | href             | The name of the HTML file for this commit.               |
-|            | title            | The commit message title.                                |
-|            | body             | The commit message body.                                 |
-|            | message          | The entire message, including both title and body.       |
-|            | author           | The commit author.                                       |
-|            | committer        | The committer.                                           |
-|            | author\_email    | The email address of the author.                         |
-|            | committer\_email | The email address of the committer.                      |
-|            | authored         | The timestamp from when it was written.                  |
-|            | committed        | The timestamp from when it was committed to this branch. |
-|            | encoding         | The commit encoding.                                     |
-|            | parent           | The SHA of the parent commit.                            |
 | file       | path             | The path the file relative to the repository root.       |
 |            | name             | The name of the file.                                    |
 |            | href             | The name of the HTML file for this file.                 |
@@ -233,6 +220,28 @@ Here is the reference of attributes available on the variables that have them:
 |            | tree\_recursive  | A list of *all* of a directory&apos;s contents.               |
 | ref        | name             | The tag or branch name.                                  |
 |            | commit           | The commit pointed to by the tag or branch.              |
+| commit     | id               | The SHA of the given commit.                             |
+|            | href             | The name of the HTML file for this commit.               |
+|            | title            | The commit message title.                                |
+|            | body             | The commit message body.                                 |
+|            | message          | The entire message, including both title and body.       |
+|            | diff             | The list of diff objects for this commit.                |
+|            | author           | The commit author.                                       |
+|            | committer        | The committer.                                           |
+|            | author\_email    | The email address of the author.                         |
+|            | committer\_email | The email address of the committer.                      |
+|            | authored         | The timestamp from when it was written.                  |
+|            | committed        | The timestamp from when it was committed to this branch. |
+|            | encoding         | The commit encoding.                                     |
+|            | parent           | The SHA of the parent commit.                            |
+| diff       | new\_file        | The name of the file after the diff.                     |
+|            | old\_file        | The name of the file before the diff.                    |
+|            | status           | The type of the change (see below).                      |
+|            | hunks            | The list of modified hunks for this file.                |
+| hunk       | header           | The hunk&apos;s header e.g. &quot;@@ -2,44 +2,22 @@&quot;.              |
+|            | lines            | The list of lines  that form this hunk.                  |
+| line       | text             | The line, possibly prefixed by `+` or `-`.               |
+|            | class            | `&quot;add&quot;`, `&quot;sub&quot;` or `&quot;def&quot;` -- useful for CSS.           |
 
 Note:
 
@@ -240,7 +249,23 @@ Note:
   `branches[0].commit.parent` will work as expected.
 - &quot;file&quot; includes directories and symbolic links.
 
-#### Descriptions
+### Diffs
+
+Each commit has a corresponding list of diffs. Each diff corresponds to the
+changes made to a single file. A diff&apos;s `new_file` and `old_file` will differ
+only if the file was renamed. The `status` can be one of: Unmodified, Added,
+Deleted, Modified, Renamed, Copied, Ignored, Untracked, TypeChange.
+
+A diff contains a series of &apos;hunks&apos; that represent contiguous blocks of text
+within the file that were modified in some way. Each has a header that
+indicates where the hunk is in the file. The hunks each also expose a list of
+_lines_, each of which exposes the text content of that line, as well as a
+&apos;class&apos;. The class is a convenience attribute that can be used to set the CSS
+class of the line without needing to parse the line text from within a template
+file. This makes it easier to style additions and subtractions from other (def
+for default) lines.
+
+### Descriptions
 
 Each repository can have a description that is available in the templates. This
 is how the description for a given respository is determined:

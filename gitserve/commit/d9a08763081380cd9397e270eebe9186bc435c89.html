@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,35 @@
 <b>Committed:</b> 2021-09-22 12:59:31 +0100
 
 Add some descriptions for ginger variables
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -50,10 +50,19 @@
+
+
+  <pre><span class="def">     case ref of
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="sub">-            description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="def">             let head = Tagged commitID
+</span><span class="add">+            -- Variables available in the ginger templates --
+</span><span class="add">+
+</span><span class="add">+            -- description: The description of the repository from repo/description, if
+</span><span class="add">+            -- it exists
+</span><span class="add">+            description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="add">+
+</span><span class="add">+            -- commits: A list of `Git.Commit` objects to HEAD.
+</span><span class="def">             commits &lt;- getCommits head
+</span><span class="add">+
+</span><span class="add">+            -- tree: A list of `(TreeFilePath, TreeEntry r)` objects at HEAD.
+</span><span class="def">             tree &lt;- getTree head
+</span><span class="add">+
+</span><span class="def">             return ()
+</span><span class="def">   where
+</span><span class="def">     name = takeFileName path
+</span></pre></div>    </div>
   </body>
 </html>

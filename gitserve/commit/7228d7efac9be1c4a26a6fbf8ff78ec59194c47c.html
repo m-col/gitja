@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,199 @@
 <b>Committed:</b> 2021-11-25 19:46:01 +0000
 
 Add hacky tests
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/test.sh</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,54 @@
+
+
+  <pre><span class="add">+#!/usr/bin/env bash
+</span><span class="add">+: &apos;
+</span><span class="add">+
+</span><span class="add">+Testing gitserve
+</span><span class="add">+================
+</span><span class="add">+
+</span><span class="add">+Running `make test` or `./test/test.sh` from the root project folder will run
+</span><span class="add">+this script, which tests gitserve.
+</span><span class="add">+
+</span><span class="add">+Beside this file is the config file that gitserve uses. It runs using the
+</span><span class="add">+templates in this folder and outputs into this folder. Then the output is
+</span><span class="add">+compared with expected results.
+</span><span class="add">+
+</span><span class="add">+Hopefully this will do until a &quot;proper&quot; test setup is needed.
+</span><span class="add">+
+</span><span class="add">+&apos;
+</span><span class="add">+
+</span><span class="add">+if [[ $(basename &quot;$PWD&quot;) != gitserve ]]
+</span><span class="add">+then
+</span><span class="add">+    echo &quot;The test script should be run from the gitserve root project folder.&quot;
+</span><span class="add">+    exit 1
+</span><span class="add">+fi
+</span><span class="add">+
+</span><span class="add">+rm -rf test/output
+</span><span class="add">+stack run -- -c test/config.dhall
+</span><span class="add">+
+</span><span class="add">+let error=0
+</span><span class="add">+
+</span><span class="add">+error() {
+</span><span class="add">+    echo Failed: $1
+</span><span class="add">+    echo Expected: $2
+</span><span class="add">+    echo But got: $3
+</span><span class="add">+
+</span><span class="add">+    let error+=1
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+commit_file=&quot;test/output/gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html&quot;
+</span><span class="add">+commit_result=&quot;$(cat $commit_file)&quot;
+</span><span class="add">+commit_expected=&quot;0292014748caae952bbc8dd6225680d83c0a5135&quot;
+</span><span class="add">+
+</span><span class="add">+[[ &quot;$commit_result&quot; != &quot;$commit_expected&quot; ]] || {
+</span><span class="add">+    error &quot;$commit_file&quot; &quot;$commit_expected&quot; &quot;$commit_result&quot;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+case &quot;$error&quot; in
+</span><span class="add">+    0)
+</span><span class="add">+	echo &quot;All good!&quot;
+</span><span class="add">+	exit 0
+</span><span class="add">+	;;
+</span><span class="add">+    *)
+</span><span class="add">+	echo &quot;Had this many errors: $error&quot;
+</span><span class="add">+	exit $error
+</span><span class="add">+	;;
+</span><span class="add">+esac
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/title.html.include</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,4 @@
+
+
+  <pre><span class="add">+{#- This tests using include files. -#}
+</span><span class="add">+{#- This file should not appear in the outputfolder. -#}
+</span><span class="add">+
+</span><span class="add">+{% block title %}{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/style.css</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1 @@
+
+
+  <pre><span class="add">+👄
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/repo/index.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,6 @@
+
+
+  <pre><span class="add">+{% extends &quot;../title.html.include&quot; -%}
+</span><span class="add">+{%- block title -%}{{ repo.name }}{%- endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block body %}
+</span><span class="add">+repository
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/repo/file.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,6 @@
+
+
+  <pre><span class="add">+{% extends &quot;../title.html.include&quot; -%}
+</span><span class="add">+{%- block title -%}{{ file.path }}{%- endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block body %}
+</span><span class="add">+file
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/repo/commit.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,6 @@
+
+
+  <pre><span class="add">+{% extends &quot;../title.html.include&quot; -%}
+</span><span class="add">+{%- block title -%}{{ commit.id }}{%- endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block body %}
+</span><span class="add">+commit
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/index.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,6 @@
+
+
+  <pre><span class="add">+{% extends &quot;title.html.include&quot; %}
+</span><span class="add">+{%- block title -%}{{ host }}{%- endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block body %}
+</span><span class="add">+index
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/config.dhall</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,8 @@
+
+
+  <pre><span class="add">+let config =
+</span><span class="add">+    { repoPaths = [&quot;.&quot;]
+</span><span class="add">+    , templateDirectory = &quot;./test/templates&quot;
+</span><span class="add">+    , outputDirectory = &quot;./test/output&quot;
+</span><span class="add">+    , host = &quot;https://github.com/m-col/gitserve&quot;
+</span><span class="add">+    }
+</span><span class="add">+
+</span><span class="add">+in config
+</span></pre></div><div class="diff">
+  <p>
+    <b>Makefile</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -33,3 +33,7 @@
+
+
+  <pre><span class="def"> run: ## Run gitserve on this repository into ./output/
+</span><span class="def"> 	rm -rf output
+</span><span class="def"> 	stack run
+</span><span class="add">+
+</span><span class="add">+.PHONY: test
+</span><span class="add">+test: ## Run the &quot;tests&quot;
+</span><span class="add">+	bash ./test/test.sh
+</span></pre></div><div class="diff">
+  <p>
+    <b>.gitignore</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,4 +1,5 @@
+
+
+  <pre><span class="def"> .stack-work/
+</span><span class="def"> *~
+</span><span class="def"> output
+</span><span class="add">+test/output
+</span><span class="def"> dist-newstyle
+</span></pre></div>    </div>
   </body>
 </html>

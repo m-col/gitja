@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,34 @@
 <b>Committed:</b> 2021-10-04 11:45:36 +0100
 
 Use Text qualified name for some non-descript functions
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -17,7 +17,7 @@
+
+
+  <pre><span class="def"> import Data.Default (def)
+</span><span class="def"> import Data.Either (fromRight)
+</span><span class="def"> import Data.Tagged
+</span><span class="sub">-import Data.Text (pack, unpack, Text, strip, takeWhile, replace, append)
+</span><span class="add">+import Data.Text (pack, unpack, Text, strip)
+</span><span class="def"> import Data.Text.Encoding (decodeUtf8With)
+</span><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span><span class="def"> import Data.Maybe (mapMaybe)
+</span></pre>@@ -188,7 +188,7 @@
+
+
+  <pre><span class="def"> Get the name of a tree file path&apos;s HTML file.
+</span><span class="def"> -}
+</span><span class="def"> treePathToHref :: TreeFilePath -&gt; Text
+</span><span class="sub">-treePathToHref = flip append &quot;.html&quot; . replace &quot;/&quot; &quot;.&quot; .  decodeUtf8With lenientDecode
+</span><span class="add">+treePathToHref = flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; .  decodeUtf8With lenientDecode
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre></div>    </div>
   </body>
 </html>

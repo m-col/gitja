@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,132 @@
 <b>Committed:</b> 2021-09-24 20:50:34 +0100
 
 Add indexTemplate setting and load it as a template
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,6 +4,7 @@
+
+
+  <pre><span class="def">     Template,
+</span><span class="def">     templateGinger,
+</span><span class="def">     loadTemplates,
+</span><span class="add">+    loadIndexTemplate,
+</span><span class="def">     generate,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span></pre>@@ -22,7 +23,7 @@
+
+
+  <pre><span class="def"> import Text.Ginger.Html (htmlSource, Html)
+</span><span class="def"> import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
+</span><span class="def"> 
+</span><span class="sub">-import Config (Config, templateDirectory)
+</span><span class="add">+import Config (Config, templateDirectory, indexTemplate)
+</span><span class="def"> 
+</span><span class="def"> data Template = Template
+</span><span class="def">     { templatePath :: FilePath
+</span></pre>@@ -30,8 +31,9 @@
+
+
+  <pre><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-This is the main function of this module, which takes the session&apos;s `Config` and returns
+</span><span class="sub">-the set of available templates loaded from files found in the template directory.
+</span><span class="add">+This takes the session&apos;s `Config` and returns the set of available templates loaded from
+</span><span class="add">+files found in the template directory, excluding the index template if it is in the same
+</span><span class="add">+directory.
+</span><span class="def"> -}
+</span><span class="def"> loadTemplates :: Config -&gt; IO [Template]
+</span><span class="def"> loadTemplates config = do
+</span></pre>@@ -39,6 +41,19 @@
+
+
+  <pre><span class="def">     parsed &lt;- sequence $ parseGingerFile includeResolver &lt;$&gt; files
+</span><span class="def">     return $ Template &lt;$&gt; files &lt;*&gt; rights parsed
+</span><span class="def"> 
+</span><span class="add">+{-
+</span><span class="add">+This takes the session&apos;s `Config` and maybe returns a loaded template for the
+</span><span class="add">+``indexTemplate`` setting.
+</span><span class="add">+-}
+</span><span class="add">+loadIndexTemplate :: Config -&gt; IO (Maybe Template)
+</span><span class="add">+loadIndexTemplate config = parseGingerFile includeResolver file &gt;&gt;= \case
+</span><span class="add">+    Right parsed -&gt; return . Just . Template file $ parsed
+</span><span class="add">+    Left err -&gt; do
+</span><span class="add">+        print err
+</span><span class="add">+        return Nothing
+</span><span class="add">+  where
+</span><span class="add">+    file = indexTemplate config
+</span><span class="add">+
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -6,10 +6,11 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Config (getConfig)
+</span><span class="def"> import Repositories (run)
+</span><span class="sub">-import Templates (loadTemplates)
+</span><span class="add">+import Templates (loadTemplates, loadIndexTemplate)
+</span><span class="def"> 
+</span><span class="def"> main :: IO ()
+</span><span class="def"> main = do
+</span><span class="def">     config &lt;- getConfig &quot;./config.dhall&quot;
+</span><span class="def">     templates &lt;- loadTemplates config
+</span><span class="add">+    index &lt;- loadIndexTemplate config
+</span><span class="def">     run config templates
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -5,6 +5,7 @@
+
+
+  <pre><span class="def">     Config,
+</span><span class="def">     repoPaths,
+</span><span class="def">     templateDirectory,
+</span><span class="add">+    indexTemplate,
+</span><span class="def">     getConfig,
+</span><span class="def">     outputDirectory,
+</span><span class="def">     host
+</span></pre>@@ -15,6 +16,7 @@
+
+
+  <pre><span class="def"> data Config = Config
+</span><span class="def">     { repoPaths :: [FilePath]
+</span><span class="def">     , templateDirectory :: FilePath
+</span><span class="add">+    , indexTemplate :: FilePath
+</span><span class="def">     , outputDirectory :: FilePath
+</span><span class="def">     , host :: Text
+</span><span class="def">     }
+</span></pre></div><div class="diff">
+  <p>
+    <b>config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,6 +13,7 @@
+
+
+  <pre><span class="def"> let config =
+</span><span class="def">     { repoPaths = folders
+</span><span class="def">     , templateDirectory = &quot;./templates&quot;
+</span><span class="add">+    , indexTemplate = &quot;./templates/main_index.html&quot;
+</span><span class="def">     , outputDirectory = &quot;./output&quot;
+</span><span class="def">     , host = &quot;http://localhost&quot;
+</span><span class="def">     }
+</span></pre></div>    </div>
   </body>
 </html>

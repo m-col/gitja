@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,77 @@
 <b>Committed:</b> 2021-12-05 00:25:25 +0300
 
 Skip outputting files if an output file exists for HEAD
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -104,32 +104,39 @@
+
+
+  <pre><span class="def">         Just commitID -&gt; do
+</span><span class="def">             let gitHead = Tagged commitID
+</span><span class="def"> 
+</span><span class="sub">-            -- Collect variables available in the ginger templates --
+</span><span class="sub">-            commits &lt;- getCommits gitHead
+</span><span class="sub">-            tree &lt;- getTree gitHead
+</span><span class="sub">-            tags &lt;- getRefs &quot;refs/tags/&quot;
+</span><span class="sub">-            branches &lt;- getRefs &quot;refs/heads/&quot;
+</span><span class="sub">-            let scope = package env repos name (repositoryDescription repo) commits tree tags branches
+</span><span class="sub">-
+</span><span class="sub">-            -- Create the destination folders --
+</span><span class="sub">-            commitDir &lt;- liftIO . parseRelDir $ &quot;commit&quot;
+</span><span class="sub">-            fileDir &lt;- liftIO . parseRelDir $ &quot;file&quot;
+</span><span class="sub">-            liftIO . ensureDir $ output &lt;/&gt; commitDir
+</span><span class="sub">-            liftIO . ensureDir $ output &lt;/&gt; fileDir
+</span><span class="sub">-
+</span><span class="sub">-            -- Run the generator --
+</span><span class="sub">-            let quiet = envQuiet env
+</span><span class="sub">-            let force = envForce env
+</span><span class="sub">-            mapM_ (genRepo output scope) $ envRepoTemplates env
+</span><span class="sub">-            mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
+</span><span class="sub">-            mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
+</span><span class="sub">-
+</span><span class="sub">-            -- Copy any static files/folders into the output folder --
+</span><span class="sub">-            liftIO . envRepoCopyStatics env $ output
+</span><span class="add">+            -- If a page exists for the head commit, don&apos;t do anything else --
+</span><span class="add">+            exists &lt;-
+</span><span class="add">+                liftIO . D.doesFileExist $
+</span><span class="add">+                    toFilePath output FP.&lt;/&gt; &quot;commit&quot; FP.&lt;/&gt; show commitID &lt;&gt; &quot;.html&quot;
+</span><span class="add">+
+</span><span class="add">+            unless exists $ do
+</span><span class="add">+                -- Collect variables available to the ginger templates --
+</span><span class="add">+                commits &lt;- getCommits gitHead
+</span><span class="add">+                tree &lt;- getTree gitHead
+</span><span class="add">+                tags &lt;- getRefs &quot;refs/tags/&quot;
+</span><span class="add">+                branches &lt;- getRefs &quot;refs/heads/&quot;
+</span><span class="add">+                let scope = package env repos name (repositoryDescription repo) commits tree tags branches
+</span><span class="add">+
+</span><span class="add">+                -- Create the destination folders --
+</span><span class="add">+                commitDir &lt;- liftIO . parseRelDir $ &quot;commit&quot;
+</span><span class="add">+                fileDir &lt;- liftIO . parseRelDir $ &quot;file&quot;
+</span><span class="add">+                liftIO . ensureDir $ output &lt;/&gt; commitDir
+</span><span class="add">+                liftIO . ensureDir $ output &lt;/&gt; fileDir
+</span><span class="add">+
+</span><span class="add">+                -- Run the generator --
+</span><span class="add">+                let quiet = envQuiet env
+</span><span class="add">+                let force = envForce env
+</span><span class="add">+                mapM_ (genRepo output scope) $ envRepoTemplates env
+</span><span class="add">+                mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
+</span><span class="add">+                mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
+</span><span class="add">+
+</span><span class="add">+                -- Copy any static files/folders into the output folder --
+</span><span class="add">+                liftIO . envRepoCopyStatics env $ output
+</span><span class="def"> 
+</span><span class="def">             -- Return the repo with the head so the index page can use it. --
+</span><span class="add">+            repoHead &lt;- lookupCommit gitHead -- Do this in case the block above is skipped.
+</span><span class="def">             return
+</span><span class="sub">-                repo{repositoryHead = Just . head $ commits}
+</span><span class="add">+                repo{repositoryHead = Just repoHead}
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The role of the function above is to gather information about a git repository and
+</span></pre></div>    </div>
   </body>
 </html>

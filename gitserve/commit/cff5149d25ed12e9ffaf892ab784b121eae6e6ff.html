@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-09-23 21:55:46 +0100
 
 hlint some brackets
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -58,7 +58,7 @@
+
+
+  <pre><span class="def"> HTML/CSS/JS files.
+</span><span class="def"> -}
+</span><span class="def"> isTemplate :: FilePath -&gt; IO Bool
+</span><span class="sub">-isTemplate path = ((&amp;&amp;) $ isTemplate&apos; path) &lt;$&gt; (doesFileExist path)
+</span><span class="add">+isTemplate path = (&amp;&amp;) (isTemplate&apos; path) &lt;$&gt; doesFileExist path
+</span><span class="def">   where
+</span><span class="def">     p = map toLower path
+</span><span class="def">     isTemplate&apos; :: FilePath -&gt; Bool
+</span></pre></div>    </div>
   </body>
 </html>

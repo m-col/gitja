@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,199 @@
 <b>Committed:</b> 2021-09-18 17:49:44 +0100
 
 Add Templates module to deal with templating
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/log.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,18 @@
+
+
+  <pre><span class="add">+&lt;!doctype html&gt;
+</span><span class="add">+&lt;html lang=&quot;en&quot;&gt;
+</span><span class="add">+	&lt;head&gt;
+</span><span class="add">+		&lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="add">+		&lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="add">+		&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="add">+		&lt;title&gt;gitserve - {{ title }}&lt;/title&gt;
+</span><span class="add">+		&lt;link rel=&quot;stylesheet&quot; href=&quot;{{ host }}/style.css&quot; /&gt;
+</span><span class="add">+	&lt;/head&gt;
+</span><span class="add">+
+</span><span class="add">+	&lt;body&gt;
+</span><span class="add">+		&lt;p&gt;{{ title }}&lt;/p&gt;
+</span><span class="add">+		&lt;hr&gt;
+</span><span class="add">+		&lt;p&gt;{{ description }}&lt;/p&gt;
+</span><span class="add">+		&lt;p&gt;git clone {{ host }}{{ path }}&lt;/p&gt;
+</span><span class="add">+		{{ title }}
+</span><span class="add">+	&lt;/body&gt;
+</span><span class="add">+&lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,49 @@
+
+
+  <pre><span class="add">+module Templates (
+</span><span class="add">+    Template,
+</span><span class="add">+    templatePath,
+</span><span class="add">+    templateContents,
+</span><span class="add">+    loadTemplates,
+</span><span class="add">+) where
+</span><span class="add">+
+</span><span class="add">+import Control.Monad (filterM, (&lt;=&lt;))
+</span><span class="add">+import Data.Char (toLower)
+</span><span class="add">+import Data.List (isSuffixOf)
+</span><span class="add">+import System.Directory (doesFileExist, getDirectoryContents)
+</span><span class="add">+import System.FilePath ((&lt;/&gt;), FilePath)
+</span><span class="add">+import System.IO.Error (tryIOError)
+</span><span class="add">+
+</span><span class="add">+import Config (Config, templateDirectory)
+</span><span class="add">+
+</span><span class="add">+data Template = Template
+</span><span class="add">+    { templatePath :: FilePath
+</span><span class="add">+    , templateContents :: String
+</span><span class="add">+    }
+</span><span class="add">+
+</span><span class="add">+--tryLoad :: FilePath -&gt; IO (Maybe String)
+</span><span class="add">+--tryLoad path = do
+</span><span class="add">+--    e &lt;- tryIOError $ readFile path
+</span><span class="add">+--    case e of
+</span><span class="add">+--        Right contents -&gt;
+</span><span class="add">+--            return $ Just contents
+</span><span class="add">+--        Left error -&gt; do
+</span><span class="add">+--            print error
+</span><span class="add">+--            return Nothing
+</span><span class="add">+
+</span><span class="add">+loadTemplate :: FilePath -&gt; IO Template
+</span><span class="add">+loadTemplate path = do
+</span><span class="add">+    contents &lt;- readFile path
+</span><span class="add">+    return $ Template path contents
+</span><span class="add">+
+</span><span class="add">+isTemplate :: FilePath -&gt; IO Bool
+</span><span class="add">+isTemplate path = ((&amp;&amp;) $ isTemplate&apos; path) &lt;$&gt; (doesFileExist path)
+</span><span class="add">+
+</span><span class="add">+isTemplate&apos; :: FilePath -&gt; Bool
+</span><span class="add">+isTemplate&apos; path = isSuffixOf &quot;html&quot; p || isSuffixOf &quot;css&quot; p || isSuffixOf &quot;js&quot; p
+</span><span class="add">+  where
+</span><span class="add">+    p = map toLower path
+</span><span class="add">+
+</span><span class="add">+listTemplates :: FilePath -&gt; IO [FilePath]
+</span><span class="add">+listTemplates directory = fmap (directory &lt;/&gt;) &lt;$&gt; getDirectoryContents directory
+</span><span class="add">+
+</span><span class="add">+loadTemplates :: Config -&gt; IO [FilePath]
+</span><span class="add">+loadTemplates = filterM isTemplate &lt;=&lt; listTemplates . templateDirectory
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -31,3 +31,10 @@
+
+
+  <pre><span class="def">             headCommit &lt;- lookupCommit (Tagged commitID)
+</span><span class="def">             liftIO $ print $ commitLog headCommit
+</span><span class="def">         _ -&gt; liftIO (print &quot;Couldn&apos;t resolve HEAD&quot;)
+</span><span class="add">+
+</span><span class="add">+
+</span><span class="add">+-- Variables:
+</span><span class="add">+title = &quot;gitserve&quot;
+</span><span class="add">+description = &quot;&quot;
+</span><span class="add">+host = &quot;http://localhost&quot;
+</span><span class="add">+path = &quot;&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,6 +3,11 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Config (getConfig)
+</span><span class="def"> import Repositories (run)
+</span><span class="add">+import Templates (loadTemplates)
+</span><span class="def"> 
+</span><span class="def"> main :: IO ()
+</span><span class="sub">-main = getConfig &quot;./config.dhall&quot; &gt;&gt;= run
+</span><span class="add">+main = do
+</span><span class="add">+    config &lt;- getConfig &quot;./config.dhall&quot;
+</span><span class="add">+    templates &lt;- loadTemplates config
+</span><span class="add">+    --run config templates
+</span><span class="add">+    return ()
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,6 +3,8 @@
+
+
+  <pre><span class="def"> module Config (
+</span><span class="def">     Config,
+</span><span class="def">     repoPaths,
+</span><span class="add">+    templateDirectory,
+</span><span class="add">+    outputDirectory,
+</span><span class="def">     getConfig
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span></pre>@@ -10,6 +12,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> data Config = Config
+</span><span class="def">     { repoPaths :: [FilePath]
+</span><span class="add">+    , templateDirectory :: FilePath
+</span><span class="def">     , outputDirectory :: FilePath
+</span><span class="def">     }
+</span><span class="def">     deriving (Generic, Show)
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -16,10 +16,14 @@
+
+
+  <pre><span class="def"> executable gitserve
+</span><span class="def">   hs-source-dirs:      src
+</span><span class="def">   main-is:             Main.hs
+</span><span class="sub">-  other-modules:       Config, Repositories
+</span><span class="add">+  other-modules:       Config, Repositories, Templates
+</span><span class="def">   default-language:    Haskell2010
+</span><span class="def">   build-depends:       base &gt;= 4.7 &amp;&amp; &lt; 5
+</span><span class="add">+                     , dhall
+</span><span class="add">+                     , directory
+</span><span class="add">+                     , filepath
+</span><span class="add">+                     , ginger
+</span><span class="def">                      , gitlib
+</span><span class="def">                      , gitlib-libgit2
+</span><span class="def">                      , tagged
+</span><span class="sub">-                     , dhall
+</span><span class="add">+                     , text
+</span></pre></div><div class="diff">
+  <p>
+    <b>config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -12,6 +12,7 @@
+
+
+  <pre><span class="def"> -- This is the configuration object that is used by gitserve
+</span><span class="def"> let config =
+</span><span class="def">     { repoPaths = folders
+</span><span class="add">+    , templateDirectory = &quot;./templates&quot;
+</span><span class="def">     , outputDirectory = &quot;./output&quot;
+</span><span class="def">     }
+</span><span class="def"> 
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,45 @@
 <b>Committed:</b> 2021-09-22 00:09:00 +0100
 
 Split ReaderT monads out into sub functions
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -50,11 +50,10 @@
+
+
+  <pre><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="def">             description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="sub">-            headc &lt;- lookupCommit $ Tagged commitID
+</span><span class="sub">-            obj &lt;- runConduit $ sourceObjects Nothing (Tagged commitID) False .| sinkList
+</span><span class="add">+            obj &lt;- getCommits $ Tagged commitID
+</span><span class="def">             --a &lt;- loadObject . head $ obj
+</span><span class="def">             --liftIO . print . loadObject &lt;$&gt; obj
+</span><span class="sub">-            nodes &lt;- lookupTree (commitTree headc) &gt;&gt;= listTreeEntries
+</span><span class="add">+            tree &lt;- getTree $ Tagged commitID
+</span><span class="def">             return ()
+</span><span class="def">   where
+</span><span class="def">     name = takeFileName path
+</span></pre>@@ -62,6 +61,14 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
+</span><span class="def"> 
+</span><span class="add">+getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [ObjectOid LgRepo]
+</span><span class="add">+getCommits commitID = runConduit $ sourceObjects Nothing commitID False .| sinkList
+</span><span class="add">+
+</span><span class="add">+getTree :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [(TreeFilePath, TreeEntry LgRepo)]
+</span><span class="add">+getTree commitID = do
+</span><span class="add">+    headc &lt;- lookupCommit commitID
+</span><span class="add">+    lookupTree (commitTree headc) &gt;&gt;= listTreeEntries
+</span><span class="add">+
+</span><span class="def"> getDescription :: FilePath -&gt; IO String
+</span><span class="def"> getDescription path = tryIOError (readFile path) &gt;&gt;= \e -&gt;
+</span><span class="def">     case e of
+</span></pre></div>    </div>
   </body>
 </html>

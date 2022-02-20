@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,23 @@
 <b>Committed:</b> 2021-11-26 00:21:40 +0000
 
 remove redundant import
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -16,7 +16,7 @@
+
+
+  <pre><span class="def"> import Data.Maybe (catMaybes)
+</span><span class="def"> import Data.Text (Text, unpack)
+</span><span class="def"> import Git.Libgit2 (LgRepo)
+</span><span class="sub">-import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (&lt;/&gt;), dirname)
+</span><span class="add">+import Path (Abs, Dir, File, Path, Rel, dirname, filename, parseAbsDir, toFilePath, (&lt;/&gt;))
+</span><span class="def"> import Path.IO (copyDirRecur, copyFile, doesDirExist, ensureDir, listDir)
+</span><span class="def"> import System.Directory (canonicalizePath)
+</span><span class="def"> import qualified System.FilePath as FP
+</span></pre></div>    </div>
   </body>
 </html>

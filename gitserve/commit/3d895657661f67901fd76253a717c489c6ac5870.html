@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,44 @@
 <b>Committed:</b> 2021-11-26 01:51:12 +0000
 
 Add test for index scope
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>test/templates/index.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,5 +1,10 @@
+
+
+  <pre><span class="def"> {% extends &quot;title.html.include&quot; %}
+</span><span class="def"> {%- block title -%}{{ host }}{%- endblock -%}
+</span><span class="def"> {% block body %}
+</span><span class="sub">-{{ repositories }}
+</span><span class="add">+scope: index
+</span><span class="add">+host: {{ host }}
+</span><span class="add">+repositories: {{ repositories }}
+</span><span class="add">+    repositories[0]: {{ repositories[0] }}
+</span><span class="add">+    repositories[0].name: {{ repositories[0].name }}
+</span><span class="add">+    repositories[0].description: {{ repositories[0].description }}
+</span><span class="def"> {% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/index.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,2 +1,8 @@
+
+
+  <pre><span class="def"> https://github.com/m-col/gitserve
+</span><span class="sub">-gitserve
+</span><span class="add">+scope: index
+</span><span class="add">+host: https://github.com/m-col/gitserve
+</span><span class="add">+repositories: gitserve
+</span><span class="add">+    repositories[0]: gitserve
+</span><span class="add">+    repositories[0].name: gitserve
+</span><span class="add">+    repositories[0].description: 🐙 Templated web page generator for your git repositories
+</span><span class="add">+
+</span></pre></div>    </div>
   </body>
 </html>

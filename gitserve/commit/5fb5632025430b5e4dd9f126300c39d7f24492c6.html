@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,25 @@
 <b>Committed:</b> 2021-09-24 10:18:15 +0100
 
 lint long type signature
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -86,6 +86,8 @@
+
+
+  <pre><span class="def"> This is the generator function that receives repository-specific variables and uses
+</span><span class="def"> Ginger to render templates using them.
+</span><span class="def"> -}
+</span><span class="sub">-generate :: HashMap.HashMap Text Text -&gt; Template -&gt;
+</span><span class="sub">-    IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
+</span><span class="add">+generate
+</span><span class="add">+    :: HashMap.HashMap Text Text
+</span><span class="add">+    -&gt; Template
+</span><span class="add">+    -&gt; IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
+</span><span class="def"> generate context template = easyRenderM writeTo context (templateGinger template)
+</span></pre></div>    </div>
   </body>
 </html>

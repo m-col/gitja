@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,43 @@
 <b>Committed:</b> 2021-09-24 23:42:47 +0100
 
 Package tree data into type
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -87,7 +87,7 @@
+
+
+  <pre><span class="def">     -&gt; FilePath
+</span><span class="def">     -&gt; Text
+</span><span class="def">     -&gt; [Commit LgRepo]
+</span><span class="sub">-    -&gt; [(TreeFilePath, TreeEntry r)]
+</span><span class="add">+    -&gt; [TreeFile]
+</span><span class="def">     -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="def"> package config name description commits tree = HashMap.fromList
+</span><span class="def">     [ (&quot;host&quot;, toGVal $ host config)
+</span></pre>@@ -106,8 +106,15 @@
+
+
+  <pre><span class="def"> loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
+</span><span class="def"> loadCommit _ = Nothing
+</span><span class="def"> 
+</span><span class="sub">-getTree :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [(TreeFilePath, TreeEntry LgRepo)]
+</span><span class="sub">-getTree commitID = lookupCommit commitID &gt;&gt;= lookupTree . commitTree &gt;&gt;= listTreeEntries
+</span><span class="add">+data TreeFile = TreeFile
+</span><span class="add">+    { treeFilePath :: TreeFilePath
+</span><span class="add">+    , treeEntry :: TreeEntry LgRepo
+</span><span class="add">+    }
+</span><span class="add">+
+</span><span class="add">+getTree :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="add">+getTree commitID = do
+</span><span class="add">+    entries &lt;- listTreeEntries =&lt;&lt; lookupTree . commitTree =&lt;&lt; lookupCommit commitID
+</span><span class="add">+    return $ uncurry TreeFile &lt;$&gt; entries
+</span><span class="def"> 
+</span><span class="def"> getDescription :: FilePath -&gt; IO Text
+</span><span class="def"> getDescription path = fromRight &quot;&quot; &lt;$&gt; tryIOError (pack &lt;$&gt; readFile path)
+</span></pre></div>    </div>
   </body>
 </html>

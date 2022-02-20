@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,52 @@
 <b>Committed:</b> 2021-09-24 23:49:47 +0100
 
 Add example tree template accessing files in the tree
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/tree.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,20 @@
+
+
+  <pre><span class="add">+&lt;!doctype html&gt;
+</span><span class="add">+&lt;html lang=&quot;en&quot;&gt;
+</span><span class="add">+  &lt;head&gt;
+</span><span class="add">+    &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="add">+    &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="add">+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="add">+    &lt;title&gt;{{ name }} -- tree&lt;/title&gt;
+</span><span class="add">+    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="add">+  &lt;/head&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;body&gt;
+</span><span class="add">+    &lt;p&gt;{{- name }}&lt;/p&gt;
+</span><span class="add">+    &lt;hr&gt;
+</span><span class="add">+    &lt;p&gt;{{- description }}&lt;/p&gt;
+</span><span class="add">+    &lt;p&gt;git clone {{ host }}/{{- name }}&lt;/p&gt;
+</span><span class="add">+    {% for file in tree %}
+</span><span class="add">+    &lt;p&gt;{{- file.path }}&lt;/p&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+  &lt;/body&gt;
+</span><span class="add">+&lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/log.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,7 +4,7 @@
+
+
+  <pre><span class="def">     &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="def">     &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="def">     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-    &lt;title&gt;gitserve -- {{ name }}&lt;/title&gt;
+</span><span class="add">+    &lt;title&gt;{{ name }} -- log&lt;/title&gt;
+</span><span class="def">     &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="def">   &lt;/head&gt;
+</span><span class="def"> 
+</span></pre></div>    </div>
   </body>
 </html>

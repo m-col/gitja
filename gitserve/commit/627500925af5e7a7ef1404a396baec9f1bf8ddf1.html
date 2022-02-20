@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -42,7 +42,64 @@
 <b>Committed:</b> 2021-11-25 21:00:45 +0000
 
 rewrite github action with stack + caching + test
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>.github/workflows/haskell.yml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,4 +1,4 @@
+
+
+  <pre><span class="sub">-name: Haskell CI
+</span><span class="add">+name: CI
+</span><span class="def"> 
+</span><span class="def"> on:
+</span><span class="def">   push:
+</span></pre>@@ -12,29 +12,19 @@
+
+
+  <pre><span class="def">     runs-on: ubuntu-latest
+</span><span class="def"> 
+</span><span class="def">     steps:
+</span><span class="sub">-    - uses: actions/checkout@v2
+</span><span class="sub">-    - uses: actions/setup-haskell@v1
+</span><span class="sub">-      with:
+</span><span class="sub">-        ghc-version: &apos;8.10.3&apos;
+</span><span class="sub">-        cabal-version: &apos;3.2&apos;
+</span><span class="sub">-
+</span><span class="sub">-    - name: Cache
+</span><span class="sub">-      uses: actions/cache@v1
+</span><span class="add">+    - uses: actions/checkout@v1
+</span><span class="add">+    - uses: mstksg/setup-stack@v2
+</span><span class="add">+    - uses: actions/cache@v1
+</span><span class="def">       env:
+</span><span class="sub">-        cache-name: cache-cabal
+</span><span class="add">+        cache-name: cache-stack-modules
+</span><span class="def">       with:
+</span><span class="sub">-        path: ~/.cabal
+</span><span class="sub">-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles(&apos;**/*.cabal&apos;) }}-${{ hashFiles(&apos;**/cabal.project&apos;) }}
+</span><span class="sub">-        restore-keys: |
+</span><span class="sub">-          ${{ runner.os }}-build-${{ env.cache-name }}-
+</span><span class="sub">-          ${{ runner.os }}-build-
+</span><span class="sub">-          ${{ runner.os }}-
+</span><span class="add">+        path: /home/runner/.stack/
+</span><span class="add">+        key: ${{ hashFiles(&apos;**/stack.yaml.lock&apos;) }}
+</span><span class="add">+      
+</span><span class="add">+    - name: Build
+</span><span class="add">+      run: |
+</span><span class="add">+        stack build
+</span><span class="def"> 
+</span><span class="sub">-    - name: Install dependencies
+</span><span class="add">+    - name: Test
+</span><span class="def">       run: |
+</span><span class="sub">-        cabal update
+</span><span class="sub">-        cabal build --only-dependencies --enable-tests --enable-benchmarks
+</span><span class="sub">-    - name: Build
+</span><span class="sub">-      run: cabal build --enable-tests --enable-benchmarks all
+</span><span class="sub">-    - name: Run tests
+</span><span class="sub">-      run: cabal test all
+</span><span class="add">+        bash test/test.sh
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,88 @@
 Add commit.href, use it to show commit used to generate docs
 
 Closes #18
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/docs/template.html.include</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -28,6 +28,10 @@
+
+
+  <pre><span class="def">         &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ readme.href }}&quot;&gt;Readme&lt;/a&gt; |
+</span><span class="def">         &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ license.href }}&quot;&gt;License&lt;/a&gt;
+</span><span class="def">       &lt;/span&gt;
+</span><span class="add">+
+</span><span class="add">+      &lt;p id=&quot;tag&quot;&gt;
+</span><span class="add">+        Docs built @ &lt;a href=&quot;{{ host }}/gitserve/commit/{{ commits[0].href }}&quot;&gt;{{ commits[0].id[:7] }}&lt;/a&gt;
+</span><span class="add">+      &lt;/p&gt;
+</span><span class="def">     &lt;/div&gt;
+</span><span class="def"> 
+</span><span class="def">     &lt;div id=&quot;content&quot;&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/docs/style.css</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -47,6 +47,11 @@
+
+
+  <pre><span class="def">     padding: 10px 20px 0;
+</span><span class="def"> }
+</span><span class="def"> 
+</span><span class="add">+#tag,
+</span><span class="add">+#tag a {
+</span><span class="add">+    color: #aaa;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="def"> #links {
+</span><span class="def">     float: right;
+</span><span class="def"> }
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -89,6 +89,7 @@
+
+
+  <pre><span class="def"> commitAsLookup :: Commit LgRepo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> commitAsLookup commit = \case
+</span><span class="def">     &quot;id&quot; -&gt; Just . toGVal . show . untag . commitOid $ commit
+</span><span class="add">+    &quot;href&quot; -&gt; Just . toGVal . (&lt;&gt; &quot;.html&quot;) . show . untag . commitOid $ commit
+</span><span class="def">     &quot;title&quot; -&gt; Just . toGVal . strip . T.takeWhile (/= &apos;\n&apos;) . commitLog $ commit
+</span><span class="def">     &quot;body&quot; -&gt; Just . toGVal . strip . T.dropWhile (/= &apos;\n&apos;) . commitLog $ commit
+</span><span class="def">     &quot;message&quot; -&gt; Just . toGVal . strip . commitLog $ commit
+</span></pre></div><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -162,6 +162,7 @@
+
+
+  <pre><span class="def"> |            | head             | The current git commit.                                  |
+</span><span class="def"> |            | updated          | The time when the current commit was committed.          |
+</span><span class="def"> | commit     | id               | The SHA of the given commit.                             |
+</span><span class="add">+|            | href             | The name of the HTML file for this commit.               |
+</span><span class="def"> |            | title            | The commit message title.                                |
+</span><span class="def"> |            | body             | The commit message body.                                 |
+</span><span class="def"> |            | message          | The entire message, including both title and body.       |
+</span></pre>@@ -175,7 +176,7 @@
+
+
+  <pre><span class="def"> |            | parent           | The SHA of the parent commit.                            |
+</span><span class="def"> | file       | path             | The path the file relative to the repository root.       |
+</span><span class="def"> |            | name             | The name of the file.                                    |
+</span><span class="sub">-|            | href             | The HTML output path relative to `outputDirectory`.      |
+</span><span class="add">+|            | href             | The name of the HTML file for this file.                 |
+</span><span class="def"> |            | contents         | The file&apos;s contents.                                     |
+</span><span class="def"> |            | mode             | Directory, Plain, Executable, Symlink or Submodule.      |
+</span><span class="def"> |            | mode\_octal      | Mode in octal form e.g. &quot;00644&quot; for plain files.         |
+</span></pre></div>    </div>
   </body>
 </html>

@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03</a>
       </p>
     </div>
 
@@ -44,7 +44,50 @@
 make parent commit sha available on commits
 
 Closes #4
-</pre>
-    </div>
+</pre><div class="diff">
+  <p>
+    <b>templates/commit.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -8,7 +8,8 @@
+
+
+  <pre><span class="def"> {% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="def"> 
+</span><span class="def"> &lt;div id=&quot;content&quot;&gt;
+</span><span class="sub">-  &lt;pre&gt;&lt;b&gt;commit&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.id }}&lt;/a&gt;
+</span><span class="add">+  &lt;pre&gt;&lt;b&gt;Commit&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.id }}&lt;/a&gt;
+</span><span class="add">+&lt;b&gt;Parent:&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.parent }}.html&quot;&gt;{{ commit.parent }}&lt;/a&gt;
+</span><span class="def"> &lt;b&gt;Author:&lt;/b&gt; {{ commit.author }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.author_email }}&quot;&gt;{{ commit.author_email }}&lt;/a&gt;&amp;gt;
+</span><span class="def"> &lt;b&gt;Date:&lt;/b&gt; {{ commit.authored }}
+</span><span class="def"> &lt;b&gt;Committer:&lt;/b&gt; {{ commit.committer }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.committer_email }}&quot;&gt;{{ commit.committer_email }}&lt;/a&gt;&amp;gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -12,6 +12,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Data.ByteString.UTF8 (toString)
+</span><span class="def"> import Data.Default (def)
+</span><span class="add">+import Data.Maybe (listToMaybe)
+</span><span class="def"> import Data.Tagged (untag)
+</span><span class="def"> import Data.Text (Text, pack, strip)
+</span><span class="def"> import qualified Data.Text as T
+</span></pre>@@ -76,6 +77,7 @@
+
+
+  <pre><span class="def">     &quot;authored&quot; -&gt; Just . toGVal . show . signatureWhen . commitAuthor $ commit
+</span><span class="def">     &quot;committed&quot; -&gt; Just . toGVal . show . signatureWhen . commitCommitter $ commit
+</span><span class="def">     &quot;encoding&quot; -&gt; Just . toGVal . strip . commitEncoding $ commit
+</span><span class="add">+    &quot;parent&quot; -&gt; toGVal . show . untag &lt;$&gt; (listToMaybe . commitParents $ commit)
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div>    </div>
   </body>
 </html>
