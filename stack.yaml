@@ -1,4 +1,4 @@
-resolver: lts-18.18
+resolver: nightly-2022-02-19
 
 extra-deps:
 - ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
