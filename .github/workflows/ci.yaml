@@ -30,7 +30,7 @@ jobs:
 
     - name: Build
       run: |
-        stack --no-terminal --silent build
+        stack --no-terminal build
 
     - name: Run tests
       run: |
