@@ -11,6 +11,32 @@ packages:
       sha256: c3d93b51ba0e76853b217debb662cdcf5eca78288d49c809f823be27a072bfbf
   original:
     hackage: ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
+- completed:
+    subdir: gitlib
+    name: gitlib
+    version: 3.1.3
+    git: https://github.com/m-col/gitlib
+    pantry-tree:
+      size: 1137
+      sha256: 54c4748a607013867118457910708381ec413a35f901e53ecce204c8ef2eafb5
+    commit: 1fb5d534e22d7aa6be858bb7b2075cd60c0606d8
+  original:
+    subdir: gitlib
+    git: https://github.com/m-col/gitlib
+    commit: 1fb5d534e22d7aa6be858bb7b2075cd60c0606d8
+- completed:
+    subdir: gitlib-libgit2
+    name: gitlib-libgit2
+    version: 3.1.2.1
+    git: https://github.com/m-col/gitlib
+    pantry-tree:
+      size: 615
+      sha256: 0a99f56fcf841f14c353e32a5e66ae3e6212e2958331060ab511c049b862c2b9
+    commit: 1fb5d534e22d7aa6be858bb7b2075cd60c0606d8
+  original:
+    subdir: gitlib-libgit2
+    git: https://github.com/m-col/gitlib
+    commit: 1fb5d534e22d7aa6be858bb7b2075cd60c0606d8
 snapshots:
 - completed:
     size: 586296
