@@ -38,5 +38,9 @@ run: ## Run gitserve on this repository into ./output/
 test: ## Run the "tests"
 	bash ./test/test.sh
 
+.PHONY: prod
+prod: ## Build with optimise flags
+	@stack build --ghc-options="-O"
+
 .PHONY: all
 all: format lint rebuild run test ## Lint, format, rebuild, run, test
