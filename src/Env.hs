@@ -115,10 +115,7 @@ loadEnv quiet force config = do
 
     -- Exit early if we didn't find any templates
     when
-        ( null indexT
-            && isNothing commitT
-            && isNothing fileT
-            && null repoT
+        ( all null [indexT, repoT] && all isNothing [commitT, fileT]
         )
         $ die "No templates were found."
 
