@@ -42,5 +42,12 @@ test: ## Run the "tests"
 prod: ## Build with optimise flags
 	@stack build --ghc-options="-O"
 
+.PHONY: prof
+prof: ## Build with profiling enabled
+	@stack build --profile
+	@rm -r output
+	@stack exec --profile -- gitserve +RTS -p
+	@head -n 6 gitserve.prof
+
 .PHONY: all
 all: format lint rebuild run test ## Lint, format, rebuild, run, test
