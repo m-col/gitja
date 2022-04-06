@@ -194,8 +194,7 @@ loadCommit _ = Nothing
 
 loadDiff :: Git.Commit LgRepo -> ReaderT LgRepo IO Commit
 loadDiff gitCommit = do
-    let tree = Git.commitTree gitCommit
-    newTree <- Git.lookupTree tree
+    newTree <- Git.lookupTree . Git.commitTree $ gitCommit
     oldTree <-
         case listToMaybe . Git.commitParents $ gitCommit of
             Just parent ->
