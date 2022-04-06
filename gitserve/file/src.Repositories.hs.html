@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/829fa1cb62b3e97d5953cb91fb2a9bb6e9d5581e.html">829fa1c</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/4f438873fbc14a4f12794cdda78ee458a8ef7e4b.html">4f43887</a>
       </p>
     </div>
 
@@ -56,183 +56,183 @@
 <a href="#l18" class="line" id="l18">   18</a>  import Control.Monad.Trans.Reader (ReaderT)
 <a href="#l19" class="line" id="l19">   19</a>  import Data.Bool (bool)
 <a href="#l20" class="line" id="l20">   20</a>  import qualified Data.ByteString as B
-<a href="#l21" class="line" id="l21">   21</a>  import Data.Either (isRight)
-<a href="#l22" class="line" id="l22">   22</a>  import qualified Data.HashMap.Strict as HashMap
-<a href="#l23" class="line" id="l23">   23</a>  import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
-<a href="#l24" class="line" id="l24">   24</a>  import Data.Maybe (catMaybes, fromJust, listToMaybe, mapMaybe)
-<a href="#l25" class="line" id="l25">   25</a>  import Data.Tagged (Tagged (..), untag)
-<a href="#l26" class="line" id="l26">   26</a>  import Data.Text (Text)
-<a href="#l27" class="line" id="l27">   27</a>  import qualified Data.Text as T
-<a href="#l28" class="line" id="l28">   28</a>  import qualified Data.Text.Encoding as T
-<a href="#l29" class="line" id="l29">   29</a>  import qualified Data.Text.Encoding.Error as T
-<a href="#l30" class="line" id="l30">   30</a>  import Foreign.C.String (CString)
-<a href="#l31" class="line" id="l31">   31</a>  import Foreign.C.Types (CChar, CFloat, CInt, CSize)
-<a href="#l32" class="line" id="l32">   32</a>  import Foreign.Ptr (Ptr)
-<a href="#l33" class="line" id="l33">   33</a>  import Foreign.Storable (peek)
-<a href="#l34" class="line" id="l34">   34</a>  import qualified Git
-<a href="#l35" class="line" id="l35">   35</a>  import Git.Libgit2 (LgRepo, lgDiffTreeToTree, lgFactory)
-<a href="#l36" class="line" id="l36">   36</a>  import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
-<a href="#l37" class="line" id="l37">   37</a>  import Path.IO (doesFileExist, ensureDir)
-<a href="#l38" class="line" id="l38">   38</a>  import qualified System.Directory as D
-<a href="#l39" class="line" id="l39">   39</a>  import qualified System.FilePath as FP
-<a href="#l40" class="line" id="l40">   40</a>  import Text.Ginger.GVal (GVal, ToGVal, toGVal)
-<a href="#l41" class="line" id="l41">   41</a>  
-<a href="#l42" class="line" id="l42">   42</a>  import Env (Env (..))
-<a href="#l43" class="line" id="l43">   43</a>  import Templates (Template (..), generate)
-<a href="#l44" class="line" id="l44">   44</a>  import Types
-<a href="#l45" class="line" id="l45">   45</a>  
-<a href="#l46" class="line" id="l46">   46</a>  {-
-<a href="#l47" class="line" id="l47">   47</a>  This is the entrypoint maps over our repositories, reading from them and writing out
-<a href="#l48" class="line" id="l48">   48</a>  their web pages using the loaded templates.
-<a href="#l49" class="line" id="l49">   49</a>  -}
-<a href="#l50" class="line" id="l50">   50</a>  run :: Env -&gt; IO [Repo]
-<a href="#l51" class="line" id="l51">   51</a>  run env = do
-<a href="#l52" class="line" id="l52">   52</a>      repos &lt;- loadRepos env
-<a href="#l53" class="line" id="l53">   53</a>      mapM (processRepo env repos) repos
-<a href="#l54" class="line" id="l54">   54</a>  
-<a href="#l55" class="line" id="l55">   55</a>  {-
-<a href="#l56" class="line" id="l56">   56</a>  Get paths along with their descriptions.
-<a href="#l57" class="line" id="l57">   57</a>  -}
-<a href="#l58" class="line" id="l58">   58</a>  loadRepos :: Env -&gt; IO [Repo]
-<a href="#l59" class="line" id="l59">   59</a>  loadRepos env = do
-<a href="#l60" class="line" id="l60">   60</a>      paths&apos; &lt;- filterM (fmap isRight . okRepo) . envRepos $ env
-<a href="#l61" class="line" id="l61">   61</a>      descs &lt;- mapM getDescription paths&apos;
-<a href="#l62" class="line" id="l62">   62</a>      return . fmap ($ Nothing) . zipWith Repo paths&apos; $ descs
-<a href="#l63" class="line" id="l63">   63</a>    where
-<a href="#l64" class="line" id="l64">   64</a>      okRepo :: Path Abs Dir -&gt; IO (Either Git.GitException LgRepo)
-<a href="#l65" class="line" id="l65">   65</a>      okRepo p =
-<a href="#l66" class="line" id="l66">   66</a>          try . liftIO . Git.openRepository lgFactory $
-<a href="#l67" class="line" id="l67">   67</a>              Git.defaultRepositoryOptions{Git.repoPath = toFilePath p}
-<a href="#l68" class="line" id="l68">   68</a>  
-<a href="#l69" class="line" id="l69">   69</a>  {-
-<a href="#l70" class="line" id="l70">   70</a>  Pass the repository&apos;s folder, get its description. The algorithm is:
-<a href="#l71" class="line" id="l71">   71</a>  
-<a href="#l72" class="line" id="l72">   72</a>      1. Check for a description in repo/description
-<a href="#l73" class="line" id="l73">   73</a>      2. Check for a description in repo/.git/description
-<a href="#l74" class="line" id="l74">   74</a>      3. Fallback to the repo folder&apos;s name.
-<a href="#l75" class="line" id="l75">   75</a>  
-<a href="#l76" class="line" id="l76">   76</a>  -}
-<a href="#l77" class="line" id="l77">   77</a>  getDescription :: Path Abs Dir -&gt; IO Text
-<a href="#l78" class="line" id="l78">   78</a>  getDescription dir =
-<a href="#l79" class="line" id="l79">   79</a>      ifM
-<a href="#l80" class="line" id="l80">   80</a>          (D.doesFileExist inTop)
-<a href="#l81" class="line" id="l81">   81</a>          (return . Just $ inTop)
-<a href="#l82" class="line" id="l82">   82</a>          ( ifM
-<a href="#l83" class="line" id="l83">   83</a>              (D.doesFileExist inGit)
-<a href="#l84" class="line" id="l84">   84</a>              (return . Just $ inGit)
-<a href="#l85" class="line" id="l85">   85</a>              (return Nothing)
-<a href="#l86" class="line" id="l86">   86</a>          )
-<a href="#l87" class="line" id="l87">   87</a>          &gt;&gt;= \case
-<a href="#l88" class="line" id="l88">   88</a>              Just file -&gt;
-<a href="#l89" class="line" id="l89">   89</a>                  T.strip . T.pack &lt;$&gt; readFile file
-<a href="#l90" class="line" id="l90">   90</a>              Nothing -&gt;
-<a href="#l91" class="line" id="l91">   91</a>                  return . T.pack . toFilePath . dirname $ dir
-<a href="#l92" class="line" id="l92">   92</a>    where
-<a href="#l93" class="line" id="l93">   93</a>      inTop = toFilePath dir FP.&lt;/&gt; &quot;description&quot;
-<a href="#l94" class="line" id="l94">   94</a>      inGit = toFilePath dir FP.&lt;/&gt; &quot;.git&quot; FP.&lt;/&gt; &quot;description&quot;
-<a href="#l95" class="line" id="l95">   95</a>  
-<a href="#l96" class="line" id="l96">   96</a>  {-
-<a href="#l97" class="line" id="l97">   97</a>  This receives a file path to a single repository and tries to process it. If the
-<a href="#l98" class="line" id="l98">   98</a>  repository doesn&apos;t exist or is unreadable in any way we can forget about it and move on
-<a href="#l99" class="line" id="l99">   99</a>  (after informing the user of course).
-<a href="#l100" class="line" id="l100">  100</a>  -}
-<a href="#l101" class="line" id="l101">  101</a>  processRepo :: Env -&gt; [Repo] -&gt; Repo -&gt; IO Repo
-<a href="#l102" class="line" id="l102">  102</a>  processRepo env repos repo =
-<a href="#l103" class="line" id="l103">  103</a>      Git.withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo&apos; env repos repo
-<a href="#l104" class="line" id="l104">  104</a>  
-<a href="#l105" class="line" id="l105">  105</a>  processRepo&apos; :: Env -&gt; [Repo] -&gt; Repo -&gt; ReaderT LgRepo IO Repo
-<a href="#l106" class="line" id="l106">  106</a>  processRepo&apos; env repos repo = do
-<a href="#l107" class="line" id="l107">  107</a>      let name = dirname . repositoryPath $ repo
-<a href="#l108" class="line" id="l108">  108</a>      let output = envOutput env &lt;/&gt; name
-<a href="#l109" class="line" id="l109">  109</a>  
-<a href="#l110" class="line" id="l110">  110</a>      Git.resolveReference &quot;HEAD&quot; &gt;&gt;= \case
-<a href="#l111" class="line" id="l111">  111</a>          Nothing -&gt; do
-<a href="#l112" class="line" id="l112">  112</a>              liftIO . unless (envQuiet env) . putStrLn $ &quot;gitserve: &quot; &lt;&gt; show name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
-<a href="#l113" class="line" id="l113">  113</a>              return repo
-<a href="#l114" class="line" id="l114">  114</a>          Just commitID -&gt; do
-<a href="#l115" class="line" id="l115">  115</a>              let gitHead = Tagged commitID
-<a href="#l116" class="line" id="l116">  116</a>              headCommit &lt;- loadDiff =&lt;&lt; Git.lookupCommit gitHead
-<a href="#l117" class="line" id="l117">  117</a>  
-<a href="#l118" class="line" id="l118">  118</a>              -- If a page exists for the head commit, don&apos;t do anything else --
-<a href="#l119" class="line" id="l119">  119</a>              exists &lt;-
-<a href="#l120" class="line" id="l120">  120</a>                  liftIO . D.doesFileExist $
-<a href="#l121" class="line" id="l121">  121</a>                      toFilePath output FP.&lt;/&gt; &quot;commit&quot; FP.&lt;/&gt; show commitID &lt;&gt; &quot;.html&quot;
-<a href="#l122" class="line" id="l122">  122</a>  
-<a href="#l123" class="line" id="l123">  123</a>              when (not exists || envForce env) $ do
-<a href="#l124" class="line" id="l124">  124</a>                  -- Collect variables available to the ginger templates --
-<a href="#l125" class="line" id="l125">  125</a>                  commits &lt;- getCommits gitHead
-<a href="#l126" class="line" id="l126">  126</a>                  tree &lt;- getTree gitHead
-<a href="#l127" class="line" id="l127">  127</a>                  tags &lt;- getRefs &quot;refs/tags/&quot;
-<a href="#l128" class="line" id="l128">  128</a>                  branches &lt;- getRefs &quot;refs/heads/&quot;
-<a href="#l129" class="line" id="l129">  129</a>                  let scope = package env repos name (repositoryDescription repo) commits tree tags branches
-<a href="#l130" class="line" id="l130">  130</a>  
-<a href="#l131" class="line" id="l131">  131</a>                  -- Create the destination folders --
-<a href="#l132" class="line" id="l132">  132</a>                  commitDir &lt;- liftIO . parseRelDir $ &quot;commit&quot;
-<a href="#l133" class="line" id="l133">  133</a>                  fileDir &lt;- liftIO . parseRelDir $ &quot;file&quot;
-<a href="#l134" class="line" id="l134">  134</a>                  liftIO . ensureDir $ output &lt;/&gt; commitDir
-<a href="#l135" class="line" id="l135">  135</a>                  liftIO . ensureDir $ output &lt;/&gt; fileDir
-<a href="#l136" class="line" id="l136">  136</a>  
-<a href="#l137" class="line" id="l137">  137</a>                  -- Run the generator --
-<a href="#l138" class="line" id="l138">  138</a>                  let quiet = envQuiet env
-<a href="#l139" class="line" id="l139">  139</a>                  let force = envForce env
-<a href="#l140" class="line" id="l140">  140</a>                  mapM_ (genRepo output scope) $ envRepoTemplates env
-<a href="#l141" class="line" id="l141">  141</a>                  mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
-<a href="#l142" class="line" id="l142">  142</a>                  mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
-<a href="#l143" class="line" id="l143">  143</a>  
-<a href="#l144" class="line" id="l144">  144</a>                  -- Copy any static files/folders into the output folder --
-<a href="#l145" class="line" id="l145">  145</a>                  liftIO . envRepoCopyStatics env $ output
-<a href="#l146" class="line" id="l146">  146</a>  
-<a href="#l147" class="line" id="l147">  147</a>              return
-<a href="#l148" class="line" id="l148">  148</a>                  repo{repositoryHead = Just headCommit}
-<a href="#l149" class="line" id="l149">  149</a>  
-<a href="#l150" class="line" id="l150">  150</a>  {-
-<a href="#l151" class="line" id="l151">  151</a>  The role of the function above is to gather information about a git repository and
-<a href="#l152" class="line" id="l152">  152</a>  package it all together in such a way that various parts can be accessed and used by
-<a href="#l153" class="line" id="l153">  153</a>  Ginger templates. `package` takes these pieces of information and places it all into a
-<a href="#l154" class="line" id="l154">  154</a>  hashmap which Ginger can use to look up variables.
-<a href="#l155" class="line" id="l155">  155</a>  -}
-<a href="#l156" class="line" id="l156">  156</a>  package ::
-<a href="#l157" class="line" id="l157">  157</a>      Env -&gt;
-<a href="#l158" class="line" id="l158">  158</a>      [Repo] -&gt;
-<a href="#l159" class="line" id="l159">  159</a>      Path Rel Dir -&gt;
-<a href="#l160" class="line" id="l160">  160</a>      Text -&gt;
-<a href="#l161" class="line" id="l161">  161</a>      [Commit] -&gt;
-<a href="#l162" class="line" id="l162">  162</a>      [TreeFile] -&gt;
-<a href="#l163" class="line" id="l163">  163</a>      [Ref] -&gt;
+<a href="#l21" class="line" id="l21">   21</a>  import qualified Data.ByteString.UTF8 as B
+<a href="#l22" class="line" id="l22">   22</a>  import Data.Either (isRight)
+<a href="#l23" class="line" id="l23">   23</a>  import qualified Data.HashMap.Strict as HashMap
+<a href="#l24" class="line" id="l24">   24</a>  import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
+<a href="#l25" class="line" id="l25">   25</a>  import Data.Maybe (catMaybes, fromJust, listToMaybe, mapMaybe)
+<a href="#l26" class="line" id="l26">   26</a>  import Data.Tagged (Tagged (..), untag)
+<a href="#l27" class="line" id="l27">   27</a>  import Data.Text (Text)
+<a href="#l28" class="line" id="l28">   28</a>  import qualified Data.Text as T
+<a href="#l29" class="line" id="l29">   29</a>  import qualified Data.Text.Encoding as T
+<a href="#l30" class="line" id="l30">   30</a>  import qualified Data.Text.Encoding.Error as T
+<a href="#l31" class="line" id="l31">   31</a>  import Foreign.C.String (CString)
+<a href="#l32" class="line" id="l32">   32</a>  import Foreign.C.Types (CChar, CFloat, CInt, CSize)
+<a href="#l33" class="line" id="l33">   33</a>  import Foreign.Ptr (Ptr)
+<a href="#l34" class="line" id="l34">   34</a>  import Foreign.Storable (peek)
+<a href="#l35" class="line" id="l35">   35</a>  import qualified Git
+<a href="#l36" class="line" id="l36">   36</a>  import Git.Libgit2 (LgRepo, lgDiffTreeToTree, lgFactory)
+<a href="#l37" class="line" id="l37">   37</a>  import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
+<a href="#l38" class="line" id="l38">   38</a>  import Path.IO (doesFileExist, ensureDir)
+<a href="#l39" class="line" id="l39">   39</a>  import qualified System.Directory as D
+<a href="#l40" class="line" id="l40">   40</a>  import qualified System.FilePath as FP
+<a href="#l41" class="line" id="l41">   41</a>  import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+<a href="#l42" class="line" id="l42">   42</a>  
+<a href="#l43" class="line" id="l43">   43</a>  import Env (Env (..))
+<a href="#l44" class="line" id="l44">   44</a>  import Templates (Template (..), generate)
+<a href="#l45" class="line" id="l45">   45</a>  import Types
+<a href="#l46" class="line" id="l46">   46</a>  
+<a href="#l47" class="line" id="l47">   47</a>  {-
+<a href="#l48" class="line" id="l48">   48</a>  This is the entrypoint that maps over our repositories, reading from them and writing
+<a href="#l49" class="line" id="l49">   49</a>  out their web pages using the loaded templates.
+<a href="#l50" class="line" id="l50">   50</a>  -}
+<a href="#l51" class="line" id="l51">   51</a>  run :: Env -&gt; IO [Repo]
+<a href="#l52" class="line" id="l52">   52</a>  run env = do
+<a href="#l53" class="line" id="l53">   53</a>      repos &lt;- loadRepos env
+<a href="#l54" class="line" id="l54">   54</a>      mapM (processRepo env repos) repos
+<a href="#l55" class="line" id="l55">   55</a>  
+<a href="#l56" class="line" id="l56">   56</a>  {-
+<a href="#l57" class="line" id="l57">   57</a>  Get paths along with their descriptions.
+<a href="#l58" class="line" id="l58">   58</a>  -}
+<a href="#l59" class="line" id="l59">   59</a>  loadRepos :: Env -&gt; IO [Repo]
+<a href="#l60" class="line" id="l60">   60</a>  loadRepos = mapM mkRepo &lt;=&lt; filterM (fmap isRight . okRepo) . envRepos
+<a href="#l61" class="line" id="l61">   61</a>    where
+<a href="#l62" class="line" id="l62">   62</a>      okRepo :: Path Abs Dir -&gt; IO (Either Git.GitException LgRepo)
+<a href="#l63" class="line" id="l63">   63</a>      okRepo p =
+<a href="#l64" class="line" id="l64">   64</a>          try . liftIO . Git.openRepository lgFactory $
+<a href="#l65" class="line" id="l65">   65</a>              Git.defaultRepositoryOptions{Git.repoPath = toFilePath p}
+<a href="#l66" class="line" id="l66">   66</a>  
+<a href="#l67" class="line" id="l67">   67</a>      mkRepo :: Path Abs Dir -&gt; IO Repo
+<a href="#l68" class="line" id="l68">   68</a>      mkRepo p = (\d -&gt; Repo p d Nothing) &lt;$&gt; getDescription p
+<a href="#l69" class="line" id="l69">   69</a>  
+<a href="#l70" class="line" id="l70">   70</a>  {-
+<a href="#l71" class="line" id="l71">   71</a>  Pass the repository&apos;s folder, get its description. The algorithm is:
+<a href="#l72" class="line" id="l72">   72</a>  
+<a href="#l73" class="line" id="l73">   73</a>      1. Check for a description in repo/description
+<a href="#l74" class="line" id="l74">   74</a>      2. Check for a description in repo/.git/description
+<a href="#l75" class="line" id="l75">   75</a>      3. Fallback to the repo folder&apos;s name.
+<a href="#l76" class="line" id="l76">   76</a>  
+<a href="#l77" class="line" id="l77">   77</a>  -}
+<a href="#l78" class="line" id="l78">   78</a>  getDescription :: Path Abs Dir -&gt; IO Text
+<a href="#l79" class="line" id="l79">   79</a>  getDescription dir =
+<a href="#l80" class="line" id="l80">   80</a>      ifM
+<a href="#l81" class="line" id="l81">   81</a>          (D.doesFileExist inTop)
+<a href="#l82" class="line" id="l82">   82</a>          (return . Just $ inTop)
+<a href="#l83" class="line" id="l83">   83</a>          ( ifM
+<a href="#l84" class="line" id="l84">   84</a>              (D.doesFileExist inGit)
+<a href="#l85" class="line" id="l85">   85</a>              (return . Just $ inGit)
+<a href="#l86" class="line" id="l86">   86</a>              (return Nothing)
+<a href="#l87" class="line" id="l87">   87</a>          )
+<a href="#l88" class="line" id="l88">   88</a>          &gt;&gt;= \case
+<a href="#l89" class="line" id="l89">   89</a>              Just file -&gt;
+<a href="#l90" class="line" id="l90">   90</a>                  T.strip . T.pack &lt;$&gt; readFile file
+<a href="#l91" class="line" id="l91">   91</a>              Nothing -&gt;
+<a href="#l92" class="line" id="l92">   92</a>                  return . T.pack . toFilePath . dirname $ dir
+<a href="#l93" class="line" id="l93">   93</a>    where
+<a href="#l94" class="line" id="l94">   94</a>      inTop = toFilePath dir FP.&lt;/&gt; &quot;description&quot;
+<a href="#l95" class="line" id="l95">   95</a>      inGit = toFilePath dir FP.&lt;/&gt; &quot;.git&quot; FP.&lt;/&gt; &quot;description&quot;
+<a href="#l96" class="line" id="l96">   96</a>  
+<a href="#l97" class="line" id="l97">   97</a>  {-
+<a href="#l98" class="line" id="l98">   98</a>  This receives a file path to a single repository and tries to process it. If the
+<a href="#l99" class="line" id="l99">   99</a>  repository doesn&apos;t exist or is unreadable in any way we can forget about it and move on
+<a href="#l100" class="line" id="l100">  100</a>  (after informing the user of course).
+<a href="#l101" class="line" id="l101">  101</a>  -}
+<a href="#l102" class="line" id="l102">  102</a>  processRepo :: Env -&gt; [Repo] -&gt; Repo -&gt; IO Repo
+<a href="#l103" class="line" id="l103">  103</a>  processRepo env repos repo =
+<a href="#l104" class="line" id="l104">  104</a>      Git.withRepository lgFactory (toFilePath . repositoryPath $ repo) $ processRepo&apos; env repos repo
+<a href="#l105" class="line" id="l105">  105</a>  
+<a href="#l106" class="line" id="l106">  106</a>  processRepo&apos; :: Env -&gt; [Repo] -&gt; Repo -&gt; ReaderT LgRepo IO Repo
+<a href="#l107" class="line" id="l107">  107</a>  processRepo&apos; env repos repo = do
+<a href="#l108" class="line" id="l108">  108</a>      let name = dirname . repositoryPath $ repo
+<a href="#l109" class="line" id="l109">  109</a>      let output = envOutput env &lt;/&gt; name
+<a href="#l110" class="line" id="l110">  110</a>  
+<a href="#l111" class="line" id="l111">  111</a>      Git.resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+<a href="#l112" class="line" id="l112">  112</a>          Nothing -&gt; do
+<a href="#l113" class="line" id="l113">  113</a>              liftIO . unless (envQuiet env) . putStrLn $ &quot;gitserve: &quot; &lt;&gt; show name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+<a href="#l114" class="line" id="l114">  114</a>              return repo
+<a href="#l115" class="line" id="l115">  115</a>          Just commitID -&gt; do
+<a href="#l116" class="line" id="l116">  116</a>              let gitHead = Tagged commitID
+<a href="#l117" class="line" id="l117">  117</a>              headCommit &lt;- loadDiff =&lt;&lt; Git.lookupCommit gitHead
+<a href="#l118" class="line" id="l118">  118</a>  
+<a href="#l119" class="line" id="l119">  119</a>              -- If a page exists for the head commit, don&apos;t do anything else --
+<a href="#l120" class="line" id="l120">  120</a>              exists &lt;-
+<a href="#l121" class="line" id="l121">  121</a>                  liftIO . D.doesFileExist $
+<a href="#l122" class="line" id="l122">  122</a>                      toFilePath output FP.&lt;/&gt; &quot;commit&quot; FP.&lt;/&gt; show commitID &lt;&gt; &quot;.html&quot;
+<a href="#l123" class="line" id="l123">  123</a>  
+<a href="#l124" class="line" id="l124">  124</a>              when (not exists || envForce env) $ do
+<a href="#l125" class="line" id="l125">  125</a>                  -- Collect variables available to the ginger templates --
+<a href="#l126" class="line" id="l126">  126</a>                  commits &lt;- getCommits gitHead
+<a href="#l127" class="line" id="l127">  127</a>                  tree &lt;- getTree gitHead
+<a href="#l128" class="line" id="l128">  128</a>                  tags &lt;- getRefs &quot;refs/tags/&quot;
+<a href="#l129" class="line" id="l129">  129</a>                  branches &lt;- getRefs &quot;refs/heads/&quot;
+<a href="#l130" class="line" id="l130">  130</a>                  let scope = package env repos name (repositoryDescription repo) commits tree tags branches
+<a href="#l131" class="line" id="l131">  131</a>  
+<a href="#l132" class="line" id="l132">  132</a>                  -- Create the destination folders --
+<a href="#l133" class="line" id="l133">  133</a>                  commitDir &lt;- liftIO . parseRelDir $ &quot;commit&quot;
+<a href="#l134" class="line" id="l134">  134</a>                  fileDir &lt;- liftIO . parseRelDir $ &quot;file&quot;
+<a href="#l135" class="line" id="l135">  135</a>                  liftIO . ensureDir $ output &lt;/&gt; commitDir
+<a href="#l136" class="line" id="l136">  136</a>                  liftIO . ensureDir $ output &lt;/&gt; fileDir
+<a href="#l137" class="line" id="l137">  137</a>  
+<a href="#l138" class="line" id="l138">  138</a>                  -- Run the generator --
+<a href="#l139" class="line" id="l139">  139</a>                  let quiet = envQuiet env
+<a href="#l140" class="line" id="l140">  140</a>                  let force = envForce env
+<a href="#l141" class="line" id="l141">  141</a>                  mapM_ (genRepo output scope) $ envRepoTemplates env
+<a href="#l142" class="line" id="l142">  142</a>                  mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
+<a href="#l143" class="line" id="l143">  143</a>                  mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
+<a href="#l144" class="line" id="l144">  144</a>  
+<a href="#l145" class="line" id="l145">  145</a>                  -- Copy any static files/folders into the output folder --
+<a href="#l146" class="line" id="l146">  146</a>                  liftIO . envRepoCopyStatics env $ output
+<a href="#l147" class="line" id="l147">  147</a>  
+<a href="#l148" class="line" id="l148">  148</a>              return
+<a href="#l149" class="line" id="l149">  149</a>                  repo{repositoryHead = Just headCommit}
+<a href="#l150" class="line" id="l150">  150</a>  
+<a href="#l151" class="line" id="l151">  151</a>  {-
+<a href="#l152" class="line" id="l152">  152</a>  The role of the function above is to gather information about a git repository and
+<a href="#l153" class="line" id="l153">  153</a>  package it all together in such a way that various parts can be accessed and used by
+<a href="#l154" class="line" id="l154">  154</a>  Ginger templates. `package` takes these pieces of information and places it all into a
+<a href="#l155" class="line" id="l155">  155</a>  hashmap which Ginger can use to look up variables.
+<a href="#l156" class="line" id="l156">  156</a>  -}
+<a href="#l157" class="line" id="l157">  157</a>  package ::
+<a href="#l158" class="line" id="l158">  158</a>      Env -&gt;
+<a href="#l159" class="line" id="l159">  159</a>      [Repo] -&gt;
+<a href="#l160" class="line" id="l160">  160</a>      Path Rel Dir -&gt;
+<a href="#l161" class="line" id="l161">  161</a>      Text -&gt;
+<a href="#l162" class="line" id="l162">  162</a>      [Commit] -&gt;
+<a href="#l163" class="line" id="l163">  163</a>      [TreeFile] -&gt;
 <a href="#l164" class="line" id="l164">  164</a>      [Ref] -&gt;
-<a href="#l165" class="line" id="l165">  165</a>      HashMap.HashMap Text (GVal RunRepo)
-<a href="#l166" class="line" id="l166">  166</a>  package env repos name description commits tree tags branches =
-<a href="#l167" class="line" id="l167">  167</a>      HashMap.fromList
-<a href="#l168" class="line" id="l168">  168</a>          [ (&quot;host&quot;, toGVal . envHost $ env)
-<a href="#l169" class="line" id="l169">  169</a>          , (&quot;repositories&quot;, toGVal repos)
-<a href="#l170" class="line" id="l170">  170</a>          , (&quot;name&quot;, toGVal . T.pack . init . toFilePath $ name)
-<a href="#l171" class="line" id="l171">  171</a>          , (&quot;description&quot;, toGVal description)
-<a href="#l172" class="line" id="l172">  172</a>          , (&quot;commits&quot;, toGVal commits)
-<a href="#l173" class="line" id="l173">  173</a>          , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
-<a href="#l174" class="line" id="l174">  174</a>          , (&quot;tree_recursive&quot;, toGVal tree)
-<a href="#l175" class="line" id="l175">  175</a>          , (&quot;tags&quot;, toGVal tags)
-<a href="#l176" class="line" id="l176">  176</a>          , (&quot;branches&quot;, toGVal branches)
-<a href="#l177" class="line" id="l177">  177</a>          , (&quot;readme&quot;, toGVal . findFile &quot;readme&quot; $ tree)
-<a href="#l178" class="line" id="l178">  178</a>          , (&quot;license&quot;, toGVal . findFile &quot;license&quot; $ tree)
-<a href="#l179" class="line" id="l179">  179</a>          ]
-<a href="#l180" class="line" id="l180">  180</a>  
-<a href="#l181" class="line" id="l181">  181</a>  {-
-<a href="#l182" class="line" id="l182">  182</a>  Collect commit information.
-<a href="#l183" class="line" id="l183">  183</a>  -}
-<a href="#l184" class="line" id="l184">  184</a>  getCommits :: Git.CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit]
-<a href="#l185" class="line" id="l185">  185</a>  getCommits commitID =
-<a href="#l186" class="line" id="l186">  186</a>      fmap reverse . sequence . mapMaybe loadCommit
-<a href="#l187" class="line" id="l187">  187</a>          &lt;=&lt; runConduit
-<a href="#l188" class="line" id="l188">  188</a>          $ Git.sourceObjects Nothing commitID False .| sinkList
-<a href="#l189" class="line" id="l189">  189</a>  
-<a href="#l190" class="line" id="l190">  190</a>  loadCommit :: Git.ObjectOid LgRepo -&gt; Maybe (ReaderT LgRepo IO Commit)
-<a href="#l191" class="line" id="l191">  191</a>  loadCommit (Git.CommitObjOid oid) = Just $ loadDiff =&lt;&lt; Git.lookupCommit oid
-<a href="#l192" class="line" id="l192">  192</a>  loadCommit _ = Nothing
-<a href="#l193" class="line" id="l193">  193</a>  
-<a href="#l194" class="line" id="l194">  194</a>  loadDiff :: Git.Commit LgRepo -&gt; ReaderT LgRepo IO Commit
-<a href="#l195" class="line" id="l195">  195</a>  loadDiff gitCommit = do
-<a href="#l196" class="line" id="l196">  196</a>      let tree = Git.commitTree gitCommit
-<a href="#l197" class="line" id="l197">  197</a>      newTree &lt;- Git.lookupTree tree
+<a href="#l165" class="line" id="l165">  165</a>      [Ref] -&gt;
+<a href="#l166" class="line" id="l166">  166</a>      HashMap.HashMap Text (GVal RunRepo)
+<a href="#l167" class="line" id="l167">  167</a>  package env repos name description commits tree tags branches =
+<a href="#l168" class="line" id="l168">  168</a>      HashMap.fromList
+<a href="#l169" class="line" id="l169">  169</a>          [ (&quot;host&quot;, toGVal . envHost $ env)
+<a href="#l170" class="line" id="l170">  170</a>          , (&quot;repositories&quot;, toGVal repos)
+<a href="#l171" class="line" id="l171">  171</a>          , (&quot;name&quot;, toGVal . T.pack . init . toFilePath $ name)
+<a href="#l172" class="line" id="l172">  172</a>          , (&quot;description&quot;, toGVal description)
+<a href="#l173" class="line" id="l173">  173</a>          , (&quot;commits&quot;, toGVal commits)
+<a href="#l174" class="line" id="l174">  174</a>          , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
+<a href="#l175" class="line" id="l175">  175</a>          , (&quot;tree_recursive&quot;, toGVal tree)
+<a href="#l176" class="line" id="l176">  176</a>          , (&quot;tags&quot;, toGVal tags)
+<a href="#l177" class="line" id="l177">  177</a>          , (&quot;branches&quot;, toGVal branches)
+<a href="#l178" class="line" id="l178">  178</a>          , (&quot;readme&quot;, toGVal . findFile &quot;readme&quot; $ tree)
+<a href="#l179" class="line" id="l179">  179</a>          , (&quot;license&quot;, toGVal . findFile &quot;license&quot; $ tree)
+<a href="#l180" class="line" id="l180">  180</a>          ]
+<a href="#l181" class="line" id="l181">  181</a>  
+<a href="#l182" class="line" id="l182">  182</a>  {-
+<a href="#l183" class="line" id="l183">  183</a>  Collect commit information.
+<a href="#l184" class="line" id="l184">  184</a>  -}
+<a href="#l185" class="line" id="l185">  185</a>  getCommits :: Git.CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit]
+<a href="#l186" class="line" id="l186">  186</a>  getCommits commitID =
+<a href="#l187" class="line" id="l187">  187</a>      fmap reverse . sequence . mapMaybe loadCommit
+<a href="#l188" class="line" id="l188">  188</a>          &lt;=&lt; runConduit
+<a href="#l189" class="line" id="l189">  189</a>          $ Git.sourceObjects Nothing commitID False .| sinkList
+<a href="#l190" class="line" id="l190">  190</a>  
+<a href="#l191" class="line" id="l191">  191</a>  loadCommit :: Git.ObjectOid LgRepo -&gt; Maybe (ReaderT LgRepo IO Commit)
+<a href="#l192" class="line" id="l192">  192</a>  loadCommit (Git.CommitObjOid oid) = Just $ loadDiff =&lt;&lt; Git.lookupCommit oid
+<a href="#l193" class="line" id="l193">  193</a>  loadCommit _ = Nothing
+<a href="#l194" class="line" id="l194">  194</a>  
+<a href="#l195" class="line" id="l195">  195</a>  loadDiff :: Git.Commit LgRepo -&gt; ReaderT LgRepo IO Commit
+<a href="#l196" class="line" id="l196">  196</a>  loadDiff gitCommit = do
+<a href="#l197" class="line" id="l197">  197</a>      newTree &lt;- Git.lookupTree . Git.commitTree $ gitCommit
 <a href="#l198" class="line" id="l198">  198</a>      oldTree &lt;-
 <a href="#l199" class="line" id="l199">  199</a>          case listToMaybe . Git.commitParents $ gitCommit of
 <a href="#l200" class="line" id="l200">  200</a>              Just parent -&gt;
@@ -336,7 +336,7 @@
 <a href="#l298" class="line" id="l298">  298</a>  getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; ReaderT LgRepo IO TreeFileContents
 <a href="#l299" class="line" id="l299">  299</a>  getEntryContents (_, Git.BlobEntry oid _) = getBlobContents oid
 <a href="#l300" class="line" id="l300">  300</a>  getEntryContents (path, Git.TreeEntry oid) = FolderContents &lt;$&gt; getTree&apos; path oid
-<a href="#l301" class="line" id="l301">  301</a>  getEntryContents (_, Git.CommitEntry oid) = return . FileContents . T.pack . show . untag $ oid
+<a href="#l301" class="line" id="l301">  301</a>  getEntryContents (_, Git.CommitEntry oid) = return . FileContents . B.fromString . show . untag $ oid
 <a href="#l302" class="line" id="l302">  302</a>  
 <a href="#l303" class="line" id="l303">  303</a>  getEntryModes :: Git.TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeEntryMode
 <a href="#l304" class="line" id="l304">  304</a>  getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
@@ -433,6 +433,7 @@
 <a href="#l395" class="line" id="l395">  395</a>          liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
 <a href="#l396" class="line" id="l396">  396</a>          let scope&apos; = scope &lt;&gt; HashMap.fromList [(T.pack . category $ target, toGVal target)]
 <a href="#l397" class="line" id="l397">  397</a>          generate output&apos; scope&apos; template
+<a href="#l398" class="line" id="l398">  398</a>  
 </pre>
       </div>
   </body>

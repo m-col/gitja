@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/829fa1cb62b3e97d5953cb91fb2a9bb6e9d5581e.html">829fa1c</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/4f438873fbc14a4f12794cdda78ee458a8ef7e4b.html">4f43887</a>
       </p>
     </div>
 
@@ -260,7 +260,7 @@
 <a href="#l222" class="line" id="l222">  222</a>      , treeFileMode :: TreeEntryMode
 <a href="#l223" class="line" id="l223">  223</a>      }
 <a href="#l224" class="line" id="l224">  224</a>  
-<a href="#l225" class="line" id="l225">  225</a>  data TreeFileContents = BinaryContents | FileContents Text | FolderContents [TreeFile]
+<a href="#l225" class="line" id="l225">  225</a>  data TreeFileContents = BinaryContents | FileContents ByteString | FolderContents [TreeFile]
 <a href="#l226" class="line" id="l226">  226</a>  
 <a href="#l227" class="line" id="l227">  227</a>  data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
 <a href="#l228" class="line" id="l228">  228</a>      deriving stock (Show)
@@ -305,7 +305,7 @@
 <a href="#l267" class="line" id="l267">  267</a>  
 <a href="#l268" class="line" id="l268">  268</a>      if toEnum . fromEnum $ isBinary -- This reads weird, but it goes CInt, to Int, to Bool.
 <a href="#l269" class="line" id="l269">  269</a>          then return BinaryContents
-<a href="#l270" class="line" id="l270">  270</a>          else FileContents . bsToText &lt;$&gt; Git.catBlob oid
+<a href="#l270" class="line" id="l270">  270</a>          else FileContents &lt;$&gt; Git.catBlob oid
 <a href="#l271" class="line" id="l271">  271</a>  
 <a href="#l272" class="line" id="l272">  272</a>  {-
 <a href="#l273" class="line" id="l273">  273</a>  GVal implementations for data definitions above, allowing commits to be rendered in
@@ -324,7 +324,7 @@
 <a href="#l286" class="line" id="l286">  286</a>  instance ToGVal RunRepo TreeFileContents where
 <a href="#l287" class="line" id="l287">  287</a>      toGVal :: TreeFileContents -&gt; GVal RunRepo
 <a href="#l288" class="line" id="l288">  288</a>      toGVal BinaryContents = def
-<a href="#l289" class="line" id="l289">  289</a>      toGVal (FileContents text) = toGVal . strip $ text
+<a href="#l289" class="line" id="l289">  289</a>      toGVal (FileContents bytestring) = toGVal bytestring
 <a href="#l290" class="line" id="l290">  290</a>      toGVal (FolderContents treeFiles) =
 <a href="#l291" class="line" id="l291">  291</a>          def
 <a href="#l292" class="line" id="l292">  292</a>              { asHtml = html . pack . show . fmap treeFilePath $ treeFiles
@@ -395,6 +395,7 @@
 <a href="#l357" class="line" id="l357">  357</a>      &quot;name&quot; -&gt; Just . toGVal . refName $ ref
 <a href="#l358" class="line" id="l358">  358</a>      &quot;commit&quot; -&gt; Just . toGVal . refCommit $ ref
 <a href="#l359" class="line" id="l359">  359</a>      key -&gt; commitAsLookup (refCommit ref) key
+<a href="#l360" class="line" id="l360">  360</a>  
 </pre>
       </div>
   </body>

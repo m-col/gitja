@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - tiny dry</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/4f438873fbc14a4f12794cdda78ee458a8ef7e4b.html">4f43887</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/8156f120326ef3721746f1d92fb0d7d31d575dca.html">8156f120326ef3721746f1d92fb0d7d31d575dca</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/70ec51fc60668e0650b34d95a7f9fba448b47bd9.html">70ec51fc60668e0650b34d95a7f9fba448b47bd9</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-04-05 21:03:59 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-04-05 21:03:59 +0100
+
+tiny dry
+</pre><div class="diff">
+  <p>
+    <b>src/Env.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -115,10 +115,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     -- Exit early if we didn&apos;t find any templates
+</span><span class="def">     when
+</span><span class="sub">-        ( null indexT
+</span><span class="sub">-            &amp;&amp; isNothing commitT
+</span><span class="sub">-            &amp;&amp; isNothing fileT
+</span><span class="sub">-            &amp;&amp; null repoT
+</span><span class="add">+        ( all null [indexT, repoT] &amp;&amp; all isNothing [commitT, fileT]
+</span><span class="def">         )
+</span><span class="def">         $ die &quot;No templates were found.&quot;
+</span><span class="def"> 
+</span></pre></div>    </div>
+  </body>
+</html>
