@@ -45,8 +45,8 @@ import Templates (Template (..), generate)
 import Types
 
 {-
-This is the entrypoint maps over our repositories, reading from them and writing out
-their web pages using the loaded templates.
+This is the entrypoint that maps over our repositories, reading from them and writing
+out their web pages using the loaded templates.
 -}
 run :: Env -> IO [Repo]
 run env = do
@@ -57,15 +57,15 @@ run env = do
 Get paths along with their descriptions.
 -}
 loadRepos :: Env -> IO [Repo]
-loadRepos env = do
-    paths' <- filterM (fmap isRight . okRepo) . envRepos $ env
-    descs <- mapM getDescription paths'
-    return . fmap ($ Nothing) . zipWith Repo paths' $ descs
+loadRepos = mapM mkRepo <=< filterM (fmap isRight . okRepo) . envRepos
   where
     okRepo :: Path Abs Dir -> IO (Either Git.GitException LgRepo)
     okRepo p =
         try . liftIO . Git.openRepository lgFactory $
             Git.defaultRepositoryOptions{Git.repoPath = toFilePath p}
+
+    mkRepo :: Path Abs Dir -> IO Repo
+    mkRepo p = (\d -> Repo p d Nothing) <$> getDescription p
 
 {-
 Pass the repository's folder, get its description. The algorithm is:
