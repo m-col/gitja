@@ -63,11 +63,11 @@ test -f "$RESULT/title.html.include" && {
 case "$errors" in
     0)
 	echo "All good!"
+	rm -r "$RESULT"
 	;;
     *)
 	echo "Had this many errors: $errors"
 	;;
 esac
 
-rm -r "$RESULT"
 exit $errors
