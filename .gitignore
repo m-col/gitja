@@ -3,3 +3,4 @@
 output
 test/result
 dist-newstyle
+*.prof
