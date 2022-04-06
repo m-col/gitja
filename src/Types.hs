@@ -222,7 +222,7 @@ data TreeFile = TreeFile
     , treeFileMode :: TreeEntryMode
     }
 
-data TreeFileContents = BinaryContents | FileContents Text | FolderContents [TreeFile]
+data TreeFileContents = BinaryContents | FileContents ByteString | FolderContents [TreeFile]
 
 data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
     deriving stock (Show)
@@ -267,7 +267,7 @@ getBlobContents oid = do
 
     if toEnum . fromEnum $ isBinary -- This reads weird, but it goes CInt, to Int, to Bool.
         then return BinaryContents
-        else FileContents . bsToText <$> Git.catBlob oid
+        else FileContents <$> Git.catBlob oid
 
 {-
 GVal implementations for data definitions above, allowing commits to be rendered in
@@ -286,7 +286,7 @@ instance ToGVal RunRepo TreeFile where
 instance ToGVal RunRepo TreeFileContents where
     toGVal :: TreeFileContents -> GVal RunRepo
     toGVal BinaryContents = def
-    toGVal (FileContents text) = toGVal . strip $ text
+    toGVal (FileContents bytestring) = toGVal bytestring
     toGVal (FolderContents treeFiles) =
         def
             { asHtml = html . pack . show . fmap treeFilePath $ treeFiles

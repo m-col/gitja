@@ -18,6 +18,7 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Bool (bool)
 import qualified Data.ByteString as B
+import qualified Data.ByteString.UTF8 as B
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as HashMap
 import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
@@ -298,7 +299,7 @@ prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
 getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> ReaderT LgRepo IO TreeFileContents
 getEntryContents (_, Git.BlobEntry oid _) = getBlobContents oid
 getEntryContents (path, Git.TreeEntry oid) = FolderContents <$> getTree' path oid
-getEntryContents (_, Git.CommitEntry oid) = return . FileContents . T.pack . show . untag $ oid
+getEntryContents (_, Git.CommitEntry oid) = return . FileContents . B.fromString . show . untag $ oid
 
 getEntryModes :: Git.TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
 getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
