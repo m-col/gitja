@@ -8,6 +8,8 @@ import Control.Monad (unless, void)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Text (Text, unpack)
 import Path (toFilePath)
+import Path.IO (ignoringAbsence)
+import System.Directory (removeFile)
 import System.FilePath (combine)
 import Text.Ginger.GVal (GVal, toGVal)
 import Text.Ginger.Html (Html, htmlSource)
@@ -29,7 +31,7 @@ runIndexFile :: Env -> [Repo] -> Template -> IO ()
 runIndexFile env repos template = do
     let output = combine (toFilePath . envOutput $ env) . toFilePath . templatePath $ template
     unless (envQuiet env) . putStrLn $ "Writing " <> output
-    writeFile output "" -- Clear contents of file if it exists
+    ignoringAbsence . removeFile $ output
     void $
         easyRenderM
             (appendFile output . unpack . htmlSource)
