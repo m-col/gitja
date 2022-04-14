@@ -178,20 +178,32 @@ package env repos name description commits tree tags branches =
         , ("readme", toGVal . findFile "readme" $ tree)
         , ("license", toGVal . findFile "license" $ tree)
         ]
+  where
+
+    -- Find a file in the tree starting with the specified prefix. The prefix is looked
+    -- for on the full path, so will only find files in the top level directory.
+    findFile :: Text -> [TreeFile] -> Maybe TreeFile
+    findFile _ [] = Nothing
+    findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
+      where
+        isReadme = T.isPrefixOf prefix . T.toLower . treeFilePath
 
 {-
-Collect commit information.
+Collect commit history up to a head.
 -}
 getCommits :: Git.CommitOid LgRepo -> ReaderT LgRepo IO [Commit]
 getCommits commitID =
     fmap reverse . sequence . mapMaybe loadCommit
         <=< runConduit
         $ Git.sourceObjects Nothing commitID False .| sinkList
+  where
+    loadCommit :: Git.ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO Commit)
+    loadCommit (Git.CommitObjOid oid) = Just $ loadDiff =<< Git.lookupCommit oid
+    loadCommit _ = Nothing
 
-loadCommit :: Git.ObjectOid LgRepo -> Maybe (ReaderT LgRepo IO Commit)
-loadCommit (Git.CommitObjOid oid) = Just $ loadDiff =<< Git.lookupCommit oid
-loadCommit _ = Nothing
-
+{-
+Collect diff information for a single commit.
+-}
 loadDiff :: Git.Commit LgRepo -> ReaderT LgRepo IO Commit
 loadDiff gitCommit = do
     newTree <- Git.lookupTree . Git.commitTree $ gitCommit
@@ -292,7 +304,10 @@ getTree = getTree' "" 0 . Git.commitTree <=< Git.lookupCommit
         modes <- mapM (getEntryModes . snd) entries'
         return $ zipWith3 TreeFile (fmap treePaths entries') contents modes
 
-    prependParent :: Git.TreeFilePath -> (Git.TreeFilePath, Git.TreeEntry LgRepo) -> (Git.TreeFilePath, Git.TreeEntry LgRepo)
+    prependParent
+        :: Git.TreeFilePath
+        -> (Git.TreeFilePath, Git.TreeEntry LgRepo)
+        -> (Git.TreeFilePath, Git.TreeEntry LgRepo)
     prependParent "" pathentry = pathentry
     prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
 
@@ -308,16 +323,6 @@ getTree = getTree' "" 0 . Git.commitTree <=< Git.lookupCommit
 
     treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> Text
     treePaths = T.decodeUtf8With T.lenientDecode . fst
-
-{-
-Find a file in the tree starting with the specified prefix. The prefix is looked for on
-the full path, so will only find files in the top level directory.
--}
-findFile :: Text -> [TreeFile] -> Maybe TreeFile
-findFile _ [] = Nothing
-findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
-  where
-    isReadme = T.isPrefixOf prefix . T.toLower . treeFilePath
 
 {-
 Collect information about references. TODO: Find a more canonical way to split
