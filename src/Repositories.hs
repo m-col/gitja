@@ -136,11 +136,13 @@ processRepo' env repos repo = do
                 liftIO . ensureDir $ output </> fileDir
 
                 -- Run the generator --
-                let quiet = envQuiet env
-                let force = envForce env
+                let (quiet, force, commitT, fileT) =
+                        (,,,) <$> envQuiet <*> envForce <*> envCommitTemplate <*> envFileTemplate $ env
+
                 mapM_ (genRepo output scope) $ envRepoTemplates env
-                mapM_ (genTarget output scope quiet force (envCommitTemplate env) "commit") commits
-                mapM_ (genTarget output scope quiet True (envFileTemplate env) "file") tree -- TODO: detect file changes
+                let gen = genTarget output scope quiet force
+                mapM_ (\c -> gen commitT "commit" (commitHref c) (toGVal c)) commits
+                mapM_ (\c -> gen fileT "file" (fileHref c) (toGVal c)) tree -- TODO: detect file changes
 
                 -- Copy any static files/folders into the output folder --
                 liftIO . envRepoCopyStatics env $ output
@@ -362,40 +364,37 @@ genRepo output scope template =
 A Target refers to a template scope and repository object whose information is available
 in that scope. For example, commits are a target as they each generate a scope
 containing that commit's information, and these scopes are each rendered in the
-commitTemplate. The Target class generalises how each target is represented so that
-genTarget can work on any target type.
+commitTemplate.
 -}
-class ToGVal RunRepo a => Target a where
-    identify :: a -> FilePath
 
-instance Target Commit where
-    identify = (++ ".html") . show . untag . Git.commitOid . commitGit
+commitHref :: Commit -> FilePath
+commitHref = (++ ".html") . show . untag . Git.commitOid . commitGit
 
-instance Target TreeFile where
-    identify = T.unpack . treePathToHref
+fileHref :: TreeFile -> FilePath
+fileHref = T.unpack . treePathToHref
 
 genTarget ::
-    Target a =>
     Path Abs Dir ->
     HashMap.HashMap Text (GVal RunRepo) ->
     Bool ->
     Bool ->
     Maybe Template ->
     FilePath ->
-    a ->
+    FilePath ->
+    GVal RunRepo ->
     ReaderT LgRepo IO ()
-genTarget _ _ _ _ Nothing _ _ = return ()
-genTarget output scope quiet force (Just template) category target = do
-    outFile <- liftIO . getDest $ target
+genTarget _ _ _ _ Nothing _ _ _ = return ()
+genTarget output scope quiet force (Just template) category href target = do
+    outFile <- liftIO destination
     let output' = output </> outFile
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
         liftIO . unless quiet . putStrLn $ "Writing " <> toFilePath output'
-        let scope' = scope <> HashMap.fromList [(T.pack category, toGVal target)]
+        let scope' = scope <> HashMap.fromList [(T.pack category, target)]
         generate output' scope' template
   where
-    getDest :: Target a => a -> IO (Path Rel File)
-    getDest t = do
+    destination :: IO (Path Rel File)
+    destination = do
         dir <- parseRelDir category
-        file <- parseRelFile . identify $ t
+        file <- parseRelFile href
         return $ dir </> file
