@@ -139,8 +139,8 @@ processRepo' env repos repo = do
                 let quiet = envQuiet env
                 let force = envForce env
                 mapM_ (genRepo output scope) $ envRepoTemplates env
-                mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
-                mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
+                mapM_ (genTarget output scope quiet force (envCommitTemplate env) "commit") commits
+                mapM_ (genTarget output scope quiet True (envFileTemplate env) "file") tree -- TODO: detect file changes
 
                 -- Copy any static files/folders into the output folder --
                 liftIO . envRepoCopyStatics env $ output
@@ -179,7 +179,6 @@ package env repos name description commits tree tags branches =
         , ("license", toGVal . findFile "license" $ tree)
         ]
   where
-
     -- Find a file in the tree starting with the specified prefix. The prefix is looked
     -- for on the full path, so will only find files in the top level directory.
     findFile :: Text -> [TreeFile] -> Maybe TreeFile
@@ -304,10 +303,10 @@ getTree = getTree' "" 0 . Git.commitTree <=< Git.lookupCommit
         modes <- mapM (getEntryModes . snd) entries'
         return $ zipWith3 TreeFile (fmap treePaths entries') contents modes
 
-    prependParent
-        :: Git.TreeFilePath
-        -> (Git.TreeFilePath, Git.TreeEntry LgRepo)
-        -> (Git.TreeFilePath, Git.TreeEntry LgRepo)
+    prependParent ::
+        Git.TreeFilePath ->
+        (Git.TreeFilePath, Git.TreeEntry LgRepo) ->
+        (Git.TreeFilePath, Git.TreeEntry LgRepo)
     prependParent "" pathentry = pathentry
     prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
 
@@ -368,20 +367,12 @@ genTarget can work on any target type.
 -}
 class ToGVal RunRepo a => Target a where
     identify :: a -> FilePath
-    category :: a -> FilePath
-    dest :: a -> IO (Path Rel File)
-    dest t = do
-        dir <- parseRelDir . category $ t
-        file <- parseRelFile . identify $ t
-        return $ dir </> file
 
 instance Target Commit where
     identify = (++ ".html") . show . untag . Git.commitOid . commitGit
-    category = const "commit"
 
 instance Target TreeFile where
     identify = T.unpack . treePathToHref
-    category = const "file"
 
 genTarget ::
     Target a =>
@@ -390,14 +381,21 @@ genTarget ::
     Bool ->
     Bool ->
     Maybe Template ->
+    FilePath ->
     a ->
     ReaderT LgRepo IO ()
-genTarget _ _ _ _ Nothing _ = return ()
-genTarget output scope quiet force (Just template) target = do
-    outFile <- liftIO . dest $ target
+genTarget _ _ _ _ Nothing _ _ = return ()
+genTarget output scope quiet force (Just template) category target = do
+    outFile <- liftIO . getDest $ target
     let output' = output </> outFile
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
         liftIO . unless quiet . putStrLn $ "Writing " <> toFilePath output'
-        let scope' = scope <> HashMap.fromList [(T.pack . category $ target, toGVal target)]
+        let scope' = scope <> HashMap.fromList [(T.pack category, toGVal target)]
         generate output' scope' template
+  where
+    getDest :: Target a => a -> IO (Path Rel File)
+    getDest t = do
+        dir <- parseRelDir category
+        file <- parseRelFile . identify $ t
+        return $ dir </> file
