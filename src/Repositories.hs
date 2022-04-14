@@ -34,11 +34,11 @@ import Foreign.Ptr (Ptr)
 import Foreign.Storable (peek)
 import qualified Git
 import Git.Libgit2 (LgRepo, lgDiffTreeToTree, lgFactory)
-import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (</>))
+import Path (Abs, Dir, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (</>))
 import Path.IO (doesFileExist, ensureDir)
 import qualified System.Directory as D
 import qualified System.FilePath as FP
-import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+import Text.Ginger.GVal (GVal, toGVal)
 
 import Env (Env (..))
 import Templates (Template (..), generate)
@@ -385,16 +385,10 @@ genTarget ::
     ReaderT LgRepo IO ()
 genTarget _ _ _ _ Nothing _ _ _ = return ()
 genTarget output scope quiet force (Just template) category href target = do
-    outFile <- liftIO destination
+    outFile <- liftIO $ (</>) <$> parseRelDir category <*> parseRelFile href
     let output' = output </> outFile
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
         liftIO . unless quiet . putStrLn $ "Writing " <> toFilePath output'
         let scope' = scope <> HashMap.fromList [(T.pack category, target)]
         generate output' scope' template
-  where
-    destination :: IO (Path Rel File)
-    destination = do
-        dir <- parseRelDir category
-        file <- parseRelFile href
-        return $ dir </> file
