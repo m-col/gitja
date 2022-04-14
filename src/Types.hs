@@ -176,6 +176,17 @@ hunkAsLookup hunk = \case
     "lines" -> Just . toGVal . fmap makeLine . hunkLines $ hunk
     "header" -> Just . toGVal . bsToText . hunkHeader $ hunk
     _ -> Nothing
+  where
+    makeLine :: DiffLine -> Line
+    makeLine line =
+        let text = bsToText line
+         in Line text (cls . T.head $ text)
+
+    cls :: Char -> String
+    cls = \case
+        '+' -> "add"
+        '-' -> "sub"
+        _ -> "def"
 
 {-
 Wrap diff lines when accessed so that they can each get a class string indicating
@@ -186,16 +197,6 @@ data Line = Line
     { lineText :: Text
     , lineClass :: String
     }
-
-makeLine :: DiffLine -> Line
-makeLine line = Line text (cls . T.head $ text)
-  where
-    text = bsToText line
-    cls :: Char -> String
-    cls = \case
-        '+' -> "add"
-        '-' -> "sub"
-        _ -> "def"
 
 instance ToGVal m Line where
     toGVal :: Line -> GVal m
@@ -236,20 +237,6 @@ blobkindToMode :: Git.BlobKind -> TreeEntryMode
 blobkindToMode Git.PlainBlob = ModePlain
 blobkindToMode Git.ExecutableBlob = ModeExecutable
 blobkindToMode Git.SymlinkBlob = ModeSymlink
-
-modeToOctal :: TreeEntryMode -> String
-modeToOctal ModeDirectory = "40000"
-modeToOctal ModePlain = "00644"
-modeToOctal ModeExecutable = "00755"
-modeToOctal ModeSymlink = "20000"
-modeToOctal ModeSubmodule = "60000"
-
-modeToSymbolic :: TreeEntryMode -> String
-modeToSymbolic ModeDirectory = "drwxr-xr-x"
-modeToSymbolic ModePlain = "-rw-r--r--"
-modeToSymbolic ModeExecutable = "-rwxr-xr-x"
-modeToSymbolic ModeSymlink = "l---------"
-modeToSymbolic ModeSubmodule = "git-module"
 
 {-
 This
@@ -308,26 +295,40 @@ treeAsLookup treefile = \case
     "is_binary" -> Just . toGVal . treeFileIsBinary $ treefile
     "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile
     _ -> Nothing
-
-treeFileGetTree :: Text -> TreeFileContents -> [TreeFile]
-treeFileGetTree parent (FolderContents fs) = filter atTop fs
   where
-    atTop = notElem FP.pathSeparator . drop 1 . T.unpack . fromMaybe "" . T.stripPrefix parent . treeFilePath
-treeFileGetTree _ _ = []
+    treeFileGetTree :: Text -> TreeFileContents -> [TreeFile]
+    treeFileGetTree parent (FolderContents fs) = filter atTop fs
+      where
+        atTop = notElem FP.pathSeparator . drop 1 . T.unpack . fromMaybe "" . T.stripPrefix parent . treeFilePath
+    treeFileGetTree _ _ = []
 
-treeFileGetTreeRecursive :: TreeFileContents -> [TreeFile]
-treeFileGetTreeRecursive (FolderContents fs) = fs
-treeFileGetTreeRecursive _ = []
+    treeFileGetTreeRecursive :: TreeFileContents -> [TreeFile]
+    treeFileGetTreeRecursive (FolderContents fs) = fs
+    treeFileGetTreeRecursive _ = []
 
-treeFileIsBinary :: TreeFile -> Bool
-treeFileIsBinary treefile = case treeFileContents treefile of
-    BinaryContents -> True
-    _ -> False
+    treeFileIsBinary :: TreeFile -> Bool
+    treeFileIsBinary treefile' = case treeFileContents treefile' of
+        BinaryContents -> True
+        _ -> False
 
-treeFileIsDirectory :: TreeFile -> Bool
-treeFileIsDirectory treefile = case treeFileContents treefile of
-    FolderContents _ -> True
-    _ -> False
+    treeFileIsDirectory :: TreeFile -> Bool
+    treeFileIsDirectory treefile' = case treeFileContents treefile' of
+        FolderContents _ -> True
+        _ -> False
+
+    modeToOctal :: TreeEntryMode -> String
+    modeToOctal ModeDirectory = "40000"
+    modeToOctal ModePlain = "00644"
+    modeToOctal ModeExecutable = "00755"
+    modeToOctal ModeSymlink = "20000"
+    modeToOctal ModeSubmodule = "60000"
+
+    modeToSymbolic :: TreeEntryMode -> String
+    modeToSymbolic ModeDirectory = "drwxr-xr-x"
+    modeToSymbolic ModePlain = "-rw-r--r--"
+    modeToSymbolic ModeExecutable = "-rwxr-xr-x"
+    modeToSymbolic ModeSymlink = "l---------"
+    modeToSymbolic ModeSubmodule = "git-module"
 
 {-
 Get the name of a tree file path's HTML file. Leading periods are dropped.
