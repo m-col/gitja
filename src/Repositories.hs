@@ -281,32 +281,33 @@ Collect tree information for the given commit. Recurses on directories to list t
 contents.
 -}
 getTree :: Git.CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
-getTree = getTree' "" . Git.commitTree <=< Git.lookupCommit
+getTree = getTree' "" 0 . Git.commitTree <=< Git.lookupCommit
+  where
+    getTree' :: Git.TreeFilePath -> Int -> Git.TreeOid LgRepo -> ReaderT LgRepo IO [TreeFile]
+    getTree' parent count toid = do
+        one <- Git.lookupTree toid
+        entries <- Git.listTreeEntries one
+        let entries' = fmap (prependParent parent) entries
+        contents <- mapM (\x -> getEntryContents x (count + 1)) entries'
+        modes <- mapM (getEntryModes . snd) entries'
+        return $ zipWith3 TreeFile (fmap treePaths entries') contents modes
 
-getTree' :: Git.TreeFilePath -> Git.TreeOid LgRepo -> ReaderT LgRepo IO [TreeFile]
-getTree' parent toid = do
-    entries <- Git.listTreeEntries =<< Git.lookupTree toid
-    let entries' = fmap (prependParent parent) entries
-    contents <- mapM getEntryContents entries'
-    modes <- mapM (getEntryModes . snd) entries'
-    return $ zipWith3 TreeFile (fmap treePaths entries') contents modes
+    prependParent :: Git.TreeFilePath -> (Git.TreeFilePath, Git.TreeEntry LgRepo) -> (Git.TreeFilePath, Git.TreeEntry LgRepo)
+    prependParent "" pathentry = pathentry
+    prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
 
-prependParent :: Git.TreeFilePath -> (Git.TreeFilePath, Git.TreeEntry LgRepo) -> (Git.TreeFilePath, Git.TreeEntry LgRepo)
-prependParent "" pathentry = pathentry
-prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
+    getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> Int -> ReaderT LgRepo IO TreeFileContents
+    getEntryContents (_, Git.BlobEntry oid _) _ = getBlobContents oid
+    getEntryContents (path, Git.TreeEntry oid) count = FolderContents <$> getTree' path count oid
+    getEntryContents (_, Git.CommitEntry oid) _ = return . FileContents . B.fromString . show . untag $ oid
 
-getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> ReaderT LgRepo IO TreeFileContents
-getEntryContents (_, Git.BlobEntry oid _) = getBlobContents oid
-getEntryContents (path, Git.TreeEntry oid) = FolderContents <$> getTree' path oid
-getEntryContents (_, Git.CommitEntry oid) = return . FileContents . B.fromString . show . untag $ oid
+    getEntryModes :: Git.TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
+    getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
+    getEntryModes (Git.TreeEntry _) = return ModeDirectory
+    getEntryModes (Git.CommitEntry _) = return ModeSubmodule
 
-getEntryModes :: Git.TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
-getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
-getEntryModes (Git.TreeEntry _) = return ModeDirectory
-getEntryModes (Git.CommitEntry _) = return ModeSubmodule
-
-treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> Text
-treePaths = T.decodeUtf8With T.lenientDecode . fst
+    treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> Text
+    treePaths = T.decodeUtf8With T.lenientDecode . fst
 
 {-
 Find a file in the tree starting with the specified prefix. The prefix is looked for on
