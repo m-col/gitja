@@ -146,20 +146,25 @@ processRepo' env repos repo = do
                     gen ::
                         ToGVal RunRepo t =>
                         Template ->
-                        FilePath ->
+                        Text ->
+                        Path Abs Dir ->
                         (t -> FilePath) ->
                         t ->
                         ReaderT LgRepo IO ()
-                    gen = genTarget output scope quiet force
+                    gen = genTarget scope quiet force
 
                 case envCommitTemplate env of
-                    Just commitT ->
-                        mapM_ (gen commitT "commit" commitHref) commits
+                    Just commitT -> do
+                        let category = T.pack "commit"
+                        output' <- liftIO . fmap (output </>) . parseRelDir $ "commit"
+                        mapM_ (gen commitT category output' commitHref) commits
                     Nothing -> return ()
 
                 case envFileTemplate env of
-                    Just fileT ->
-                        mapM_ (gen fileT "file" fileHref) tree -- TODO: detect file changes
+                    Just fileT -> do
+                        let category = T.pack "file"
+                        output' <- liftIO . fmap (output </>) . parseRelDir $ "file"
+                        mapM_ (gen fileT category output' fileHref) tree -- TODO: detect file changes
                     Nothing -> return ()
 
                 -- Copy any static files/folders into the output folder --
@@ -390,20 +395,19 @@ fileHref = T.unpack . treePathToHref
 
 genTarget ::
     ToGVal RunRepo t =>
-    Path Abs Dir ->
     HashMap.HashMap Text (GVal RunRepo) ->
     Bool ->
     Bool ->
     Template ->
-    FilePath ->
+    Text ->
+    Path Abs Dir ->
     (t -> FilePath) ->
     t ->
     ReaderT LgRepo IO ()
-genTarget output scope quiet force template category href target = do
-    outFile <- liftIO $ (</>) <$> parseRelDir category <*> parseRelFile (href target)
-    let output' = output </> outFile
+genTarget scope quiet force template category output href target = do
+    output' <- liftIO . fmap (output </>) . parseRelFile . href $ target
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
         liftIO . unless quiet . putStrLn $ "Writing " <> toFilePath output'
-        let scope' = scope <> HashMap.fromList [(T.pack category, toGVal target)]
+        let scope' = scope <> HashMap.fromList [(category, toGVal target)]
         generate output' scope' template
