@@ -22,6 +22,7 @@ import qualified Data.ByteString.UTF8 as B
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as HashMap
 import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
+import Data.List (find)
 import Data.Maybe (catMaybes, fromJust, listToMaybe, mapMaybe)
 import Data.Tagged (Tagged (..), untag)
 import Data.Text (Text)
@@ -184,10 +185,7 @@ package env repos name description commits tree tags branches =
     -- Find a file in the tree starting with the specified prefix. The prefix is looked
     -- for on the full path, so will only find files in the top level directory.
     findFile :: Text -> [TreeFile] -> Maybe TreeFile
-    findFile _ [] = Nothing
-    findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
-      where
-        isReadme = T.isPrefixOf prefix . T.toLower . treeFilePath
+    findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeFilePath)
 
 {-
 Collect commit history up to a head.
