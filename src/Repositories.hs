@@ -137,13 +137,21 @@ processRepo' env repos repo = do
                 liftIO . ensureDir $ output </> fileDir
 
                 -- Run the generator --
-                let (quiet, force, commitT, fileT) =
-                        (,,,) <$> envQuiet <*> envForce <*> envCommitTemplate <*> envFileTemplate $ env
-
                 mapM_ (genRepo output scope) $ envRepoTemplates env
-                let gen = genTarget output scope quiet force
-                mapM_ (\c -> gen commitT "commit" (commitHref c) (toGVal c)) commits
-                mapM_ (\c -> gen fileT "file" (fileHref c) (toGVal c)) tree -- TODO: detect file changes
+
+                let quiet = envQuiet env
+                    force = envForce env
+                    gen = genTarget output scope quiet force
+
+                case envCommitTemplate env of
+                    Just commitT ->
+                        mapM_ (\c -> gen commitT "commit" (commitHref c) (toGVal c)) commits
+                    Nothing -> return ()
+
+                case envFileTemplate env of
+                    Just fileT ->
+                        mapM_ (\c -> gen fileT "file" (fileHref c) (toGVal c)) tree -- TODO: detect file changes
+                    Nothing -> return ()
 
                 -- Copy any static files/folders into the output folder --
                 liftIO . envRepoCopyStatics env $ output
@@ -376,13 +384,12 @@ genTarget ::
     HashMap.HashMap Text (GVal RunRepo) ->
     Bool ->
     Bool ->
-    Maybe Template ->
+    Template ->
     FilePath ->
     FilePath ->
     GVal RunRepo ->
     ReaderT LgRepo IO ()
-genTarget _ _ _ _ Nothing _ _ _ = return ()
-genTarget output scope quiet force (Just template) category href target = do
+genTarget output scope quiet force template category href target = do
     outFile <- liftIO $ (</>) <$> parseRelDir category <*> parseRelFile href
     let output' = output </> outFile
     exists <- liftIO . doesFileExist $ output'
