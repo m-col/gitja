@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>🐙 gitserve - Add some comments at the top of the template includes</title>
+    <title>🐙 gitserve - bump stack to lts-19.5</title>
     <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
     <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
   </head>
@@ -34,43 +34,48 @@
     </div>
 
     <div id="content">
-      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/caf703850b1cb2c699a3d9b5ecab217405d6c1d2.html">caf703850b1cb2c699a3d9b5ecab217405d6c1d2</a>
-<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/6b0ba9926643f55798a87aef2d4b9f531399a25b.html">6b0ba9926643f55798a87aef2d4b9f531399a25b</a>
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/f705563fb08f94908ef05370b668a5423792ee3a.html">f705563fb08f94908ef05370b668a5423792ee3a</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/4efe9c247b50bb4a182f6df9e72849e8e6a1dcc7.html">4efe9c247b50bb4a182f6df9e72849e8e6a1dcc7</a>
 <b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Date:</b> 2021-11-23 00:32:53 +0000
+<b>Date:</b> 2022-04-25 23:17:19 +0100
 <b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Committed:</b> 2021-11-23 00:32:53 +0000
+<b>Committed:</b> 2022-04-25 23:17:19 +0100
 
-Add some comments at the top of the template includes
+bump stack to lts-19.5
 </pre><div class="diff">
   <p>
-    <b>templates/template.html.include</b>
+    <b>stack.yaml.lock</b>
     <span class="status">Modified</span>
   </p>
 
-  @@ -1,3 +1,6 @@
+  @@ -39,7 +39,7 @@
 
 
-  <pre><span class="add">+{#- This is the base template used for all pages. -#}
-</span><span class="add">+{#- Style credit goes to stagit. -#}
-</span><span class="add">+
-</span><span class="def"> &lt;!doctype html&gt;
-</span><span class="def"> &lt;html lang=&quot;en&quot;&gt;
-</span><span class="def">   &lt;head&gt;
+  <pre><span class="def">     url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
+</span><span class="def"> snapshots:
+</span><span class="def"> - completed:
+</span><span class="sub">-    size: 623654
+</span><span class="sub">-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/1/6.yaml
+</span><span class="sub">-    sha256: efba441fbb0fff82c5be10ccda625e25b38f6673588ed5ddb8ef9239ec130d39
+</span><span class="sub">-  original: nightly-2022-01-06
+</span><span class="add">+    size: 619093
+</span><span class="add">+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/5.yaml
+</span><span class="add">+    sha256: b936d27d647a31a8834d3efec126e2a07dee9c9bd6dd401d9bdac77e7b278f1e
+</span><span class="add">+  original: lts-19.5
 </span></pre></div><div class="diff">
   <p>
-    <b>templates/repo-table-header.html.include</b>
+    <b>stack.yaml</b>
     <span class="status">Modified</span>
   </p>
 
-  @@ -1,3 +1,5 @@
+  @@ -1,4 +1,4 @@
 
 
-  <pre><span class="add">+{#- This block is rendered at the top of every page. -#}
-</span><span class="add">+
-</span><span class="def"> &lt;table id=&quot;head&quot;&gt;
-</span><span class="def">   &lt;tr&gt;
-</span><span class="def">     &lt;td width=&quot;32px&quot; rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;&lt;img src=&quot;{{ host }}/avatar.png&quot; id=&quot;avatar&quot;/&gt;&lt;/a&gt;&lt;/td&gt;
+  <pre><span class="sub">-resolver: nightly-2022-01-06
+</span><span class="add">+resolver: lts-19.5
+</span><span class="def"> 
+</span><span class="def"> extra-deps:
+</span><span class="def"> - ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
 </span></pre></div>    </div>
   </body>
 </html>
