@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - Narrow the scope of some Types helper functions</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/5faaffe51bf89fe94ab7a8fd1efab397d06ce0f7.html">5faaffe</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/993107b3a773d6db4272c3db0d75a93d3df4c9de.html">993107b3a773d6db4272c3db0d75a93d3df4c9de</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/4f438873fbc14a4f12794cdda78ee458a8ef7e4b.html">4f438873fbc14a4f12794cdda78ee458a8ef7e4b</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-04-14 19:24:12 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-04-14 19:24:12 +0100
+
+Narrow the scope of some Types helper functions
+</pre><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -176,6 +176,17 @@
+
+
+  <pre><span class="def">     &quot;lines&quot; -&gt; Just . toGVal . fmap makeLine . hunkLines $ hunk
+</span><span class="def">     &quot;header&quot; -&gt; Just . toGVal . bsToText . hunkHeader $ hunk
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="add">+  where
+</span><span class="add">+    makeLine :: DiffLine -&gt; Line
+</span><span class="add">+    makeLine line =
+</span><span class="add">+        let text = bsToText line
+</span><span class="add">+         in Line text (cls . T.head $ text)
+</span><span class="add">+
+</span><span class="add">+    cls :: Char -&gt; String
+</span><span class="add">+    cls = \case
+</span><span class="add">+        &apos;+&apos; -&gt; &quot;add&quot;
+</span><span class="add">+        &apos;-&apos; -&gt; &quot;sub&quot;
+</span><span class="add">+        _ -&gt; &quot;def&quot;
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Wrap diff lines when accessed so that they can each get a class string indicating
+</span></pre>@@ -187,16 +198,6 @@
+
+
+  <pre><span class="def">     , lineClass :: String
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="sub">-makeLine :: DiffLine -&gt; Line
+</span><span class="sub">-makeLine line = Line text (cls . T.head $ text)
+</span><span class="sub">-  where
+</span><span class="sub">-    text = bsToText line
+</span><span class="sub">-    cls :: Char -&gt; String
+</span><span class="sub">-    cls = \case
+</span><span class="sub">-        &apos;+&apos; -&gt; &quot;add&quot;
+</span><span class="sub">-        &apos;-&apos; -&gt; &quot;sub&quot;
+</span><span class="sub">-        _ -&gt; &quot;def&quot;
+</span><span class="sub">-
+</span><span class="def"> instance ToGVal m Line where
+</span><span class="def">     toGVal :: Line -&gt; GVal m
+</span><span class="def">     toGVal line =
+</span></pre>@@ -237,20 +238,6 @@
+
+
+  <pre><span class="def"> blobkindToMode Git.ExecutableBlob = ModeExecutable
+</span><span class="def"> blobkindToMode Git.SymlinkBlob = ModeSymlink
+</span><span class="def"> 
+</span><span class="sub">-modeToOctal :: TreeEntryMode -&gt; String
+</span><span class="sub">-modeToOctal ModeDirectory = &quot;40000&quot;
+</span><span class="sub">-modeToOctal ModePlain = &quot;00644&quot;
+</span><span class="sub">-modeToOctal ModeExecutable = &quot;00755&quot;
+</span><span class="sub">-modeToOctal ModeSymlink = &quot;20000&quot;
+</span><span class="sub">-modeToOctal ModeSubmodule = &quot;60000&quot;
+</span><span class="sub">-
+</span><span class="sub">-modeToSymbolic :: TreeEntryMode -&gt; String
+</span><span class="sub">-modeToSymbolic ModeDirectory = &quot;drwxr-xr-x&quot;
+</span><span class="sub">-modeToSymbolic ModePlain = &quot;-rw-r--r--&quot;
+</span><span class="sub">-modeToSymbolic ModeExecutable = &quot;-rwxr-xr-x&quot;
+</span><span class="sub">-modeToSymbolic ModeSymlink = &quot;l---------&quot;
+</span><span class="sub">-modeToSymbolic ModeSubmodule = &quot;git-module&quot;
+</span><span class="sub">-
+</span><span class="def"> {-
+</span><span class="def"> This
+</span><span class="def"> -}
+</span></pre>@@ -308,26 +295,40 @@
+
+
+  <pre><span class="def">     &quot;is_binary&quot; -&gt; Just . toGVal . treeFileIsBinary $ treefile
+</span><span class="def">     &quot;is_directory&quot; -&gt; Just . toGVal . treeFileIsDirectory $ treefile
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="sub">-
+</span><span class="sub">-treeFileGetTree :: Text -&gt; TreeFileContents -&gt; [TreeFile]
+</span><span class="sub">-treeFileGetTree parent (FolderContents fs) = filter atTop fs
+</span><span class="def">   where
+</span><span class="sub">-    atTop = notElem FP.pathSeparator . drop 1 . T.unpack . fromMaybe &quot;&quot; . T.stripPrefix parent . treeFilePath
+</span><span class="sub">-treeFileGetTree _ _ = []
+</span><span class="sub">-
+</span><span class="sub">-treeFileGetTreeRecursive :: TreeFileContents -&gt; [TreeFile]
+</span><span class="sub">-treeFileGetTreeRecursive (FolderContents fs) = fs
+</span><span class="sub">-treeFileGetTreeRecursive _ = []
+</span><span class="sub">-
+</span><span class="sub">-treeFileIsBinary :: TreeFile -&gt; Bool
+</span><span class="sub">-treeFileIsBinary treefile = case treeFileContents treefile of
+</span><span class="sub">-    BinaryContents -&gt; True
+</span><span class="sub">-    _ -&gt; False
+</span><span class="sub">-
+</span><span class="sub">-treeFileIsDirectory :: TreeFile -&gt; Bool
+</span><span class="sub">-treeFileIsDirectory treefile = case treeFileContents treefile of
+</span><span class="sub">-    FolderContents _ -&gt; True
+</span><span class="sub">-    _ -&gt; False
+</span><span class="add">+    treeFileGetTree :: Text -&gt; TreeFileContents -&gt; [TreeFile]
+</span><span class="add">+    treeFileGetTree parent (FolderContents fs) = filter atTop fs
+</span><span class="add">+      where
+</span><span class="add">+        atTop = notElem FP.pathSeparator . drop 1 . T.unpack . fromMaybe &quot;&quot; . T.stripPrefix parent . treeFilePath
+</span><span class="add">+    treeFileGetTree _ _ = []
+</span><span class="add">+
+</span><span class="add">+    treeFileGetTreeRecursive :: TreeFileContents -&gt; [TreeFile]
+</span><span class="add">+    treeFileGetTreeRecursive (FolderContents fs) = fs
+</span><span class="add">+    treeFileGetTreeRecursive _ = []
+</span><span class="add">+
+</span><span class="add">+    treeFileIsBinary :: TreeFile -&gt; Bool
+</span><span class="add">+    treeFileIsBinary treefile&apos; = case treeFileContents treefile&apos; of
+</span><span class="add">+        BinaryContents -&gt; True
+</span><span class="add">+        _ -&gt; False
+</span><span class="add">+
+</span><span class="add">+    treeFileIsDirectory :: TreeFile -&gt; Bool
+</span><span class="add">+    treeFileIsDirectory treefile&apos; = case treeFileContents treefile&apos; of
+</span><span class="add">+        FolderContents _ -&gt; True
+</span><span class="add">+        _ -&gt; False
+</span><span class="add">+
+</span><span class="add">+    modeToOctal :: TreeEntryMode -&gt; String
+</span><span class="add">+    modeToOctal ModeDirectory = &quot;40000&quot;
+</span><span class="add">+    modeToOctal ModePlain = &quot;00644&quot;
+</span><span class="add">+    modeToOctal ModeExecutable = &quot;00755&quot;
+</span><span class="add">+    modeToOctal ModeSymlink = &quot;20000&quot;
+</span><span class="add">+    modeToOctal ModeSubmodule = &quot;60000&quot;
+</span><span class="add">+
+</span><span class="add">+    modeToSymbolic :: TreeEntryMode -&gt; String
+</span><span class="add">+    modeToSymbolic ModeDirectory = &quot;drwxr-xr-x&quot;
+</span><span class="add">+    modeToSymbolic ModePlain = &quot;-rw-r--r--&quot;
+</span><span class="add">+    modeToSymbolic ModeExecutable = &quot;-rwxr-xr-x&quot;
+</span><span class="add">+    modeToSymbolic ModeSymlink = &quot;l---------&quot;
+</span><span class="add">+    modeToSymbolic ModeSubmodule = &quot;git-module&quot;
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Get the name of a tree file path&apos;s HTML file. Leading periods are dropped.
+</span></pre></div>    </div>
+  </body>
+</html>

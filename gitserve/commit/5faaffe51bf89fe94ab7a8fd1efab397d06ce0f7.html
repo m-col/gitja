@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - use hashmap insert instead of mappend</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/5faaffe51bf89fe94ab7a8fd1efab397d06ce0f7.html">5faaffe</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/5faaffe51bf89fe94ab7a8fd1efab397d06ce0f7.html">5faaffe51bf89fe94ab7a8fd1efab397d06ce0f7</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/55bdba12d16998b11c69ce47b31d4cca9cfd0064.html">55bdba12d16998b11c69ce47b31d4cca9cfd0064</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-04-25 20:59:58 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-04-25 20:59:58 +0100
+
+use hashmap insert instead of mappend
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -60,10 +60,10 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> generate ::
+</span><span class="def">     Path Abs File -&gt;
+</span><span class="sub">-    HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="add">+    HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="def">     ReaderT LgRepo IO ()
+</span><span class="sub">-generate output context template = do
+</span><span class="add">+generate output template context = do
+</span><span class="def">     let output&apos; = toFilePath output
+</span><span class="def">     liftIO . ignoringAbsence . removeFile $ output&apos;
+</span><span class="def">     content &lt;- liftIO . newIORef . TB.fromText $ &quot;&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -375,7 +375,7 @@
+
+
+  <pre><span class="def">     Template -&gt;
+</span><span class="def">     ReaderT LgRepo IO ()
+</span><span class="def"> genRepo output scope template =
+</span><span class="sub">-    generate (output &lt;/&gt; templatePath template) scope template
+</span><span class="add">+    generate (output &lt;/&gt; templatePath template) template scope
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Targets -----------------------------------------------------------------------------
+</span></pre>@@ -409,5 +409,4 @@
+
+
+  <pre><span class="def">     exists &lt;- liftIO . doesFileExist $ output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="def">         liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
+</span><span class="sub">-        let scope&apos; = scope &lt;&gt; HashMap.fromList [(category, toGVal target)]
+</span><span class="sub">-        generate output&apos; scope&apos; template
+</span><span class="add">+        generate output&apos; template $ HashMap.insert category (toGVal target) scope
+</span></pre></div>    </div>
+  </body>
+</html>

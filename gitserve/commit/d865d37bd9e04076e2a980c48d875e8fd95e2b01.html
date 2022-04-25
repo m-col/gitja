@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - continue removing Target class</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/5faaffe51bf89fe94ab7a8fd1efab397d06ce0f7.html">5faaffe</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/d865d37bd9e04076e2a980c48d875e8fd95e2b01.html">d865d37bd9e04076e2a980c48d875e8fd95e2b01</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/6ee405c2c393b0cab33d1d0fb54332912c8dc857.html">6ee405c2c393b0cab33d1d0fb54332912c8dc857</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-04-14 22:10:08 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-04-14 22:10:08 +0100
+
+continue removing Target class
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -136,11 +136,13 @@
+
+
+  <pre><span class="def">                 liftIO . ensureDir $ output &lt;/&gt; fileDir
+</span><span class="def"> 
+</span><span class="def">                 -- Run the generator --
+</span><span class="sub">-                let quiet = envQuiet env
+</span><span class="sub">-                let force = envForce env
+</span><span class="add">+                let (quiet, force, commitT, fileT) =
+</span><span class="add">+                        (,,,) &lt;$&gt; envQuiet &lt;*&gt; envForce &lt;*&gt; envCommitTemplate &lt;*&gt; envFileTemplate $ env
+</span><span class="add">+
+</span><span class="def">                 mapM_ (genRepo output scope) $ envRepoTemplates env
+</span><span class="sub">-                mapM_ (genTarget output scope quiet force (envCommitTemplate env) &quot;commit&quot;) commits
+</span><span class="sub">-                mapM_ (genTarget output scope quiet True (envFileTemplate env) &quot;file&quot;) tree -- TODO: detect file changes
+</span><span class="add">+                let gen = genTarget output scope quiet force
+</span><span class="add">+                mapM_ (\c -&gt; gen commitT &quot;commit&quot; (commitHref c) (toGVal c)) commits
+</span><span class="add">+                mapM_ (\c -&gt; gen fileT &quot;file&quot; (fileHref c) (toGVal c)) tree -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="def">                 -- Copy any static files/folders into the output folder --
+</span><span class="def">                 liftIO . envRepoCopyStatics env $ output
+</span></pre>@@ -362,40 +364,37 @@
+
+
+  <pre><span class="def"> A Target refers to a template scope and repository object whose information is available
+</span><span class="def"> in that scope. For example, commits are a target as they each generate a scope
+</span><span class="def"> containing that commit&apos;s information, and these scopes are each rendered in the
+</span><span class="sub">-commitTemplate. The Target class generalises how each target is represented so that
+</span><span class="sub">-genTarget can work on any target type.
+</span><span class="add">+commitTemplate.
+</span><span class="def"> -}
+</span><span class="sub">-class ToGVal RunRepo a =&gt; Target a where
+</span><span class="sub">-    identify :: a -&gt; FilePath
+</span><span class="def"> 
+</span><span class="sub">-instance Target Commit where
+</span><span class="sub">-    identify = (++ &quot;.html&quot;) . show . untag . Git.commitOid . commitGit
+</span><span class="add">+commitHref :: Commit -&gt; FilePath
+</span><span class="add">+commitHref = (++ &quot;.html&quot;) . show . untag . Git.commitOid . commitGit
+</span><span class="def"> 
+</span><span class="sub">-instance Target TreeFile where
+</span><span class="sub">-    identify = T.unpack . treePathToHref
+</span><span class="add">+fileHref :: TreeFile -&gt; FilePath
+</span><span class="add">+fileHref = T.unpack . treePathToHref
+</span><span class="def"> 
+</span><span class="def"> genTarget ::
+</span><span class="sub">-    Target a =&gt;
+</span><span class="def">     Path Abs Dir -&gt;
+</span><span class="def">     HashMap.HashMap Text (GVal RunRepo) -&gt;
+</span><span class="def">     Bool -&gt;
+</span><span class="def">     Bool -&gt;
+</span><span class="def">     Maybe Template -&gt;
+</span><span class="def">     FilePath -&gt;
+</span><span class="sub">-    a -&gt;
+</span><span class="add">+    FilePath -&gt;
+</span><span class="add">+    GVal RunRepo -&gt;
+</span><span class="def">     ReaderT LgRepo IO ()
+</span><span class="sub">-genTarget _ _ _ _ Nothing _ _ = return ()
+</span><span class="sub">-genTarget output scope quiet force (Just template) category target = do
+</span><span class="sub">-    outFile &lt;- liftIO . getDest $ target
+</span><span class="add">+genTarget _ _ _ _ Nothing _ _ _ = return ()
+</span><span class="add">+genTarget output scope quiet force (Just template) category href target = do
+</span><span class="add">+    outFile &lt;- liftIO destination
+</span><span class="def">     let output&apos; = output &lt;/&gt; outFile
+</span><span class="def">     exists &lt;- liftIO . doesFileExist $ output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="def">         liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
+</span><span class="sub">-        let scope&apos; = scope &lt;&gt; HashMap.fromList [(T.pack category, toGVal target)]
+</span><span class="add">+        let scope&apos; = scope &lt;&gt; HashMap.fromList [(T.pack category, target)]
+</span><span class="def">         generate output&apos; scope&apos; template
+</span><span class="def">   where
+</span><span class="sub">-    getDest :: Target a =&gt; a -&gt; IO (Path Rel File)
+</span><span class="sub">-    getDest t = do
+</span><span class="add">+    destination :: IO (Path Rel File)
+</span><span class="add">+    destination = do
+</span><span class="def">         dir &lt;- parseRelDir category
+</span><span class="sub">-        file &lt;- parseRelFile . identify $ t
+</span><span class="add">+        file &lt;- parseRelFile href
+</span><span class="def">         return $ dir &lt;/&gt; file
+</span></pre></div>    </div>
+  </body>
+</html>

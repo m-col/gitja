@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/4f438873fbc14a4f12794cdda78ee458a8ef7e4b.html">4f43887</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/5faaffe51bf89fe94ab7a8fd1efab397d06ce0f7.html">5faaffe</a>
       </p>
     </div>
 
@@ -98,10 +98,10 @@
 <a href="#l60" class="line" id="l60">   60</a>  -}
 <a href="#l61" class="line" id="l61">   61</a>  generate ::
 <a href="#l62" class="line" id="l62">   62</a>      Path Abs File -&gt;
-<a href="#l63" class="line" id="l63">   63</a>      HashMap.HashMap T.Text (GVal RunRepo) -&gt;
-<a href="#l64" class="line" id="l64">   64</a>      Template -&gt;
+<a href="#l63" class="line" id="l63">   63</a>      Template -&gt;
+<a href="#l64" class="line" id="l64">   64</a>      HashMap.HashMap T.Text (GVal RunRepo) -&gt;
 <a href="#l65" class="line" id="l65">   65</a>      ReaderT LgRepo IO ()
-<a href="#l66" class="line" id="l66">   66</a>  generate output context template = do
+<a href="#l66" class="line" id="l66">   66</a>  generate output template context = do
 <a href="#l67" class="line" id="l67">   67</a>      let output&apos; = toFilePath output
 <a href="#l68" class="line" id="l68">   68</a>      liftIO . ignoringAbsence . removeFile $ output&apos;
 <a href="#l69" class="line" id="l69">   69</a>      content &lt;- liftIO . newIORef . TB.fromText $ &quot;&quot;
