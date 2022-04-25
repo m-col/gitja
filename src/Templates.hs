@@ -60,10 +60,10 @@ Ginger to render templates using them.
 -}
 generate ::
     Path Abs File ->
-    HashMap.HashMap T.Text (GVal RunRepo) ->
     Template ->
+    HashMap.HashMap T.Text (GVal RunRepo) ->
     ReaderT LgRepo IO ()
-generate output context template = do
+generate output template context = do
     let output' = toFilePath output
     liftIO . ignoringAbsence . removeFile $ output'
     content <- liftIO . newIORef . TB.fromText $ ""

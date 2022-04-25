@@ -375,7 +375,7 @@ genRepo ::
     Template ->
     ReaderT LgRepo IO ()
 genRepo output scope template =
-    generate (output </> templatePath template) scope template
+    generate (output </> templatePath template) template scope
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
@@ -409,5 +409,4 @@ genTarget scope quiet force template category output href target = do
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
         liftIO . unless quiet . putStrLn $ "Writing " <> toFilePath output'
-        let scope' = scope <> HashMap.fromList [(category, toGVal target)]
-        generate output' scope' template
+        generate output' template $ HashMap.insert category (toGVal target) scope
