@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>🐙 gitserve - Fix the makefile</title>
+    <title>🐙 gitserve - optimise when installing or building for prod</title>
     <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
     <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
   </head>
@@ -34,36 +34,51 @@
     </div>
 
     <div id="content">
-      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/6b0ba9926643f55798a87aef2d4b9f531399a25b.html">6b0ba9926643f55798a87aef2d4b9f531399a25b</a>
-<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/a27c64028fadb21e9a611d024d5f9c0f79ec34bf.html">a27c64028fadb21e9a611d024d5f9c0f79ec34bf</a>
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/4efe9c247b50bb4a182f6df9e72849e8e6a1dcc7.html">4efe9c247b50bb4a182f6df9e72849e8e6a1dcc7</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/5faaffe51bf89fe94ab7a8fd1efab397d06ce0f7.html">5faaffe51bf89fe94ab7a8fd1efab397d06ce0f7</a>
 <b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Date:</b> 2021-11-23 00:27:20 +0000
+<b>Date:</b> 2022-04-25 22:43:41 +0100
 <b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Committed:</b> 2021-11-23 00:27:20 +0000
+<b>Committed:</b> 2022-04-25 22:44:18 +0100
 
-Fix the makefile
+optimise when installing or building for prod
+
+also shush when profiling
 </pre><div class="diff">
   <p>
     <b>Makefile</b>
     <span class="status">Modified</span>
   </p>
 
-  @@ -13,11 +13,11 @@
+  @@ -18,7 +18,7 @@
 
 
-  <pre><span class="def"> 	@hlint src
-</span><span class="def"> 
-</span><span class="def"> .PHONY: format
-</span><span class="sub">-format: ## Check the source code
-</span><span class="add">+format: ## Auto-format the source code
-</span><span class="def"> 	@fourmolu -m inplace src/*
-</span><span class="def"> 
+  <pre><span class="def"> 
 </span><span class="def"> .PHONY: install
-</span><span class="sub">-install: ## Clean generated files
-</span><span class="add">+install: ## Install the compiled executable
-</span><span class="def"> 	@stack install
+</span><span class="def"> install: ## Install the compiled executable
+</span><span class="sub">-	@stack install
+</span><span class="add">+	@stack install --ghc-options=&quot;-O2&quot;
 </span><span class="def"> 
 </span><span class="def"> .PHONY: clean
+</span><span class="def"> clean: ## Clean generated files
+</span></pre>@@ -40,13 +40,13 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> .PHONY: prod
+</span><span class="def"> prod: ## Build with optimise flags
+</span><span class="sub">-	@stack build --ghc-options=&quot;-O&quot;
+</span><span class="add">+	@stack build --ghc-options=&quot;-O2&quot;
+</span><span class="def"> 
+</span><span class="def"> .PHONY: prof
+</span><span class="def"> prof: ## Build with profiling enabled
+</span><span class="def"> 	@stack build --profile
+</span><span class="def"> 	@rm -r output
+</span><span class="sub">-	@stack exec --profile -- gitserve +RTS -p
+</span><span class="add">+	@stack exec --profile -- gitserve -q +RTS -p
+</span><span class="def"> 	@head -n 6 gitserve.prof
+</span><span class="def"> 
+</span><span class="def"> .PHONY: all
 </span></pre></div>    </div>
   </body>
 </html>

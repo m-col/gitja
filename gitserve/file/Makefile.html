@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/5faaffe51bf89fe94ab7a8fd1efab397d06ce0f7.html">5faaffe</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/4efe9c247b50bb4a182f6df9e72849e8e6a1dcc7.html">4efe9c2</a>
       </p>
     </div>
 
@@ -56,7 +56,7 @@
 <a href="#l18" class="line" id="l18">   18</a>  
 <a href="#l19" class="line" id="l19">   19</a>  .PHONY: install
 <a href="#l20" class="line" id="l20">   20</a>  install: ## Install the compiled executable
-<a href="#l21" class="line" id="l21">   21</a>  	@stack install
+<a href="#l21" class="line" id="l21">   21</a>  	@stack install --ghc-options=&quot;-O2&quot;
 <a href="#l22" class="line" id="l22">   22</a>  
 <a href="#l23" class="line" id="l23">   23</a>  .PHONY: clean
 <a href="#l24" class="line" id="l24">   24</a>  clean: ## Clean generated files
@@ -78,13 +78,13 @@
 <a href="#l40" class="line" id="l40">   40</a>  
 <a href="#l41" class="line" id="l41">   41</a>  .PHONY: prod
 <a href="#l42" class="line" id="l42">   42</a>  prod: ## Build with optimise flags
-<a href="#l43" class="line" id="l43">   43</a>  	@stack build --ghc-options=&quot;-O&quot;
+<a href="#l43" class="line" id="l43">   43</a>  	@stack build --ghc-options=&quot;-O2&quot;
 <a href="#l44" class="line" id="l44">   44</a>  
 <a href="#l45" class="line" id="l45">   45</a>  .PHONY: prof
 <a href="#l46" class="line" id="l46">   46</a>  prof: ## Build with profiling enabled
 <a href="#l47" class="line" id="l47">   47</a>  	@stack build --profile
 <a href="#l48" class="line" id="l48">   48</a>  	@rm -r output
-<a href="#l49" class="line" id="l49">   49</a>  	@stack exec --profile -- gitserve +RTS -p
+<a href="#l49" class="line" id="l49">   49</a>  	@stack exec --profile -- gitserve -q +RTS -p
 <a href="#l50" class="line" id="l50">   50</a>  	@head -n 6 gitserve.prof
 <a href="#l51" class="line" id="l51">   51</a>  
 <a href="#l52" class="line" id="l52">   52</a>  .PHONY: all
