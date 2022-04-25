@@ -39,7 +39,7 @@ packages:
     url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
 snapshots:
 - completed:
-    size: 623654
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/1/6.yaml
-    sha256: efba441fbb0fff82c5be10ccda625e25b38f6673588ed5ddb8ef9239ec130d39
-  original: nightly-2022-01-06
+    size: 619093
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/5.yaml
+    sha256: b936d27d647a31a8834d3efec126e2a07dee9c9bd6dd401d9bdac77e7b278f1e
+  original: lts-19.5
