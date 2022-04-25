@@ -18,7 +18,7 @@ format: ## Auto-format the source code
 
 .PHONY: install
 install: ## Install the compiled executable
-	@stack install
+	@stack install --ghc-options="-O2"
 
 .PHONY: clean
 clean: ## Clean generated files
@@ -40,13 +40,13 @@ test: ## Run the "tests"
 
 .PHONY: prod
 prod: ## Build with optimise flags
-	@stack build --ghc-options="-O"
+	@stack build --ghc-options="-O2"
 
 .PHONY: prof
 prof: ## Build with profiling enabled
 	@stack build --profile
 	@rm -r output
-	@stack exec --profile -- gitserve +RTS -p
+	@stack exec --profile -- gitserve -q +RTS -p
 	@head -n 6 gitserve.prof
 
 .PHONY: all
