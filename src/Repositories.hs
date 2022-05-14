@@ -1,3 +1,4 @@
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
@@ -11,7 +12,7 @@ import qualified Bindings.Libgit2 as LG
 import Conduit (runConduit, sinkList, (.|))
 import Control.Exception (try)
 import Control.Monad (filterM, unless, when, (<=<))
-import Control.Monad.Extra (ifM)
+import Control.Monad.Extra (ifM, whenJust)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Bool (bool)
@@ -151,19 +152,13 @@ processRepo' env repos repo = do
                         ReaderT LgRepo IO ()
                     gen = genTarget scope quiet force
 
-                case envCommitTemplate env of
-                    Just commitT -> do
-                        let category = T.pack "commit"
-                        output' <- liftIO . fmap (output </>) . parseRelDir $ "commit"
-                        mapM_ (gen commitT category output' commitHref) commits
-                    Nothing -> return ()
+                whenJust (envCommitTemplate env) \commitT -> do
+                    output' <- liftIO . fmap (output </>) . parseRelDir $ "commit"
+                    mapM_ (gen commitT "commit" output' commitHref) commits
 
-                case envFileTemplate env of
-                    Just fileT -> do
-                        let category = T.pack "file"
-                        output' <- liftIO . fmap (output </>) . parseRelDir $ "file"
-                        mapM_ (gen fileT category output' fileHref) tree -- TODO: detect file changes
-                    Nothing -> return ()
+                whenJust (envFileTemplate env) \fileT -> do
+                    output' <- liftIO . fmap (output </>) . parseRelDir $ "file"
+                    mapM_ (gen fileT "file" output' fileHref) tree -- TODO: detect file changes
 
                 -- Copy any static files/folders into the output folder --
                 liftIO . envRepoCopyStatics env $ output
