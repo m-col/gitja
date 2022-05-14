@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>🐙 gitserve - simplify genRepo</title>
+    <title>🐙 gitserve - remove some comments beside language pragams</title>
     <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
     <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
   </head>
@@ -34,34 +34,48 @@
     </div>
 
     <div id="content">
-      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/033fc0b0dec153a3e05760ae9a5392997bba581b.html">033fc0b0dec153a3e05760ae9a5392997bba581b</a>
-<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/dacb13073d21f021b3d4e3b358dad574e62593bc.html">dacb13073d21f021b3d4e3b358dad574e62593bc</a>
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/11056c3d0fbf90b11741965912e9724e78352615.html">11056c3d0fbf90b11741965912e9724e78352615</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/f705563fb08f94908ef05370b668a5423792ee3a.html">f705563fb08f94908ef05370b668a5423792ee3a</a>
 <b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Date:</b> 2021-11-28 14:14:40 +0000
+<b>Date:</b> 2022-05-14 19:01:58 +0100
 <b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Committed:</b> 2021-11-28 14:14:40 +0000
+<b>Committed:</b> 2022-05-14 19:01:58 +0100
 
-simplify genRepo
+remove some comments beside language pragams
 </pre><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,10 +1,7 @@
+
+
+  <pre><span class="def"> {-# LANGUAGE DerivingStrategies #-}
+</span><span class="sub">--- Needed for `instance ToGVal`
+</span><span class="def"> {-# LANGUAGE FlexibleInstances #-}
+</span><span class="sub">--- Needed for toGVal type signature
+</span><span class="def"> {-# LANGUAGE InstanceSigs #-}
+</span><span class="def"> {-# LANGUAGE LambdaCase #-}
+</span><span class="sub">--- Needed for `instance ToGVal`
+</span><span class="def"> {-# LANGUAGE MultiParamTypeClasses #-}
+</span><span class="def"> {-# LANGUAGE OverloadedStrings #-}
+</span><span class="def"> 
+</span></pre></div><div class="diff">
   <p>
     <b>src/Repositories.hs</b>
     <span class="status">Modified</span>
   </p>
 
-  @@ -209,9 +209,8 @@
+  @@ -1,6 +1,4 @@
 
 
-  <pre><span class="def">     HashMap.HashMap Text (GVal RunRepo) -&gt;
-</span><span class="def">     Template -&gt;
-</span><span class="def">     ReaderT LgRepo IO ()
-</span><span class="sub">-genRepo output scope template = generate output&apos; scope template
-</span><span class="sub">-  where
-</span><span class="sub">-    output&apos; = output &lt;/&gt; templatePath template
-</span><span class="add">+genRepo output scope template =
-</span><span class="add">+    generate (output &lt;/&gt; templatePath template) scope template
-</span><span class="def"> 
-</span><span class="def"> ----------------------------------------------------------------------------------------
-</span><span class="def"> -- Targets -----------------------------------------------------------------------------
+  <pre><span class="sub">--- Needed for the Target class type constraints
+</span><span class="def"> {-# LANGUAGE FlexibleContexts #-}
+</span><span class="sub">--- Needed for the Target class type constraints
+</span><span class="def"> {-# LANGUAGE FlexibleInstances #-}
+</span><span class="def"> {-# LANGUAGE LambdaCase #-}
+</span><span class="def"> {-# LANGUAGE OverloadedStrings #-}
 </span></pre></div>    </div>
   </body>
 </html>
