@@ -1,6 +1,4 @@
--- Needed for the Target class type constraints
 {-# LANGUAGE FlexibleContexts #-}
--- Needed for the Target class type constraints
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}

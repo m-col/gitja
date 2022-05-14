@@ -1,10 +1,7 @@
 {-# LANGUAGE DerivingStrategies #-}
--- Needed for `instance ToGVal`
 {-# LANGUAGE FlexibleInstances #-}
--- Needed for toGVal type signature
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE LambdaCase #-}
--- Needed for `instance ToGVal`
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 
