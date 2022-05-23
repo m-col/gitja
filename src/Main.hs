@@ -18,7 +18,7 @@ import qualified System.Directory as D
 import System.FilePath (takeDirectory, (</>))
 
 import Env (getConfig, loadEnv)
-import Index (runIndex)
+--import Index (runIndex)
 import Repositories (run)
 
 {-
@@ -85,7 +85,9 @@ main = do
             | otherwise -> do
                 conf <- getConfig (optConfig options)
                 env <- loadEnv (optQuiet options) (optForce options) conf
-                runIndex env =<< run env
+                --runIndex env =<< run env
+                run env
+                return ()
 
 {-
 Put a base template and plain config into the current directory.

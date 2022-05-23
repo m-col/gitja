@@ -32,6 +32,7 @@ executable gitserve
                      , ginger >= 0.10.4.0
                      , gitlib
                      , gitlib-libgit2
+                     , hakyll
                      , hlibgit2
                      , optparse-applicative
                      , path

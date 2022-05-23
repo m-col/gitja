@@ -39,6 +39,7 @@ import Path.IO (doesFileExist, ensureDir)
 import qualified System.Directory as D
 import qualified System.FilePath as FP
 import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+import qualified Hakyll as H
 
 import Env (Env (..))
 import Templates (Template (..), generate)
@@ -136,29 +137,31 @@ processRepo' env repos repo = do
                 liftIO . ensureDir $ output </> fileDir
 
                 -- Run the generator --
+                liftIO $ print "in"
                 mapM_ (genRepo output scope) $ envRepoTemplates env
+                liftIO $ print "out"
 
-                let quiet = envQuiet env
-                    force = envForce env
+                --let quiet = envQuiet env
+                --    force = envForce env
 
-                    -- This annotation blocks the first use of gen from making t concrete
-                    gen ::
-                        ToGVal RunRepo t =>
-                        Template ->
-                        Text ->
-                        Path Abs Dir ->
-                        (t -> FilePath) ->
-                        t ->
-                        ReaderT LgRepo IO ()
-                    gen = genTarget scope quiet force
+                --    -- This annotation blocks the first use of gen from making t concrete
+                --    gen ::
+                --        ToGVal RunRepo t =>
+                --        Template ->
+                --        Text ->
+                --        Path Abs Dir ->
+                --        (t -> FilePath) ->
+                --        t ->
+                --        ReaderT LgRepo IO ()
+                --    gen = genTarget scope quiet force
 
-                whenJust (envCommitTemplate env) \commitT -> do
-                    output' <- liftIO . fmap (output </>) . parseRelDir $ "commit"
-                    mapM_ (gen commitT "commit" output' commitHref) commits
+                --whenJust (envCommitTemplate env) \commitT -> do
+                --    output' <- liftIO . fmap (output </>) . parseRelDir $ "commit"
+                --    mapM_ (gen commitT "commit" output' commitHref) commits
 
-                whenJust (envFileTemplate env) \fileT -> do
-                    output' <- liftIO . fmap (output </>) . parseRelDir $ "file"
-                    mapM_ (gen fileT "file" output' fileHref) tree -- TODO: detect file changes
+                --whenJust (envFileTemplate env) \fileT -> do
+                --    output' <- liftIO . fmap (output </>) . parseRelDir $ "file"
+                --    mapM_ (gen fileT "file" output' fileHref) tree -- TODO: detect file changes
 
                 -- Copy any static files/folders into the output folder --
                 liftIO . envRepoCopyStatics env $ output
@@ -181,26 +184,27 @@ package ::
     [TreeFile] ->
     [Ref] ->
     [Ref] ->
-    HashMap.HashMap Text (GVal RunRepo)
+    H.Context String
 package env repos name description commits tree tags branches =
-    HashMap.fromList
-        [ ("host", toGVal . envHost $ env)
-        , ("repositories", toGVal repos)
-        , ("name", toGVal . T.pack . init . toFilePath $ name)
-        , ("description", toGVal description)
-        , ("commits", toGVal commits)
-        , ("tree", toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
-        , ("tree_recursive", toGVal tree)
-        , ("tags", toGVal tags)
-        , ("branches", toGVal branches)
-        , ("readme", toGVal . findFile "readme" $ tree)
-        , ("license", toGVal . findFile "license" $ tree)
-        ]
-  where
-    -- Find a file in the tree starting with the specified prefix. The prefix is looked
-    -- for on the full path, so will only find files in the top level directory.
-    findFile :: Text -> [TreeFile] -> Maybe TreeFile
-    findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeFilePath)
+    mconcat
+        [H.defaultContext]
+    --    [ ("host", toGVal . envHost $ env)
+    --    , ("repositories", toGVal repos)
+    --    , ("name", toGVal . T.pack . init . toFilePath $ name)
+    --    , ("description", toGVal description)
+    --    , ("commits", toGVal commits)
+    --    , ("tree", toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
+    --    , ("tree_recursive", toGVal tree)
+    --    , ("tags", toGVal tags)
+    --    , ("branches", toGVal branches)
+    --    , ("readme", toGVal . findFile "readme" $ tree)
+    --    , ("license", toGVal . findFile "license" $ tree)
+    --    ]
+  --where
+    ---- Find a file in the tree starting with the specified prefix. The prefix is looked
+    ---- for on the full path, so will only find files in the top level directory.
+    --findFile :: Text -> [TreeFile] -> Maybe TreeFile
+    --findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeFilePath)
 
 {-
 Collect commit history up to a head.
@@ -364,7 +368,7 @@ getRefs ref = do
 
 genRepo ::
     Path Abs Dir ->
-    HashMap.HashMap Text (GVal RunRepo) ->
+    H.Context String ->
     Template ->
     ReaderT LgRepo IO ()
 genRepo output scope template =
@@ -388,7 +392,7 @@ fileHref = T.unpack . treePathToHref
 
 genTarget ::
     ToGVal RunRepo t =>
-    HashMap.HashMap Text (GVal RunRepo) ->
+    H.Context String ->
     Bool ->
     Bool ->
     Template ->
@@ -402,4 +406,5 @@ genTarget scope quiet force template category output href target = do
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
         liftIO . unless quiet . putStrLn $ "Writing " <> toFilePath output'
-        generate output' template $ HashMap.insert category (toGVal target) scope
+        --generate output' template $ HashMap.insert category (toGVal target) scope
+        generate output' template scope

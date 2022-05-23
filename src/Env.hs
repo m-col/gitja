@@ -114,10 +114,10 @@ loadEnv quiet force config = do
             $ filesRepo
 
     -- Exit early if we didn't find any templates
-    when
-        ( all null [indexT, repoT] && all isNothing [commitT, fileT]
-        )
-        $ die "No templates were found."
+    --when
+    --    ( all null [indexT, repoT] && all isNothing [commitT, fileT]
+    --    )
+    --    $ die "No templates were found."
 
     -- App environment
     return
@@ -144,14 +144,16 @@ loadEnv quiet force config = do
             else return ([], [])
 
     collectTemplates :: [Path Abs File] -> IO [Template]
-    collectTemplates = fmap catMaybes . mapM loadTemplate <=< filterM isMatch
+    collectTemplates = mapM loadTemplate <=< filterM isMatch
       where
         isMatch p = do
             ((FP.takeExtension . toFilePath $ p) == ".html" &&)
                 <$> (fmap not . pathIsSymbolicLink . toFilePath $ p)
 
     findTemplate :: FilePath -> [Path Abs File] -> IO (Maybe Template)
-    findTemplate name = fmap join . mapM loadTemplate <=< findM isMatch
+    findTemplate name paths = do
+        ms <- findM isMatch paths
+        mapM loadTemplate ms
       where
         isMatch p =
             ((toFilePath . filename $ p) == name &&)
