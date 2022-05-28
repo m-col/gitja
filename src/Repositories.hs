@@ -139,7 +139,7 @@ processRepo' env repos repo = do
                 liftIO . ensureDir $ output </> fileDir
 
                 -- Run the generator --
-                mapM_ (genRepo output scope) $ envRepoTemplates env
+                liftIO $ mapM_ (genRepo output scope) $ envRepoTemplates env
 
                 let quiet = envQuiet env
                     force = envForce env
@@ -152,15 +152,15 @@ processRepo' env repos repo = do
                         Path Abs Dir ->
                         (t -> FilePath) ->
                         t ->
-                        ReaderT LgRepo IO ()
+                        IO ()
                     gen = genTarget scope quiet force
 
-                whenJust (envCommitTemplate env) \commitT -> do
-                    output' <- liftIO . fmap (output </>) . parseRelDir $ "commit"
+                whenJust (envCommitTemplate env) \commitT -> liftIO do
+                    output' <- fmap (output </>) . parseRelDir $ "commit"
                     mapM_ (gen commitT "commit" output' commitHref) commits
 
-                whenJust (envFileTemplate env) \fileT -> do
-                    output' <- liftIO . fmap (output </>) . parseRelDir $ "file"
+                whenJust (envFileTemplate env) \fileT -> liftIO do
+                    output' <- fmap (output </>) . parseRelDir $ "file"
                     mapM_ (gen fileT "file" output' fileHref) tree -- TODO: detect file changes
 
                 -- Copy any static files/folders into the output folder --
@@ -369,7 +369,7 @@ genRepo ::
     Path Abs Dir ->
     HashMap.HashMap Text (GVal RunRepo) ->
     Template ->
-    ReaderT LgRepo IO ()
+    IO ()
 genRepo output scope template = do
     let output' = toFilePath (output </> templatePath template)
     result <- generate template scope
@@ -401,13 +401,13 @@ genTarget ::
     Path Abs Dir ->
     (t -> FilePath) ->
     t ->
-    ReaderT LgRepo IO ()
+    IO ()
 genTarget scope quiet force template category output href target = do
-    output' <- liftIO . fmap (output </>) . parseRelFile . href $ target
-    exists <- liftIO . doesFileExist $ output'
+    output' <- fmap (output </>) . parseRelFile . href $ target
+    exists <- doesFileExist output'
     when (force || not exists) $ do
         let output'' = toFilePath output'
-        liftIO . unless quiet . putStrLn $ "Writing " <> output''
-        liftIO . ignoringAbsence . removeFile $ output''
+        unless quiet . putStrLn $ "Writing " <> output''
+        ignoringAbsence . removeFile $ output''
         result <- generate template $ HashMap.insert category (toGVal target) scope
-        liftIO $ TL.writeFile output'' result
+        TL.writeFile output'' result

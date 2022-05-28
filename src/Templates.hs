@@ -8,13 +8,11 @@ module Templates (
 ) where
 
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Reader (ReaderT)
 import qualified Data.HashMap.Strict as HashMap
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import qualified Data.Text as T
 import Data.Text.Internal.Lazy (Text)
 import qualified Data.Text.Lazy.Builder as TB
-import Git.Libgit2 (LgRepo)
 import Path (Abs, File, Path, Rel, filename, toFilePath)
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
@@ -59,7 +57,7 @@ Ginger to render templates using them.
 generate ::
     Template ->
     HashMap.HashMap T.Text (GVal RunRepo) ->
-    ReaderT LgRepo IO Text
+    IO Text
 generate template context = do
     content <- liftIO . newIORef . TB.fromText $ ""
 
