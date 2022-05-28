@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Repositories (
     run,
@@ -28,6 +29,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Encoding.Error as T
+import qualified Data.Text.Lazy.IO as TL
 import Foreign.C.String (CString)
 import Foreign.C.Types (CChar, CFloat, CInt, CSize)
 import Foreign.Ptr (Ptr)
@@ -35,7 +37,8 @@ import Foreign.Storable (peek)
 import qualified Git
 import Git.Libgit2 (LgRepo, lgDiffTreeToTree, lgFactory)
 import Path (Abs, Dir, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (</>))
-import Path.IO (doesFileExist, ensureDir)
+import Path.IO (doesFileExist, ensureDir, ignoringAbsence)
+import System.Directory (removeFile)
 import qualified System.Directory as D
 import qualified System.FilePath as FP
 import Text.Ginger.GVal (GVal, ToGVal, toGVal)
@@ -367,8 +370,10 @@ genRepo ::
     HashMap.HashMap Text (GVal RunRepo) ->
     Template ->
     ReaderT LgRepo IO ()
-genRepo output scope template =
-    generate (output </> templatePath template) template scope
+genRepo output scope template = do
+    let output' = toFilePath (output </> templatePath template)
+    result <- generate template scope
+    liftIO $ TL.writeFile output' result
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
@@ -401,5 +406,8 @@ genTarget scope quiet force template category output href target = do
     output' <- liftIO . fmap (output </>) . parseRelFile . href $ target
     exists <- liftIO . doesFileExist $ output'
     when (force || not exists) $ do
-        liftIO . unless quiet . putStrLn $ "Writing " <> toFilePath output'
-        generate output' template $ HashMap.insert category (toGVal target) scope
+        let output'' = toFilePath output'
+        liftIO . unless quiet . putStrLn $ "Writing " <> output''
+        liftIO . ignoringAbsence . removeFile $ output''
+        result <- generate template $ HashMap.insert category (toGVal target) scope
+        liftIO $ TL.writeFile output'' result
