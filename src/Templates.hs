@@ -63,9 +63,9 @@ generate ::
 generate template context = do
     content <- liftIO . newIORef . TB.fromText $ ""
 
-    let emit :: Html -> ReaderT LgRepo IO ()
+    let emit :: Html -> IO ()
         emit = liftIO . modifyIORef' content . flip mappend . TB.fromText . htmlSource
 
-    runGingerT (easyContext emit context) . templateGinger $ template
+    liftIO $ runGingerT (easyContext emit context) . templateGinger $ template
     result <- liftIO . readIORef $ content
     return . TB.toLazyText $ result

@@ -34,7 +34,7 @@ import Text.Ginger.Run (Run)
 {-
 Convenience type alias for the ginger run monad with git repo context.
 -}
-type RunRepo = Run SourcePos (ReaderT LgRepo IO) Html
+type RunRepo = Run SourcePos IO Html
 
 unquote :: String -> String
 unquote = init . tail
