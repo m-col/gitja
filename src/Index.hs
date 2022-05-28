@@ -12,9 +12,8 @@ import Path.IO (ignoringAbsence)
 import System.Directory (removeFile)
 import System.FilePath (combine)
 import Text.Ginger.GVal (GVal, toGVal)
-import Text.Ginger.Html (Html, htmlSource)
-import Text.Ginger.Parse (SourcePos)
-import Text.Ginger.Run (Run, easyRenderM)
+import Text.Ginger.Html (htmlSource)
+import Text.Ginger.Run (easyRenderM)
 
 import Env (Env (..))
 import Templates (Template (..))
@@ -44,7 +43,7 @@ This packages the variables that are available inside the index scope.
 packageIndex ::
     Env ->
     [Repo] ->
-    HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+    HashMap.HashMap Text (GVal RunRepo)
 packageIndex env repos =
     HashMap.fromList
         [ ("host", toGVal $ envHost env)
