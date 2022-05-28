@@ -257,8 +257,8 @@ getBlobContents oid = do
 GVal implementations for data definitions above, allowing commits to be rendered in
 Ginger templates.
 -}
-instance ToGVal RunRepo TreeFile where
-    toGVal :: TreeFile -> GVal RunRepo
+instance ToGVal m TreeFile where
+    toGVal :: TreeFile -> GVal m
     toGVal treefile =
         def
             { asHtml = html . treeFilePath $ treefile
@@ -267,8 +267,8 @@ instance ToGVal RunRepo TreeFile where
             , asBoolean = True -- Used for conditionally checking readme/license template variables.
             }
 
-instance ToGVal RunRepo TreeFileContents where
-    toGVal :: TreeFileContents -> GVal RunRepo
+instance ToGVal m TreeFileContents where
+    toGVal :: TreeFileContents -> GVal m
     toGVal BinaryContents = def
     toGVal (FileContents bytestring) = toGVal bytestring
     toGVal (FolderContents treeFiles) =
@@ -278,7 +278,7 @@ instance ToGVal RunRepo TreeFileContents where
             , asList = Just . fmap toGVal $ treeFiles
             }
 
-treeAsLookup :: TreeFile -> Text -> Maybe (GVal RunRepo)
+treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
     "name" -> Just . toGVal . FP.takeFileName . T.unpack . treeFilePath $ treefile
@@ -341,8 +341,8 @@ data Ref = Ref
     , refCommit :: Commit
     }
 
-instance ToGVal RunRepo Ref where
-    toGVal :: Ref -> GVal RunRepo
+instance ToGVal m Ref where
+    toGVal :: Ref -> GVal m
     toGVal ref =
         def
             { asHtml = html . refName $ ref
@@ -350,7 +350,7 @@ instance ToGVal RunRepo Ref where
             , asLookup = Just . refAsLookup $ ref
             }
 
-refAsLookup :: Ref -> Text -> Maybe (GVal RunRepo)
+refAsLookup :: Ref -> Text -> Maybe (GVal m)
 refAsLookup ref = \case
     "name" -> Just . toGVal . refName $ ref
     "commit" -> Just . toGVal . refCommit $ ref
