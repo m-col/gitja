@@ -307,8 +307,8 @@ getTree = getTree' "" 0 . Git.commitTree <=< Git.lookupCommit
 
     prependParent ::
         Git.TreeFilePath ->
-        (Git.TreeFilePath, Git.TreeEntry LgRepo) ->
-        (Git.TreeFilePath, Git.TreeEntry LgRepo)
+        (Git.TreeFilePath, Git.TreeEntry r) ->
+        (Git.TreeFilePath, Git.TreeEntry r)
     prependParent "" pathentry = pathentry
     prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
 
@@ -317,12 +317,12 @@ getTree = getTree' "" 0 . Git.commitTree <=< Git.lookupCommit
     getEntryContents (path, Git.TreeEntry oid) count = FolderContents <$> getTree' path count oid
     getEntryContents (_, Git.CommitEntry oid) _ = return . FileContents . B.fromString . show . untag $ oid
 
-    getEntryModes :: Git.TreeEntry LgRepo -> ReaderT LgRepo IO TreeEntryMode
+    getEntryModes :: Git.TreeEntry r -> ReaderT r IO TreeEntryMode
     getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
     getEntryModes (Git.TreeEntry _) = return ModeDirectory
     getEntryModes (Git.CommitEntry _) = return ModeSubmodule
 
-    treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> T.Text
+    treePaths :: (Git.TreeFilePath, Git.TreeEntry r) -> T.Text
     treePaths = T.decodeUtf8With T.lenientDecode . fst
 
 {-
