@@ -7,13 +7,14 @@ module Index (
 import Control.Monad (unless)
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as T
+import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy.IO as TL
 import Path (toFilePath)
 import System.FilePath (combine)
 import Text.Ginger.GVal (GVal, toGVal)
 
 import Env (Env (..))
-import Templates (Template (..), generate)
+import Templates (Template (..), generateIndex)
 import Types
 
 {-
@@ -27,7 +28,7 @@ runIndexFile :: Env -> [Repo] -> Template -> IO ()
 runIndexFile env repos template = do
     let output = combine (toFilePath . envOutput $ env) . toFilePath . templatePath $ template
     unless (envQuiet env) . putStrLn $ "Writing " <> output
-    TL.writeFile output =<< generate template (packageIndex env repos)
+    TL.writeFile output =<< generateIndex template (packageIndex env repos)
 
 {-
 This packages the variables that are available inside the index scope.

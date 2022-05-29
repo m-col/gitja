@@ -39,5 +39,6 @@ executable gitserve
                      , tagged
                      , text
                      , transformers
+                     , unliftio-core
                      , unordered-containers
                      , utf8-string

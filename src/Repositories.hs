@@ -7,8 +7,10 @@
 
 module Repositories (
     run,
+    getRefs,
 ) where
 
+import Control.Monad.IO.Unlift
 import qualified Bindings.Libgit2 as LG
 import Conduit (runConduit, sinkList, (.|))
 import Control.Exception (try)
@@ -137,14 +139,13 @@ processRepo' env repos repo = do
                 liftIO . ensureDir $ output </> fileDir
 
                 -- Run the generator --
-                liftIO $ mapM_ (genRepo output scope) $ envRepoTemplates env
-
                 let quiet = envQuiet env
                     force = envForce env
 
                     -- This annotation blocks the first use of gen from making t concrete
                     gen ::
                         ToGVal RunRepo t =>
+                        (T.Text -> RunRepo (GVal RunRepo)) ->
                         Template ->
                         T.Text ->
                         Path Abs Dir ->
@@ -153,13 +154,17 @@ processRepo' env repos repo = do
                         IO ()
                     gen = genTarget scope quiet force
 
-                whenJust (envCommitTemplate env) \commitT -> liftIO do
-                    output' <- fmap (output </>) . parseRelDir $ "commit"
-                    mapM_ (gen commitT "commit" output' commitHref) commits
+                withRunInIO \runInIO -> mapM_ (genRepo (repoLookup runInIO) output scope) (envRepoTemplates env)
 
-                whenJust (envFileTemplate env) \fileT -> liftIO do
-                    output' <- fmap (output </>) . parseRelDir $ "file"
-                    mapM_ (gen fileT "file" output' fileHref) tree -- TODO: detect file changes
+                whenJust (envCommitTemplate env) \commitT ->
+                    withRunInIO \runInIO -> do
+                        output' <- fmap (output </>) . parseRelDir $ "commit"
+                        mapM_ (gen (repoLookup runInIO) commitT "commit" output' commitHref) commits
+
+                whenJust (envFileTemplate env) \fileT ->
+                    withRunInIO \runInIO -> do
+                        output' <- fmap (output </>) . parseRelDir $ "file"
+                        mapM_ (gen (repoLookup runInIO) fileT "file" output' fileHref) tree -- TODO: detect file changes
 
                 -- Copy any static files/folders into the output folder --
                 liftIO . envRepoCopyStatics env $ output
@@ -364,13 +369,14 @@ getRefs ref = do
     dropName Nothing _ = Nothing
 
 genRepo ::
+    (T.Text -> RunRepo (GVal RunRepo)) ->
     Path Abs Dir ->
     HashMap.HashMap T.Text (GVal RunRepo) ->
     Template ->
     IO ()
-genRepo output scope template =
+genRepo repoLookup output scope template =
     let output' = toFilePath (output </> templatePath template)
-     in TL.writeFile output' =<< generate template scope
+     in TL.writeFile output' =<< generate repoLookup template scope
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
@@ -393,17 +399,28 @@ genTarget ::
     HashMap.HashMap T.Text (GVal RunRepo) ->
     Bool ->
     Bool ->
+    (T.Text -> RunRepo (GVal RunRepo)) ->
     Template ->
     T.Text ->
     Path Abs Dir ->
     (t -> FilePath) ->
     t ->
     IO ()
-genTarget scope quiet force template category output href target = do
+genTarget scope quiet force repoLookup template category output href target = do
     output' <- fmap (output </>) . parseRelFile . href $ target
     exists <- doesFileExist output'
     when (force || not exists) $ do
         let output'' = toFilePath output'
             scope' = HashMap.insert category (toGVal target) scope
         unless quiet . putStrLn $ "Writing " <> output''
-        TL.writeFile output'' =<< generate template scope'
+        TL.writeFile output'' =<< generate repoLookup template scope'
+
+
+-- This loads data from the git repository
+repoLookup ::
+    (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
+    T.Text ->
+    RunRepo (GVal RunRepo)
+repoLookup runInIO key = liftIO . runInIO $ case key of
+    "tags" -> toGVal <$> getRefs "refs/tags/"
+    key' -> return . toGVal $ key'
