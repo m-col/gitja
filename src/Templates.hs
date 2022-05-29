@@ -4,7 +4,7 @@
 module Templates (
     Template (..),
     loadTemplate,
-    generate,
+    render,
 ) where
 
 import Data.IORef (modifyIORef', newIORef, readIORef)
@@ -52,11 +52,11 @@ loadTemplate path =
 This generator function uses Ginger to render templates into Text, using a provided
 lookup function to request data from calling code.
 -}
-generate ::
+render ::
     (T.Text -> RunRepo (GVal RunRepo)) ->
     Template ->
     IO TL.Text
-generate scopeLookup template = do
+render scopeLookup template = do
     ioref <- newIORef . TB.fromText $ ""
 
     let emit :: Html -> IO ()

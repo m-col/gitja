@@ -13,7 +13,7 @@ import System.FilePath (combine)
 import Text.Ginger.GVal (GVal, toGVal)
 
 import Env (Env (..))
-import Templates (Template (..), generate)
+import Templates (Template (..), render)
 import Types
 
 {-
@@ -50,4 +50,4 @@ runIndexFile ::
 runIndexFile indexLookup outputDir quiet template = do
     let output = combine outputDir . toFilePath . templatePath $ template
     unless quiet . putStrLn $ "Writing " <> output
-    TL.writeFile output =<< generate indexLookup template
+    TL.writeFile output =<< render indexLookup template

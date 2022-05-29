@@ -9,7 +9,6 @@ module Env (
     getConfig,
     Env (..),
     loadEnv,
-    generate,
 ) where
 
 import Control.Monad (filterM, join, when, (<=<))
@@ -40,7 +39,7 @@ import System.Directory (
 import System.Exit (die)
 import qualified System.FilePath as FP
 
-import Templates (Template (..), generate, loadTemplate)
+import Templates (Template (..), loadTemplate)
 
 {-
 The Config data type represents the configuration options available in the config file.

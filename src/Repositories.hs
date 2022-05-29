@@ -43,7 +43,7 @@ import qualified System.FilePath as FP
 import Text.Ginger.GVal (GVal, ToGVal, toGVal)
 
 import Env (Env (..))
-import Templates (Template (..), generate)
+import Templates (Template (..), render)
 import Types
 
 {-
@@ -108,7 +108,7 @@ processRepo env repos repo =
 processRepo' :: Env -> [Repo] -> Repo -> ReaderT LgRepo IO Repo
 processRepo' env repos repo = do
     let name = dirname . repositoryPath $ repo
-    let output = envOutput env </> name
+    let directory = envOutput env </> name
 
     Git.resolveReference "HEAD" >>= \case
         Nothing -> do
@@ -121,7 +121,7 @@ processRepo' env repos repo = do
             -- If a page exists for the head commit, don't do anything else --
             exists <-
                 liftIO . D.doesFileExist $
-                    toFilePath output FP.</> "commit" FP.</> show commitID <> ".html"
+                    toFilePath directory FP.</> "commit" FP.</> show commitID <> ".html"
 
             when (not exists || envForce env) $ do
                 -- Collect variables available to the ginger templates --
@@ -133,26 +133,26 @@ processRepo' env repos repo = do
                     -- Create the destination folders --
                     commitDir <- parseRelDir "commit"
                     fileDir <- parseRelDir "file"
-                    ensureDir $ output </> commitDir
-                    ensureDir $ output </> fileDir
+                    ensureDir $ directory </> commitDir
+                    ensureDir $ directory </> fileDir
 
                     -- Run the generator --
                     let quiet = envQuiet env
                         force = envForce env
                         gen = genTarget scope runInIO quiet force
 
-                    mapM_ (genRepo scope runInIO quiet output) (envRepoTemplates env)
+                    mapM_ (generate scope runInIO quiet directory) (envRepoTemplates env)
 
                     whenJust (envCommitTemplate env) \commitT -> do
-                        output' <- fmap (output </>) . parseRelDir $ "commit"
+                        output' <- fmap (directory </>) . parseRelDir $ "commit"
                         mapM_ (gen commitT "commit" output' commitHref) commits
 
                     whenJust (envFileTemplate env) \fileT -> do
-                        output' <- fmap (output </>) . parseRelDir $ "file"
+                        output' <- fmap (directory </>) . parseRelDir $ "file"
                         mapM_ (gen fileT "file" output' fileHref) tree -- TODO: detect file changes
 
-                    -- Copy any static files/folders into the output folder --
-                    envRepoCopyStatics env output
+                    -- Copy any static files/folders into the output directory --
+                    envRepoCopyStatics env directory
 
             return
                 repo{repositoryHead = Just headCommit}
@@ -349,20 +349,20 @@ getRefs ref = do
     dropName (Just _) name = Just name
     dropName Nothing _ = Nothing
 
-genRepo ::
+{-
+Render repository data into a template and save it to file.
+-}
+generate ::
     HashMap.HashMap T.Text (GVal RunRepo) ->
     (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
     Bool ->
     Path Abs Dir ->
     Template ->
     IO ()
-genRepo scope runInIO quiet output template = do
-    let output' = toFilePath (output </> templatePath template)
-    unless quiet . putStrLn $ "Writing " <> output'
-    TL.writeFile output' =<< generate (cbRepoLookup scope runInIO) template
-
-----------------------------------------------------------------------------------------
--- Targets -----------------------------------------------------------------------------
+generate scope runInIO quiet directory template = do
+    let output = toFilePath (directory </> templatePath template)
+    unless quiet . putStrLn $ "Writing " <> output
+    TL.writeFile output =<< render (cbRepoLookup scope runInIO) template
 
 {-
 A Target refers to a template scope and repository object whose information is available
@@ -370,13 +370,6 @@ in that scope. For example, commits are a target as they each generate a scope
 containing that commit's information, and these scopes are each rendered in the
 commitTemplate.
 -}
-
-commitHref :: Commit -> FilePath
-commitHref = (++ ".html") . show . untag . Git.commitOid . commitGit
-
-fileHref :: TreeFile -> FilePath
-fileHref = T.unpack . treePathToHref
-
 genTarget ::
     ToGVal RunRepo t =>
     HashMap.HashMap T.Text (GVal RunRepo) ->
@@ -389,16 +382,25 @@ genTarget ::
     (t -> FilePath) ->
     t ->
     IO ()
-genTarget scope runInIO quiet force template category output href target = do
-    output' <- fmap (output </>) . parseRelFile . href $ target
-    exists <- doesFileExist output'
+genTarget scope runInIO quiet force template category directory href target = do
+    output <- fmap (directory </>) . parseRelFile . href $ target
+    exists <- doesFileExist output
     when (force || not exists) $ do
-        let output'' = toFilePath output'
+        let output' = toFilePath output
             scope' = HashMap.insert category (toGVal target) scope
-        unless quiet . putStrLn $ "Writing " <> output''
-        TL.writeFile output'' =<< generate (cbRepoLookup scope' runInIO) template
+        unless quiet . putStrLn $ "Writing " <> output'
+        TL.writeFile output' =<< render (cbRepoLookup scope' runInIO) template
 
--- This loads data from the git repository
+commitHref :: Commit -> FilePath
+commitHref = (++ ".html") . show . untag . Git.commitOid . commitGit
+
+fileHref :: TreeFile -> FilePath
+fileHref = T.unpack . treePathToHref
+
+{-
+With a dictionary of preloaded values and a function to access additional data, create a
+lookup function for rendering.
+-}
 cbRepoLookup ::
     HashMap.HashMap T.Text (GVal RunRepo) ->
     (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
