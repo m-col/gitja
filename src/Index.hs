@@ -6,7 +6,7 @@ module Index (
 
 import Control.Monad (unless)
 import qualified Data.HashMap.Strict as HashMap
-import Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Text.Lazy.IO as TL
 import Path (toFilePath)
 import System.FilePath (combine)
@@ -35,7 +35,7 @@ This packages the variables that are available inside the index scope.
 packageIndex ::
     Env ->
     [Repo] ->
-    HashMap.HashMap Text (GVal RunRepo)
+    HashMap.HashMap T.Text (GVal RunRepo)
 packageIndex env repos =
     HashMap.fromList
         [ ("host", toGVal $ envHost env)

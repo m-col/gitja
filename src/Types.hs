@@ -16,7 +16,6 @@ import Data.ByteString (ByteString)
 import Data.Default (def)
 import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Tagged (untag)
-import Data.Text (Text, pack, strip)
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8With)
 import Data.Text.Encoding.Error (lenientDecode)
@@ -39,7 +38,7 @@ type RunRepo = Run SourcePos IO Html
 unquote :: String -> String
 unquote = init . tail
 
-bsToText :: ByteString -> Text
+bsToText :: ByteString -> T.Text
 bsToText = decodeUtf8With lenientDecode
 
 {-
@@ -48,7 +47,7 @@ as well as in a list of all repositories in the index template.
 -}
 data Repo = Repo
     { repositoryPath :: Path Abs Dir
-    , repositoryDescription :: Text
+    , repositoryDescription :: T.Text
     , repositoryHead :: Maybe Commit
     }
 
@@ -60,12 +59,12 @@ instance ToGVal m Repo where
     toGVal :: Repo -> GVal m
     toGVal repo =
         def
-            { asHtml = html . pack . init . unquote . show . dirname . repositoryPath $ repo
-            , asText = pack . show . dirname . repositoryPath $ repo
+            { asHtml = html . T.pack . init . unquote . show . dirname . repositoryPath $ repo
+            , asText = T.pack . show . dirname . repositoryPath $ repo
             , asLookup = Just . repoAsLookup $ repo
             }
 
-repoAsLookup :: Repo -> Text -> Maybe (GVal m)
+repoAsLookup :: Repo -> T.Text -> Maybe (GVal m)
 repoAsLookup repo = \case
     "name" -> Just . toGVal . init . unquote . show . dirname . repositoryPath $ repo
     "description" -> Just . toGVal . repositoryDescription $ repo
@@ -85,25 +84,25 @@ instance ToGVal m Commit where
     toGVal :: Commit -> GVal m
     toGVal commit =
         def
-            { asHtml = html . strip . T.takeWhile (/= '\n') . Git.commitLog . commitGit $ commit
-            , asText = pack . show . Git.commitLog . commitGit $ commit
+            { asHtml = html . T.strip . T.takeWhile (/= '\n') . Git.commitLog . commitGit $ commit
+            , asText = T.pack . show . Git.commitLog . commitGit $ commit
             , asLookup = Just . commitAsLookup $ commit
             }
 
-commitAsLookup :: Commit -> Text -> Maybe (GVal m)
+commitAsLookup :: Commit -> T.Text -> Maybe (GVal m)
 commitAsLookup commit = \case
     "id" -> Just . toGVal . show . untag . Git.commitOid . commitGit $ commit
     "href" -> Just . toGVal . (<> ".html") . show . untag . Git.commitOid . commitGit $ commit
-    "title" -> Just . toGVal . strip . T.takeWhile (/= '\n') . Git.commitLog . commitGit $ commit
-    "body" -> Just . toGVal . strip . T.dropWhile (/= '\n') . Git.commitLog . commitGit $ commit
-    "message" -> Just . toGVal . strip . Git.commitLog . commitGit $ commit
-    "author" -> Just . toGVal . strip . Git.signatureName . Git.commitAuthor . commitGit $ commit
-    "committer" -> Just . toGVal . strip . Git.signatureName . Git.commitCommitter . commitGit $ commit
-    "author_email" -> Just . toGVal . strip . Git.signatureEmail . Git.commitAuthor . commitGit $ commit
-    "committer_email" -> Just . toGVal . strip . Git.signatureEmail . Git.commitCommitter . commitGit $ commit
+    "title" -> Just . toGVal . T.strip . T.takeWhile (/= '\n') . Git.commitLog . commitGit $ commit
+    "body" -> Just . toGVal . T.strip . T.dropWhile (/= '\n') . Git.commitLog . commitGit $ commit
+    "message" -> Just . toGVal . T.strip . Git.commitLog . commitGit $ commit
+    "author" -> Just . toGVal . T.strip . Git.signatureName . Git.commitAuthor . commitGit $ commit
+    "committer" -> Just . toGVal . T.strip . Git.signatureName . Git.commitCommitter . commitGit $ commit
+    "author_email" -> Just . toGVal . T.strip . Git.signatureEmail . Git.commitAuthor . commitGit $ commit
+    "committer_email" -> Just . toGVal . T.strip . Git.signatureEmail . Git.commitCommitter . commitGit $ commit
     "authored" -> Just . toGVal . show . Git.signatureWhen . Git.commitAuthor . commitGit $ commit
     "committed" -> Just . toGVal . show . Git.signatureWhen . Git.commitCommitter . commitGit $ commit
-    "encoding" -> Just . toGVal . strip . Git.commitEncoding . commitGit $ commit
+    "encoding" -> Just . toGVal . T.strip . Git.commitEncoding . commitGit $ commit
     "parent" -> toGVal . show . untag <$> (listToMaybe . Git.commitParents . commitGit $ commit)
     "diffs" -> Just . toGVal . commitDiffs $ commit
     _ -> Nothing
@@ -151,7 +150,7 @@ instance ToGVal m Diff where
             , asLookup = Just . diffAsLookup $ diff
             }
 
-diffAsLookup :: Diff -> Text -> Maybe (GVal m)
+diffAsLookup :: Diff -> T.Text -> Maybe (GVal m)
 diffAsLookup diff = \case
     "new_file" -> Just . toGVal . diffNewFile $ diff
     "old_file" -> toGVal <$> diffOldFile diff
@@ -168,7 +167,7 @@ instance ToGVal m Hunk where
             , asLookup = Just . hunkAsLookup $ hunk
             }
 
-hunkAsLookup :: Hunk -> Text -> Maybe (GVal m)
+hunkAsLookup :: Hunk -> T.Text -> Maybe (GVal m)
 hunkAsLookup hunk = \case
     "lines" -> Just . toGVal . fmap makeLine . hunkLines $ hunk
     "header" -> Just . toGVal . bsToText . hunkHeader $ hunk
@@ -191,7 +190,7 @@ whether they are additions, subtractions, or context lines. They are primarily a
 convenience for assigning CSS classes.
 -}
 data Line = Line
-    { lineText :: Text
+    { lineText :: T.Text
     , lineClass :: String
     }
 
@@ -204,7 +203,7 @@ instance ToGVal m Line where
             , asLookup = Just . lineAsLookup $ line
             }
 
-lineAsLookup :: Line -> Text -> Maybe (GVal m)
+lineAsLookup :: Line -> T.Text -> Maybe (GVal m)
 lineAsLookup line = \case
     "text" -> Just . toGVal . lineText $ line
     "class" -> Just . toGVal . lineClass $ line
@@ -215,7 +214,7 @@ Next we have some data used to represent a repository's tree and the different k
 objects contained therein.
 -}
 data TreeFile = TreeFile
-    { treeFilePath :: Text
+    { treeFilePath :: T.Text
     , treeFileContents :: TreeFileContents
     , treeFileMode :: TreeEntryMode
     }
@@ -273,12 +272,12 @@ instance ToGVal m TreeFileContents where
     toGVal (FileContents bytestring) = toGVal bytestring
     toGVal (FolderContents treeFiles) =
         def
-            { asHtml = html . pack . show . fmap treeFilePath $ treeFiles
-            , asText = pack . show . fmap treeFilePath $ treeFiles
+            { asHtml = html . T.pack . show . fmap treeFilePath $ treeFiles
+            , asText = T.pack . show . fmap treeFilePath $ treeFiles
             , asList = Just . fmap toGVal $ treeFiles
             }
 
-treeAsLookup :: TreeFile -> Text -> Maybe (GVal m)
+treeAsLookup :: TreeFile -> T.Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
     "name" -> Just . toGVal . FP.takeFileName . T.unpack . treeFilePath $ treefile
@@ -293,7 +292,7 @@ treeAsLookup treefile = \case
     "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile
     _ -> Nothing
   where
-    treeFileGetTree :: Text -> TreeFileContents -> [TreeFile]
+    treeFileGetTree :: T.Text -> TreeFileContents -> [TreeFile]
     treeFileGetTree parent (FolderContents fs) = filter atTop fs
       where
         atTop = notElem FP.pathSeparator . drop 1 . T.unpack . fromMaybe "" . T.stripPrefix parent . treeFilePath
@@ -330,7 +329,7 @@ treeAsLookup treefile = \case
 {-
 Get the name of a tree file path's HTML file. Leading periods are dropped.
 -}
-treePathToHref :: TreeFile -> Text
+treePathToHref :: TreeFile -> T.Text
 treePathToHref = T.dropWhile (== '.') . flip T.append ".html" . T.replace "/" "." . treeFilePath
 
 {-
@@ -350,7 +349,7 @@ instance ToGVal m Ref where
             , asLookup = Just . refAsLookup $ ref
             }
 
-refAsLookup :: Ref -> Text -> Maybe (GVal m)
+refAsLookup :: Ref -> T.Text -> Maybe (GVal m)
 refAsLookup ref = \case
     "name" -> Just . toGVal . refName $ ref
     "commit" -> Just . toGVal . refCommit $ ref

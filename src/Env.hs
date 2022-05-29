@@ -15,7 +15,6 @@ module Env (
 import Control.Monad (filterM, join, when, (<=<))
 import Control.Monad.Extra (findM)
 import Data.Maybe (catMaybes, fromMaybe, isNothing)
-import Data.Text (pack)
 import qualified Data.Text as T
 import Dhall
 import Dhall.Deriving
@@ -60,7 +59,7 @@ data Config = Config
         via Codec (Field (CamelCase <<< DropPrefix "conf")) Config
 
 getConfig :: String -> IO Config
-getConfig = input auto . pack <=< makeAbsolute
+getConfig = input auto . T.pack <=< makeAbsolute
 
 {-
 The Env data type represents all of the program's state, including user configuration

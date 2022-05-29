@@ -25,7 +25,6 @@ import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
 import Data.List (find)
 import Data.Maybe (catMaybes, fromJust, listToMaybe, mapMaybe)
 import Data.Tagged (Tagged (..), untag)
-import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Encoding.Error as T
@@ -77,7 +76,7 @@ Pass the repository's folder, get its description. The algorithm is:
     3. Fallback to the repo folder's name.
 
 -}
-getDescription :: Path Abs Dir -> IO Text
+getDescription :: Path Abs Dir -> IO T.Text
 getDescription dir =
     ifM
         (D.doesFileExist inTop)
@@ -147,7 +146,7 @@ processRepo' env repos repo = do
                     gen ::
                         ToGVal RunRepo t =>
                         Template ->
-                        Text ->
+                        T.Text ->
                         Path Abs Dir ->
                         (t -> FilePath) ->
                         t ->
@@ -178,12 +177,12 @@ package ::
     Env ->
     [Repo] ->
     Path Rel Dir ->
-    Text ->
+    T.Text ->
     [Commit] ->
     [TreeFile] ->
     [Ref] ->
     [Ref] ->
-    HashMap.HashMap Text (GVal RunRepo)
+    HashMap.HashMap T.Text (GVal RunRepo)
 package env repos name description commits tree tags branches =
     HashMap.fromList
         [ ("host", toGVal . envHost $ env)
@@ -201,7 +200,7 @@ package env repos name description commits tree tags branches =
   where
     -- Find a file in the tree starting with the specified prefix. The prefix is looked
     -- for on the full path, so will only find files in the top level directory.
-    findFile :: Text -> [TreeFile] -> Maybe TreeFile
+    findFile :: T.Text -> [TreeFile] -> Maybe TreeFile
     findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeFilePath)
 
 {-
@@ -337,14 +336,14 @@ getTree = getTree' "" 0 . Git.commitTree <=< Git.lookupCommit
     getEntryModes (Git.TreeEntry _) = return ModeDirectory
     getEntryModes (Git.CommitEntry _) = return ModeSubmodule
 
-    treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> Text
+    treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> T.Text
     treePaths = T.decodeUtf8With T.lenientDecode . fst
 
 {-
 Collect information about references. TODO: Find a more canonical way to split
 references into tags or branches rather than filtering the refnames.
 -}
-getRefs :: Text -> ReaderT LgRepo IO [Ref]
+getRefs :: T.Text -> ReaderT LgRepo IO [Ref]
 getRefs ref = do
     names <- filter (T.isPrefixOf ref) <$> Git.listReferences
     maybeOids <- mapM Git.resolveReference names
@@ -366,7 +365,7 @@ getRefs ref = do
 
 genRepo ::
     Path Abs Dir ->
-    HashMap.HashMap Text (GVal RunRepo) ->
+    HashMap.HashMap T.Text (GVal RunRepo) ->
     Template ->
     IO ()
 genRepo output scope template =
@@ -391,11 +390,11 @@ fileHref = T.unpack . treePathToHref
 
 genTarget ::
     ToGVal RunRepo t =>
-    HashMap.HashMap Text (GVal RunRepo) ->
+    HashMap.HashMap T.Text (GVal RunRepo) ->
     Bool ->
     Bool ->
     Template ->
-    Text ->
+    T.Text ->
     Path Abs Dir ->
     (t -> FilePath) ->
     t ->

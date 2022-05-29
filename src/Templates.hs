@@ -10,7 +10,7 @@ module Templates (
 import qualified Data.HashMap.Strict as HashMap
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import qualified Data.Text as T
-import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TB
 import Path (Abs, File, Path, Rel, filename, toFilePath)
 import System.IO.Error (tryIOError)
@@ -56,7 +56,7 @@ templates into Text.
 generate ::
     Template ->
     HashMap.HashMap T.Text (GVal RunRepo) ->
-    IO Text
+    IO TL.Text
 generate template scope = do
     ioref <- newIORef . TB.fromText $ ""
 
