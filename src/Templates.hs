@@ -5,13 +5,8 @@ module Templates (
     Template (..),
     loadTemplate,
     generate,
-    generateIndex,
 ) where
 
-import Control.Monad.IO.Unlift
-import qualified Data.HashMap.Strict as HashMap
-import Control.Monad.Trans.Reader (ReaderT)
-import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
@@ -19,7 +14,7 @@ import qualified Data.Text.Lazy.Builder as TB
 import Path (Abs, File, Path, Rel, filename, toFilePath)
 import System.IO.Error (tryIOError)
 import qualified Text.Ginger.AST as G
-import Text.Ginger.GVal (GVal, toGVal)
+import Text.Ginger.GVal (GVal)
 import Text.Ginger.Html (Html, htmlSource)
 import Text.Ginger.Parse (ParserError (..), SourcePos, parseGingerFile)
 import Text.Ginger.Run
@@ -54,65 +49,21 @@ loadTemplate path =
     includeResolver p = either (const Nothing) Just <$> tryIOError (readFile p)
 
 {-
-This is the generator function that receives variables and uses Ginger to render
-templates into Text.
--}
-generateIndex ::
-    Template ->
-    HashMap.HashMap T.Text (GVal RunRepo) ->
-    IO TL.Text
-generateIndex template scope = do
-    ioref <- newIORef . TB.fromText $ ""
-
-    let emit :: Html -> IO ()
-        emit = modifyIORef' ioref . flip mappend . TB.fromText . htmlSource
-
-        context = makeContextHtmlM (scopeLookup scope) emit
-
-    runGingerT context (templateGinger template)
-    TB.toLazyText <$> readIORef ioref
-
-  where
-    scopeLookup ::
-        HashMap.HashMap T.Text (GVal RunRepo) ->
-        T.Text ->
-        RunRepo (GVal RunRepo)
-    scopeLookup scope' key = do
-        case key of
-            "file" ->
-                return $ toGVal ("file" :: String)
-            _ ->
-                return $ toGVal $ HashMap.lookup key scope'
-
-
-{-
-This is the generator function that receives variables and uses Ginger to render
-templates into Text.
+This generator function uses Ginger to render templates into Text, using a provided
+lookup function to request data from calling code.
 -}
 generate ::
     (T.Text -> RunRepo (GVal RunRepo)) ->
     Template ->
-    HashMap.HashMap T.Text (GVal RunRepo) ->
     IO TL.Text
-generate repoLookup template scope = do
+generate scopeLookup template = do
     ioref <- newIORef . TB.fromText $ ""
 
     let emit :: Html -> IO ()
         emit = modifyIORef' ioref . flip mappend . TB.fromText . htmlSource
 
-        context = makeContextHtmlM repoLookup emit
+    runGingerT
+        (makeContextHtmlM scopeLookup emit)
+        (templateGinger template)
 
-    runGingerT context (templateGinger template)
     TB.toLazyText <$> readIORef ioref
-
-  --where
-    --scopeLookup ::
-    --    HashMap.HashMap T.Text (GVal RunRepo) ->
-    --    T.Text ->
-    --    RunRepo (GVal RunRepo)
-    --scopeLookup scope' key = do
-    --    case key of
-    --        "fileeeeeeeeeee" ->
-    --            return $ toGVal ("file" :: String)
-    --        _ ->
-    --            return $ toGVal $ HashMap.lookup key scope'

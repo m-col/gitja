@@ -13,7 +13,7 @@ import System.FilePath (combine)
 import Text.Ginger.GVal (GVal, toGVal)
 
 import Env (Env (..))
-import Templates (Template (..), generateIndex)
+import Templates (Template (..), generate)
 import Types
 
 {-
@@ -22,7 +22,7 @@ configured respositories.
 -}
 runIndex :: Env -> [Repo] -> IO ()
 runIndex env repos =
-    mapM_ (runIndexFile outputDir quiet scope) templates
+    mapM_ (runIndexFile indexLookup outputDir quiet) templates
   where
     outputDir = toFilePath . envOutput $ env
     quiet = envQuiet env
@@ -35,16 +35,19 @@ runIndex env repos =
             , ("repositories", toGVal repos)
             ]
 
+    indexLookup :: T.Text -> RunRepo (GVal RunRepo)
+    indexLookup = return . toGVal . flip HashMap.lookup scope
+
 {-
 Use the scope created above to render a single index template.
 -}
 runIndexFile ::
+    (T.Text -> RunRepo (GVal RunRepo)) ->
     FilePath ->
     Bool ->
-    HashMap.HashMap T.Text (GVal RunRepo) ->
     Template ->
     IO ()
-runIndexFile outputDir quiet scope template = do
+runIndexFile indexLookup outputDir quiet template = do
     let output = combine outputDir . toFilePath . templatePath $ template
     unless quiet . putStrLn $ "Writing " <> output
-    TL.writeFile output =<< generateIndex template scope
+    TL.writeFile output =<< generate indexLookup template

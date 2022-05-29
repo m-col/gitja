@@ -10,13 +10,12 @@ module Repositories (
     getRefs,
 ) where
 
-import Control.Monad.IO.Unlift
 import qualified Bindings.Libgit2 as LG
 import Conduit (runConduit, sinkList, (.|))
 import Control.Exception (try)
 import Control.Monad (filterM, unless, when, (<=<))
 import Control.Monad.Extra (ifM, whenJust)
-import Control.Monad.IO.Class (liftIO)
+import Control.Monad.IO.Unlift
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.Bool (bool)
 import qualified Data.ByteString as B
@@ -41,7 +40,7 @@ import Path (Abs, Dir, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath
 import Path.IO (doesFileExist, ensureDir)
 import qualified System.Directory as D
 import qualified System.FilePath as FP
-import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+import Text.Ginger.GVal (GVal, toGVal)
 
 import Env (Env (..))
 import Templates (Template (..), generate)
@@ -130,7 +129,7 @@ processRepo' env repos repo = do
                 tree <- getTree gitHead
                 tags <- getRefs "refs/tags/"
                 branches <- getRefs "refs/heads/"
-                let scope = package env repos name (repositoryDescription repo) commits tree tags branches
+                let _scope = package env repos name (repositoryDescription repo) commits tree tags branches
 
                 -- Create the destination folders --
                 commitDir <- liftIO . parseRelDir $ "commit"
@@ -144,27 +143,26 @@ processRepo' env repos repo = do
 
                     -- This annotation blocks the first use of gen from making t concrete
                     gen ::
-                        ToGVal RunRepo t =>
-                        (T.Text -> RunRepo (GVal RunRepo)) ->
+                        (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
                         Template ->
                         T.Text ->
                         Path Abs Dir ->
                         (t -> FilePath) ->
                         t ->
                         IO ()
-                    gen = genTarget scope quiet force
+                    gen = genTarget quiet force
 
-                withRunInIO \runInIO -> mapM_ (genRepo (repoLookup runInIO) output scope) (envRepoTemplates env)
+                withRunInIO \runInIO -> mapM_ (genRepo runInIO output) (envRepoTemplates env)
 
                 whenJust (envCommitTemplate env) \commitT ->
                     withRunInIO \runInIO -> do
                         output' <- fmap (output </>) . parseRelDir $ "commit"
-                        mapM_ (gen (repoLookup runInIO) commitT "commit" output' commitHref) commits
+                        mapM_ (gen runInIO commitT "commit" output' commitHref) commits
 
                 whenJust (envFileTemplate env) \fileT ->
                     withRunInIO \runInIO -> do
                         output' <- fmap (output </>) . parseRelDir $ "file"
-                        mapM_ (gen (repoLookup runInIO) fileT "file" output' fileHref) tree -- TODO: detect file changes
+                        mapM_ (gen runInIO fileT "file" output' fileHref) tree -- TODO: detect file changes
 
                 -- Copy any static files/folders into the output folder --
                 liftIO . envRepoCopyStatics env $ output
@@ -369,14 +367,13 @@ getRefs ref = do
     dropName Nothing _ = Nothing
 
 genRepo ::
-    (T.Text -> RunRepo (GVal RunRepo)) ->
+    (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
     Path Abs Dir ->
-    HashMap.HashMap T.Text (GVal RunRepo) ->
     Template ->
     IO ()
-genRepo repoLookup output scope template =
+genRepo runInIO output template =
     let output' = toFilePath (output </> templatePath template)
-     in TL.writeFile output' =<< generate repoLookup template scope
+     in TL.writeFile output' =<< generate (cbRepoLookup runInIO) template
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
@@ -395,32 +392,28 @@ fileHref :: TreeFile -> FilePath
 fileHref = T.unpack . treePathToHref
 
 genTarget ::
-    ToGVal RunRepo t =>
-    HashMap.HashMap T.Text (GVal RunRepo) ->
     Bool ->
     Bool ->
-    (T.Text -> RunRepo (GVal RunRepo)) ->
+    (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
     Template ->
     T.Text ->
     Path Abs Dir ->
     (t -> FilePath) ->
     t ->
     IO ()
-genTarget scope quiet force repoLookup template category output href target = do
+genTarget quiet force runInIO template category output href target = do
     output' <- fmap (output </>) . parseRelFile . href $ target
     exists <- doesFileExist output'
     when (force || not exists) $ do
         let output'' = toFilePath output'
-            scope' = HashMap.insert category (toGVal target) scope
         unless quiet . putStrLn $ "Writing " <> output''
-        TL.writeFile output'' =<< generate repoLookup template scope'
-
+        TL.writeFile output'' =<< generate (cbRepoLookup runInIO) template
 
 -- This loads data from the git repository
-repoLookup ::
+cbRepoLookup ::
     (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
     T.Text ->
     RunRepo (GVal RunRepo)
-repoLookup runInIO key = liftIO . runInIO $ case key of
+cbRepoLookup runInIO key = liftIO . runInIO $ case key of
     "tags" -> toGVal <$> getRefs "refs/tags/"
     key' -> return . toGVal $ key'
