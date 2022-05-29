@@ -7,7 +7,6 @@
 
 module Repositories (
     run,
-    getRefs,
 ) where
 
 import qualified Bindings.Libgit2 as LG
@@ -70,7 +69,7 @@ loadRepos = mapM mkRepo <=< filterM (fmap isRight . okRepo) . envRepos
     mkRepo p = (\d -> Repo p d Nothing) <$> getDescription p
 
 {-
-Pass the repository's folder, get its description. The algorithm is:
+Pass the repository's folder, get its description. The approach is:
 
     1. Check for a description in repo/description
     2. Check for a description in repo/.git/description
