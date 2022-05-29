@@ -7,11 +7,10 @@ module Templates (
     generate,
 ) where
 
-import Control.Monad.IO.Class (liftIO)
 import qualified Data.HashMap.Strict as HashMap
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import qualified Data.Text as T
-import Data.Text.Internal.Lazy (Text)
+import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy.Builder as TB
 import Path (Abs, File, Path, Rel, filename, toFilePath)
 import System.IO.Error (tryIOError)
@@ -51,19 +50,18 @@ loadTemplate path =
     includeResolver p = either (const Nothing) Just <$> tryIOError (readFile p)
 
 {-
-This is the generator function that receives repository-specific variables and uses
-Ginger to render templates using them.
+This is the generator function that receives variables and uses Ginger to render
+templates into Text.
 -}
 generate ::
     Template ->
     HashMap.HashMap T.Text (GVal RunRepo) ->
     IO Text
-generate template context = do
-    content <- liftIO . newIORef . TB.fromText $ ""
+generate template scope = do
+    ioref <- newIORef . TB.fromText $ ""
 
     let emit :: Html -> IO ()
-        emit = liftIO . modifyIORef' content . flip mappend . TB.fromText . htmlSource
+        emit = modifyIORef' ioref . flip mappend . TB.fromText . htmlSource
 
-    liftIO $ runGingerT (easyContext emit context) . templateGinger $ template
-    result <- liftIO . readIORef $ content
-    return . TB.toLazyText $ result
+    runGingerT (easyContext emit scope) (templateGinger template)
+    TB.toLazyText <$> readIORef ioref

@@ -37,8 +37,7 @@ import Foreign.Storable (peek)
 import qualified Git
 import Git.Libgit2 (LgRepo, lgDiffTreeToTree, lgFactory)
 import Path (Abs, Dir, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (</>))
-import Path.IO (doesFileExist, ensureDir, ignoringAbsence)
-import System.Directory (removeFile)
+import Path.IO (doesFileExist, ensureDir)
 import qualified System.Directory as D
 import qualified System.FilePath as FP
 import Text.Ginger.GVal (GVal, ToGVal, toGVal)
@@ -370,10 +369,9 @@ genRepo ::
     HashMap.HashMap Text (GVal RunRepo) ->
     Template ->
     IO ()
-genRepo output scope template = do
+genRepo output scope template =
     let output' = toFilePath (output </> templatePath template)
-    result <- generate template scope
-    liftIO $ TL.writeFile output' result
+     in TL.writeFile output' =<< generate template scope
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
@@ -407,7 +405,6 @@ genTarget scope quiet force template category output href target = do
     exists <- doesFileExist output'
     when (force || not exists) $ do
         let output'' = toFilePath output'
+            scope' = HashMap.insert category (toGVal target) scope
         unless quiet . putStrLn $ "Writing " <> output''
-        ignoringAbsence . removeFile $ output''
-        result <- generate template $ HashMap.insert category (toGVal target) scope
-        TL.writeFile output'' result
+        TL.writeFile output'' =<< generate template scope'
