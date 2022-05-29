@@ -141,7 +141,7 @@ processRepo' env repos repo = do
                         force = envForce env
                         gen = genTarget scope runInIO quiet force
 
-                    mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
+                    mapM_ (genRepo scope runInIO quiet output) (envRepoTemplates env)
 
                     whenJust (envCommitTemplate env) \commitT -> do
                         output' <- fmap (output </>) . parseRelDir $ "commit"
@@ -352,12 +352,14 @@ getRefs ref = do
 genRepo ::
     HashMap.HashMap T.Text (GVal RunRepo) ->
     (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
+    Bool ->
     Path Abs Dir ->
     Template ->
     IO ()
-genRepo scope runInIO output template =
+genRepo scope runInIO quiet output template = do
     let output' = toFilePath (output </> templatePath template)
-     in TL.writeFile output' =<< generate (cbRepoLookup scope runInIO) template
+    unless quiet . putStrLn $ "Writing " <> output'
+    TL.writeFile output' =<< generate (cbRepoLookup scope runInIO) template
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
