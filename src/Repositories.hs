@@ -139,17 +139,17 @@ processRepo' env repos repo = do
                     -- Run the generator --
                     let quiet = envQuiet env
                         force = envForce env
-                        gen = genTarget scope quiet force
+                        gen = genTarget scope runInIO quiet force
 
                     mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
 
                     whenJust (envCommitTemplate env) \commitT -> do
                         output' <- fmap (output </>) . parseRelDir $ "commit"
-                        mapM_ (gen runInIO commitT "commit" output' commitHref) commits
+                        mapM_ (gen commitT "commit" output' commitHref) commits
 
                     whenJust (envFileTemplate env) \fileT -> do
                         output' <- fmap (output </>) . parseRelDir $ "file"
-                        mapM_ (gen runInIO fileT "file" output' fileHref) tree -- TODO: detect file changes
+                        mapM_ (gen fileT "file" output' fileHref) tree -- TODO: detect file changes
 
                     -- Copy any static files/folders into the output folder --
                     envRepoCopyStatics env output
@@ -378,16 +378,16 @@ fileHref = T.unpack . treePathToHref
 genTarget ::
     ToGVal RunRepo t =>
     HashMap.HashMap T.Text (GVal RunRepo) ->
-    Bool ->
-    Bool ->
     (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
+    Bool ->
+    Bool ->
     Template ->
     T.Text ->
     Path Abs Dir ->
     (t -> FilePath) ->
     t ->
     IO ()
-genTarget scope quiet force runInIO template category output href target = do
+genTarget scope runInIO quiet force template category output href target = do
     output' <- fmap (output </>) . parseRelFile . href $ target
     exists <- doesFileExist output'
     when (force || not exists) $ do
