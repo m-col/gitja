@@ -4,6 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Repositories (
     run,
@@ -138,17 +139,6 @@ processRepo' env repos repo = do
                     -- Run the generator --
                     let quiet = envQuiet env
                         force = envForce env
-
-                        -- This annotation blocks the first use of gen from making t concrete
-                        gen ::
-                            ToGVal RunRepo t =>
-                            (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
-                            Template ->
-                            T.Text ->
-                            Path Abs Dir ->
-                            (t -> FilePath) ->
-                            t ->
-                            IO ()
                         gen = genTarget scope quiet force
 
                     mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
