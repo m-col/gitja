@@ -128,42 +128,41 @@ processRepo' env repos repo = do
                 tree <- getTree gitHead
                 let scope = package env repos name (repositoryDescription repo) commits tree
 
-                -- Create the destination folders --
-                commitDir <- liftIO . parseRelDir $ "commit"
-                fileDir <- liftIO . parseRelDir $ "file"
-                liftIO . ensureDir $ output </> commitDir
-                liftIO . ensureDir $ output </> fileDir
+                withRunInIO \runInIO -> do
+                    -- Create the destination folders --
+                    commitDir <- parseRelDir "commit"
+                    fileDir <- parseRelDir "file"
+                    ensureDir $ output </> commitDir
+                    ensureDir $ output </> fileDir
 
-                -- Run the generator --
-                let quiet = envQuiet env
-                    force = envForce env
+                    -- Run the generator --
+                    let quiet = envQuiet env
+                        force = envForce env
 
-                    -- This annotation blocks the first use of gen from making t concrete
-                    gen ::
-                        ToGVal RunRepo t =>
-                        (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
-                        Template ->
-                        T.Text ->
-                        Path Abs Dir ->
-                        (t -> FilePath) ->
-                        t ->
-                        IO ()
-                    gen = genTarget scope quiet force
+                        -- This annotation blocks the first use of gen from making t concrete
+                        gen ::
+                            ToGVal RunRepo t =>
+                            (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
+                            Template ->
+                            T.Text ->
+                            Path Abs Dir ->
+                            (t -> FilePath) ->
+                            t ->
+                            IO ()
+                        gen = genTarget scope quiet force
 
-                withRunInIO \runInIO -> mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
+                    mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
 
-                whenJust (envCommitTemplate env) \commitT ->
-                    withRunInIO \runInIO -> do
+                    whenJust (envCommitTemplate env) \commitT -> do
                         output' <- fmap (output </>) . parseRelDir $ "commit"
                         mapM_ (gen runInIO commitT "commit" output' commitHref) commits
 
-                whenJust (envFileTemplate env) \fileT ->
-                    withRunInIO \runInIO -> do
+                    whenJust (envFileTemplate env) \fileT -> do
                         output' <- fmap (output </>) . parseRelDir $ "file"
                         mapM_ (gen runInIO fileT "file" output' fileHref) tree -- TODO: detect file changes
 
-                -- Copy any static files/folders into the output folder --
-                liftIO . envRepoCopyStatics env $ output
+                    -- Copy any static files/folders into the output folder --
+                    envRepoCopyStatics env output
 
             return
                 repo{repositoryHead = Just headCommit}
