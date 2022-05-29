@@ -7,7 +7,6 @@ module Index (
 import Control.Monad (unless)
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as T
-import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy.IO as TL
 import Path (toFilePath)
 import System.FilePath (combine)
@@ -22,23 +21,30 @@ This creates the main index files from the index templates, using information fr
 configured respositories.
 -}
 runIndex :: Env -> [Repo] -> IO ()
-runIndex env repos = mapM_ (runIndexFile env repos) . envIndexTemplates $ env
+runIndex env repos =
+    mapM_ (runIndexFile outputDir quiet scope) templates
+  where
+    outputDir = toFilePath . envOutput $ env
+    quiet = envQuiet env
+    templates = envIndexTemplates env
 
-runIndexFile :: Env -> [Repo] -> Template -> IO ()
-runIndexFile env repos template = do
-    let output = combine (toFilePath . envOutput $ env) . toFilePath . templatePath $ template
-    unless (envQuiet env) . putStrLn $ "Writing " <> output
-    TL.writeFile output =<< generateIndex template (packageIndex env repos)
+    scope :: HashMap.HashMap T.Text (GVal RunRepo)
+    scope =
+        HashMap.fromList
+            [ ("host", toGVal $ envHost env)
+            , ("repositories", toGVal repos)
+            ]
 
 {-
-This packages the variables that are available inside the index scope.
+Use the scope created above to render a single index template.
 -}
-packageIndex ::
-    Env ->
-    [Repo] ->
-    HashMap.HashMap T.Text (GVal RunRepo)
-packageIndex env repos =
-    HashMap.fromList
-        [ ("host", toGVal $ envHost env)
-        , ("repositories", toGVal repos)
-        ]
+runIndexFile ::
+    FilePath ->
+    Bool ->
+    HashMap.HashMap T.Text (GVal RunRepo) ->
+    Template ->
+    IO ()
+runIndexFile outputDir quiet scope template = do
+    let output = combine outputDir . toFilePath . templatePath $ template
+    unless quiet . putStrLn $ "Writing " <> output
+    TL.writeFile output =<< generateIndex template scope
