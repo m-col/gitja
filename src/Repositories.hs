@@ -40,7 +40,7 @@ import Path (Abs, Dir, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath
 import Path.IO (doesFileExist, ensureDir)
 import qualified System.Directory as D
 import qualified System.FilePath as FP
-import Text.Ginger.GVal (GVal, toGVal)
+import Text.Ginger.GVal (GVal, ToGVal, toGVal)
 
 import Env (Env (..))
 import Templates (Template (..), generate)
@@ -127,9 +127,7 @@ processRepo' env repos repo = do
                 -- Collect variables available to the ginger templates --
                 commits <- getCommits gitHead
                 tree <- getTree gitHead
-                tags <- getRefs "refs/tags/"
-                branches <- getRefs "refs/heads/"
-                let _scope = package env repos name (repositoryDescription repo) commits tree tags branches
+                let scope = package env repos name (repositoryDescription repo) commits tree
 
                 -- Create the destination folders --
                 commitDir <- liftIO . parseRelDir $ "commit"
@@ -143,6 +141,7 @@ processRepo' env repos repo = do
 
                     -- This annotation blocks the first use of gen from making t concrete
                     gen ::
+                        ToGVal RunRepo t =>
                         (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
                         Template ->
                         T.Text ->
@@ -150,9 +149,9 @@ processRepo' env repos repo = do
                         (t -> FilePath) ->
                         t ->
                         IO ()
-                    gen = genTarget quiet force
+                    gen = genTarget scope quiet force
 
-                withRunInIO \runInIO -> mapM_ (genRepo runInIO output) (envRepoTemplates env)
+                withRunInIO \runInIO -> mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
 
                 whenJust (envCommitTemplate env) \commitT ->
                     withRunInIO \runInIO -> do
@@ -173,8 +172,8 @@ processRepo' env repos repo = do
 {-
 The role of the function above is to gather information about a git repository and
 package it all together in such a way that various parts can be accessed and used by
-Ginger templates. `package` takes these pieces of information and places it all into a
-hashmap which Ginger can use to look up variables.
+Ginger templates. `package` takes any pre-loaded information and places it into a
+hashmap for Ginger. Other non pre-loaded variables are looked up on the upon request.
 -}
 package ::
     Env ->
@@ -183,10 +182,8 @@ package ::
     T.Text ->
     [Commit] ->
     [TreeFile] ->
-    [Ref] ->
-    [Ref] ->
     HashMap.HashMap T.Text (GVal RunRepo)
-package env repos name description commits tree tags branches =
+package env repos name description commits tree =
     HashMap.fromList
         [ ("host", toGVal . envHost $ env)
         , ("repositories", toGVal repos)
@@ -195,8 +192,6 @@ package env repos name description commits tree tags branches =
         , ("commits", toGVal commits)
         , ("tree", toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
         , ("tree_recursive", toGVal tree)
-        , ("tags", toGVal tags)
-        , ("branches", toGVal branches)
         , ("readme", toGVal . findFile "readme" $ tree)
         , ("license", toGVal . findFile "license" $ tree)
         ]
@@ -367,13 +362,14 @@ getRefs ref = do
     dropName Nothing _ = Nothing
 
 genRepo ::
+    HashMap.HashMap T.Text (GVal RunRepo) ->
     (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
     Path Abs Dir ->
     Template ->
     IO ()
-genRepo runInIO output template =
+genRepo scope runInIO output template =
     let output' = toFilePath (output </> templatePath template)
-     in TL.writeFile output' =<< generate (cbRepoLookup runInIO) template
+     in TL.writeFile output' =<< generate (cbRepoLookup scope runInIO) template
 
 ----------------------------------------------------------------------------------------
 -- Targets -----------------------------------------------------------------------------
@@ -392,6 +388,8 @@ fileHref :: TreeFile -> FilePath
 fileHref = T.unpack . treePathToHref
 
 genTarget ::
+    ToGVal RunRepo t =>
+    HashMap.HashMap T.Text (GVal RunRepo) ->
     Bool ->
     Bool ->
     (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
@@ -401,19 +399,22 @@ genTarget ::
     (t -> FilePath) ->
     t ->
     IO ()
-genTarget quiet force runInIO template category output href target = do
+genTarget scope quiet force runInIO template category output href target = do
     output' <- fmap (output </>) . parseRelFile . href $ target
     exists <- doesFileExist output'
     when (force || not exists) $ do
         let output'' = toFilePath output'
+            scope' = HashMap.insert category (toGVal target) scope
         unless quiet . putStrLn $ "Writing " <> output''
-        TL.writeFile output'' =<< generate (cbRepoLookup runInIO) template
+        TL.writeFile output'' =<< generate (cbRepoLookup scope' runInIO) template
 
 -- This loads data from the git repository
 cbRepoLookup ::
+    HashMap.HashMap T.Text (GVal RunRepo) ->
     (ReaderT LgRepo IO (GVal RunRepo) -> IO (GVal RunRepo)) ->
     T.Text ->
     RunRepo (GVal RunRepo)
-cbRepoLookup runInIO key = liftIO . runInIO $ case key of
+cbRepoLookup scope runInIO key = liftIO . runInIO $ case key of
     "tags" -> toGVal <$> getRefs "refs/tags/"
-    key' -> return . toGVal $ key'
+    "branches" -> toGVal <$> getRefs "refs/heads/"
+    key' -> return . toGVal . HashMap.lookup key' $ scope
