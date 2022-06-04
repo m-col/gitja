@@ -131,10 +131,10 @@ processRepo' env repos repo = do
 
                 withRunInIO \runInIO -> do
                     -- Create the destination folders --
-                    commitDir <- parseRelDir "commit"
-                    fileDir <- parseRelDir "file"
-                    ensureDir $ directory </> commitDir
-                    ensureDir $ directory </> fileDir
+                    commitDir <- (directory </>) <$> parseRelDir "commit"
+                    fileDir <- (directory </>) <$> parseRelDir "file"
+                    ensureDir commitDir
+                    ensureDir fileDir
 
                     -- Run the generator --
                     let quiet = envQuiet env
@@ -144,12 +144,10 @@ processRepo' env repos repo = do
                     mapM_ (generate scope runInIO quiet directory) (envRepoTemplates env)
 
                     whenJust (envCommitTemplate env) \commitT -> do
-                        output' <- fmap (directory </>) . parseRelDir $ "commit"
-                        mapM_ (gen commitT "commit" output' commitHref) commits
+                        mapM_ (gen commitT "commit" commitDir commitHref) commits
 
                     whenJust (envFileTemplate env) \fileT -> do
-                        output' <- fmap (directory </>) . parseRelDir $ "file"
-                        mapM_ (gen fileT "file" output' fileHref) tree -- TODO: detect file changes
+                        mapM_ (gen fileT "file" fileDir fileHref) tree -- TODO: detect file changes
 
                     -- Copy any static files/folders into the output directory --
                     envRepoCopyStatics env directory
