@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - remove redundant directory parse</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/8ba4cbfe7f06ed441920a74315705f7a24a09984.html">8ba4cbf</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/8ba4cbfe7f06ed441920a74315705f7a24a09984.html">8ba4cbfe7f06ed441920a74315705f7a24a09984</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">204319857a29ad6307c8b11e3366000cb79e0b47</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-06-04 19:24:04 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-06-04 19:24:04 +0100
+
+remove redundant directory parse
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -131,10 +131,10 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">                 withRunInIO \runInIO -&gt; do
+</span><span class="def">                     -- Create the destination folders --
+</span><span class="sub">-                    commitDir &lt;- parseRelDir &quot;commit&quot;
+</span><span class="sub">-                    fileDir &lt;- parseRelDir &quot;file&quot;
+</span><span class="sub">-                    ensureDir $ directory &lt;/&gt; commitDir
+</span><span class="sub">-                    ensureDir $ directory &lt;/&gt; fileDir
+</span><span class="add">+                    commitDir &lt;- (directory &lt;/&gt;) &lt;$&gt; parseRelDir &quot;commit&quot;
+</span><span class="add">+                    fileDir &lt;- (directory &lt;/&gt;) &lt;$&gt; parseRelDir &quot;file&quot;
+</span><span class="add">+                    ensureDir commitDir
+</span><span class="add">+                    ensureDir fileDir
+</span><span class="def"> 
+</span><span class="def">                     -- Run the generator --
+</span><span class="def">                     let quiet = envQuiet env
+</span></pre>@@ -144,12 +144,10 @@
+
+
+  <pre><span class="def">                     mapM_ (generate scope runInIO quiet directory) (envRepoTemplates env)
+</span><span class="def"> 
+</span><span class="def">                     whenJust (envCommitTemplate env) \commitT -&gt; do
+</span><span class="sub">-                        output&apos; &lt;- fmap (directory &lt;/&gt;) . parseRelDir $ &quot;commit&quot;
+</span><span class="sub">-                        mapM_ (gen commitT &quot;commit&quot; output&apos; commitHref) commits
+</span><span class="add">+                        mapM_ (gen commitT &quot;commit&quot; commitDir commitHref) commits
+</span><span class="def"> 
+</span><span class="def">                     whenJust (envFileTemplate env) \fileT -&gt; do
+</span><span class="sub">-                        output&apos; &lt;- fmap (directory &lt;/&gt;) . parseRelDir $ &quot;file&quot;
+</span><span class="sub">-                        mapM_ (gen fileT &quot;file&quot; output&apos; fileHref) tree -- TODO: detect file changes
+</span><span class="add">+                        mapM_ (gen fileT &quot;file&quot; fileDir fileHref) tree -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="def">                     -- Copy any static files/folders into the output directory --
+</span><span class="def">                     envRepoCopyStatics env directory
+</span></pre></div>    </div>
+  </body>
+</html>

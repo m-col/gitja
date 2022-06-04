@@ -29,7 +29,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">2043198</a>
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/8ba4cbfe7f06ed441920a74315705f7a24a09984.html">8ba4cbf</a>
       </p>
     </div>
 
@@ -169,10 +169,10 @@
 <a href="#l131" class="line" id="l131">  131</a>  
 <a href="#l132" class="line" id="l132">  132</a>                  withRunInIO \runInIO -&gt; do
 <a href="#l133" class="line" id="l133">  133</a>                      -- Create the destination folders --
-<a href="#l134" class="line" id="l134">  134</a>                      commitDir &lt;- parseRelDir &quot;commit&quot;
-<a href="#l135" class="line" id="l135">  135</a>                      fileDir &lt;- parseRelDir &quot;file&quot;
-<a href="#l136" class="line" id="l136">  136</a>                      ensureDir $ directory &lt;/&gt; commitDir
-<a href="#l137" class="line" id="l137">  137</a>                      ensureDir $ directory &lt;/&gt; fileDir
+<a href="#l134" class="line" id="l134">  134</a>                      commitDir &lt;- (directory &lt;/&gt;) &lt;$&gt; parseRelDir &quot;commit&quot;
+<a href="#l135" class="line" id="l135">  135</a>                      fileDir &lt;- (directory &lt;/&gt;) &lt;$&gt; parseRelDir &quot;file&quot;
+<a href="#l136" class="line" id="l136">  136</a>                      ensureDir commitDir
+<a href="#l137" class="line" id="l137">  137</a>                      ensureDir fileDir
 <a href="#l138" class="line" id="l138">  138</a>  
 <a href="#l139" class="line" id="l139">  139</a>                      -- Run the generator --
 <a href="#l140" class="line" id="l140">  140</a>                      let quiet = envQuiet env
@@ -182,273 +182,271 @@
 <a href="#l144" class="line" id="l144">  144</a>                      mapM_ (generate scope runInIO quiet directory) (envRepoTemplates env)
 <a href="#l145" class="line" id="l145">  145</a>  
 <a href="#l146" class="line" id="l146">  146</a>                      whenJust (envCommitTemplate env) \commitT -&gt; do
-<a href="#l147" class="line" id="l147">  147</a>                          output&apos; &lt;- fmap (directory &lt;/&gt;) . parseRelDir $ &quot;commit&quot;
-<a href="#l148" class="line" id="l148">  148</a>                          mapM_ (gen commitT &quot;commit&quot; output&apos; commitHref) commits
-<a href="#l149" class="line" id="l149">  149</a>  
-<a href="#l150" class="line" id="l150">  150</a>                      whenJust (envFileTemplate env) \fileT -&gt; do
-<a href="#l151" class="line" id="l151">  151</a>                          output&apos; &lt;- fmap (directory &lt;/&gt;) . parseRelDir $ &quot;file&quot;
-<a href="#l152" class="line" id="l152">  152</a>                          mapM_ (gen fileT &quot;file&quot; output&apos; fileHref) tree -- TODO: detect file changes
-<a href="#l153" class="line" id="l153">  153</a>  
-<a href="#l154" class="line" id="l154">  154</a>                      -- Copy any static files/folders into the output directory --
-<a href="#l155" class="line" id="l155">  155</a>                      envRepoCopyStatics env directory
-<a href="#l156" class="line" id="l156">  156</a>  
-<a href="#l157" class="line" id="l157">  157</a>              return
-<a href="#l158" class="line" id="l158">  158</a>                  repo{repositoryHead = Just headCommit}
-<a href="#l159" class="line" id="l159">  159</a>  
-<a href="#l160" class="line" id="l160">  160</a>  {-
-<a href="#l161" class="line" id="l161">  161</a>  The role of the function above is to gather information about a git repository and
-<a href="#l162" class="line" id="l162">  162</a>  package it all together in such a way that various parts can be accessed and used by
-<a href="#l163" class="line" id="l163">  163</a>  Ginger templates. `package` takes any pre-loaded information and places it into a
-<a href="#l164" class="line" id="l164">  164</a>  hashmap for Ginger. Other non pre-loaded variables are looked up on the upon request.
-<a href="#l165" class="line" id="l165">  165</a>  -}
-<a href="#l166" class="line" id="l166">  166</a>  package ::
-<a href="#l167" class="line" id="l167">  167</a>      Env -&gt;
-<a href="#l168" class="line" id="l168">  168</a>      [Repo] -&gt;
-<a href="#l169" class="line" id="l169">  169</a>      Path Rel Dir -&gt;
-<a href="#l170" class="line" id="l170">  170</a>      T.Text -&gt;
-<a href="#l171" class="line" id="l171">  171</a>      [Commit] -&gt;
-<a href="#l172" class="line" id="l172">  172</a>      [TreeFile] -&gt;
-<a href="#l173" class="line" id="l173">  173</a>      HashMap.HashMap T.Text (GVal RunRepo)
-<a href="#l174" class="line" id="l174">  174</a>  package env repos name description commits tree =
-<a href="#l175" class="line" id="l175">  175</a>      HashMap.fromList
-<a href="#l176" class="line" id="l176">  176</a>          [ (&quot;host&quot;, toGVal . envHost $ env)
-<a href="#l177" class="line" id="l177">  177</a>          , (&quot;repositories&quot;, toGVal repos)
-<a href="#l178" class="line" id="l178">  178</a>          , (&quot;name&quot;, toGVal . T.pack . init . toFilePath $ name)
-<a href="#l179" class="line" id="l179">  179</a>          , (&quot;description&quot;, toGVal description)
-<a href="#l180" class="line" id="l180">  180</a>          , (&quot;commits&quot;, toGVal commits)
-<a href="#l181" class="line" id="l181">  181</a>          , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
-<a href="#l182" class="line" id="l182">  182</a>          , (&quot;tree_recursive&quot;, toGVal tree)
-<a href="#l183" class="line" id="l183">  183</a>          , (&quot;readme&quot;, toGVal . findFile &quot;readme&quot; $ tree)
-<a href="#l184" class="line" id="l184">  184</a>          , (&quot;license&quot;, toGVal . findFile &quot;license&quot; $ tree)
-<a href="#l185" class="line" id="l185">  185</a>          ]
-<a href="#l186" class="line" id="l186">  186</a>    where
-<a href="#l187" class="line" id="l187">  187</a>      -- Find a file in the tree starting with the specified prefix. The prefix is looked
-<a href="#l188" class="line" id="l188">  188</a>      -- for on the full path, so will only find files in the top level directory.
-<a href="#l189" class="line" id="l189">  189</a>      findFile :: T.Text -&gt; [TreeFile] -&gt; Maybe TreeFile
-<a href="#l190" class="line" id="l190">  190</a>      findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeFilePath)
-<a href="#l191" class="line" id="l191">  191</a>  
-<a href="#l192" class="line" id="l192">  192</a>  {-
-<a href="#l193" class="line" id="l193">  193</a>  Collect commit history up to a head.
-<a href="#l194" class="line" id="l194">  194</a>  -}
-<a href="#l195" class="line" id="l195">  195</a>  getCommits :: Git.CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit]
-<a href="#l196" class="line" id="l196">  196</a>  getCommits commitID =
-<a href="#l197" class="line" id="l197">  197</a>      fmap reverse . sequence . mapMaybe loadCommit
-<a href="#l198" class="line" id="l198">  198</a>          &lt;=&lt; runConduit
-<a href="#l199" class="line" id="l199">  199</a>          $ Git.sourceObjects Nothing commitID False .| sinkList
-<a href="#l200" class="line" id="l200">  200</a>    where
-<a href="#l201" class="line" id="l201">  201</a>      loadCommit :: Git.ObjectOid LgRepo -&gt; Maybe (ReaderT LgRepo IO Commit)
-<a href="#l202" class="line" id="l202">  202</a>      loadCommit (Git.CommitObjOid oid) = Just $ loadDiff =&lt;&lt; Git.lookupCommit oid
-<a href="#l203" class="line" id="l203">  203</a>      loadCommit _ = Nothing
-<a href="#l204" class="line" id="l204">  204</a>  
-<a href="#l205" class="line" id="l205">  205</a>  {-
-<a href="#l206" class="line" id="l206">  206</a>  Collect diff information for a single commit.
-<a href="#l207" class="line" id="l207">  207</a>  -}
-<a href="#l208" class="line" id="l208">  208</a>  loadDiff :: Git.Commit LgRepo -&gt; ReaderT LgRepo IO Commit
-<a href="#l209" class="line" id="l209">  209</a>  loadDiff gitCommit = do
-<a href="#l210" class="line" id="l210">  210</a>      newTree &lt;- Git.lookupTree . Git.commitTree $ gitCommit
-<a href="#l211" class="line" id="l211">  211</a>      oldTree &lt;-
-<a href="#l212" class="line" id="l212">  212</a>          case listToMaybe . Git.commitParents $ gitCommit of
-<a href="#l213" class="line" id="l213">  213</a>              Just parent -&gt;
-<a href="#l214" class="line" id="l214">  214</a>                  fmap Just . Git.lookupTree . Git.commitTree =&lt;&lt; Git.lookupCommit parent
-<a href="#l215" class="line" id="l215">  215</a>              Nothing -&gt;
-<a href="#l216" class="line" id="l216">  216</a>                  return Nothing
-<a href="#l217" class="line" id="l217">  217</a>  
-<a href="#l218" class="line" id="l218">  218</a>      ioref &lt;- liftIO . newIORef $ []
-<a href="#l219" class="line" id="l219">  219</a>      lgDiffTreeToTree
-<a href="#l220" class="line" id="l220">  220</a>          (fileCallback ioref)
-<a href="#l221" class="line" id="l221">  221</a>          (hunkCallback ioref)
-<a href="#l222" class="line" id="l222">  222</a>          (dataCallback ioref)
-<a href="#l223" class="line" id="l223">  223</a>          oldTree
-<a href="#l224" class="line" id="l224">  224</a>          (Just newTree)
-<a href="#l225" class="line" id="l225">  225</a>      diffs &lt;- liftIO . readIORef $ ioref
-<a href="#l226" class="line" id="l226">  226</a>  
-<a href="#l227" class="line" id="l227">  227</a>      return . Commit gitCommit . fmap fixupLists $ diffs
-<a href="#l228" class="line" id="l228">  228</a>    where
-<a href="#l229" class="line" id="l229">  229</a>      fileCallback ::
-<a href="#l230" class="line" id="l230">  230</a>          IORef [Diff] -&gt;
-<a href="#l231" class="line" id="l231">  231</a>          Ptr LG.C&apos;git_diff_delta -&gt;
-<a href="#l232" class="line" id="l232">  232</a>          CFloat -&gt;
-<a href="#l233" class="line" id="l233">  233</a>          Ptr () -&gt;
-<a href="#l234" class="line" id="l234">  234</a>          IO CInt
-<a href="#l235" class="line" id="l235">  235</a>      fileCallback ioref dPtr _progress _payload = do
-<a href="#l236" class="line" id="l236">  236</a>          delta &lt;- peek dPtr
-<a href="#l237" class="line" id="l237">  237</a>          newFile &lt;- B.packCString . LG.c&apos;git_diff_file&apos;path . LG.c&apos;git_diff_delta&apos;new_file $ delta
-<a href="#l238" class="line" id="l238">  238</a>          oldFile &lt;- B.packCString . LG.c&apos;git_diff_file&apos;path . LG.c&apos;git_diff_delta&apos;old_file $ delta
-<a href="#l239" class="line" id="l239">  239</a>          let oldFile&apos; = bool Nothing (Just oldFile) (newFile /= oldFile)
-<a href="#l240" class="line" id="l240">  240</a>              status = toEnum . fromIntegral . LG.c&apos;git_diff_delta&apos;status $ delta
-<a href="#l241" class="line" id="l241">  241</a>              diff = Diff newFile oldFile&apos; status []
-<a href="#l242" class="line" id="l242">  242</a>          modifyIORef ioref (diff :)
-<a href="#l243" class="line" id="l243">  243</a>          return 0
-<a href="#l244" class="line" id="l244">  244</a>  
-<a href="#l245" class="line" id="l245">  245</a>      hunkCallback ::
-<a href="#l246" class="line" id="l246">  246</a>          IORef [Diff] -&gt;
-<a href="#l247" class="line" id="l247">  247</a>          Ptr LG.C&apos;git_diff_delta -&gt;
-<a href="#l248" class="line" id="l248">  248</a>          Ptr LG.C&apos;git_diff_range -&gt;
-<a href="#l249" class="line" id="l249">  249</a>          CString -&gt;
-<a href="#l250" class="line" id="l250">  250</a>          CSize -&gt;
-<a href="#l251" class="line" id="l251">  251</a>          Ptr () -&gt;
-<a href="#l252" class="line" id="l252">  252</a>          IO CInt
-<a href="#l253" class="line" id="l253">  253</a>      hunkCallback ioref _dPtr _range header headerLen _payload = do
-<a href="#l254" class="line" id="l254">  254</a>          (cur : _, rest) &lt;- splitAt 1 &lt;$&gt; readIORef ioref
-<a href="#l255" class="line" id="l255">  255</a>          bs &lt;- curry B.packCStringLen header (fromIntegral headerLen)
-<a href="#l256" class="line" id="l256">  256</a>          let hunk = Hunk bs []
-<a href="#l257" class="line" id="l257">  257</a>          writeIORef ioref $ cur{diffHunks = hunk : diffHunks cur} : rest
-<a href="#l258" class="line" id="l258">  258</a>          return 0
-<a href="#l259" class="line" id="l259">  259</a>  
-<a href="#l260" class="line" id="l260">  260</a>      dataCallback ::
-<a href="#l261" class="line" id="l261">  261</a>          IORef [Diff] -&gt;
-<a href="#l262" class="line" id="l262">  262</a>          Ptr LG.C&apos;git_diff_delta -&gt;
-<a href="#l263" class="line" id="l263">  263</a>          Ptr LG.C&apos;git_diff_range -&gt;
-<a href="#l264" class="line" id="l264">  264</a>          CChar -&gt;
-<a href="#l265" class="line" id="l265">  265</a>          CString -&gt;
-<a href="#l266" class="line" id="l266">  266</a>          CSize -&gt;
-<a href="#l267" class="line" id="l267">  267</a>          Ptr () -&gt;
-<a href="#l268" class="line" id="l268">  268</a>          IO CInt
-<a href="#l269" class="line" id="l269">  269</a>      dataCallback ioref _dPtr _range lineOrigin content contentLen _payload = do
-<a href="#l270" class="line" id="l270">  270</a>          bs &lt;- curry B.packCStringLen content (fromIntegral contentLen)
-<a href="#l271" class="line" id="l271">  271</a>          let bs&apos; = B.cons (fromIntegral lineOrigin) bs
-<a href="#l272" class="line" id="l272">  272</a>          (cur : _, rest) &lt;- splitAt 1 &lt;$&gt; readIORef ioref
-<a href="#l273" class="line" id="l273">  273</a>          let (curHunk : _, restHunks) = splitAt 1 . diffHunks $ cur
-<a href="#l274" class="line" id="l274">  274</a>          let updated =
-<a href="#l275" class="line" id="l275">  275</a>                  cur
-<a href="#l276" class="line" id="l276">  276</a>                      { diffHunks =
-<a href="#l277" class="line" id="l277">  277</a>                          curHunk
-<a href="#l278" class="line" id="l278">  278</a>                              { hunkLines = bs&apos; : hunkLines curHunk
-<a href="#l279" class="line" id="l279">  279</a>                              } :
-<a href="#l280" class="line" id="l280">  280</a>                          restHunks
-<a href="#l281" class="line" id="l281">  281</a>                      }
-<a href="#l282" class="line" id="l282">  282</a>          writeIORef ioref $ updated : rest
-<a href="#l283" class="line" id="l283">  283</a>          return 0
-<a href="#l284" class="line" id="l284">  284</a>  
-<a href="#l285" class="line" id="l285">  285</a>      -- The callbacks prepend and then we put the lists the right way round here.
-<a href="#l286" class="line" id="l286">  286</a>      -- This avoids traversing the lists every time we add an item.
-<a href="#l287" class="line" id="l287">  287</a>      fixupLists :: Diff -&gt; Diff
-<a href="#l288" class="line" id="l288">  288</a>      fixupLists diff = diff{diffHunks = fmap fixupLines . reverse . diffHunks $ diff}
-<a href="#l289" class="line" id="l289">  289</a>        where
-<a href="#l290" class="line" id="l290">  290</a>          fixupLines hunk = hunk{hunkLines = reverse . hunkLines $ hunk}
-<a href="#l291" class="line" id="l291">  291</a>  
-<a href="#l292" class="line" id="l292">  292</a>  {-
-<a href="#l293" class="line" id="l293">  293</a>  Collect tree information for the given commit. Recurses on directories to list their
-<a href="#l294" class="line" id="l294">  294</a>  contents.
-<a href="#l295" class="line" id="l295">  295</a>  -}
-<a href="#l296" class="line" id="l296">  296</a>  getTree :: Git.CommitOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
-<a href="#l297" class="line" id="l297">  297</a>  getTree = getTree&apos; &quot;&quot; 0 . Git.commitTree &lt;=&lt; Git.lookupCommit
-<a href="#l298" class="line" id="l298">  298</a>    where
-<a href="#l299" class="line" id="l299">  299</a>      getTree&apos; :: Git.TreeFilePath -&gt; Int -&gt; Git.TreeOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
-<a href="#l300" class="line" id="l300">  300</a>      getTree&apos; parent count toid = do
-<a href="#l301" class="line" id="l301">  301</a>          one &lt;- Git.lookupTree toid
-<a href="#l302" class="line" id="l302">  302</a>          entries &lt;- Git.listTreeEntries one
-<a href="#l303" class="line" id="l303">  303</a>          let entries&apos; = fmap (prependParent parent) entries
-<a href="#l304" class="line" id="l304">  304</a>          contents &lt;- mapM (\x -&gt; getEntryContents x (count + 1)) entries&apos;
-<a href="#l305" class="line" id="l305">  305</a>          modes &lt;- mapM (getEntryModes . snd) entries&apos;
-<a href="#l306" class="line" id="l306">  306</a>          return $ zipWith3 TreeFile (fmap treePaths entries&apos;) contents modes
-<a href="#l307" class="line" id="l307">  307</a>  
-<a href="#l308" class="line" id="l308">  308</a>      prependParent ::
-<a href="#l309" class="line" id="l309">  309</a>          Git.TreeFilePath -&gt;
-<a href="#l310" class="line" id="l310">  310</a>          (Git.TreeFilePath, Git.TreeEntry r) -&gt;
-<a href="#l311" class="line" id="l311">  311</a>          (Git.TreeFilePath, Git.TreeEntry r)
-<a href="#l312" class="line" id="l312">  312</a>      prependParent &quot;&quot; pathentry = pathentry
-<a href="#l313" class="line" id="l313">  313</a>      prependParent parent (path, entry) = (mconcat [parent, &quot;/&quot;, path], entry)
-<a href="#l314" class="line" id="l314">  314</a>  
-<a href="#l315" class="line" id="l315">  315</a>      getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; Int -&gt; ReaderT LgRepo IO TreeFileContents
-<a href="#l316" class="line" id="l316">  316</a>      getEntryContents (_, Git.BlobEntry oid _) _ = getBlobContents oid
-<a href="#l317" class="line" id="l317">  317</a>      getEntryContents (path, Git.TreeEntry oid) count = FolderContents &lt;$&gt; getTree&apos; path count oid
-<a href="#l318" class="line" id="l318">  318</a>      getEntryContents (_, Git.CommitEntry oid) _ = return . FileContents . B.fromString . show . untag $ oid
-<a href="#l319" class="line" id="l319">  319</a>  
-<a href="#l320" class="line" id="l320">  320</a>      getEntryModes :: Git.TreeEntry r -&gt; ReaderT r IO TreeEntryMode
-<a href="#l321" class="line" id="l321">  321</a>      getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
-<a href="#l322" class="line" id="l322">  322</a>      getEntryModes (Git.TreeEntry _) = return ModeDirectory
-<a href="#l323" class="line" id="l323">  323</a>      getEntryModes (Git.CommitEntry _) = return ModeSubmodule
-<a href="#l324" class="line" id="l324">  324</a>  
-<a href="#l325" class="line" id="l325">  325</a>      treePaths :: (Git.TreeFilePath, Git.TreeEntry r) -&gt; T.Text
-<a href="#l326" class="line" id="l326">  326</a>      treePaths = T.decodeUtf8With T.lenientDecode . fst
-<a href="#l327" class="line" id="l327">  327</a>  
-<a href="#l328" class="line" id="l328">  328</a>  {-
-<a href="#l329" class="line" id="l329">  329</a>  Collect information about references. TODO: Find a more canonical way to split
-<a href="#l330" class="line" id="l330">  330</a>  references into tags or branches rather than filtering the refnames.
-<a href="#l331" class="line" id="l331">  331</a>  -}
-<a href="#l332" class="line" id="l332">  332</a>  getRefs :: T.Text -&gt; ReaderT LgRepo IO [Ref]
-<a href="#l333" class="line" id="l333">  333</a>  getRefs ref = do
-<a href="#l334" class="line" id="l334">  334</a>      names &lt;- filter (T.isPrefixOf ref) &lt;$&gt; Git.listReferences
-<a href="#l335" class="line" id="l335">  335</a>      maybeOids &lt;- mapM Git.resolveReference names
-<a href="#l336" class="line" id="l336">  336</a>      let names&apos; = catMaybes . zipWith dropName maybeOids $ names
-<a href="#l337" class="line" id="l337">  337</a>      objs &lt;- mapM Git.lookupObject . catMaybes $ maybeOids
-<a href="#l338" class="line" id="l338">  338</a>      maybeCommits &lt;- mapM refObjToCommit objs
-<a href="#l339" class="line" id="l339">  339</a>      let names&apos;&apos; = map (fromJust . T.stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names&apos;
-<a href="#l340" class="line" id="l340">  340</a>      return . zipWith Ref names&apos;&apos; . catMaybes $ maybeCommits
-<a href="#l341" class="line" id="l341">  341</a>    where
-<a href="#l342" class="line" id="l342">  342</a>      refObjToCommit ::
-<a href="#l343" class="line" id="l343">  343</a>          Git.Object LgRepo (ReaderT LgRepo IO) -&gt;
-<a href="#l344" class="line" id="l344">  344</a>          ReaderT LgRepo IO (Maybe Commit)
-<a href="#l345" class="line" id="l345">  345</a>      refObjToCommit (Git.CommitObj obj) = Just &lt;$&gt; loadDiff obj
-<a href="#l346" class="line" id="l346">  346</a>      refObjToCommit _ = return Nothing
-<a href="#l347" class="line" id="l347">  347</a>  
-<a href="#l348" class="line" id="l348">  348</a>      dropName :: Maybe a -&gt; Git.RefName -&gt; Maybe Git.RefName
-<a href="#l349" class="line" id="l349">  349</a>      dropName (Just _) name = Just name
-<a href="#l350" class="line" id="l350">  350</a>      dropName Nothing _ = Nothing
-<a href="#l351" class="line" id="l351">  351</a>  
-<a href="#l352" class="line" id="l352">  352</a>  {-
-<a href="#l353" class="line" id="l353">  353</a>  Render repository data into a template and save it to file.
-<a href="#l354" class="line" id="l354">  354</a>  -}
-<a href="#l355" class="line" id="l355">  355</a>  generate ::
-<a href="#l356" class="line" id="l356">  356</a>      HashMap.HashMap T.Text (GVal RunRepo) -&gt;
-<a href="#l357" class="line" id="l357">  357</a>      (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
-<a href="#l358" class="line" id="l358">  358</a>      Bool -&gt;
-<a href="#l359" class="line" id="l359">  359</a>      Path Abs Dir -&gt;
-<a href="#l360" class="line" id="l360">  360</a>      Template -&gt;
-<a href="#l361" class="line" id="l361">  361</a>      IO ()
-<a href="#l362" class="line" id="l362">  362</a>  generate scope runInIO quiet directory template = do
-<a href="#l363" class="line" id="l363">  363</a>      let output = toFilePath (directory &lt;/&gt; templatePath template)
-<a href="#l364" class="line" id="l364">  364</a>      unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output
-<a href="#l365" class="line" id="l365">  365</a>      TL.writeFile output =&lt;&lt; render (cbRepoLookup scope runInIO) template
-<a href="#l366" class="line" id="l366">  366</a>  
-<a href="#l367" class="line" id="l367">  367</a>  {-
-<a href="#l368" class="line" id="l368">  368</a>  A Target refers to a template scope and repository object whose information is available
-<a href="#l369" class="line" id="l369">  369</a>  in that scope. For example, commits are a target as they each generate a scope
-<a href="#l370" class="line" id="l370">  370</a>  containing that commit&apos;s information, and these scopes are each rendered in the
-<a href="#l371" class="line" id="l371">  371</a>  commitTemplate.
-<a href="#l372" class="line" id="l372">  372</a>  -}
-<a href="#l373" class="line" id="l373">  373</a>  genTarget ::
-<a href="#l374" class="line" id="l374">  374</a>      ToGVal RunRepo t =&gt;
-<a href="#l375" class="line" id="l375">  375</a>      HashMap.HashMap T.Text (GVal RunRepo) -&gt;
-<a href="#l376" class="line" id="l376">  376</a>      (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
-<a href="#l377" class="line" id="l377">  377</a>      Bool -&gt;
-<a href="#l378" class="line" id="l378">  378</a>      Bool -&gt;
-<a href="#l379" class="line" id="l379">  379</a>      Template -&gt;
-<a href="#l380" class="line" id="l380">  380</a>      T.Text -&gt;
-<a href="#l381" class="line" id="l381">  381</a>      Path Abs Dir -&gt;
-<a href="#l382" class="line" id="l382">  382</a>      (t -&gt; FilePath) -&gt;
-<a href="#l383" class="line" id="l383">  383</a>      t -&gt;
-<a href="#l384" class="line" id="l384">  384</a>      IO ()
-<a href="#l385" class="line" id="l385">  385</a>  genTarget scope runInIO quiet force template category directory href target = do
-<a href="#l386" class="line" id="l386">  386</a>      output &lt;- fmap (directory &lt;/&gt;) . parseRelFile . href $ target
-<a href="#l387" class="line" id="l387">  387</a>      exists &lt;- doesFileExist output
-<a href="#l388" class="line" id="l388">  388</a>      when (force || not exists) $ do
-<a href="#l389" class="line" id="l389">  389</a>          let output&apos; = toFilePath output
-<a href="#l390" class="line" id="l390">  390</a>              scope&apos; = HashMap.insert category (toGVal target) scope
-<a href="#l391" class="line" id="l391">  391</a>          unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;
-<a href="#l392" class="line" id="l392">  392</a>          TL.writeFile output&apos; =&lt;&lt; render (cbRepoLookup scope&apos; runInIO) template
-<a href="#l393" class="line" id="l393">  393</a>  
-<a href="#l394" class="line" id="l394">  394</a>  commitHref :: Commit -&gt; FilePath
-<a href="#l395" class="line" id="l395">  395</a>  commitHref = (++ &quot;.html&quot;) . show . untag . Git.commitOid . commitGit
-<a href="#l396" class="line" id="l396">  396</a>  
-<a href="#l397" class="line" id="l397">  397</a>  fileHref :: TreeFile -&gt; FilePath
-<a href="#l398" class="line" id="l398">  398</a>  fileHref = T.unpack . treePathToHref
-<a href="#l399" class="line" id="l399">  399</a>  
-<a href="#l400" class="line" id="l400">  400</a>  {-
-<a href="#l401" class="line" id="l401">  401</a>  With a dictionary of preloaded values and a function to access additional data, create a
-<a href="#l402" class="line" id="l402">  402</a>  lookup function for rendering.
-<a href="#l403" class="line" id="l403">  403</a>  -}
-<a href="#l404" class="line" id="l404">  404</a>  cbRepoLookup ::
-<a href="#l405" class="line" id="l405">  405</a>      HashMap.HashMap T.Text (GVal RunRepo) -&gt;
-<a href="#l406" class="line" id="l406">  406</a>      (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
-<a href="#l407" class="line" id="l407">  407</a>      T.Text -&gt;
-<a href="#l408" class="line" id="l408">  408</a>      RunRepo (GVal RunRepo)
-<a href="#l409" class="line" id="l409">  409</a>  cbRepoLookup scope runInIO key = liftIO . runInIO $ case key of
-<a href="#l410" class="line" id="l410">  410</a>      &quot;tags&quot; -&gt; toGVal &lt;$&gt; getRefs &quot;refs/tags/&quot;
-<a href="#l411" class="line" id="l411">  411</a>      &quot;branches&quot; -&gt; toGVal &lt;$&gt; getRefs &quot;refs/heads/&quot;
-<a href="#l412" class="line" id="l412">  412</a>      key&apos; -&gt; return . toGVal . HashMap.lookup key&apos; $ scope
-<a href="#l413" class="line" id="l413">  413</a>  
+<a href="#l147" class="line" id="l147">  147</a>                          mapM_ (gen commitT &quot;commit&quot; commitDir commitHref) commits
+<a href="#l148" class="line" id="l148">  148</a>  
+<a href="#l149" class="line" id="l149">  149</a>                      whenJust (envFileTemplate env) \fileT -&gt; do
+<a href="#l150" class="line" id="l150">  150</a>                          mapM_ (gen fileT &quot;file&quot; fileDir fileHref) tree -- TODO: detect file changes
+<a href="#l151" class="line" id="l151">  151</a>  
+<a href="#l152" class="line" id="l152">  152</a>                      -- Copy any static files/folders into the output directory --
+<a href="#l153" class="line" id="l153">  153</a>                      envRepoCopyStatics env directory
+<a href="#l154" class="line" id="l154">  154</a>  
+<a href="#l155" class="line" id="l155">  155</a>              return
+<a href="#l156" class="line" id="l156">  156</a>                  repo{repositoryHead = Just headCommit}
+<a href="#l157" class="line" id="l157">  157</a>  
+<a href="#l158" class="line" id="l158">  158</a>  {-
+<a href="#l159" class="line" id="l159">  159</a>  The role of the function above is to gather information about a git repository and
+<a href="#l160" class="line" id="l160">  160</a>  package it all together in such a way that various parts can be accessed and used by
+<a href="#l161" class="line" id="l161">  161</a>  Ginger templates. `package` takes any pre-loaded information and places it into a
+<a href="#l162" class="line" id="l162">  162</a>  hashmap for Ginger. Other non pre-loaded variables are looked up on the upon request.
+<a href="#l163" class="line" id="l163">  163</a>  -}
+<a href="#l164" class="line" id="l164">  164</a>  package ::
+<a href="#l165" class="line" id="l165">  165</a>      Env -&gt;
+<a href="#l166" class="line" id="l166">  166</a>      [Repo] -&gt;
+<a href="#l167" class="line" id="l167">  167</a>      Path Rel Dir -&gt;
+<a href="#l168" class="line" id="l168">  168</a>      T.Text -&gt;
+<a href="#l169" class="line" id="l169">  169</a>      [Commit] -&gt;
+<a href="#l170" class="line" id="l170">  170</a>      [TreeFile] -&gt;
+<a href="#l171" class="line" id="l171">  171</a>      HashMap.HashMap T.Text (GVal RunRepo)
+<a href="#l172" class="line" id="l172">  172</a>  package env repos name description commits tree =
+<a href="#l173" class="line" id="l173">  173</a>      HashMap.fromList
+<a href="#l174" class="line" id="l174">  174</a>          [ (&quot;host&quot;, toGVal . envHost $ env)
+<a href="#l175" class="line" id="l175">  175</a>          , (&quot;repositories&quot;, toGVal repos)
+<a href="#l176" class="line" id="l176">  176</a>          , (&quot;name&quot;, toGVal . T.pack . init . toFilePath $ name)
+<a href="#l177" class="line" id="l177">  177</a>          , (&quot;description&quot;, toGVal description)
+<a href="#l178" class="line" id="l178">  178</a>          , (&quot;commits&quot;, toGVal commits)
+<a href="#l179" class="line" id="l179">  179</a>          , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
+<a href="#l180" class="line" id="l180">  180</a>          , (&quot;tree_recursive&quot;, toGVal tree)
+<a href="#l181" class="line" id="l181">  181</a>          , (&quot;readme&quot;, toGVal . findFile &quot;readme&quot; $ tree)
+<a href="#l182" class="line" id="l182">  182</a>          , (&quot;license&quot;, toGVal . findFile &quot;license&quot; $ tree)
+<a href="#l183" class="line" id="l183">  183</a>          ]
+<a href="#l184" class="line" id="l184">  184</a>    where
+<a href="#l185" class="line" id="l185">  185</a>      -- Find a file in the tree starting with the specified prefix. The prefix is looked
+<a href="#l186" class="line" id="l186">  186</a>      -- for on the full path, so will only find files in the top level directory.
+<a href="#l187" class="line" id="l187">  187</a>      findFile :: T.Text -&gt; [TreeFile] -&gt; Maybe TreeFile
+<a href="#l188" class="line" id="l188">  188</a>      findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeFilePath)
+<a href="#l189" class="line" id="l189">  189</a>  
+<a href="#l190" class="line" id="l190">  190</a>  {-
+<a href="#l191" class="line" id="l191">  191</a>  Collect commit history up to a head.
+<a href="#l192" class="line" id="l192">  192</a>  -}
+<a href="#l193" class="line" id="l193">  193</a>  getCommits :: Git.CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit]
+<a href="#l194" class="line" id="l194">  194</a>  getCommits commitID =
+<a href="#l195" class="line" id="l195">  195</a>      fmap reverse . sequence . mapMaybe loadCommit
+<a href="#l196" class="line" id="l196">  196</a>          &lt;=&lt; runConduit
+<a href="#l197" class="line" id="l197">  197</a>          $ Git.sourceObjects Nothing commitID False .| sinkList
+<a href="#l198" class="line" id="l198">  198</a>    where
+<a href="#l199" class="line" id="l199">  199</a>      loadCommit :: Git.ObjectOid LgRepo -&gt; Maybe (ReaderT LgRepo IO Commit)
+<a href="#l200" class="line" id="l200">  200</a>      loadCommit (Git.CommitObjOid oid) = Just $ loadDiff =&lt;&lt; Git.lookupCommit oid
+<a href="#l201" class="line" id="l201">  201</a>      loadCommit _ = Nothing
+<a href="#l202" class="line" id="l202">  202</a>  
+<a href="#l203" class="line" id="l203">  203</a>  {-
+<a href="#l204" class="line" id="l204">  204</a>  Collect diff information for a single commit.
+<a href="#l205" class="line" id="l205">  205</a>  -}
+<a href="#l206" class="line" id="l206">  206</a>  loadDiff :: Git.Commit LgRepo -&gt; ReaderT LgRepo IO Commit
+<a href="#l207" class="line" id="l207">  207</a>  loadDiff gitCommit = do
+<a href="#l208" class="line" id="l208">  208</a>      newTree &lt;- Git.lookupTree . Git.commitTree $ gitCommit
+<a href="#l209" class="line" id="l209">  209</a>      oldTree &lt;-
+<a href="#l210" class="line" id="l210">  210</a>          case listToMaybe . Git.commitParents $ gitCommit of
+<a href="#l211" class="line" id="l211">  211</a>              Just parent -&gt;
+<a href="#l212" class="line" id="l212">  212</a>                  fmap Just . Git.lookupTree . Git.commitTree =&lt;&lt; Git.lookupCommit parent
+<a href="#l213" class="line" id="l213">  213</a>              Nothing -&gt;
+<a href="#l214" class="line" id="l214">  214</a>                  return Nothing
+<a href="#l215" class="line" id="l215">  215</a>  
+<a href="#l216" class="line" id="l216">  216</a>      ioref &lt;- liftIO . newIORef $ []
+<a href="#l217" class="line" id="l217">  217</a>      lgDiffTreeToTree
+<a href="#l218" class="line" id="l218">  218</a>          (fileCallback ioref)
+<a href="#l219" class="line" id="l219">  219</a>          (hunkCallback ioref)
+<a href="#l220" class="line" id="l220">  220</a>          (dataCallback ioref)
+<a href="#l221" class="line" id="l221">  221</a>          oldTree
+<a href="#l222" class="line" id="l222">  222</a>          (Just newTree)
+<a href="#l223" class="line" id="l223">  223</a>      diffs &lt;- liftIO . readIORef $ ioref
+<a href="#l224" class="line" id="l224">  224</a>  
+<a href="#l225" class="line" id="l225">  225</a>      return . Commit gitCommit . fmap fixupLists $ diffs
+<a href="#l226" class="line" id="l226">  226</a>    where
+<a href="#l227" class="line" id="l227">  227</a>      fileCallback ::
+<a href="#l228" class="line" id="l228">  228</a>          IORef [Diff] -&gt;
+<a href="#l229" class="line" id="l229">  229</a>          Ptr LG.C&apos;git_diff_delta -&gt;
+<a href="#l230" class="line" id="l230">  230</a>          CFloat -&gt;
+<a href="#l231" class="line" id="l231">  231</a>          Ptr () -&gt;
+<a href="#l232" class="line" id="l232">  232</a>          IO CInt
+<a href="#l233" class="line" id="l233">  233</a>      fileCallback ioref dPtr _progress _payload = do
+<a href="#l234" class="line" id="l234">  234</a>          delta &lt;- peek dPtr
+<a href="#l235" class="line" id="l235">  235</a>          newFile &lt;- B.packCString . LG.c&apos;git_diff_file&apos;path . LG.c&apos;git_diff_delta&apos;new_file $ delta
+<a href="#l236" class="line" id="l236">  236</a>          oldFile &lt;- B.packCString . LG.c&apos;git_diff_file&apos;path . LG.c&apos;git_diff_delta&apos;old_file $ delta
+<a href="#l237" class="line" id="l237">  237</a>          let oldFile&apos; = bool Nothing (Just oldFile) (newFile /= oldFile)
+<a href="#l238" class="line" id="l238">  238</a>              status = toEnum . fromIntegral . LG.c&apos;git_diff_delta&apos;status $ delta
+<a href="#l239" class="line" id="l239">  239</a>              diff = Diff newFile oldFile&apos; status []
+<a href="#l240" class="line" id="l240">  240</a>          modifyIORef ioref (diff :)
+<a href="#l241" class="line" id="l241">  241</a>          return 0
+<a href="#l242" class="line" id="l242">  242</a>  
+<a href="#l243" class="line" id="l243">  243</a>      hunkCallback ::
+<a href="#l244" class="line" id="l244">  244</a>          IORef [Diff] -&gt;
+<a href="#l245" class="line" id="l245">  245</a>          Ptr LG.C&apos;git_diff_delta -&gt;
+<a href="#l246" class="line" id="l246">  246</a>          Ptr LG.C&apos;git_diff_range -&gt;
+<a href="#l247" class="line" id="l247">  247</a>          CString -&gt;
+<a href="#l248" class="line" id="l248">  248</a>          CSize -&gt;
+<a href="#l249" class="line" id="l249">  249</a>          Ptr () -&gt;
+<a href="#l250" class="line" id="l250">  250</a>          IO CInt
+<a href="#l251" class="line" id="l251">  251</a>      hunkCallback ioref _dPtr _range header headerLen _payload = do
+<a href="#l252" class="line" id="l252">  252</a>          (cur : _, rest) &lt;- splitAt 1 &lt;$&gt; readIORef ioref
+<a href="#l253" class="line" id="l253">  253</a>          bs &lt;- curry B.packCStringLen header (fromIntegral headerLen)
+<a href="#l254" class="line" id="l254">  254</a>          let hunk = Hunk bs []
+<a href="#l255" class="line" id="l255">  255</a>          writeIORef ioref $ cur{diffHunks = hunk : diffHunks cur} : rest
+<a href="#l256" class="line" id="l256">  256</a>          return 0
+<a href="#l257" class="line" id="l257">  257</a>  
+<a href="#l258" class="line" id="l258">  258</a>      dataCallback ::
+<a href="#l259" class="line" id="l259">  259</a>          IORef [Diff] -&gt;
+<a href="#l260" class="line" id="l260">  260</a>          Ptr LG.C&apos;git_diff_delta -&gt;
+<a href="#l261" class="line" id="l261">  261</a>          Ptr LG.C&apos;git_diff_range -&gt;
+<a href="#l262" class="line" id="l262">  262</a>          CChar -&gt;
+<a href="#l263" class="line" id="l263">  263</a>          CString -&gt;
+<a href="#l264" class="line" id="l264">  264</a>          CSize -&gt;
+<a href="#l265" class="line" id="l265">  265</a>          Ptr () -&gt;
+<a href="#l266" class="line" id="l266">  266</a>          IO CInt
+<a href="#l267" class="line" id="l267">  267</a>      dataCallback ioref _dPtr _range lineOrigin content contentLen _payload = do
+<a href="#l268" class="line" id="l268">  268</a>          bs &lt;- curry B.packCStringLen content (fromIntegral contentLen)
+<a href="#l269" class="line" id="l269">  269</a>          let bs&apos; = B.cons (fromIntegral lineOrigin) bs
+<a href="#l270" class="line" id="l270">  270</a>          (cur : _, rest) &lt;- splitAt 1 &lt;$&gt; readIORef ioref
+<a href="#l271" class="line" id="l271">  271</a>          let (curHunk : _, restHunks) = splitAt 1 . diffHunks $ cur
+<a href="#l272" class="line" id="l272">  272</a>          let updated =
+<a href="#l273" class="line" id="l273">  273</a>                  cur
+<a href="#l274" class="line" id="l274">  274</a>                      { diffHunks =
+<a href="#l275" class="line" id="l275">  275</a>                          curHunk
+<a href="#l276" class="line" id="l276">  276</a>                              { hunkLines = bs&apos; : hunkLines curHunk
+<a href="#l277" class="line" id="l277">  277</a>                              } :
+<a href="#l278" class="line" id="l278">  278</a>                          restHunks
+<a href="#l279" class="line" id="l279">  279</a>                      }
+<a href="#l280" class="line" id="l280">  280</a>          writeIORef ioref $ updated : rest
+<a href="#l281" class="line" id="l281">  281</a>          return 0
+<a href="#l282" class="line" id="l282">  282</a>  
+<a href="#l283" class="line" id="l283">  283</a>      -- The callbacks prepend and then we put the lists the right way round here.
+<a href="#l284" class="line" id="l284">  284</a>      -- This avoids traversing the lists every time we add an item.
+<a href="#l285" class="line" id="l285">  285</a>      fixupLists :: Diff -&gt; Diff
+<a href="#l286" class="line" id="l286">  286</a>      fixupLists diff = diff{diffHunks = fmap fixupLines . reverse . diffHunks $ diff}
+<a href="#l287" class="line" id="l287">  287</a>        where
+<a href="#l288" class="line" id="l288">  288</a>          fixupLines hunk = hunk{hunkLines = reverse . hunkLines $ hunk}
+<a href="#l289" class="line" id="l289">  289</a>  
+<a href="#l290" class="line" id="l290">  290</a>  {-
+<a href="#l291" class="line" id="l291">  291</a>  Collect tree information for the given commit. Recurses on directories to list their
+<a href="#l292" class="line" id="l292">  292</a>  contents.
+<a href="#l293" class="line" id="l293">  293</a>  -}
+<a href="#l294" class="line" id="l294">  294</a>  getTree :: Git.CommitOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+<a href="#l295" class="line" id="l295">  295</a>  getTree = getTree&apos; &quot;&quot; 0 . Git.commitTree &lt;=&lt; Git.lookupCommit
+<a href="#l296" class="line" id="l296">  296</a>    where
+<a href="#l297" class="line" id="l297">  297</a>      getTree&apos; :: Git.TreeFilePath -&gt; Int -&gt; Git.TreeOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+<a href="#l298" class="line" id="l298">  298</a>      getTree&apos; parent count toid = do
+<a href="#l299" class="line" id="l299">  299</a>          one &lt;- Git.lookupTree toid
+<a href="#l300" class="line" id="l300">  300</a>          entries &lt;- Git.listTreeEntries one
+<a href="#l301" class="line" id="l301">  301</a>          let entries&apos; = fmap (prependParent parent) entries
+<a href="#l302" class="line" id="l302">  302</a>          contents &lt;- mapM (\x -&gt; getEntryContents x (count + 1)) entries&apos;
+<a href="#l303" class="line" id="l303">  303</a>          modes &lt;- mapM (getEntryModes . snd) entries&apos;
+<a href="#l304" class="line" id="l304">  304</a>          return $ zipWith3 TreeFile (fmap treePaths entries&apos;) contents modes
+<a href="#l305" class="line" id="l305">  305</a>  
+<a href="#l306" class="line" id="l306">  306</a>      prependParent ::
+<a href="#l307" class="line" id="l307">  307</a>          Git.TreeFilePath -&gt;
+<a href="#l308" class="line" id="l308">  308</a>          (Git.TreeFilePath, Git.TreeEntry r) -&gt;
+<a href="#l309" class="line" id="l309">  309</a>          (Git.TreeFilePath, Git.TreeEntry r)
+<a href="#l310" class="line" id="l310">  310</a>      prependParent &quot;&quot; pathentry = pathentry
+<a href="#l311" class="line" id="l311">  311</a>      prependParent parent (path, entry) = (mconcat [parent, &quot;/&quot;, path], entry)
+<a href="#l312" class="line" id="l312">  312</a>  
+<a href="#l313" class="line" id="l313">  313</a>      getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; Int -&gt; ReaderT LgRepo IO TreeFileContents
+<a href="#l314" class="line" id="l314">  314</a>      getEntryContents (_, Git.BlobEntry oid _) _ = getBlobContents oid
+<a href="#l315" class="line" id="l315">  315</a>      getEntryContents (path, Git.TreeEntry oid) count = FolderContents &lt;$&gt; getTree&apos; path count oid
+<a href="#l316" class="line" id="l316">  316</a>      getEntryContents (_, Git.CommitEntry oid) _ = return . FileContents . B.fromString . show . untag $ oid
+<a href="#l317" class="line" id="l317">  317</a>  
+<a href="#l318" class="line" id="l318">  318</a>      getEntryModes :: Git.TreeEntry r -&gt; ReaderT r IO TreeEntryMode
+<a href="#l319" class="line" id="l319">  319</a>      getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
+<a href="#l320" class="line" id="l320">  320</a>      getEntryModes (Git.TreeEntry _) = return ModeDirectory
+<a href="#l321" class="line" id="l321">  321</a>      getEntryModes (Git.CommitEntry _) = return ModeSubmodule
+<a href="#l322" class="line" id="l322">  322</a>  
+<a href="#l323" class="line" id="l323">  323</a>      treePaths :: (Git.TreeFilePath, Git.TreeEntry r) -&gt; T.Text
+<a href="#l324" class="line" id="l324">  324</a>      treePaths = T.decodeUtf8With T.lenientDecode . fst
+<a href="#l325" class="line" id="l325">  325</a>  
+<a href="#l326" class="line" id="l326">  326</a>  {-
+<a href="#l327" class="line" id="l327">  327</a>  Collect information about references. TODO: Find a more canonical way to split
+<a href="#l328" class="line" id="l328">  328</a>  references into tags or branches rather than filtering the refnames.
+<a href="#l329" class="line" id="l329">  329</a>  -}
+<a href="#l330" class="line" id="l330">  330</a>  getRefs :: T.Text -&gt; ReaderT LgRepo IO [Ref]
+<a href="#l331" class="line" id="l331">  331</a>  getRefs ref = do
+<a href="#l332" class="line" id="l332">  332</a>      names &lt;- filter (T.isPrefixOf ref) &lt;$&gt; Git.listReferences
+<a href="#l333" class="line" id="l333">  333</a>      maybeOids &lt;- mapM Git.resolveReference names
+<a href="#l334" class="line" id="l334">  334</a>      let names&apos; = catMaybes . zipWith dropName maybeOids $ names
+<a href="#l335" class="line" id="l335">  335</a>      objs &lt;- mapM Git.lookupObject . catMaybes $ maybeOids
+<a href="#l336" class="line" id="l336">  336</a>      maybeCommits &lt;- mapM refObjToCommit objs
+<a href="#l337" class="line" id="l337">  337</a>      let names&apos;&apos; = map (fromJust . T.stripPrefix ref) . catMaybes . zipWith dropName maybeCommits $ names&apos;
+<a href="#l338" class="line" id="l338">  338</a>      return . zipWith Ref names&apos;&apos; . catMaybes $ maybeCommits
+<a href="#l339" class="line" id="l339">  339</a>    where
+<a href="#l340" class="line" id="l340">  340</a>      refObjToCommit ::
+<a href="#l341" class="line" id="l341">  341</a>          Git.Object LgRepo (ReaderT LgRepo IO) -&gt;
+<a href="#l342" class="line" id="l342">  342</a>          ReaderT LgRepo IO (Maybe Commit)
+<a href="#l343" class="line" id="l343">  343</a>      refObjToCommit (Git.CommitObj obj) = Just &lt;$&gt; loadDiff obj
+<a href="#l344" class="line" id="l344">  344</a>      refObjToCommit _ = return Nothing
+<a href="#l345" class="line" id="l345">  345</a>  
+<a href="#l346" class="line" id="l346">  346</a>      dropName :: Maybe a -&gt; Git.RefName -&gt; Maybe Git.RefName
+<a href="#l347" class="line" id="l347">  347</a>      dropName (Just _) name = Just name
+<a href="#l348" class="line" id="l348">  348</a>      dropName Nothing _ = Nothing
+<a href="#l349" class="line" id="l349">  349</a>  
+<a href="#l350" class="line" id="l350">  350</a>  {-
+<a href="#l351" class="line" id="l351">  351</a>  Render repository data into a template and save it to file.
+<a href="#l352" class="line" id="l352">  352</a>  -}
+<a href="#l353" class="line" id="l353">  353</a>  generate ::
+<a href="#l354" class="line" id="l354">  354</a>      HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+<a href="#l355" class="line" id="l355">  355</a>      (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+<a href="#l356" class="line" id="l356">  356</a>      Bool -&gt;
+<a href="#l357" class="line" id="l357">  357</a>      Path Abs Dir -&gt;
+<a href="#l358" class="line" id="l358">  358</a>      Template -&gt;
+<a href="#l359" class="line" id="l359">  359</a>      IO ()
+<a href="#l360" class="line" id="l360">  360</a>  generate scope runInIO quiet directory template = do
+<a href="#l361" class="line" id="l361">  361</a>      let output = toFilePath (directory &lt;/&gt; templatePath template)
+<a href="#l362" class="line" id="l362">  362</a>      unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output
+<a href="#l363" class="line" id="l363">  363</a>      TL.writeFile output =&lt;&lt; render (cbRepoLookup scope runInIO) template
+<a href="#l364" class="line" id="l364">  364</a>  
+<a href="#l365" class="line" id="l365">  365</a>  {-
+<a href="#l366" class="line" id="l366">  366</a>  A Target refers to a template scope and repository object whose information is available
+<a href="#l367" class="line" id="l367">  367</a>  in that scope. For example, commits are a target as they each generate a scope
+<a href="#l368" class="line" id="l368">  368</a>  containing that commit&apos;s information, and these scopes are each rendered in the
+<a href="#l369" class="line" id="l369">  369</a>  commitTemplate.
+<a href="#l370" class="line" id="l370">  370</a>  -}
+<a href="#l371" class="line" id="l371">  371</a>  genTarget ::
+<a href="#l372" class="line" id="l372">  372</a>      ToGVal RunRepo t =&gt;
+<a href="#l373" class="line" id="l373">  373</a>      HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+<a href="#l374" class="line" id="l374">  374</a>      (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+<a href="#l375" class="line" id="l375">  375</a>      Bool -&gt;
+<a href="#l376" class="line" id="l376">  376</a>      Bool -&gt;
+<a href="#l377" class="line" id="l377">  377</a>      Template -&gt;
+<a href="#l378" class="line" id="l378">  378</a>      T.Text -&gt;
+<a href="#l379" class="line" id="l379">  379</a>      Path Abs Dir -&gt;
+<a href="#l380" class="line" id="l380">  380</a>      (t -&gt; FilePath) -&gt;
+<a href="#l381" class="line" id="l381">  381</a>      t -&gt;
+<a href="#l382" class="line" id="l382">  382</a>      IO ()
+<a href="#l383" class="line" id="l383">  383</a>  genTarget scope runInIO quiet force template category directory href target = do
+<a href="#l384" class="line" id="l384">  384</a>      output &lt;- fmap (directory &lt;/&gt;) . parseRelFile . href $ target
+<a href="#l385" class="line" id="l385">  385</a>      exists &lt;- doesFileExist output
+<a href="#l386" class="line" id="l386">  386</a>      when (force || not exists) $ do
+<a href="#l387" class="line" id="l387">  387</a>          let output&apos; = toFilePath output
+<a href="#l388" class="line" id="l388">  388</a>              scope&apos; = HashMap.insert category (toGVal target) scope
+<a href="#l389" class="line" id="l389">  389</a>          unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;
+<a href="#l390" class="line" id="l390">  390</a>          TL.writeFile output&apos; =&lt;&lt; render (cbRepoLookup scope&apos; runInIO) template
+<a href="#l391" class="line" id="l391">  391</a>  
+<a href="#l392" class="line" id="l392">  392</a>  commitHref :: Commit -&gt; FilePath
+<a href="#l393" class="line" id="l393">  393</a>  commitHref = (++ &quot;.html&quot;) . show . untag . Git.commitOid . commitGit
+<a href="#l394" class="line" id="l394">  394</a>  
+<a href="#l395" class="line" id="l395">  395</a>  fileHref :: TreeFile -&gt; FilePath
+<a href="#l396" class="line" id="l396">  396</a>  fileHref = T.unpack . treePathToHref
+<a href="#l397" class="line" id="l397">  397</a>  
+<a href="#l398" class="line" id="l398">  398</a>  {-
+<a href="#l399" class="line" id="l399">  399</a>  With a dictionary of preloaded values and a function to access additional data, create a
+<a href="#l400" class="line" id="l400">  400</a>  lookup function for rendering.
+<a href="#l401" class="line" id="l401">  401</a>  -}
+<a href="#l402" class="line" id="l402">  402</a>  cbRepoLookup ::
+<a href="#l403" class="line" id="l403">  403</a>      HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+<a href="#l404" class="line" id="l404">  404</a>      (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+<a href="#l405" class="line" id="l405">  405</a>      T.Text -&gt;
+<a href="#l406" class="line" id="l406">  406</a>      RunRepo (GVal RunRepo)
+<a href="#l407" class="line" id="l407">  407</a>  cbRepoLookup scope runInIO key = liftIO . runInIO $ case key of
+<a href="#l408" class="line" id="l408">  408</a>      &quot;tags&quot; -&gt; toGVal &lt;$&gt; getRefs &quot;refs/tags/&quot;
+<a href="#l409" class="line" id="l409">  409</a>      &quot;branches&quot; -&gt; toGVal &lt;$&gt; getRefs &quot;refs/heads/&quot;
+<a href="#l410" class="line" id="l410">  410</a>      key&apos; -&gt; return . toGVal . HashMap.lookup key&apos; $ scope
+<a href="#l411" class="line" id="l411">  411</a>  
 </pre>
       </div>
   </body>
