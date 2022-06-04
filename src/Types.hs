@@ -91,8 +91,8 @@ instance ToGVal m Commit where
 
 commitAsLookup :: Commit -> T.Text -> Maybe (GVal m)
 commitAsLookup commit = \case
-    "id" -> Just . toGVal . show . untag . Git.commitOid . commitGit $ commit
-    "href" -> Just . toGVal . (<> ".html") . show . untag . Git.commitOid . commitGit $ commit
+    "id" -> Just . toGVal . commitHash $ commit
+    "href" -> Just . toGVal . (<> ".html") . commitHash $ commit
     "title" -> Just . toGVal . T.strip . T.takeWhile (/= '\n') . Git.commitLog . commitGit $ commit
     "body" -> Just . toGVal . T.strip . T.dropWhile (/= '\n') . Git.commitLog . commitGit $ commit
     "message" -> Just . toGVal . T.strip . Git.commitLog . commitGit $ commit
@@ -106,6 +106,9 @@ commitAsLookup commit = \case
     "parent" -> toGVal . show . untag <$> (listToMaybe . Git.commitParents . commitGit $ commit)
     "diffs" -> Just . toGVal . commitDiffs $ commit
     _ -> Nothing
+
+commitHash :: Commit -> String
+commitHash = show . untag . Git.commitOid . commitGit
 
 {-
 With `Diff`s there is a hierarchy:

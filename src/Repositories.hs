@@ -136,18 +136,25 @@ processRepo' env repos repo = do
                     ensureDir commitDir
                     ensureDir fileDir
 
+                    -- Check which commits are new since the last run --
+                    newCommits <- getUpdates commitDir commits
+
                     -- Run the generator --
                     let quiet = envQuiet env
                         force = envForce env
-                        gen = genTarget scope runInIO quiet force
+                        gen = genTarget scope runInIO quiet
 
                     mapM_ (generate scope runInIO quiet directory) (envRepoTemplates env)
 
                     whenJust (envCommitTemplate env) \commitT -> do
-                        mapM_ (gen commitT "commit" commitDir commitHref) commits
+                        mapM_ (gen force commitT "commit" commitDir commitHref) newCommits
 
                     whenJust (envFileTemplate env) \fileT -> do
-                        mapM_ (gen fileT "file" fileDir fileHref) tree -- TODO: detect file changes
+                        if force
+                            then mapM_ (gen True fileT "file" fileDir fileHref) tree
+                            else
+                                let updatedFiles = getUpdatedFiles tree newCommits
+                                 in mapM_ (gen True fileT "file" fileDir fileHref) updatedFiles
 
                     -- Copy any static files/folders into the output directory --
                     envRepoCopyStatics env directory
@@ -348,6 +355,32 @@ getRefs ref = do
     dropName Nothing _ = Nothing
 
 {-
+Get the list of commits that need updating since the last run. New commits are
+identified by the absence of their output file.
+-}
+getUpdates :: Path Abs Dir -> [Commit] -> IO [Commit]
+getUpdates _ [] = return []
+getUpdates directory cs = go cs
+  where
+    dir = toFilePath directory
+
+    go :: [Commit] -> IO [Commit]
+    go [] = return []
+    go (x : xs) =
+        ifM
+            (D.doesFileExist $ dir FP.</> commitHref x)
+            (return [])
+            ((x :) <$> go xs)
+
+getUpdatedFiles :: [TreeFile] -> [Commit] -> [TreeFile]
+getUpdatedFiles [] _ = []
+getUpdatedFiles _ [] = []
+getUpdatedFiles files commits = filter ((`elem` updated) . treeFilePath) files
+  where
+    updated :: [T.Text]
+    updated = fmap (bsToText . diffNewFile) . concatMap commitDiffs $ commits
+
+{-
 Render repository data into a template and save it to file.
 -}
 generate ::
@@ -390,7 +423,7 @@ genTarget scope runInIO quiet force template category directory href target = do
         TL.writeFile output' =<< render (cbRepoLookup scope' runInIO) template
 
 commitHref :: Commit -> FilePath
-commitHref = (++ ".html") . show . untag . Git.commitOid . commitGit
+commitHref = (++ ".html") . commitHash
 
 fileHref :: TreeFile -> FilePath
 fileHref = T.unpack . treePathToHref
