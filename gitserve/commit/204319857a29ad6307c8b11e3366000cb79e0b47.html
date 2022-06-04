@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - rename some things and move things around a bit</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">2043198</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">204319857a29ad6307c8b11e3366000cb79e0b47</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/59ad6c32706458bc1d57fdd5fda8a1045f270c22.html">59ad6c32706458bc1d57fdd5fda8a1045f270c22</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-29 20:14:26 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-29 20:14:26 +0100
+
+rename some things and move things around a bit
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,7 +4,7 @@
+
+
+  <pre><span class="def"> module Templates (
+</span><span class="def">     Template (..),
+</span><span class="def">     loadTemplate,
+</span><span class="sub">-    generate,
+</span><span class="add">+    render,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Data.IORef (modifyIORef&apos;, newIORef, readIORef)
+</span></pre>@@ -52,11 +52,11 @@
+
+
+  <pre><span class="def"> This generator function uses Ginger to render templates into Text, using a provided
+</span><span class="def"> lookup function to request data from calling code.
+</span><span class="def"> -}
+</span><span class="sub">-generate ::
+</span><span class="add">+render ::
+</span><span class="def">     (T.Text -&gt; RunRepo (GVal RunRepo)) -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="def">     IO TL.Text
+</span><span class="sub">-generate scopeLookup template = do
+</span><span class="add">+render scopeLookup template = do
+</span><span class="def">     ioref &lt;- newIORef . TB.fromText $ &quot;&quot;
+</span><span class="def"> 
+</span><span class="def">     let emit :: Html -&gt; IO ()
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -43,7 +43,7 @@
+
+
+  <pre><span class="def"> import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+</span><span class="def"> 
+</span><span class="def"> import Env (Env (..))
+</span><span class="sub">-import Templates (Template (..), generate)
+</span><span class="add">+import Templates (Template (..), render)
+</span><span class="def"> import Types
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -108,7 +108,7 @@
+
+
+  <pre><span class="def"> processRepo&apos; :: Env -&gt; [Repo] -&gt; Repo -&gt; ReaderT LgRepo IO Repo
+</span><span class="def"> processRepo&apos; env repos repo = do
+</span><span class="def">     let name = dirname . repositoryPath $ repo
+</span><span class="sub">-    let output = envOutput env &lt;/&gt; name
+</span><span class="add">+    let directory = envOutput env &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="def">     Git.resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; do
+</span></pre>@@ -121,7 +121,7 @@
+
+
+  <pre><span class="def">             -- If a page exists for the head commit, don&apos;t do anything else --
+</span><span class="def">             exists &lt;-
+</span><span class="def">                 liftIO . D.doesFileExist $
+</span><span class="sub">-                    toFilePath output FP.&lt;/&gt; &quot;commit&quot; FP.&lt;/&gt; show commitID &lt;&gt; &quot;.html&quot;
+</span><span class="add">+                    toFilePath directory FP.&lt;/&gt; &quot;commit&quot; FP.&lt;/&gt; show commitID &lt;&gt; &quot;.html&quot;
+</span><span class="def"> 
+</span><span class="def">             when (not exists || envForce env) $ do
+</span><span class="def">                 -- Collect variables available to the ginger templates --
+</span></pre>@@ -133,26 +133,26 @@
+
+
+  <pre><span class="def">                     -- Create the destination folders --
+</span><span class="def">                     commitDir &lt;- parseRelDir &quot;commit&quot;
+</span><span class="def">                     fileDir &lt;- parseRelDir &quot;file&quot;
+</span><span class="sub">-                    ensureDir $ output &lt;/&gt; commitDir
+</span><span class="sub">-                    ensureDir $ output &lt;/&gt; fileDir
+</span><span class="add">+                    ensureDir $ directory &lt;/&gt; commitDir
+</span><span class="add">+                    ensureDir $ directory &lt;/&gt; fileDir
+</span><span class="def"> 
+</span><span class="def">                     -- Run the generator --
+</span><span class="def">                     let quiet = envQuiet env
+</span><span class="def">                         force = envForce env
+</span><span class="def">                         gen = genTarget scope runInIO quiet force
+</span><span class="def"> 
+</span><span class="sub">-                    mapM_ (genRepo scope runInIO quiet output) (envRepoTemplates env)
+</span><span class="add">+                    mapM_ (generate scope runInIO quiet directory) (envRepoTemplates env)
+</span><span class="def"> 
+</span><span class="def">                     whenJust (envCommitTemplate env) \commitT -&gt; do
+</span><span class="sub">-                        output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelDir $ &quot;commit&quot;
+</span><span class="add">+                        output&apos; &lt;- fmap (directory &lt;/&gt;) . parseRelDir $ &quot;commit&quot;
+</span><span class="def">                         mapM_ (gen commitT &quot;commit&quot; output&apos; commitHref) commits
+</span><span class="def"> 
+</span><span class="def">                     whenJust (envFileTemplate env) \fileT -&gt; do
+</span><span class="sub">-                        output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelDir $ &quot;file&quot;
+</span><span class="add">+                        output&apos; &lt;- fmap (directory &lt;/&gt;) . parseRelDir $ &quot;file&quot;
+</span><span class="def">                         mapM_ (gen fileT &quot;file&quot; output&apos; fileHref) tree -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="sub">-                    -- Copy any static files/folders into the output folder --
+</span><span class="sub">-                    envRepoCopyStatics env output
+</span><span class="add">+                    -- Copy any static files/folders into the output directory --
+</span><span class="add">+                    envRepoCopyStatics env directory
+</span><span class="def"> 
+</span><span class="def">             return
+</span><span class="def">                 repo{repositoryHead = Just headCommit}
+</span></pre>@@ -349,20 +349,20 @@
+
+
+  <pre><span class="def">     dropName (Just _) name = Just name
+</span><span class="def">     dropName Nothing _ = Nothing
+</span><span class="def"> 
+</span><span class="sub">-genRepo ::
+</span><span class="add">+{-
+</span><span class="add">+Render repository data into a template and save it to file.
+</span><span class="add">+-}
+</span><span class="add">+generate ::
+</span><span class="def">     HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="def">     (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+</span><span class="def">     Bool -&gt;
+</span><span class="def">     Path Abs Dir -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="def">     IO ()
+</span><span class="sub">-genRepo scope runInIO quiet output template = do
+</span><span class="sub">-    let output&apos; = toFilePath (output &lt;/&gt; templatePath template)
+</span><span class="sub">-    unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;
+</span><span class="sub">-    TL.writeFile output&apos; =&lt;&lt; generate (cbRepoLookup scope runInIO) template
+</span><span class="sub">-
+</span><span class="sub">-----------------------------------------------------------------------------------------
+</span><span class="sub">--- Targets -----------------------------------------------------------------------------
+</span><span class="add">+generate scope runInIO quiet directory template = do
+</span><span class="add">+    let output = toFilePath (directory &lt;/&gt; templatePath template)
+</span><span class="add">+    unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output
+</span><span class="add">+    TL.writeFile output =&lt;&lt; render (cbRepoLookup scope runInIO) template
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> A Target refers to a template scope and repository object whose information is available
+</span></pre>@@ -370,13 +370,6 @@
+
+
+  <pre><span class="def"> containing that commit&apos;s information, and these scopes are each rendered in the
+</span><span class="def"> commitTemplate.
+</span><span class="def"> -}
+</span><span class="sub">-
+</span><span class="sub">-commitHref :: Commit -&gt; FilePath
+</span><span class="sub">-commitHref = (++ &quot;.html&quot;) . show . untag . Git.commitOid . commitGit
+</span><span class="sub">-
+</span><span class="sub">-fileHref :: TreeFile -&gt; FilePath
+</span><span class="sub">-fileHref = T.unpack . treePathToHref
+</span><span class="sub">-
+</span><span class="def"> genTarget ::
+</span><span class="def">     ToGVal RunRepo t =&gt;
+</span><span class="def">     HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span></pre>@@ -389,16 +382,25 @@
+
+
+  <pre><span class="def">     (t -&gt; FilePath) -&gt;
+</span><span class="def">     t -&gt;
+</span><span class="def">     IO ()
+</span><span class="sub">-genTarget scope runInIO quiet force template category output href target = do
+</span><span class="sub">-    output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelFile . href $ target
+</span><span class="sub">-    exists &lt;- doesFileExist output&apos;
+</span><span class="add">+genTarget scope runInIO quiet force template category directory href target = do
+</span><span class="add">+    output &lt;- fmap (directory &lt;/&gt;) . parseRelFile . href $ target
+</span><span class="add">+    exists &lt;- doesFileExist output
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="sub">-        let output&apos;&apos; = toFilePath output&apos;
+</span><span class="add">+        let output&apos; = toFilePath output
+</span><span class="def">             scope&apos; = HashMap.insert category (toGVal target) scope
+</span><span class="sub">-        unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;&apos;
+</span><span class="sub">-        TL.writeFile output&apos;&apos; =&lt;&lt; generate (cbRepoLookup scope&apos; runInIO) template
+</span><span class="add">+        unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;
+</span><span class="add">+        TL.writeFile output&apos; =&lt;&lt; render (cbRepoLookup scope&apos; runInIO) template
+</span><span class="def"> 
+</span><span class="sub">--- This loads data from the git repository
+</span><span class="add">+commitHref :: Commit -&gt; FilePath
+</span><span class="add">+commitHref = (++ &quot;.html&quot;) . show . untag . Git.commitOid . commitGit
+</span><span class="add">+
+</span><span class="add">+fileHref :: TreeFile -&gt; FilePath
+</span><span class="add">+fileHref = T.unpack . treePathToHref
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+With a dictionary of preloaded values and a function to access additional data, create a
+</span><span class="add">+lookup function for rendering.
+</span><span class="add">+-}
+</span><span class="def"> cbRepoLookup ::
+</span><span class="def">     HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="def">     (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,7 +13,7 @@
+
+
+  <pre><span class="def"> import Text.Ginger.GVal (GVal, toGVal)
+</span><span class="def"> 
+</span><span class="def"> import Env (Env (..))
+</span><span class="sub">-import Templates (Template (..), generate)
+</span><span class="add">+import Templates (Template (..), render)
+</span><span class="def"> import Types
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -50,4 +50,4 @@
+
+
+  <pre><span class="def"> runIndexFile indexLookup outputDir quiet template = do
+</span><span class="def">     let output = combine outputDir . toFilePath . templatePath $ template
+</span><span class="def">     unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output
+</span><span class="sub">-    TL.writeFile output =&lt;&lt; generate indexLookup template
+</span><span class="add">+    TL.writeFile output =&lt;&lt; render indexLookup template
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Env.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -9,7 +9,6 @@
+
+
+  <pre><span class="def">     getConfig,
+</span><span class="def">     Env (..),
+</span><span class="def">     loadEnv,
+</span><span class="sub">-    generate,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Control.Monad (filterM, join, when, (&lt;=&lt;))
+</span></pre>@@ -40,7 +39,7 @@
+
+
+  <pre><span class="def"> import System.Exit (die)
+</span><span class="def"> import qualified System.FilePath as FP
+</span><span class="def"> 
+</span><span class="sub">-import Templates (Template (..), generate, loadTemplate)
+</span><span class="add">+import Templates (Template (..), loadTemplate)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The Config data type represents the configuration options available in the config file.
+</span></pre></div>    </div>
+  </body>
+</html>

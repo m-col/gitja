@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - convert m in RunRepo to IO</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">2043198</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/343385fd21bf0b47923028575a18ad17b97bb805.html">343385fd21bf0b47923028575a18ad17b97bb805</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/3fd1dd84281c984ada8dc10d860ac5e5961189dc.html">3fd1dd84281c984ada8dc10d860ac5e5961189dc</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-28 22:10:06 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-28 22:10:06 +0100
+
+convert m in RunRepo to IO
+</pre><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -34,7 +34,7 @@
+
+
+  <pre><span class="def"> {-
+</span><span class="def"> Convenience type alias for the ginger run monad with git repo context.
+</span><span class="def"> -}
+</span><span class="sub">-type RunRepo = Run SourcePos (ReaderT LgRepo IO) Html
+</span><span class="add">+type RunRepo = Run SourcePos IO Html
+</span><span class="def"> 
+</span><span class="def"> unquote :: String -&gt; String
+</span><span class="def"> unquote = init . tail
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -63,9 +63,9 @@
+
+
+  <pre><span class="def"> generate template context = do
+</span><span class="def">     content &lt;- liftIO . newIORef . TB.fromText $ &quot;&quot;
+</span><span class="def"> 
+</span><span class="sub">-    let emit :: Html -&gt; ReaderT LgRepo IO ()
+</span><span class="add">+    let emit :: Html -&gt; IO ()
+</span><span class="def">         emit = liftIO . modifyIORef&apos; content . flip mappend . TB.fromText . htmlSource
+</span><span class="def"> 
+</span><span class="sub">-    runGingerT (easyContext emit context) . templateGinger $ template
+</span><span class="add">+    liftIO $ runGingerT (easyContext emit context) . templateGinger $ template
+</span><span class="def">     result &lt;- liftIO . readIORef $ content
+</span><span class="def">     return . TB.toLazyText $ result
+</span></pre></div>    </div>
+  </body>
+</html>

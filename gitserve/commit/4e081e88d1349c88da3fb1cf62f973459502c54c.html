@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - aggregate withRunInIO usages</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">2043198</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/4e081e88d1349c88da3fb1cf62f973459502c54c.html">4e081e88d1349c88da3fb1cf62f973459502c54c</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/168822c91572479a08800296ed22883032751002.html">168822c91572479a08800296ed22883032751002</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-29 16:27:02 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-29 16:27:02 +0100
+
+aggregate withRunInIO usages
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -128,42 +128,41 @@
+
+
+  <pre><span class="def">                 tree &lt;- getTree gitHead
+</span><span class="def">                 let scope = package env repos name (repositoryDescription repo) commits tree
+</span><span class="def"> 
+</span><span class="sub">-                -- Create the destination folders --
+</span><span class="sub">-                commitDir &lt;- liftIO . parseRelDir $ &quot;commit&quot;
+</span><span class="sub">-                fileDir &lt;- liftIO . parseRelDir $ &quot;file&quot;
+</span><span class="sub">-                liftIO . ensureDir $ output &lt;/&gt; commitDir
+</span><span class="sub">-                liftIO . ensureDir $ output &lt;/&gt; fileDir
+</span><span class="sub">-
+</span><span class="sub">-                -- Run the generator --
+</span><span class="sub">-                let quiet = envQuiet env
+</span><span class="sub">-                    force = envForce env
+</span><span class="sub">-
+</span><span class="sub">-                    -- This annotation blocks the first use of gen from making t concrete
+</span><span class="sub">-                    gen ::
+</span><span class="sub">-                        ToGVal RunRepo t =&gt;
+</span><span class="sub">-                        (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+</span><span class="sub">-                        Template -&gt;
+</span><span class="sub">-                        T.Text -&gt;
+</span><span class="sub">-                        Path Abs Dir -&gt;
+</span><span class="sub">-                        (t -&gt; FilePath) -&gt;
+</span><span class="sub">-                        t -&gt;
+</span><span class="sub">-                        IO ()
+</span><span class="sub">-                    gen = genTarget scope quiet force
+</span><span class="sub">-
+</span><span class="sub">-                withRunInIO \runInIO -&gt; mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
+</span><span class="sub">-
+</span><span class="sub">-                whenJust (envCommitTemplate env) \commitT -&gt;
+</span><span class="sub">-                    withRunInIO \runInIO -&gt; do
+</span><span class="add">+                withRunInIO \runInIO -&gt; do
+</span><span class="add">+                    -- Create the destination folders --
+</span><span class="add">+                    commitDir &lt;- parseRelDir &quot;commit&quot;
+</span><span class="add">+                    fileDir &lt;- parseRelDir &quot;file&quot;
+</span><span class="add">+                    ensureDir $ output &lt;/&gt; commitDir
+</span><span class="add">+                    ensureDir $ output &lt;/&gt; fileDir
+</span><span class="add">+
+</span><span class="add">+                    -- Run the generator --
+</span><span class="add">+                    let quiet = envQuiet env
+</span><span class="add">+                        force = envForce env
+</span><span class="add">+
+</span><span class="add">+                        -- This annotation blocks the first use of gen from making t concrete
+</span><span class="add">+                        gen ::
+</span><span class="add">+                            ToGVal RunRepo t =&gt;
+</span><span class="add">+                            (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+</span><span class="add">+                            Template -&gt;
+</span><span class="add">+                            T.Text -&gt;
+</span><span class="add">+                            Path Abs Dir -&gt;
+</span><span class="add">+                            (t -&gt; FilePath) -&gt;
+</span><span class="add">+                            t -&gt;
+</span><span class="add">+                            IO ()
+</span><span class="add">+                        gen = genTarget scope quiet force
+</span><span class="add">+
+</span><span class="add">+                    mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
+</span><span class="add">+
+</span><span class="add">+                    whenJust (envCommitTemplate env) \commitT -&gt; do
+</span><span class="def">                         output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelDir $ &quot;commit&quot;
+</span><span class="def">                         mapM_ (gen runInIO commitT &quot;commit&quot; output&apos; commitHref) commits
+</span><span class="def"> 
+</span><span class="sub">-                whenJust (envFileTemplate env) \fileT -&gt;
+</span><span class="sub">-                    withRunInIO \runInIO -&gt; do
+</span><span class="add">+                    whenJust (envFileTemplate env) \fileT -&gt; do
+</span><span class="def">                         output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelDir $ &quot;file&quot;
+</span><span class="def">                         mapM_ (gen runInIO fileT &quot;file&quot; output&apos; fileHref) tree -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="sub">-                -- Copy any static files/folders into the output folder --
+</span><span class="sub">-                liftIO . envRepoCopyStatics env $ output
+</span><span class="add">+                    -- Copy any static files/folders into the output folder --
+</span><span class="add">+                    envRepoCopyStatics env output
+</span><span class="def"> 
+</span><span class="def">             return
+</span><span class="def">                 repo{repositoryHead = Just headCommit}
+</span></pre></div>    </div>
+  </body>
+</html>

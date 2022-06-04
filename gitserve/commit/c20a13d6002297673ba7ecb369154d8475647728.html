@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - qualify all Text usage to avoid confusion with lazy vs strict</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">2043198</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/c20a13d6002297673ba7ecb369154d8475647728.html">c20a13d6002297673ba7ecb369154d8475647728</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/37ae3b428095f9eb2c235bc32a6fbcc137084118.html">37ae3b428095f9eb2c235bc32a6fbcc137084118</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-29 01:45:59 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-29 01:45:59 +0100
+
+qualify all Text usage to avoid confusion with lazy vs strict
+</pre><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -16,7 +16,6 @@
+
+
+  <pre><span class="def"> import Data.Default (def)
+</span><span class="def"> import Data.Maybe (fromMaybe, listToMaybe)
+</span><span class="def"> import Data.Tagged (untag)
+</span><span class="sub">-import Data.Text (Text, pack, strip)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import Data.Text.Encoding (decodeUtf8With)
+</span><span class="def"> import Data.Text.Encoding.Error (lenientDecode)
+</span></pre>@@ -39,7 +38,7 @@
+
+
+  <pre><span class="def"> unquote :: String -&gt; String
+</span><span class="def"> unquote = init . tail
+</span><span class="def"> 
+</span><span class="sub">-bsToText :: ByteString -&gt; Text
+</span><span class="add">+bsToText :: ByteString -&gt; T.Text
+</span><span class="def"> bsToText = decodeUtf8With lenientDecode
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -48,7 +47,7 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> data Repo = Repo
+</span><span class="def">     { repositoryPath :: Path Abs Dir
+</span><span class="sub">-    , repositoryDescription :: Text
+</span><span class="add">+    , repositoryDescription :: T.Text
+</span><span class="def">     , repositoryHead :: Maybe Commit
+</span><span class="def">     }
+</span><span class="def"> 
+</span></pre>@@ -60,12 +59,12 @@
+
+
+  <pre><span class="def">     toGVal :: Repo -&gt; GVal m
+</span><span class="def">     toGVal repo =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . pack . init . unquote . show . dirname . repositoryPath $ repo
+</span><span class="sub">-            , asText = pack . show . dirname . repositoryPath $ repo
+</span><span class="add">+            { asHtml = html . T.pack . init . unquote . show . dirname . repositoryPath $ repo
+</span><span class="add">+            , asText = T.pack . show . dirname . repositoryPath $ repo
+</span><span class="def">             , asLookup = Just . repoAsLookup $ repo
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-repoAsLookup :: Repo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+repoAsLookup :: Repo -&gt; T.Text -&gt; Maybe (GVal m)
+</span><span class="def"> repoAsLookup repo = \case
+</span><span class="def">     &quot;name&quot; -&gt; Just . toGVal . init . unquote . show . dirname . repositoryPath $ repo
+</span><span class="def">     &quot;description&quot; -&gt; Just . toGVal . repositoryDescription $ repo
+</span></pre>@@ -85,25 +84,25 @@
+
+
+  <pre><span class="def">     toGVal :: Commit -&gt; GVal m
+</span><span class="def">     toGVal commit =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . strip . T.takeWhile (/= &apos;\n&apos;) . Git.commitLog . commitGit $ commit
+</span><span class="sub">-            , asText = pack . show . Git.commitLog . commitGit $ commit
+</span><span class="add">+            { asHtml = html . T.strip . T.takeWhile (/= &apos;\n&apos;) . Git.commitLog . commitGit $ commit
+</span><span class="add">+            , asText = T.pack . show . Git.commitLog . commitGit $ commit
+</span><span class="def">             , asLookup = Just . commitAsLookup $ commit
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-commitAsLookup :: Commit -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+commitAsLookup :: Commit -&gt; T.Text -&gt; Maybe (GVal m)
+</span><span class="def"> commitAsLookup commit = \case
+</span><span class="def">     &quot;id&quot; -&gt; Just . toGVal . show . untag . Git.commitOid . commitGit $ commit
+</span><span class="def">     &quot;href&quot; -&gt; Just . toGVal . (&lt;&gt; &quot;.html&quot;) . show . untag . Git.commitOid . commitGit $ commit
+</span><span class="sub">-    &quot;title&quot; -&gt; Just . toGVal . strip . T.takeWhile (/= &apos;\n&apos;) . Git.commitLog . commitGit $ commit
+</span><span class="sub">-    &quot;body&quot; -&gt; Just . toGVal . strip . T.dropWhile (/= &apos;\n&apos;) . Git.commitLog . commitGit $ commit
+</span><span class="sub">-    &quot;message&quot; -&gt; Just . toGVal . strip . Git.commitLog . commitGit $ commit
+</span><span class="sub">-    &quot;author&quot; -&gt; Just . toGVal . strip . Git.signatureName . Git.commitAuthor . commitGit $ commit
+</span><span class="sub">-    &quot;committer&quot; -&gt; Just . toGVal . strip . Git.signatureName . Git.commitCommitter . commitGit $ commit
+</span><span class="sub">-    &quot;author_email&quot; -&gt; Just . toGVal . strip . Git.signatureEmail . Git.commitAuthor . commitGit $ commit
+</span><span class="sub">-    &quot;committer_email&quot; -&gt; Just . toGVal . strip . Git.signatureEmail . Git.commitCommitter . commitGit $ commit
+</span><span class="add">+    &quot;title&quot; -&gt; Just . toGVal . T.strip . T.takeWhile (/= &apos;\n&apos;) . Git.commitLog . commitGit $ commit
+</span><span class="add">+    &quot;body&quot; -&gt; Just . toGVal . T.strip . T.dropWhile (/= &apos;\n&apos;) . Git.commitLog . commitGit $ commit
+</span><span class="add">+    &quot;message&quot; -&gt; Just . toGVal . T.strip . Git.commitLog . commitGit $ commit
+</span><span class="add">+    &quot;author&quot; -&gt; Just . toGVal . T.strip . Git.signatureName . Git.commitAuthor . commitGit $ commit
+</span><span class="add">+    &quot;committer&quot; -&gt; Just . toGVal . T.strip . Git.signatureName . Git.commitCommitter . commitGit $ commit
+</span><span class="add">+    &quot;author_email&quot; -&gt; Just . toGVal . T.strip . Git.signatureEmail . Git.commitAuthor . commitGit $ commit
+</span><span class="add">+    &quot;committer_email&quot; -&gt; Just . toGVal . T.strip . Git.signatureEmail . Git.commitCommitter . commitGit $ commit
+</span><span class="def">     &quot;authored&quot; -&gt; Just . toGVal . show . Git.signatureWhen . Git.commitAuthor . commitGit $ commit
+</span><span class="def">     &quot;committed&quot; -&gt; Just . toGVal . show . Git.signatureWhen . Git.commitCommitter . commitGit $ commit
+</span><span class="sub">-    &quot;encoding&quot; -&gt; Just . toGVal . strip . Git.commitEncoding . commitGit $ commit
+</span><span class="add">+    &quot;encoding&quot; -&gt; Just . toGVal . T.strip . Git.commitEncoding . commitGit $ commit
+</span><span class="def">     &quot;parent&quot; -&gt; toGVal . show . untag &lt;$&gt; (listToMaybe . Git.commitParents . commitGit $ commit)
+</span><span class="def">     &quot;diffs&quot; -&gt; Just . toGVal . commitDiffs $ commit
+</span><span class="def">     _ -&gt; Nothing
+</span></pre>@@ -151,7 +150,7 @@
+
+
+  <pre><span class="def">             , asLookup = Just . diffAsLookup $ diff
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-diffAsLookup :: Diff -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+diffAsLookup :: Diff -&gt; T.Text -&gt; Maybe (GVal m)
+</span><span class="def"> diffAsLookup diff = \case
+</span><span class="def">     &quot;new_file&quot; -&gt; Just . toGVal . diffNewFile $ diff
+</span><span class="def">     &quot;old_file&quot; -&gt; toGVal &lt;$&gt; diffOldFile diff
+</span></pre>@@ -168,7 +167,7 @@
+
+
+  <pre><span class="def">             , asLookup = Just . hunkAsLookup $ hunk
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-hunkAsLookup :: Hunk -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+hunkAsLookup :: Hunk -&gt; T.Text -&gt; Maybe (GVal m)
+</span><span class="def"> hunkAsLookup hunk = \case
+</span><span class="def">     &quot;lines&quot; -&gt; Just . toGVal . fmap makeLine . hunkLines $ hunk
+</span><span class="def">     &quot;header&quot; -&gt; Just . toGVal . bsToText . hunkHeader $ hunk
+</span></pre>@@ -191,7 +190,7 @@
+
+
+  <pre><span class="def"> convenience for assigning CSS classes.
+</span><span class="def"> -}
+</span><span class="def"> data Line = Line
+</span><span class="sub">-    { lineText :: Text
+</span><span class="add">+    { lineText :: T.Text
+</span><span class="def">     , lineClass :: String
+</span><span class="def">     }
+</span><span class="def"> 
+</span></pre>@@ -204,7 +203,7 @@
+
+
+  <pre><span class="def">             , asLookup = Just . lineAsLookup $ line
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-lineAsLookup :: Line -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+lineAsLookup :: Line -&gt; T.Text -&gt; Maybe (GVal m)
+</span><span class="def"> lineAsLookup line = \case
+</span><span class="def">     &quot;text&quot; -&gt; Just . toGVal . lineText $ line
+</span><span class="def">     &quot;class&quot; -&gt; Just . toGVal . lineClass $ line
+</span></pre>@@ -215,7 +214,7 @@
+
+
+  <pre><span class="def"> objects contained therein.
+</span><span class="def"> -}
+</span><span class="def"> data TreeFile = TreeFile
+</span><span class="sub">-    { treeFilePath :: Text
+</span><span class="add">+    { treeFilePath :: T.Text
+</span><span class="def">     , treeFileContents :: TreeFileContents
+</span><span class="def">     , treeFileMode :: TreeEntryMode
+</span><span class="def">     }
+</span></pre>@@ -273,12 +272,12 @@
+
+
+  <pre><span class="def">     toGVal (FileContents bytestring) = toGVal bytestring
+</span><span class="def">     toGVal (FolderContents treeFiles) =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . pack . show . fmap treeFilePath $ treeFiles
+</span><span class="sub">-            , asText = pack . show . fmap treeFilePath $ treeFiles
+</span><span class="add">+            { asHtml = html . T.pack . show . fmap treeFilePath $ treeFiles
+</span><span class="add">+            , asText = T.pack . show . fmap treeFilePath $ treeFiles
+</span><span class="def">             , asList = Just . fmap toGVal $ treeFiles
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+treeAsLookup :: TreeFile -&gt; T.Text -&gt; Maybe (GVal m)
+</span><span class="def"> treeAsLookup treefile = \case
+</span><span class="def">     &quot;path&quot; -&gt; Just . toGVal . treeFilePath $ treefile
+</span><span class="def">     &quot;name&quot; -&gt; Just . toGVal . FP.takeFileName . T.unpack . treeFilePath $ treefile
+</span></pre>@@ -293,7 +292,7 @@
+
+
+  <pre><span class="def">     &quot;is_directory&quot; -&gt; Just . toGVal . treeFileIsDirectory $ treefile
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def">   where
+</span><span class="sub">-    treeFileGetTree :: Text -&gt; TreeFileContents -&gt; [TreeFile]
+</span><span class="add">+    treeFileGetTree :: T.Text -&gt; TreeFileContents -&gt; [TreeFile]
+</span><span class="def">     treeFileGetTree parent (FolderContents fs) = filter atTop fs
+</span><span class="def">       where
+</span><span class="def">         atTop = notElem FP.pathSeparator . drop 1 . T.unpack . fromMaybe &quot;&quot; . T.stripPrefix parent . treeFilePath
+</span></pre>@@ -330,7 +329,7 @@
+
+
+  <pre><span class="def"> {-
+</span><span class="def"> Get the name of a tree file path&apos;s HTML file. Leading periods are dropped.
+</span><span class="def"> -}
+</span><span class="sub">-treePathToHref :: TreeFile -&gt; Text
+</span><span class="add">+treePathToHref :: TreeFile -&gt; T.Text
+</span><span class="def"> treePathToHref = T.dropWhile (== &apos;.&apos;) . flip T.append &quot;.html&quot; . T.replace &quot;/&quot; &quot;.&quot; . treeFilePath
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -350,7 +349,7 @@
+
+
+  <pre><span class="def">             , asLookup = Just . refAsLookup $ ref
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-refAsLookup :: Ref -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+refAsLookup :: Ref -&gt; T.Text -&gt; Maybe (GVal m)
+</span><span class="def"> refAsLookup ref = \case
+</span><span class="def">     &quot;name&quot; -&gt; Just . toGVal . refName $ ref
+</span><span class="def">     &quot;commit&quot; -&gt; Just . toGVal . refCommit $ ref
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -10,7 +10,7 @@
+
+
+  <pre><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.IORef (modifyIORef&apos;, newIORef, readIORef)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="sub">-import Data.Text.Lazy (Text)
+</span><span class="add">+import qualified Data.Text.Lazy as TL
+</span><span class="def"> import qualified Data.Text.Lazy.Builder as TB
+</span><span class="def"> import Path (Abs, File, Path, Rel, filename, toFilePath)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span></pre>@@ -56,7 +56,7 @@
+
+
+  <pre><span class="def"> generate ::
+</span><span class="def">     Template -&gt;
+</span><span class="def">     HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="sub">-    IO Text
+</span><span class="add">+    IO TL.Text
+</span><span class="def"> generate template scope = do
+</span><span class="def">     ioref &lt;- newIORef . TB.fromText $ &quot;&quot;
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -25,7 +25,6 @@
+
+
+  <pre><span class="def"> import Data.List (find)
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, listToMaybe, mapMaybe)
+</span><span class="def"> import Data.Tagged (Tagged (..), untag)
+</span><span class="sub">-import Data.Text (Text)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import qualified Data.Text.Encoding as T
+</span><span class="def"> import qualified Data.Text.Encoding.Error as T
+</span></pre>@@ -77,7 +76,7 @@
+
+
+  <pre><span class="def">     3. Fallback to the repo folder&apos;s name.
+</span><span class="def"> 
+</span><span class="def"> -}
+</span><span class="sub">-getDescription :: Path Abs Dir -&gt; IO Text
+</span><span class="add">+getDescription :: Path Abs Dir -&gt; IO T.Text
+</span><span class="def"> getDescription dir =
+</span><span class="def">     ifM
+</span><span class="def">         (D.doesFileExist inTop)
+</span></pre>@@ -147,7 +146,7 @@
+
+
+  <pre><span class="def">                     gen ::
+</span><span class="def">                         ToGVal RunRepo t =&gt;
+</span><span class="def">                         Template -&gt;
+</span><span class="sub">-                        Text -&gt;
+</span><span class="add">+                        T.Text -&gt;
+</span><span class="def">                         Path Abs Dir -&gt;
+</span><span class="def">                         (t -&gt; FilePath) -&gt;
+</span><span class="def">                         t -&gt;
+</span></pre>@@ -178,12 +177,12 @@
+
+
+  <pre><span class="def">     Env -&gt;
+</span><span class="def">     [Repo] -&gt;
+</span><span class="def">     Path Rel Dir -&gt;
+</span><span class="sub">-    Text -&gt;
+</span><span class="add">+    T.Text -&gt;
+</span><span class="def">     [Commit] -&gt;
+</span><span class="def">     [TreeFile] -&gt;
+</span><span class="def">     [Ref] -&gt;
+</span><span class="def">     [Ref] -&gt;
+</span><span class="sub">-    HashMap.HashMap Text (GVal RunRepo)
+</span><span class="add">+    HashMap.HashMap T.Text (GVal RunRepo)
+</span><span class="def"> package env repos name description commits tree tags branches =
+</span><span class="def">     HashMap.fromList
+</span><span class="def">         [ (&quot;host&quot;, toGVal . envHost $ env)
+</span></pre>@@ -201,7 +200,7 @@
+
+
+  <pre><span class="def">   where
+</span><span class="def">     -- Find a file in the tree starting with the specified prefix. The prefix is looked
+</span><span class="def">     -- for on the full path, so will only find files in the top level directory.
+</span><span class="sub">-    findFile :: Text -&gt; [TreeFile] -&gt; Maybe TreeFile
+</span><span class="add">+    findFile :: T.Text -&gt; [TreeFile] -&gt; Maybe TreeFile
+</span><span class="def">     findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeFilePath)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -337,14 +336,14 @@
+
+
+  <pre><span class="def">     getEntryModes (Git.TreeEntry _) = return ModeDirectory
+</span><span class="def">     getEntryModes (Git.CommitEntry _) = return ModeSubmodule
+</span><span class="def"> 
+</span><span class="sub">-    treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; Text
+</span><span class="add">+    treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; T.Text
+</span><span class="def">     treePaths = T.decodeUtf8With T.lenientDecode . fst
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Collect information about references. TODO: Find a more canonical way to split
+</span><span class="def"> references into tags or branches rather than filtering the refnames.
+</span><span class="def"> -}
+</span><span class="sub">-getRefs :: Text -&gt; ReaderT LgRepo IO [Ref]
+</span><span class="add">+getRefs :: T.Text -&gt; ReaderT LgRepo IO [Ref]
+</span><span class="def"> getRefs ref = do
+</span><span class="def">     names &lt;- filter (T.isPrefixOf ref) &lt;$&gt; Git.listReferences
+</span><span class="def">     maybeOids &lt;- mapM Git.resolveReference names
+</span></pre>@@ -366,7 +365,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> genRepo ::
+</span><span class="def">     Path Abs Dir -&gt;
+</span><span class="sub">-    HashMap.HashMap Text (GVal RunRepo) -&gt;
+</span><span class="add">+    HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="def">     IO ()
+</span><span class="def"> genRepo output scope template =
+</span></pre>@@ -391,11 +390,11 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> genTarget ::
+</span><span class="def">     ToGVal RunRepo t =&gt;
+</span><span class="sub">-    HashMap.HashMap Text (GVal RunRepo) -&gt;
+</span><span class="add">+    HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="def">     Bool -&gt;
+</span><span class="def">     Bool -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="sub">-    Text -&gt;
+</span><span class="add">+    T.Text -&gt;
+</span><span class="def">     Path Abs Dir -&gt;
+</span><span class="def">     (t -&gt; FilePath) -&gt;
+</span><span class="def">     t -&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -6,7 +6,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Control.Monad (unless)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="sub">-import Data.Text (Text)
+</span><span class="add">+import qualified Data.Text as T
+</span><span class="def"> import qualified Data.Text.Lazy.IO as TL
+</span><span class="def"> import Path (toFilePath)
+</span><span class="def"> import System.FilePath (combine)
+</span></pre>@@ -35,7 +35,7 @@
+
+
+  <pre><span class="def"> packageIndex ::
+</span><span class="def">     Env -&gt;
+</span><span class="def">     [Repo] -&gt;
+</span><span class="sub">-    HashMap.HashMap Text (GVal RunRepo)
+</span><span class="add">+    HashMap.HashMap T.Text (GVal RunRepo)
+</span><span class="def"> packageIndex env repos =
+</span><span class="def">     HashMap.fromList
+</span><span class="def">         [ (&quot;host&quot;, toGVal $ envHost env)
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Env.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,7 +15,6 @@
+
+
+  <pre><span class="def"> import Control.Monad (filterM, join, when, (&lt;=&lt;))
+</span><span class="def"> import Control.Monad.Extra (findM)
+</span><span class="def"> import Data.Maybe (catMaybes, fromMaybe, isNothing)
+</span><span class="sub">-import Data.Text (pack)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import Dhall
+</span><span class="def"> import Dhall.Deriving
+</span></pre>@@ -60,7 +59,7 @@
+
+
+  <pre><span class="def">         via Codec (Field (CamelCase &lt;&lt;&lt; DropPrefix &quot;conf&quot;)) Config
+</span><span class="def"> 
+</span><span class="def"> getConfig :: String -&gt; IO Config
+</span><span class="sub">-getConfig = input auto . pack &lt;=&lt; makeAbsolute
+</span><span class="add">+getConfig = input auto . T.pack &lt;=&lt; makeAbsolute
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The Env data type represents all of the program&apos;s state, including user configuration
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - Move some ReaderT LgRepo IO functions to IO</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">2043198</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/18592683c27243b1878b6cbb5863d9a482c5a327.html">18592683c27243b1878b6cbb5863d9a482c5a327</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/343385fd21bf0b47923028575a18ad17b97bb805.html">343385fd21bf0b47923028575a18ad17b97bb805</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-28 22:19:14 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-28 22:19:14 +0100
+
+Move some ReaderT LgRepo IO functions to IO
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -8,13 +8,11 @@
+
+
+  <pre><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="sub">-import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.IORef (modifyIORef&apos;, newIORef, readIORef)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import Data.Text.Internal.Lazy (Text)
+</span><span class="def"> import qualified Data.Text.Lazy.Builder as TB
+</span><span class="sub">-import Git.Libgit2 (LgRepo)
+</span><span class="def"> import Path (Abs, File, Path, Rel, filename, toFilePath)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span></pre>@@ -59,7 +57,7 @@
+
+
+  <pre><span class="def"> generate ::
+</span><span class="def">     Template -&gt;
+</span><span class="def">     HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="sub">-    ReaderT LgRepo IO Text
+</span><span class="add">+    IO Text
+</span><span class="def"> generate template context = do
+</span><span class="def">     content &lt;- liftIO . newIORef . TB.fromText $ &quot;&quot;
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -139,7 +139,7 @@
+
+
+  <pre><span class="def">                 liftIO . ensureDir $ output &lt;/&gt; fileDir
+</span><span class="def"> 
+</span><span class="def">                 -- Run the generator --
+</span><span class="sub">-                mapM_ (genRepo output scope) $ envRepoTemplates env
+</span><span class="add">+                liftIO $ mapM_ (genRepo output scope) $ envRepoTemplates env
+</span><span class="def"> 
+</span><span class="def">                 let quiet = envQuiet env
+</span><span class="def">                     force = envForce env
+</span></pre>@@ -152,15 +152,15 @@
+
+
+  <pre><span class="def">                         Path Abs Dir -&gt;
+</span><span class="def">                         (t -&gt; FilePath) -&gt;
+</span><span class="def">                         t -&gt;
+</span><span class="sub">-                        ReaderT LgRepo IO ()
+</span><span class="add">+                        IO ()
+</span><span class="def">                     gen = genTarget scope quiet force
+</span><span class="def"> 
+</span><span class="sub">-                whenJust (envCommitTemplate env) \commitT -&gt; do
+</span><span class="sub">-                    output&apos; &lt;- liftIO . fmap (output &lt;/&gt;) . parseRelDir $ &quot;commit&quot;
+</span><span class="add">+                whenJust (envCommitTemplate env) \commitT -&gt; liftIO do
+</span><span class="add">+                    output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelDir $ &quot;commit&quot;
+</span><span class="def">                     mapM_ (gen commitT &quot;commit&quot; output&apos; commitHref) commits
+</span><span class="def"> 
+</span><span class="sub">-                whenJust (envFileTemplate env) \fileT -&gt; do
+</span><span class="sub">-                    output&apos; &lt;- liftIO . fmap (output &lt;/&gt;) . parseRelDir $ &quot;file&quot;
+</span><span class="add">+                whenJust (envFileTemplate env) \fileT -&gt; liftIO do
+</span><span class="add">+                    output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelDir $ &quot;file&quot;
+</span><span class="def">                     mapM_ (gen fileT &quot;file&quot; output&apos; fileHref) tree -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="def">                 -- Copy any static files/folders into the output folder --
+</span></pre>@@ -369,7 +369,7 @@
+
+
+  <pre><span class="def">     Path Abs Dir -&gt;
+</span><span class="def">     HashMap.HashMap Text (GVal RunRepo) -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="sub">-    ReaderT LgRepo IO ()
+</span><span class="add">+    IO ()
+</span><span class="def"> genRepo output scope template = do
+</span><span class="def">     let output&apos; = toFilePath (output &lt;/&gt; templatePath template)
+</span><span class="def">     result &lt;- generate template scope
+</span></pre>@@ -401,13 +401,13 @@
+
+
+  <pre><span class="def">     Path Abs Dir -&gt;
+</span><span class="def">     (t -&gt; FilePath) -&gt;
+</span><span class="def">     t -&gt;
+</span><span class="sub">-    ReaderT LgRepo IO ()
+</span><span class="add">+    IO ()
+</span><span class="def"> genTarget scope quiet force template category output href target = do
+</span><span class="sub">-    output&apos; &lt;- liftIO . fmap (output &lt;/&gt;) . parseRelFile . href $ target
+</span><span class="sub">-    exists &lt;- liftIO . doesFileExist $ output&apos;
+</span><span class="add">+    output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelFile . href $ target
+</span><span class="add">+    exists &lt;- doesFileExist output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="def">         let output&apos;&apos; = toFilePath output&apos;
+</span><span class="sub">-        liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;&apos;
+</span><span class="sub">-        liftIO . ignoringAbsence . removeFile $ output&apos;&apos;
+</span><span class="add">+        unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;&apos;
+</span><span class="add">+        ignoringAbsence . removeFile $ output&apos;&apos;
+</span><span class="def">         result &lt;- generate template $ HashMap.insert category (toGVal target) scope
+</span><span class="sub">-        liftIO $ TL.writeFile output&apos;&apos; result
+</span><span class="add">+        TL.writeFile output&apos;&apos; result
+</span></pre></div>    </div>
+  </body>
+</html>

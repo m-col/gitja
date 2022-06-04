@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - de-duplicate some work when rendering index pages</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">2043198</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/2a03a60270ab140a0871f717d2a014fb272d6bcc.html">2a03a60270ab140a0871f717d2a014fb272d6bcc</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/6562a126e298facb4c4e4e26b081d30add70371a.html">6562a126e298facb4c4e4e26b081d30add70371a</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-29 15:07:27 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-29 15:07:27 +0100
+
+de-duplicate some work when rendering index pages
+</pre><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -7,7 +7,6 @@
+
+
+  <pre><span class="def"> import Control.Monad (unless)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="sub">-import qualified Data.Text.IO as T
+</span><span class="def"> import qualified Data.Text.Lazy.IO as TL
+</span><span class="def"> import Path (toFilePath)
+</span><span class="def"> import System.FilePath (combine)
+</span></pre>@@ -22,23 +21,30 @@
+
+
+  <pre><span class="def"> configured respositories.
+</span><span class="def"> -}
+</span><span class="def"> runIndex :: Env -&gt; [Repo] -&gt; IO ()
+</span><span class="sub">-runIndex env repos = mapM_ (runIndexFile env repos) . envIndexTemplates $ env
+</span><span class="add">+runIndex env repos =
+</span><span class="add">+    mapM_ (runIndexFile outputDir quiet scope) templates
+</span><span class="add">+  where
+</span><span class="add">+    outputDir = toFilePath . envOutput $ env
+</span><span class="add">+    quiet = envQuiet env
+</span><span class="add">+    templates = envIndexTemplates env
+</span><span class="def"> 
+</span><span class="sub">-runIndexFile :: Env -&gt; [Repo] -&gt; Template -&gt; IO ()
+</span><span class="sub">-runIndexFile env repos template = do
+</span><span class="sub">-    let output = combine (toFilePath . envOutput $ env) . toFilePath . templatePath $ template
+</span><span class="sub">-    unless (envQuiet env) . putStrLn $ &quot;Writing &quot; &lt;&gt; output
+</span><span class="sub">-    TL.writeFile output =&lt;&lt; generateIndex template (packageIndex env repos)
+</span><span class="add">+    scope :: HashMap.HashMap T.Text (GVal RunRepo)
+</span><span class="add">+    scope =
+</span><span class="add">+        HashMap.fromList
+</span><span class="add">+            [ (&quot;host&quot;, toGVal $ envHost env)
+</span><span class="add">+            , (&quot;repositories&quot;, toGVal repos)
+</span><span class="add">+            ]
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-This packages the variables that are available inside the index scope.
+</span><span class="add">+Use the scope created above to render a single index template.
+</span><span class="def"> -}
+</span><span class="sub">-packageIndex ::
+</span><span class="sub">-    Env -&gt;
+</span><span class="sub">-    [Repo] -&gt;
+</span><span class="sub">-    HashMap.HashMap T.Text (GVal RunRepo)
+</span><span class="sub">-packageIndex env repos =
+</span><span class="sub">-    HashMap.fromList
+</span><span class="sub">-        [ (&quot;host&quot;, toGVal $ envHost env)
+</span><span class="sub">-        , (&quot;repositories&quot;, toGVal repos)
+</span><span class="sub">-        ]
+</span><span class="add">+runIndexFile ::
+</span><span class="add">+    FilePath -&gt;
+</span><span class="add">+    Bool -&gt;
+</span><span class="add">+    HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="add">+    Template -&gt;
+</span><span class="add">+    IO ()
+</span><span class="add">+runIndexFile outputDir quiet scope template = do
+</span><span class="add">+    let output = combine outputDir . toFilePath . templatePath $ template
+</span><span class="add">+    unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output
+</span><span class="add">+    TL.writeFile output =&lt;&lt; generateIndex template scope
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitserve - polymorphise ToGVal instances</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitserve</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitserve">https://github.com/m-col/gitserve</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitserve/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitserve/commit/204319857a29ad6307c8b11e3366000cb79e0b47.html">2043198</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/3fd1dd84281c984ada8dc10d860ac5e5961189dc.html">3fd1dd84281c984ada8dc10d860ac5e5961189dc</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitserve/commit/5d883de62ade297d0dfcc4d4e7f059b02e0ccfa5.html">5d883de62ade297d0dfcc4d4e7f059b02e0ccfa5</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-28 21:28:55 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-28 21:28:55 +0100
+
+polymorphise ToGVal instances
+</pre><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -257,8 +257,8 @@
+
+
+  <pre><span class="def"> GVal implementations for data definitions above, allowing commits to be rendered in
+</span><span class="def"> Ginger templates.
+</span><span class="def"> -}
+</span><span class="sub">-instance ToGVal RunRepo TreeFile where
+</span><span class="sub">-    toGVal :: TreeFile -&gt; GVal RunRepo
+</span><span class="add">+instance ToGVal m TreeFile where
+</span><span class="add">+    toGVal :: TreeFile -&gt; GVal m
+</span><span class="def">     toGVal treefile =
+</span><span class="def">         def
+</span><span class="def">             { asHtml = html . treeFilePath $ treefile
+</span></pre>@@ -267,8 +267,8 @@
+
+
+  <pre><span class="def">             , asBoolean = True -- Used for conditionally checking readme/license template variables.
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-instance ToGVal RunRepo TreeFileContents where
+</span><span class="sub">-    toGVal :: TreeFileContents -&gt; GVal RunRepo
+</span><span class="add">+instance ToGVal m TreeFileContents where
+</span><span class="add">+    toGVal :: TreeFileContents -&gt; GVal m
+</span><span class="def">     toGVal BinaryContents = def
+</span><span class="def">     toGVal (FileContents bytestring) = toGVal bytestring
+</span><span class="def">     toGVal (FolderContents treeFiles) =
+</span></pre>@@ -278,7 +278,7 @@
+
+
+  <pre><span class="def">             , asList = Just . fmap toGVal $ treeFiles
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal RunRepo)
+</span><span class="add">+treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> treeAsLookup treefile = \case
+</span><span class="def">     &quot;path&quot; -&gt; Just . toGVal . treeFilePath $ treefile
+</span><span class="def">     &quot;name&quot; -&gt; Just . toGVal . FP.takeFileName . T.unpack . treeFilePath $ treefile
+</span></pre>@@ -341,8 +341,8 @@
+
+
+  <pre><span class="def">     , refCommit :: Commit
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="sub">-instance ToGVal RunRepo Ref where
+</span><span class="sub">-    toGVal :: Ref -&gt; GVal RunRepo
+</span><span class="add">+instance ToGVal m Ref where
+</span><span class="add">+    toGVal :: Ref -&gt; GVal m
+</span><span class="def">     toGVal ref =
+</span><span class="def">         def
+</span><span class="def">             { asHtml = html . refName $ ref
+</span></pre>@@ -350,7 +350,7 @@
+
+
+  <pre><span class="def">             , asLookup = Just . refAsLookup $ ref
+</span><span class="def">             }
+</span><span class="def"> 
+</span><span class="sub">-refAsLookup :: Ref -&gt; Text -&gt; Maybe (GVal RunRepo)
+</span><span class="add">+refAsLookup :: Ref -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> refAsLookup ref = \case
+</span><span class="def">     &quot;name&quot; -&gt; Just . toGVal . refName $ ref
+</span><span class="def">     &quot;commit&quot; -&gt; Just . toGVal . refCommit $ ref
+</span></pre></div>    </div>
+  </body>
+</html>
