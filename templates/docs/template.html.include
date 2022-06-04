@@ -30,7 +30,7 @@
       </span>
 
       <p id="tag">
-        Docs built @ <a href="{{ host }}/gitserve/commit/{{ commits[0].href }}">{{ commits[0].id[:7] }}</a>
+        Docs built @ <a href="{{ host }}/gitja/commit/{{ commits[0].href }}">{{ commits[0].id[:7] }}</a>
       </p>
     </div>
 

@@ -30,7 +30,7 @@ rebuild: ## Clean and then build
 	@stack build
 
 .PHONY: run
-run: ## Run gitserve on this repository into ./output/
+run: ## Run gitja on this repository into ./output/
 	rm -rf output
 	stack run -- -q
 
@@ -46,8 +46,8 @@ prod: ## Build with optimise flags
 prof: ## Build with profiling enabled
 	@stack build --profile
 	@rm -r output
-	@stack exec --profile -- gitserve -q +RTS -p
-	@head -n 6 gitserve.prof
+	@stack exec --profile -- gitja -q +RTS -p
+	@head -n 6 gitja.prof
 
 .PHONY: all
 all: format lint rebuild run test ## Lint, format, rebuild, run, test

@@ -112,7 +112,7 @@ processRepo' env repos repo = do
 
     Git.resolveReference "HEAD" >>= \case
         Nothing -> do
-            liftIO . unless (envQuiet env) . putStrLn $ "gitserve: " <> show name <> ": Failed to resolve HEAD."
+            liftIO . unless (envQuiet env) . putStrLn $ "gitja: " <> show name <> ": Failed to resolve HEAD."
             return repo
         Just commitID -> do
             let gitHead = Tagged commitID

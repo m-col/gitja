@@ -1,18 +1,19 @@
 Documentation
 =============
 
-`gitserve` is a tool that reads from locally hosted or cloned git repositories
-and generates static HTML pages using their data.
+`gitja` is a tool that reads from locally hosted or cloned git repositories and
+generates static HTML pages using their data and
+[Jinja](https://jinja.palletsprojects.com) templates.
 
 Usage
 -----
 
 ### Configuration file
 
-gitserve is configured using a [dhall](https://dhall-lang.org) config file. The
-[example config](https://github.com/m-col/gitserve/blob/master/config.dhall) is
-a good place to start, or alternatively create one in the current folder by
-running `gitserve -t`.
+gitja is configured using a [dhall](https://dhall-lang.org) config file. The
+[example config](https://github.com/m-col/gitja/blob/master/config.dhall) is a
+good place to start, or alternatively create one in the current folder by
+running `gitja -t`.
 
 It requires the following settings:
 
@@ -24,17 +25,17 @@ It requires the following settings:
 | `output`   | Where to put the generated files.                               |
 | `host`     | The host URL, which is needed for creating links.               |
 
-If `scan` is `True`, then gitserve will look for git repositories in folders
+If `scan` is `True`, then gitja will look for git repositories in folders
 nested within those listed in `repos`. Otherwise, the folders in `repos` are
 assumed to be repositories themselves.
 
-Then, pass the config file to gitserve.
+Then, pass the config file to gitja.
 
 ### CLI
 
 See the CLI help message for usage:
 
-    Usage: gitserve [-c|--config CONFIG] [-q|--quiet] [-f|--force] [-t|--template] 
+    Usage: gitja [-c|--config CONFIG] [-q|--quiet] [-f|--force] [-t|--template]
                     [-v|--version]
       🐙 Templated web page generator for your git repositories
 
@@ -43,26 +44,26 @@ See the CLI help message for usage:
       -q,--quiet               Suppress non-error output.
       -f,--force               Force regeneration of all files.
       -t,--template            Create a template and config in the current folder.
-      -v,--version             Print the gitserve's version.
+      -v,--version             Print the gitja's version.
       -h,--help                Show this help text
 
-Note the `force` flag. By default, gitserve will not generate new output for
+Note the `force` flag. By default, gitja will not generate new output for
 commits to save time. This flag will force regeneration of all files, which
 would be needed if changes have been made to the template.
 
 Templates
 ---------
 
-A base template can be created in the current folder by running `gitserve -t`.
+A base template can be created in the current folder by running `gitja -t`.
 This can be used as a starting point to creating your own template.
 
 ### Folder structure
 
-The files that gitserve outputs are generated using
+The files that gitja outputs are generated using
 [ginger](https://ginger.tobiasdammers.nl) template files, which use the
 [Jinja](https://jinja.palletsprojects.com) templating language. If these are
 new to you, it may be enough to skim through some of the examples in the
-[templates](https://github.com/m-col/gitserve/tree/master/templates) folder,
+[templates](https://github.com/m-col/gitja/tree/master/templates) folder,
 otherwise the ginger docs can be very helpful to see what is supported.
 
 Templates are a folder containing a number of ginger template files.  There are
@@ -102,13 +103,13 @@ The exceptions to this are the two special template files with the names
 *commit scope* respectively, and are parsed and output once per file or commit.
 
 The resulting folder structure found in `output` will look like this (if
-`repos` only contains gitserve):
+`repos` only contains gitja):
 
     output/
         i_can_have_any_name.html
         and_there_can_be_any_number.html
         non_html_is_fine.css
-        gitserve/
+        gitja/
             inside_this_folder.html
             two_names_are_special.html
             file/

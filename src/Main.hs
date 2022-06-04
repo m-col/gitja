@@ -6,7 +6,7 @@ module Main (
     main,
 ) where
 
-import Paths_gitserve (version)
+import Paths_gitja (version)
 
 import Control.Monad (when)
 import qualified Data.ByteString as B
@@ -60,7 +60,7 @@ opts =
         <*> O.switch
             ( O.long "version"
                 <> O.short 'v'
-                <> O.help "Print the gitserve's version."
+                <> O.help "Print gitja's version."
             )
 
 parser :: IO Options
@@ -79,7 +79,7 @@ main = do
     options <- parser
     if
             | optVersion options ->
-                putStrLn $ "Your gitserve version is: " <> showVersion version
+                putStrLn $ "Your gitja version is: " <> showVersion version
             | optTemplate options ->
                 makeTemplate
             | otherwise -> do
@@ -103,7 +103,7 @@ makeTemplate = do
                 putStrLn "A base template as been put at ./template."
                 putStrLn "A plain config has been put at ./config.dhall"
                 putStrLn "Add a local git repository to 'repos' in the config"
-                putStrLn "and run gitserve to generate HTML in ./output."
+                putStrLn "and run gitja to generate HTML in ./output."
                 oExists <- D.doesPathExist "./output"
                 when oExists . putStrLn $
                     "WARNING: ./output ALREADY EXISTS AND WILL BE OVERWRITTEN\n"

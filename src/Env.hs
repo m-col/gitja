@@ -163,9 +163,9 @@ The logic for copying static files and folders. Any file or folder in the
 - it does not end in ".html" or ".include".
 
 Symbolic links are not followed and are copied as is. This means that a symbolic link
-from `confTemplate/link.html` to `gitserve/index.html` will be copied, keeping the
-link intact, resulting in a symbolic link at `output/link.html` essentially
-pointing to `output/gitserve/index.html`.
+from `confTemplate/link.html` to `gitja/index.html` will be copied, keeping the link
+intact, resulting in a symbolic link at `output/link.html` essentially pointing to
+`output/gitja/index.html`.
 -}
 copyStaticDirs :: [Path Abs Dir] -> Path Abs Dir -> IO ()
 copyStaticDirs dirs output = mapM_ copy dirs

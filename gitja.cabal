@@ -1,9 +1,9 @@
-name:                gitserve
+name:                gitja
 version:             0.3.0.0
 synopsis:            🐙 Templated web page generator for your git repositories
 description:         🐙 Templated web page generator for your git repositories
-homepage:            https://github.com/m-col/gitserve#readme
-bug-reports:         https://github.com/m-col/gitserve/issues
+homepage:            https://github.com/m-col/gitja#readme
+bug-reports:         https://github.com/m-col/gitja/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Matt Colligan
@@ -14,10 +14,10 @@ build-type:          Simple
 cabal-version:       >=1.10
 extra-source-files:  README.rst
 
-executable gitserve
+executable gitja
   hs-source-dirs:      src
   main-is:             Main.hs
-  other-modules:       Index, Env, Repositories, Templates, Types, Paths_gitserve
+  other-modules:       Index, Env, Repositories, Templates, Types, Paths_gitja
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
                      , conduit

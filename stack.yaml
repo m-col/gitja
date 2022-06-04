@@ -8,7 +8,7 @@ extra-deps:
     - gitlib-libgit2
 
 ghc-options:
-  "gitserve": -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+  "gitja": -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
     -Wincomplete-record-updates -Wredundant-constraints -Wpartial-fields
     -Wmissing-deriving-strategies -Wunused-packages -fno-warn-unused-do-bind
     -fno-warn-orphans

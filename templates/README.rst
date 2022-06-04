@@ -1,5 +1,5 @@
-gitserve templates
-==================
+gitja templates
+===============
 
 This folder contains some example templates for demonstration purposes.
 
@@ -14,8 +14,8 @@ The templates and their descriptions:
 ============= ==========================================
 Template name Description
 ============= ==========================================
-base          This is placed into the current folder via ``gitserve -t``.
-docs          This is used for generating gitserve's docs website.
+base          This is placed into the current folder via ``gitja -t``.
+docs          This is used for generating gitja's docs website.
 stagit        This replicates much of stagit_'s style.
 ============= ==========================================
 
