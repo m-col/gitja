@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Lots of hlinting and abiding by the style guide</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/52f6feacb51a7bb434a128425cc05377cbd0d4f5.html">52f6feacb51a7bb434a128425cc05377cbd0d4f5</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ef9d238fb2695339d1f90c4d179e93a4207cb16f.html">ef9d238fb2695339d1f90c4d179e93a4207cb16f</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-23 23:55:14 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-23 23:55:14 +0100
+
+Lots of hlinting and abiding by the style guide
+</pre><div class="diff">
+  <p>
+    <b>stack.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -10,4 +10,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> # These options are from the Kowainik style guide.
+</span><span class="def"> ghc-options:
+</span><span class="sub">-  &quot;$locals&quot;: -Wall -Wcompat -Widentities -Wincomplete-uni-patterns -Wincomplete-record-updates -Wredundant-constraints -Wmissing-export-lists -Wpartial-fields -Wmissing-deriving-strategies -Wunused-packages
+</span><span class="add">+  &quot;$locals&quot;: -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+</span><span class="add">+    -Wincomplete-record-updates -Wredundant-constraints -Wmissing-export-lists
+</span><span class="add">+    -Wpartial-fields -Wmissing-deriving-strategies -Wunused-packages
+</span><span class="add">+    -fno-warn-unused-do-bind
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -9,17 +9,16 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Control.Monad (filterM, (&lt;=&lt;))
+</span><span class="def"> import Data.Char (toLower)
+</span><span class="sub">-import Data.Either (rights, Either)
+</span><span class="add">+import Data.Either (rights)
+</span><span class="def"> import Data.List (isSuffixOf)
+</span><span class="sub">-import Data.Maybe (catMaybes)
+</span><span class="def"> import Data.Text (unpack, Text)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import System.Directory (doesFileExist, getDirectoryContents)
+</span><span class="sub">-import System.FilePath ((&lt;/&gt;), FilePath)
+</span><span class="add">+import System.FilePath ((&lt;/&gt;))
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import qualified Text.Ginger.Parse as G
+</span><span class="sub">-import Text.Ginger.GVal (toGVal, GVal, ToGVal)
+</span><span class="add">+import Text.Ginger.GVal (GVal)
+</span><span class="def"> import Text.Ginger.Html (htmlSource, Html)
+</span><span class="def"> import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
+</span><span class="def"> 
+</span></pre>@@ -58,11 +57,10 @@
+
+
+  <pre><span class="def"> HTML/CSS/JS files.
+</span><span class="def"> -}
+</span><span class="def"> isTemplate :: FilePath -&gt; IO Bool
+</span><span class="sub">-isTemplate path = (&amp;&amp;) (isTemplate&apos; path) &lt;$&gt; doesFileExist path
+</span><span class="add">+isTemplate path = (&amp;&amp;) (isTemplate&apos; (map toLower path)) &lt;$&gt; doesFileExist path
+</span><span class="def">   where
+</span><span class="sub">-    p = map toLower path
+</span><span class="def">     isTemplate&apos; :: FilePath -&gt; Bool
+</span><span class="sub">-    isTemplate&apos; path = isSuffixOf &quot;html&quot; p || isSuffixOf &quot;css&quot; p || isSuffixOf &quot;js&quot; p
+</span><span class="add">+    isTemplate&apos; p = isSuffixOf &quot;html&quot; p || isSuffixOf &quot;css&quot; p || isSuffixOf &quot;js&quot; p
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This wraps getDirectoryContents so that we get a list of fully qualified paths of the
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -6,20 +6,18 @@
+
+
+  <pre><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Conduit (runConduit, (.|), sinkList)
+</span><span class="sub">-import Control.Monad ((&lt;=&lt;))
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import Data.Either (fromRight)
+</span><span class="sub">-import Data.Foldable (foldMap)
+</span><span class="def"> import Data.Tagged
+</span><span class="sub">-import Data.Text (Text)
+</span><span class="add">+import Data.Text (pack, Text)
+</span><span class="add">+import Data.Maybe (catMaybes)
+</span><span class="def"> import Git
+</span><span class="sub">-import Git.Types (RefTarget)
+</span><span class="def"> import Git.Libgit2 (lgFactory, LgRepo)
+</span><span class="sub">-import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import System.Directory (createDirectoryIfMissing)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="add">+import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> 
+</span><span class="def"> import Config (Config, repoPaths, outputDirectory)
+</span><span class="def"> import Templates (Template, generate)
+</span></pre>@@ -40,28 +38,28 @@
+
+
+  <pre><span class="def"> (after informing the user of course).
+</span><span class="def"> -}
+</span><span class="def"> processRepo :: [Template] -&gt; FilePath -&gt; FilePath -&gt; IO ()
+</span><span class="sub">-processRepo templates outputDirectory path = withRepository lgFactory path $
+</span><span class="sub">-    processRepo&apos; templates outputDirectory path
+</span><span class="add">+processRepo templates directory path = withRepository lgFactory path $
+</span><span class="add">+    processRepo&apos; templates directory path
+</span><span class="def"> 
+</span><span class="def"> -- This is split out to make type reasoning a bit easier.
+</span><span class="def"> processRepo&apos; :: [Template] -&gt; FilePath -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="sub">-processRepo&apos; templates outputDirectory path = do
+</span><span class="add">+processRepo&apos; templates directory path = do
+</span><span class="def">     liftIO $ createDirectoryIfMissing True outPath
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="sub">-            let head = Tagged commitID
+</span><span class="sub">-            -- Variables available in the ginger templates --
+</span><span class="add">+            let gitHead = Tagged commitID
+</span><span class="add">+            -- Variables available in the ginger templates: --
+</span><span class="def"> 
+</span><span class="def">             -- description: The description of the repository from repo/description, if
+</span><span class="sub">-            -- it exists
+</span><span class="add">+            -- it exists.
+</span><span class="def">             description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="def"> 
+</span><span class="def">             -- commits: A list of `Git.Commit` objects to HEAD.
+</span><span class="sub">-            commits &lt;- getCommits head
+</span><span class="add">+            commits &lt;- getCommits gitHead
+</span><span class="def"> 
+</span><span class="def">             -- tree: A list of `(TreeFilePath, TreeEntry r)` objects at HEAD.
+</span><span class="sub">-            tree &lt;- getTree head
+</span><span class="add">+            tree &lt;- getTree gitHead
+</span><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="def">             let repo = package description commits tree
+</span></pre>@@ -69,25 +67,32 @@
+
+
+  <pre><span class="def">             return ()
+</span><span class="def">   where
+</span><span class="def">     name = takeFileName path
+</span><span class="sub">-    outPath = outputDirectory &lt;/&gt; name
+</span><span class="add">+    outPath = directory &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="def"> getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit LgRepo]
+</span><span class="sub">-getCommits commitID = mapM loadCommit &lt;=&lt;
+</span><span class="sub">-    runConduit $ sourceObjects Nothing commitID False .| sinkList
+</span><span class="add">+getCommits commitID = do
+</span><span class="add">+    oids &lt;- runConduit $ sourceObjects Nothing commitID False .| sinkList
+</span><span class="add">+    sequence . catMaybes $ loadCommit &lt;$&gt; oids
+</span><span class="def"> 
+</span><span class="sub">-loadCommit :: ObjectOid LgRepo -&gt; ReaderT LgRepo IO (Commit LgRepo)
+</span><span class="sub">-loadCommit (CommitObjOid oid) = lookupCommit oid
+</span><span class="add">+loadCommit :: ObjectOid LgRepo -&gt; Maybe (ReaderT LgRepo IO (Commit LgRepo))
+</span><span class="add">+loadCommit (CommitObjOid oid) = Just $ lookupCommit oid
+</span><span class="add">+loadCommit _ = Nothing
+</span><span class="def"> 
+</span><span class="def"> getTree :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [(TreeFilePath, TreeEntry LgRepo)]
+</span><span class="def"> getTree commitID = do
+</span><span class="sub">-    head &lt;- lookupCommit commitID
+</span><span class="sub">-    lookupTree (commitTree head) &gt;&gt;= listTreeEntries
+</span><span class="add">+    gitHead &lt;- lookupCommit commitID
+</span><span class="add">+    lookupTree (commitTree gitHead) &gt;&gt;= listTreeEntries
+</span><span class="def"> 
+</span><span class="sub">-getDescription :: FilePath -&gt; IO String
+</span><span class="sub">-getDescription path = fromRight &quot;&quot; &lt;$&gt; tryIOError (readFile path)
+</span><span class="add">+getDescription :: FilePath -&gt; IO Text
+</span><span class="add">+getDescription path = fromRight &quot;&quot; &lt;$&gt; tryIOError (pack &lt;$&gt; readFile path)
+</span><span class="def"> 
+</span><span class="add">+package
+</span><span class="add">+    :: Text
+</span><span class="add">+    -&gt; [Commit LgRepo]
+</span><span class="add">+    -&gt; [(TreeFilePath, TreeEntry r)]
+</span><span class="add">+    -&gt; HashMap.HashMap Text Text
+</span><span class="def"> package description commits tree = HashMap.fromList
+</span><span class="def">     [ (&quot;commits&quot;, &quot;commits&quot;)
+</span><span class="sub">-    , (&quot;description&quot;, &quot;description&quot;)
+</span><span class="add">+    , (&quot;description&quot;, description)
+</span><span class="def">     , (&quot;tree&quot;, &quot;tree&quot;)
+</span><span class="def">     ]
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,5 +1,8 @@
+
+
+  <pre><span class="def"> {-# LANGUAGE OverloadedStrings #-}
+</span><span class="sub">-module Main where
+</span><span class="add">+
+</span><span class="add">+module Main (
+</span><span class="add">+    main
+</span><span class="add">+) where
+</span><span class="def"> 
+</span><span class="def"> import Config (getConfig)
+</span><span class="def"> import Repositories (run)
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -5,8 +5,8 @@
+
+
+  <pre><span class="def">     Config,
+</span><span class="def">     repoPaths,
+</span><span class="def">     templateDirectory,
+</span><span class="sub">-    outputDirectory,
+</span><span class="sub">-    getConfig
+</span><span class="add">+    getConfig,
+</span><span class="add">+    outputDirectory
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Dhall
+</span></pre></div>    </div>
+  </body>
+</html>

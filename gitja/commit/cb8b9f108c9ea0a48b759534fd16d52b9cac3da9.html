@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add commitTemplate config setting to specify a template with commit scope</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/cb8b9f108c9ea0a48b759534fd16d52b9cac3da9.html">cb8b9f108c9ea0a48b759534fd16d52b9cac3da9</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/7f05a4ae277c2cc2fb069bdad94b71e425c8b107.html">7f05a4ae277c2cc2fb069bdad94b71e425c8b107</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-25 20:09:08 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-25 20:09:08 +0100
+
+Add commitTemplate config setting to specify a template with commit scope
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -24,7 +24,7 @@
+
+
+  <pre><span class="def"> import Text.Ginger.Html (htmlSource, Html)
+</span><span class="def"> import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
+</span><span class="def"> 
+</span><span class="sub">-import Config (Config, templateDirectory, indexTemplate)
+</span><span class="add">+import Config (Config, templateDirectory, indexTemplate, commitTemplate)
+</span><span class="def"> 
+</span><span class="def"> data Template = Template
+</span><span class="def">     { templatePath :: FilePath
+</span></pre>@@ -76,6 +76,13 @@
+
+
+  <pre><span class="def">     isTemplate&apos; p = isSuffixOf &quot;html&quot; p || isSuffixOf &quot;css&quot; p || isSuffixOf &quot;js&quot; p
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="add">+This is used to filter files in the template directory to exclude those specified by the
+</span><span class="add">+config settings ``indexTemplate`` or ``commitTemplate``.
+</span><span class="add">+-}
+</span><span class="add">+isScoped :: Config -&gt; FilePath -&gt; Bool
+</span><span class="add">+isScoped config path = path /= (indexTemplate config) &amp;&amp; path /= (commitTemplate config)
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="def"> This wraps getDirectoryContents so that we get a list of fully qualified paths of the
+</span><span class="def"> directory&apos;s contents.
+</span><span class="def"> -}
+</span></pre>@@ -87,7 +94,8 @@
+
+
+  <pre><span class="def"> valid template files.
+</span><span class="def"> -}
+</span><span class="def"> getFiles :: Config -&gt; IO [FilePath]
+</span><span class="sub">-getFiles = filterM isTemplate &lt;=&lt; listTemplates . templateDirectory
+</span><span class="add">+getFiles config =
+</span><span class="add">+    filter (isScoped config) &lt;$&gt; (filterM isTemplate &lt;=&lt; listTemplates . templateDirectory $ config)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This function gets the output HTML data and is responsible for saving it to file.
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -6,6 +6,7 @@
+
+
+  <pre><span class="def">     repoPaths,
+</span><span class="def">     templateDirectory,
+</span><span class="def">     indexTemplate,
+</span><span class="add">+    commitTemplate,
+</span><span class="def">     getConfig,
+</span><span class="def">     outputDirectory,
+</span><span class="def">     host
+</span></pre>@@ -17,6 +18,7 @@
+
+
+  <pre><span class="def">     { repoPaths :: [FilePath]
+</span><span class="def">     , templateDirectory :: FilePath
+</span><span class="def">     , indexTemplate :: FilePath
+</span><span class="add">+    , commitTemplate :: FilePath
+</span><span class="def">     , outputDirectory :: FilePath
+</span><span class="def">     , host :: Text
+</span><span class="def">     }
+</span></pre></div>    </div>
+  </body>
+</html>

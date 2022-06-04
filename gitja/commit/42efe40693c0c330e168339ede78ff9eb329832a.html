@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add -q quiet option to suppress messages</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/42efe40693c0c330e168339ede78ff9eb329832a.html">42efe40693c0c330e168339ede78ff9eb329832a</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/69129dca29a746f494ac2c5e02d11609e552ef7c.html">69129dca29a746f494ac2c5e02d11609e552ef7c</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-25 22:14:35 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-25 22:14:35 +0000
+
+Add -q quiet option to suppress messages
+</pre><div class="diff">
+  <p>
+    <b>test/test.sh</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -34,7 +34,7 @@
+
+
+  <pre><span class="def"> )
+</span><span class="def"> 
+</span><span class="def"> rm -rf &quot;$RESULT&quot;
+</span><span class="sub">-stack run -- -c test/config.dhall
+</span><span class="add">+stack run -- -c test/config.dhall -q
+</span><span class="def"> 
+</span><span class="def"> for test in &quot;${TESTS[@]}&quot;
+</span><span class="def"> do
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -43,6 +43,7 @@
+
+
+  <pre><span class="def">     , envOutputDirectory :: Path Abs Dir
+</span><span class="def">     , envRepoPaths :: [Path Abs Dir]
+</span><span class="def">     , envHost :: Text
+</span><span class="add">+    , envQuiet :: Bool
+</span><span class="def">     , envForce :: Bool
+</span><span class="def">     }
+</span><span class="def"> 
+</span></pre>@@ -55,8 +56,8 @@
+
+
+  <pre><span class="def"> This creates the runtime environment, collecting the config and loading template data
+</span><span class="def"> from the template directory.
+</span><span class="def"> -}
+</span><span class="sub">-loadEnv :: Bool -&gt; Config -&gt; IO Env
+</span><span class="sub">-loadEnv force config = do
+</span><span class="add">+loadEnv :: Bool -&gt; Bool -&gt; Config -&gt; IO Env
+</span><span class="add">+loadEnv quiet force config = do
+</span><span class="def">     -- First ensure that the output directory exists
+</span><span class="def">     output &lt;- parseAbsDir &lt;=&lt; canonicalizePath . outputDirectory $ config
+</span><span class="def">     ensureDir output
+</span></pre>@@ -87,6 +88,7 @@
+
+
+  <pre><span class="def">             , envOutputDirectory = output
+</span><span class="def">             , envRepoPaths = repoPaths&apos;
+</span><span class="def">             , envHost = host config
+</span><span class="add">+            , envQuiet = quiet
+</span><span class="def">             , envForce = force
+</span><span class="def">             }
+</span><span class="def">   where
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -10,7 +10,7 @@
+
+
+  <pre><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Conduit (runConduit, sinkList, (.|))
+</span><span class="sub">-import Control.Monad (when, (&lt;=&lt;))
+</span><span class="add">+import Control.Monad (unless, when, (&lt;=&lt;))
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import Data.Either (fromRight)
+</span></pre>@@ -71,7 +71,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; do
+</span><span class="sub">-            liftIO . putStrLn $ &quot;gitserve: &quot; &lt;&gt; show name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="add">+            liftIO . unless (envQuiet env) . putStrLn $ &quot;gitserve: &quot; &lt;&gt; show name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">             return repo
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="def">             let gitHead = Tagged commitID
+</span></pre>@@ -90,10 +90,11 @@
+
+
+  <pre><span class="def">             liftIO . ensureDir $ output &lt;/&gt; fileDir
+</span><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="add">+            let quiet = envQuiet env
+</span><span class="def">             let force = envForce env
+</span><span class="def">             mapM_ (genRepo output scope) $ envRepoTemplates env
+</span><span class="sub">-            mapM_ (genTarget output scope force $ envCommitTemplate env) commits
+</span><span class="sub">-            mapM_ (genTarget output scope True $ envFileTemplate env) tree -- TODO: detect file changes
+</span><span class="add">+            mapM_ (genTarget output scope quiet force $ envCommitTemplate env) commits
+</span><span class="add">+            mapM_ (genTarget output scope quiet True $ envFileTemplate env) tree -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="def">             -- Return the repo with the head so the index page can use it. --
+</span><span class="def">             return $ repo{repositoryHead = Just . head $ commits}
+</span></pre>@@ -241,15 +242,16 @@
+
+
+  <pre><span class="def">     Path Abs Dir -&gt;
+</span><span class="def">     HashMap.HashMap Text (GVal RunRepo) -&gt;
+</span><span class="def">     Bool -&gt;
+</span><span class="add">+    Bool -&gt;
+</span><span class="def">     Maybe Template -&gt;
+</span><span class="def">     a -&gt;
+</span><span class="def">     ReaderT LgRepo IO ()
+</span><span class="sub">-genTarget _ _ _ Nothing _ = return ()
+</span><span class="sub">-genTarget output scope force (Just template) target = do
+</span><span class="add">+genTarget _ _ _ _ Nothing _ = return ()
+</span><span class="add">+genTarget output scope quiet force (Just template) target = do
+</span><span class="def">     outFile &lt;- liftIO . dest $ target
+</span><span class="def">     let output&apos; = output &lt;/&gt; outFile
+</span><span class="def">     exists &lt;- liftIO . doesFileExist $ output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="sub">-        liftIO . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
+</span><span class="add">+        liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
+</span><span class="def">         let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
+</span><span class="def">         generate output&apos; scope&apos; template
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -18,9 +18,10 @@
+
+
+  <pre><span class="def"> Command line options
+</span><span class="def"> -}
+</span><span class="def"> data Options = Options
+</span><span class="sub">-    { config :: FilePath
+</span><span class="sub">-    , force :: Bool
+</span><span class="sub">-    , printVersion :: Bool
+</span><span class="add">+    { optConfig :: FilePath
+</span><span class="add">+    , optQuiet :: Bool
+</span><span class="add">+    , optForce :: Bool
+</span><span class="add">+    , optVersion :: Bool
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> opts :: O.Parser Options
+</span></pre>@@ -31,17 +32,22 @@
+
+
+  <pre><span class="def">                 &lt;&gt; O.short &apos;c&apos;
+</span><span class="def">                 &lt;&gt; O.metavar &quot;CONFIG&quot;
+</span><span class="def">                 &lt;&gt; O.value &quot;./config.dhall&quot;
+</span><span class="sub">-                &lt;&gt; O.help &quot;Configuration file to use (Default: ./config.dhall)&quot;
+</span><span class="add">+                &lt;&gt; O.help &quot;Configuration file to use (Default: ./config.dhall).&quot;
+</span><span class="add">+            )
+</span><span class="add">+        &lt;*&gt; O.switch
+</span><span class="add">+            ( O.long &quot;quiet&quot;
+</span><span class="add">+                &lt;&gt; O.short &apos;q&apos;
+</span><span class="add">+                &lt;&gt; O.help &quot;Suppress non-error output.&quot;
+</span><span class="def">             )
+</span><span class="def">         &lt;*&gt; O.switch
+</span><span class="def">             ( O.long &quot;force&quot;
+</span><span class="def">                 &lt;&gt; O.short &apos;f&apos;
+</span><span class="sub">-                &lt;&gt; O.help &quot;Force regeneration of all files&quot;
+</span><span class="add">+                &lt;&gt; O.help &quot;Force regeneration of all files.&quot;
+</span><span class="def">             )
+</span><span class="def">         &lt;*&gt; O.switch
+</span><span class="def">             ( O.long &quot;version&quot;
+</span><span class="def">                 &lt;&gt; O.short &apos;v&apos;
+</span><span class="sub">-                &lt;&gt; O.help &quot;Print the gitserve&apos;s version&quot;
+</span><span class="add">+                &lt;&gt; O.help &quot;Print the gitserve&apos;s version.&quot;
+</span><span class="def">             )
+</span><span class="def"> 
+</span><span class="def"> parser :: IO Options
+</span></pre>@@ -58,9 +64,9 @@
+
+
+  <pre><span class="def"> main :: IO ()
+</span><span class="def"> main = do
+</span><span class="def">     options &lt;- parser
+</span><span class="sub">-    if printVersion options
+</span><span class="add">+    if optVersion options
+</span><span class="def">         then putStrLn $ &quot;Your gitserve version is: &quot; &lt;&gt; showVersion version
+</span><span class="def">         else do
+</span><span class="sub">-            conf &lt;- getConfig (config options)
+</span><span class="sub">-            env &lt;- loadEnv (force options) conf
+</span><span class="add">+            conf &lt;- getConfig (optConfig options)
+</span><span class="add">+            env &lt;- loadEnv (optQuiet options) (optForce options) conf
+</span><span class="def">             runIndex env =&lt;&lt; run env
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,7 +4,7 @@
+
+
+  <pre><span class="def">     runIndex,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="sub">-import Control.Monad (void)
+</span><span class="add">+import Control.Monad (unless, void)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Text (Text, unpack)
+</span><span class="def"> import Path (toFilePath)
+</span></pre>@@ -30,7 +30,7 @@
+
+
+  <pre><span class="def"> runIndexFile :: Env -&gt; [Repo] -&gt; Template -&gt; IO ()
+</span><span class="def"> runIndexFile env repos template = do
+</span><span class="def">     let output = combine (toFilePath . envOutputDirectory $ env) . toFilePath . templatePath $ template
+</span><span class="sub">-    putStrLn $ &quot;Writing &quot; &lt;&gt; output
+</span><span class="add">+    unless (envQuiet env) . putStrLn $ &quot;Writing &quot; &lt;&gt; output
+</span><span class="def">     writeFile output &quot;&quot; -- Clear contents of file if it exists
+</span><span class="def">     void $
+</span><span class="def">         easyRenderM
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Ensure commits are reversed so that Repo.head works</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ef3c779b5d0b4e3d3336c09f370d591110568f2f.html">ef3c779b5d0b4e3d3336c09f370d591110568f2f</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/04be7bc2ef0df74aac86332bb6935c8e1c60a97f.html">04be7bc2ef0df74aac86332bb6935c8e1c60a97f</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-12-04 01:11:19 +0300
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-12-04 01:11:19 +0300
+
+Ensure commits are reversed so that Repo.head works
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -148,7 +148,7 @@
+
+
+  <pre><span class="def">         , (&quot;repositories&quot;, toGVal repos)
+</span><span class="def">         , (&quot;name&quot;, toGVal . pack . init . toFilePath $ name)
+</span><span class="def">         , (&quot;description&quot;, toGVal description)
+</span><span class="sub">-        , (&quot;commits&quot;, toGVal . reverse $ commits) -- Could be optimised
+</span><span class="add">+        , (&quot;commits&quot;, toGVal commits)
+</span><span class="def">         , (&quot;tree&quot;, toGVal tree)
+</span><span class="def">         , (&quot;tags&quot;, toGVal tags)
+</span><span class="def">         , (&quot;branches&quot;, toGVal branches)
+</span></pre>@@ -161,7 +161,7 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit LgRepo]
+</span><span class="def"> getCommits commitID =
+</span><span class="sub">-    sequence . mapMaybe loadCommit
+</span><span class="add">+    fmap reverse . sequence . mapMaybe loadCommit
+</span><span class="def">         &lt;=&lt; runConduit
+</span><span class="def">         $ sourceObjects Nothing commitID False .| sinkList
+</span><span class="def"> 
+</span></pre></div>    </div>
+  </body>
+</html>

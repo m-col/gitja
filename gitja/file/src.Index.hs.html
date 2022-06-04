@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - src/Index.hs</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- src/Index.hs</p><hr>
+
+  <pre id="blob"><a href="#l1" class="line" id="l1">    1</a>  {-# LANGUAGE OverloadedStrings #-}
+<a href="#l2" class="line" id="l2">    2</a>  
+<a href="#l3" class="line" id="l3">    3</a>  module Index (
+<a href="#l4" class="line" id="l4">    4</a>      runIndex,
+<a href="#l5" class="line" id="l5">    5</a>  ) where
+<a href="#l6" class="line" id="l6">    6</a>  
+<a href="#l7" class="line" id="l7">    7</a>  import Control.Monad (unless)
+<a href="#l8" class="line" id="l8">    8</a>  import qualified Data.HashMap.Strict as HashMap
+<a href="#l9" class="line" id="l9">    9</a>  import qualified Data.Text as T
+<a href="#l10" class="line" id="l10">   10</a>  import qualified Data.Text.Lazy.IO as TL
+<a href="#l11" class="line" id="l11">   11</a>  import Path (toFilePath)
+<a href="#l12" class="line" id="l12">   12</a>  import System.FilePath (combine)
+<a href="#l13" class="line" id="l13">   13</a>  import Text.Ginger.GVal (GVal, toGVal)
+<a href="#l14" class="line" id="l14">   14</a>  
+<a href="#l15" class="line" id="l15">   15</a>  import Env (Env (..))
+<a href="#l16" class="line" id="l16">   16</a>  import Templates (Template (..), render)
+<a href="#l17" class="line" id="l17">   17</a>  import Types
+<a href="#l18" class="line" id="l18">   18</a>  
+<a href="#l19" class="line" id="l19">   19</a>  {-
+<a href="#l20" class="line" id="l20">   20</a>  This creates the main index files from the index templates, using information from all
+<a href="#l21" class="line" id="l21">   21</a>  configured respositories.
+<a href="#l22" class="line" id="l22">   22</a>  -}
+<a href="#l23" class="line" id="l23">   23</a>  runIndex :: Env -&gt; [Repo] -&gt; IO ()
+<a href="#l24" class="line" id="l24">   24</a>  runIndex env repos =
+<a href="#l25" class="line" id="l25">   25</a>      mapM_ (runIndexFile indexLookup outputDir quiet) templates
+<a href="#l26" class="line" id="l26">   26</a>    where
+<a href="#l27" class="line" id="l27">   27</a>      outputDir = toFilePath . envOutput $ env
+<a href="#l28" class="line" id="l28">   28</a>      quiet = envQuiet env
+<a href="#l29" class="line" id="l29">   29</a>      templates = envIndexTemplates env
+<a href="#l30" class="line" id="l30">   30</a>  
+<a href="#l31" class="line" id="l31">   31</a>      scope :: HashMap.HashMap T.Text (GVal RunRepo)
+<a href="#l32" class="line" id="l32">   32</a>      scope =
+<a href="#l33" class="line" id="l33">   33</a>          HashMap.fromList
+<a href="#l34" class="line" id="l34">   34</a>              [ (&quot;host&quot;, toGVal $ envHost env)
+<a href="#l35" class="line" id="l35">   35</a>              , (&quot;repositories&quot;, toGVal repos)
+<a href="#l36" class="line" id="l36">   36</a>              ]
+<a href="#l37" class="line" id="l37">   37</a>  
+<a href="#l38" class="line" id="l38">   38</a>      indexLookup :: T.Text -&gt; RunRepo (GVal RunRepo)
+<a href="#l39" class="line" id="l39">   39</a>      indexLookup = return . toGVal . flip HashMap.lookup scope
+<a href="#l40" class="line" id="l40">   40</a>  
+<a href="#l41" class="line" id="l41">   41</a>  {-
+<a href="#l42" class="line" id="l42">   42</a>  Use the scope created above to render a single index template.
+<a href="#l43" class="line" id="l43">   43</a>  -}
+<a href="#l44" class="line" id="l44">   44</a>  runIndexFile ::
+<a href="#l45" class="line" id="l45">   45</a>      (T.Text -&gt; RunRepo (GVal RunRepo)) -&gt;
+<a href="#l46" class="line" id="l46">   46</a>      FilePath -&gt;
+<a href="#l47" class="line" id="l47">   47</a>      Bool -&gt;
+<a href="#l48" class="line" id="l48">   48</a>      Template -&gt;
+<a href="#l49" class="line" id="l49">   49</a>      IO ()
+<a href="#l50" class="line" id="l50">   50</a>  runIndexFile indexLookup outputDir quiet template = do
+<a href="#l51" class="line" id="l51">   51</a>      let output = combine outputDir . toFilePath . templatePath $ template
+<a href="#l52" class="line" id="l52">   52</a>      unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output
+<a href="#l53" class="line" id="l53">   53</a>      TL.writeFile output =&lt;&lt; render indexLookup template
+<a href="#l54" class="line" id="l54">   54</a>  
+</pre>
+      </div>
+  </body>
+</html>

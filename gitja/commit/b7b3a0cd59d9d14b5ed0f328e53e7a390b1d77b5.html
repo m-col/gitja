@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - fix ginger version problem in deps</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/b7b3a0cd59d9d14b5ed0f328e53e7a390b1d77b5.html">b7b3a0cd59d9d14b5ed0f328e53e7a390b1d77b5</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/06c5d6d4860ff86bb8717d367eecae4fad730cb1.html">06c5d6d4860ff86bb8717d367eecae4fad730cb1</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-25 21:17:10 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-25 21:17:10 +0000
+
+fix ginger version problem in deps
+</pre><div class="diff">
+  <p>
+    <b>stack.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,3 +14,5 @@
+
+
+  <pre><span class="def">     -Wincomplete-record-updates -Wredundant-constraints -Wpartial-fields
+</span><span class="def">     -Wmissing-deriving-strategies -Wunused-packages -fno-warn-unused-do-bind
+</span><span class="def">     -fno-warn-orphans
+</span><span class="add">+
+</span><span class="add">+allow-newer: true
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -25,7 +25,7 @@
+
+
+  <pre><span class="def">                      , dhall
+</span><span class="def">                      , directory
+</span><span class="def">                      , filepath
+</span><span class="sub">-                     , ginger &gt;= 0.10.3
+</span><span class="add">+                     , ginger &gt;= 0.10.3.0
+</span><span class="def">                      , gitlib
+</span><span class="def">                      , gitlib-libgit2
+</span><span class="def">                      , optparse-applicative
+</span></pre></div>    </div>
+  </body>
+</html>

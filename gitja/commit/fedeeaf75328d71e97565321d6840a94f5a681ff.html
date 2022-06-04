@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Refactor how files are generate</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/fedeeaf75328d71e97565321d6840a94f5a681ff.html">fedeeaf75328d71e97565321d6840a94f5a681ff</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/7e60605df40665cda169c3ecef79ba46a82f1f2f.html">7e60605df40665cda169c3ecef79ba46a82f1f2f</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-21 00:06:21 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-21 00:06:21 +0000
+
+Refactor how files are generate
+
+A few changes:
+- instantiate `Repo`s once from index and pass to main generator
+- store whole path to repo in `Repo`
+- skip commits/files if the file exists, unless -f is passed
+- Clean up some related areas of code
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -8,6 +8,7 @@
+
+
+  <pre><span class="def">     envIndexTemplate,
+</span><span class="def">     envCommitTemplate,
+</span><span class="def">     envFileTemplate,
+</span><span class="add">+    envForce,
+</span><span class="def">     -- The Template data type and its constructors.
+</span><span class="def">     Template,
+</span><span class="def">     templatePath,
+</span></pre>@@ -18,20 +19,20 @@
+
+
+  <pre><span class="def">     generate,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="sub">-import Control.Monad (filterM)
+</span><span class="add">+import Control.Monad (filterM, void)
+</span><span class="def"> import Data.Char (toLower)
+</span><span class="def"> import Data.List (isSuffixOf)
+</span><span class="def"> import Data.Maybe (catMaybes)
+</span><span class="def"> import Data.Text (unpack, Text)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import System.Directory (doesFileExist, getDirectoryContents)
+</span><span class="sub">-import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="add">+import System.FilePath ((&lt;/&gt;))
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
+</span><span class="def"> import Text.Ginger.GVal (GVal)
+</span><span class="def"> import Text.Ginger.Html (htmlSource, Html)
+</span><span class="sub">-import Text.Ginger.Run (easyRenderM, Run, RuntimeError)
+</span><span class="add">+import Text.Ginger.Run (easyRenderM, Run)
+</span><span class="def"> 
+</span><span class="def"> import Config
+</span><span class="def"> 
+</span></pre>@@ -83,11 +84,10 @@
+
+
+  <pre><span class="def">     :: FilePath
+</span><span class="def">     -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="def">     -&gt; Template
+</span><span class="sub">-    -&gt; IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
+</span><span class="add">+    -&gt; IO ()
+</span><span class="def"> generate output context template = do
+</span><span class="sub">-    let target = (output &lt;/&gt;) . takeFileName . templatePath $ template
+</span><span class="sub">-    writeFile target &quot;&quot;  -- Clear contents of file if it exists
+</span><span class="sub">-    easyRenderM (writeTo target) context . templateGinger $ template
+</span><span class="add">+    writeFile output &quot;&quot;  -- Clear contents of file if it exists
+</span><span class="add">+    void $ easyRenderM (writeTo output) context . templateGinger $ template
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Private -----------------------------------------------------------------------------
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -5,14 +5,12 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> module Repositories (
+</span><span class="def">     run,
+</span><span class="sub">-    getDescription  -- Used by Index.hs::runIndex
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Conduit (runConduit, (.|), sinkList)
+</span><span class="sub">-import Control.Monad ((&lt;=&lt;))
+</span><span class="add">+import Control.Monad ((&lt;=&lt;), when)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="sub">-import Data.Either (fromRight)
+</span><span class="def"> import Data.Tagged
+</span><span class="def"> import Data.Text (pack, unpack, Text, isPrefixOf, stripPrefix, toLower)
+</span><span class="def"> import Data.Text.Encoding (decodeUtf8With)
+</span></pre>@@ -20,9 +18,8 @@
+
+
+  <pre><span class="def"> import Data.Maybe (mapMaybe, catMaybes, fromJust)
+</span><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (lgFactory, LgRepo)
+</span><span class="sub">-import System.Directory (createDirectoryIfMissing)
+</span><span class="add">+import System.Directory (createDirectoryIfMissing, doesFileExist)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="sub">-import System.IO.Error (tryIOError)
+</span><span class="def"> import Text.Ginger.GVal (GVal, toGVal, ToGVal)
+</span><span class="def"> import Text.Ginger.Html (Html)
+</span><span class="def"> import Text.Ginger.Run (Run)
+</span></pre>@@ -30,23 +27,16 @@
+
+
+  <pre><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> 
+</span><span class="def"> import Config
+</span><span class="add">+import Index
+</span><span class="def"> import Templates
+</span><span class="def"> import Types
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-This is the entrypoint that receives the ``Config`` and uses it to map over our
+</span><span class="sub">-repositories, reading from them and writing out their web pages using the given
+</span><span class="sub">-templates.
+</span><span class="add">+This is the entrypoint maps over our repositories, reading from them and writing out
+</span><span class="add">+their web pages using the loaded templates.
+</span><span class="def"> -}
+</span><span class="sub">-run :: Env -&gt; IO ()
+</span><span class="sub">-run env = mapM_ (processRepo env) (repoPaths . envConfig $ env)
+</span><span class="sub">-
+</span><span class="sub">-{-
+</span><span class="sub">-Pass the repository&apos;s folder, get its description. This is exported so that Index.hs can
+</span><span class="sub">-use it too.
+</span><span class="sub">--}
+</span><span class="sub">-getDescription :: FilePath -&gt; IO Text
+</span><span class="sub">-getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap pack . readFile . (&lt;/&gt; &quot;description&quot;)
+</span><span class="add">+run :: Env -&gt; [Repo] -&gt; IO ()
+</span><span class="add">+run = mapM_ . processRepo
+</span><span class="def"> 
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span></pre>@@ -57,41 +47,32 @@
+
+
+  <pre><span class="def"> repository doesn&apos;t exist or is unreadable in any way we can forget about it and move on
+</span><span class="def"> (after informing the user of course).
+</span><span class="def"> -}
+</span><span class="sub">-processRepo :: Env -&gt; FilePath -&gt; IO ()
+</span><span class="sub">-processRepo env path = withRepository lgFactory path $ processRepo&apos; env path
+</span><span class="add">+processRepo :: Env -&gt; Repo -&gt; IO ()
+</span><span class="add">+processRepo env repo = withRepository lgFactory (Index.repoPath repo) $ processRepo&apos; env repo
+</span><span class="def"> 
+</span><span class="sub">-processRepo&apos; :: Env -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="sub">-processRepo&apos; env path = do
+</span><span class="sub">-    let name = takeFileName path
+</span><span class="add">+processRepo&apos; :: Env -&gt; Repo -&gt; ReaderT LgRepo IO ()
+</span><span class="add">+processRepo&apos; env repo = do
+</span><span class="add">+    let name = takeFileName . Index.repoPath $ repo
+</span><span class="def">     let output = outputDirectory (envConfig env) &lt;/&gt; name
+</span><span class="sub">-    liftIO $ createDirectoryIfMissing True output
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="def">             let gitHead = Tagged commitID
+</span><span class="sub">-            -- Variables available in the ginger templates: --
+</span><span class="def"> 
+</span><span class="sub">-            -- description: The description of the repository from repo/description, if
+</span><span class="sub">-            -- it exists.
+</span><span class="sub">-            description &lt;- liftIO . getDescription $ path
+</span><span class="sub">-
+</span><span class="sub">-            -- commits: A list of `Commit` objects to HEAD.
+</span><span class="add">+            -- Collect variables available in the ginger templates --
+</span><span class="def">             commits &lt;- getCommits gitHead
+</span><span class="sub">-
+</span><span class="sub">-            -- tree: A list of `TreeFile` objects at HEAD.
+</span><span class="def">             tree &lt;- getTree gitHead
+</span><span class="sub">-
+</span><span class="sub">-            -- tags and branches: Lists of `Ref` objects that wrap `Commit` and
+</span><span class="sub">-            -- `Refname` (Text).
+</span><span class="def">             tags &lt;- getRefs &quot;refs/tags/&quot;
+</span><span class="def">             branches &lt;- getRefs &quot;refs/heads/&quot;
+</span><span class="add">+            let scope = package env name (repoDescription repo) commits tree tags branches
+</span><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="sub">-            let scope = package env name description commits tree tags branches
+</span><span class="sub">-            liftIO . mapM_ (generate output scope) $ envTemplates env
+</span><span class="sub">-            liftIO . mapM_ (genTarget output scope $ envCommitTemplate env) $ commits
+</span><span class="sub">-            liftIO . mapM_ (genTarget output scope $ envFileTemplate env) $ tree
+</span><span class="sub">-            return ()
+</span><span class="add">+            liftIO . mapM_ (genRepo output scope) $ envTemplates env
+</span><span class="add">+            let force = envForce env
+</span><span class="add">+            liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;commits&quot;
+</span><span class="add">+            liftIO . createDirectoryIfMissing True $ output &lt;/&gt; &quot;files&quot;
+</span><span class="add">+            liftIO . mapM_ (genTarget output scope force $ envCommitTemplate env) $ commits
+</span><span class="add">+            liftIO . mapM_ (genTarget output scope True $ envFileTemplate env) $ tree  -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The role of the function above is to gather information about a git repository and
+</span></pre>@@ -185,6 +166,14 @@
+
+
+  <pre><span class="def">     dropName (Just _) name = Just name
+</span><span class="def">     dropName Nothing _ = Nothing
+</span><span class="def"> 
+</span><span class="add">+genRepo
+</span><span class="add">+    :: FilePath
+</span><span class="add">+    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="add">+    -&gt; Template
+</span><span class="add">+    -&gt; IO ()
+</span><span class="add">+genRepo output scope template = generate output&apos; scope template
+</span><span class="add">+  where
+</span><span class="add">+    output&apos; = (&lt;/&gt;) output . takeFileName . templatePath $ template
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Targets -----------------------------------------------------------------------------
+</span></pre>@@ -212,13 +201,15 @@
+
+
+  <pre><span class="def">     :: Target a
+</span><span class="def">     =&gt; FilePath
+</span><span class="def">     -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="add">+    -&gt; Bool
+</span><span class="def">     -&gt; Maybe Template
+</span><span class="def">     -&gt; a
+</span><span class="def">     -&gt; IO ()
+</span><span class="sub">-genTarget _ _ Nothing _ = return ()
+</span><span class="sub">-genTarget output scope (Just template) target = do
+</span><span class="sub">-    let template&apos; = template { templatePath = identify target }
+</span><span class="sub">-    let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
+</span><span class="sub">-    liftIO $ createDirectoryIfMissing True (output &lt;/&gt; category target)
+</span><span class="sub">-    generate (output &lt;/&gt; category target) scope&apos; template&apos;
+</span><span class="sub">-    return ()
+</span><span class="add">+genTarget _ _ _ Nothing _ = return ()
+</span><span class="add">+genTarget output scope force (Just template) target = do
+</span><span class="add">+    let output&apos; = output &lt;/&gt; category target &lt;/&gt; identify target
+</span><span class="add">+    exists &lt;- doesFileExist output&apos;
+</span><span class="add">+    when (force || not exists) $ do
+</span><span class="add">+        print output&apos;
+</span><span class="add">+        let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
+</span><span class="add">+        generate output&apos; scope&apos; template
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -58,8 +58,8 @@
+
+
+  <pre><span class="def">         else do
+</span><span class="def">             conf &lt;- getConfig (config options)
+</span><span class="def">             env &lt;- loadTemplates (force options) conf
+</span><span class="sub">-            runIndex env
+</span><span class="sub">-            run env
+</span><span class="add">+            repos &lt;- runIndex env
+</span><span class="add">+            run env repos
+</span><span class="def"> 
+</span><span class="def"> currentVersion :: String
+</span><span class="def"> currentVersion = &quot;0.0.0&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Index.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -5,13 +5,19 @@
+
+
+  <pre><span class="def"> {-# Language InstanceSigs #-}  -- Needed for toGVal type signature
+</span><span class="def"> 
+</span><span class="def"> module Index (
+</span><span class="sub">-    runIndex
+</span><span class="add">+    runIndex,
+</span><span class="add">+    Repo,
+</span><span class="add">+    repoAsLookup,
+</span><span class="add">+    repoPath,
+</span><span class="add">+    repoDescription,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Data.Default (def)
+</span><span class="add">+import Data.Either (fromRight)
+</span><span class="def"> import Data.Text (pack, Text)
+</span><span class="def"> import System.Directory (createDirectoryIfMissing)
+</span><span class="sub">-import System.FilePath (takeFileName)
+</span><span class="add">+import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="add">+import System.IO.Error (tryIOError)
+</span><span class="def"> import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup)
+</span><span class="def"> import Text.Ginger.Html (Html, html)
+</span><span class="def"> import Text.Ginger.Parse (SourcePos)
+</span></pre>@@ -19,62 +25,77 @@
+
+
+  <pre><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> 
+</span><span class="def"> import Config
+</span><span class="sub">-import Repositories
+</span><span class="def"> import Templates
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This creates the main index file from the index template, using information from all
+</span><span class="def"> configured respositories.
+</span><span class="def"> -}
+</span><span class="sub">-runIndex :: Env -&gt; IO ()
+</span><span class="add">+runIndex :: Env -&gt; IO [Repo]
+</span><span class="def"> runIndex env =
+</span><span class="def">     case envIndexTemplate env of
+</span><span class="def">         Nothing -&gt;
+</span><span class="sub">-            return ()
+</span><span class="add">+            return []
+</span><span class="def">         Just template -&gt; do
+</span><span class="def">             let config = envConfig env
+</span><span class="def">             createDirectoryIfMissing True $ outputDirectory config
+</span><span class="sub">-            let paths = repoPaths config
+</span><span class="sub">-            descriptions &lt;- mapM getDescription paths
+</span><span class="sub">-            let repos = zipWith ($) (Repo . takeFileName &lt;$&gt; paths) descriptions
+</span><span class="add">+            let output = (outputDirectory config) &lt;/&gt; &quot;index.html&quot;
+</span><span class="add">+            repos &lt;- loadRepos config
+</span><span class="def">             let scope = packageIndex config repos
+</span><span class="sub">-            generate (outputDirectory config) scope (template { templatePath = &quot;index.html&quot; })
+</span><span class="sub">-            return ()
+</span><span class="sub">-
+</span><span class="sub">-----------------------------------------------------------------------------------------
+</span><span class="sub">--- Private -----------------------------------------------------------------------------
+</span><span class="sub">-
+</span><span class="sub">-{-
+</span><span class="sub">-This packages the variables that are available inside the index template.
+</span><span class="sub">--}
+</span><span class="sub">-packageIndex
+</span><span class="sub">-    :: Config
+</span><span class="sub">-    -&gt; [Repo]
+</span><span class="sub">-    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-packageIndex config repos = HashMap.fromList
+</span><span class="sub">-    [ (&quot;host&quot;, toGVal $ host config)
+</span><span class="sub">-    , (&quot;repositories&quot;, toGVal repos)
+</span><span class="sub">-    ]
+</span><span class="add">+            generate output scope template
+</span><span class="add">+            return repos
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The unique variable in the index scope is the list of repositories, which can be looped
+</span><span class="def"> over and each entry has some properties that can be accessed. Those are defined here.
+</span><span class="add">+The type is exported so that within the scope of a single repository, its name and
+</span><span class="add">+description is available.
+</span><span class="def"> -}
+</span><span class="def"> data Repo = Repo
+</span><span class="sub">-    { repoName :: FilePath
+</span><span class="add">+    { repoPath :: FilePath
+</span><span class="def">     , repoDescription :: Text
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> instance ToGVal m Repo where
+</span><span class="def">     toGVal :: Repo -&gt; GVal m
+</span><span class="def">     toGVal repo = def
+</span><span class="sub">-        { asHtml = html . pack . show . repoName $ repo
+</span><span class="sub">-        , asText = pack . show . repoName $ repo
+</span><span class="add">+        { asHtml = html . pack . show . takeFileName . repoPath $ repo
+</span><span class="add">+        , asText = pack . show . takeFileName . repoPath $ repo
+</span><span class="def">         , asLookup = Just . repoAsLookup $ repo
+</span><span class="def">         }
+</span><span class="def"> 
+</span><span class="def"> repoAsLookup :: Repo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="def"> repoAsLookup repo = \case
+</span><span class="sub">-    &quot;name&quot; -&gt; Just . toGVal . repoName $ repo
+</span><span class="add">+    &quot;name&quot; -&gt; Just . toGVal . takeFileName . repoPath $ repo
+</span><span class="def">     &quot;description&quot; -&gt; Just . toGVal . repoDescription $ repo
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="add">+
+</span><span class="add">+
+</span><span class="add">+----------------------------------------------------------------------------------------
+</span><span class="add">+-- Private -----------------------------------------------------------------------------
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+This packages the variables that are available inside the index template.
+</span><span class="add">+-}
+</span><span class="add">+packageIndex
+</span><span class="add">+    :: Config
+</span><span class="add">+    -&gt; [Repo]
+</span><span class="add">+    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="add">+packageIndex config repos = HashMap.fromList
+</span><span class="add">+    [ (&quot;host&quot;, toGVal $ host config)
+</span><span class="add">+    , (&quot;repositories&quot;, toGVal repos)
+</span><span class="add">+    ]
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+Get paths along with their descriptions.
+</span><span class="add">+-}
+</span><span class="add">+loadRepos :: Config -&gt; IO [Repo]
+</span><span class="add">+loadRepos config = zipWith ($) (Repo &lt;$&gt; paths) &lt;$&gt; mapM getDescription paths
+</span><span class="add">+  where
+</span><span class="add">+    paths = repoPaths config
+</span><span class="add">+
+</span><span class="add">+{-
+</span><span class="add">+Pass the repository&apos;s folder, get its description.
+</span><span class="add">+-}
+</span><span class="add">+getDescription :: FilePath -&gt; IO Text
+</span><span class="add">+getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap pack . readFile . (&lt;/&gt; &quot;description&quot;)
+</span></pre></div>    </div>
+  </body>
+</html>

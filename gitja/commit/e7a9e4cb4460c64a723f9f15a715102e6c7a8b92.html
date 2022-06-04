@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Remove unused `title` variable from template</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/e7a9e4cb4460c64a723f9f15a715102e6c7a8b92.html">e7a9e4cb4460c64a723f9f15a715102e6c7a8b92</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/6c541337026f26356a41b76e581f066b9882149c.html">6c541337026f26356a41b76e581f066b9882149c</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-24 00:34:03 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-24 00:34:03 +0100
+
+Remove unused `title` variable from template
+</pre><div class="diff">
+  <p>
+    <b>templates/log.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,7 +4,7 @@
+
+
+  <pre><span class="def">     &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="def">     &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="def">     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-    &lt;title&gt;{{ name }} -- {{ title }}&lt;/title&gt;
+</span><span class="add">+    &lt;title&gt;gitserve -- {{ name }}&lt;/title&gt;
+</span><span class="def">     &lt;link rel=&quot;stylesheet&quot; href=&quot;{{ host }}/style.css&quot; /&gt;
+</span><span class="def">   &lt;/head&gt;
+</span><span class="def"> 
+</span></pre>@@ -13,6 +13,5 @@
+
+
+  <pre><span class="def">     &lt;hr&gt;
+</span><span class="def">     &lt;p&gt;{{ description }}&lt;/p&gt;
+</span><span class="def">     &lt;p&gt;git clone {{ host }}/{{ name }}&lt;/p&gt;
+</span><span class="sub">-    {{ title }}
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div>    </div>
+  </body>
+</html>

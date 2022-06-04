@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add some descriptions for ginger variables</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/d9a08763081380cd9397e270eebe9186bc435c89.html">d9a08763081380cd9397e270eebe9186bc435c89</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/8e097ae036350cbbfcb03249c5744ec3ccee5e31.html">8e097ae036350cbbfcb03249c5744ec3ccee5e31</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-22 12:59:31 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-22 12:59:31 +0100
+
+Add some descriptions for ginger variables
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -50,10 +50,19 @@
+
+
+  <pre><span class="def">     case ref of
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span><span class="sub">-            description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="def">             let head = Tagged commitID
+</span><span class="add">+            -- Variables available in the ginger templates --
+</span><span class="add">+
+</span><span class="add">+            -- description: The description of the repository from repo/description, if
+</span><span class="add">+            -- it exists
+</span><span class="add">+            description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="add">+
+</span><span class="add">+            -- commits: A list of `Git.Commit` objects to HEAD.
+</span><span class="def">             commits &lt;- getCommits head
+</span><span class="add">+
+</span><span class="add">+            -- tree: A list of `(TreeFilePath, TreeEntry r)` objects at HEAD.
+</span><span class="def">             tree &lt;- getTree head
+</span><span class="add">+
+</span><span class="def">             return ()
+</span><span class="def">   where
+</span><span class="def">     name = takeFileName path
+</span></pre></div>    </div>
+  </body>
+</html>

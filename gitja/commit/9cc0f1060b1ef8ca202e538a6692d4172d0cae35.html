@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - sequence . map --&gt; mapM</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/9cc0f1060b1ef8ca202e538a6692d4172d0cae35.html">9cc0f1060b1ef8ca202e538a6692d4172d0cae35</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/cff5149d25ed12e9ffaf892ab784b121eae6e6ff.html">cff5149d25ed12e9ffaf892ab784b121eae6e6ff</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-23 22:23:07 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-23 22:23:07 +0100
+
+sequence . map --&gt; mapM
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -64,14 +64,14 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="def">             let repo = package description commits tree
+</span><span class="sub">-            liftIO . sequence . map (generate repo) $ templates
+</span><span class="add">+            liftIO . mapM (generate repo) $ templates
+</span><span class="def">             return ()
+</span><span class="def">   where
+</span><span class="def">     name = takeFileName path
+</span><span class="def">     outPath = outputDirectory &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="def"> getCommits :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [Commit LgRepo]
+</span><span class="sub">-getCommits commitID = sequence . fmap loadCommit &lt;=&lt;
+</span><span class="add">+getCommits commitID = mapM loadCommit &lt;=&lt;
+</span><span class="def">     runConduit $ sourceObjects Nothing commitID False .| sinkList
+</span><span class="def"> 
+</span><span class="def"> loadCommit :: ObjectOid LgRepo -&gt; ReaderT LgRepo IO (Commit LgRepo)
+</span></pre></div>    </div>
+  </body>
+</html>

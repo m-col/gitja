@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - src/Templates.hs</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- src/Templates.hs</p><hr>
+
+  <pre id="blob"><a href="#l1" class="line" id="l1">    1</a>  {-# LANGUAGE LambdaCase #-}
+<a href="#l2" class="line" id="l2">    2</a>  {-# LANGUAGE OverloadedStrings #-}
+<a href="#l3" class="line" id="l3">    3</a>  
+<a href="#l4" class="line" id="l4">    4</a>  module Templates (
+<a href="#l5" class="line" id="l5">    5</a>      Template (..),
+<a href="#l6" class="line" id="l6">    6</a>      loadTemplate,
+<a href="#l7" class="line" id="l7">    7</a>      render,
+<a href="#l8" class="line" id="l8">    8</a>  ) where
+<a href="#l9" class="line" id="l9">    9</a>  
+<a href="#l10" class="line" id="l10">   10</a>  import Data.IORef (modifyIORef&apos;, newIORef, readIORef)
+<a href="#l11" class="line" id="l11">   11</a>  import qualified Data.Text as T
+<a href="#l12" class="line" id="l12">   12</a>  import qualified Data.Text.Lazy as TL
+<a href="#l13" class="line" id="l13">   13</a>  import qualified Data.Text.Lazy.Builder as TB
+<a href="#l14" class="line" id="l14">   14</a>  import Path (Abs, File, Path, Rel, filename, toFilePath)
+<a href="#l15" class="line" id="l15">   15</a>  import System.IO.Error (tryIOError)
+<a href="#l16" class="line" id="l16">   16</a>  import qualified Text.Ginger.AST as G
+<a href="#l17" class="line" id="l17">   17</a>  import Text.Ginger.GVal (GVal)
+<a href="#l18" class="line" id="l18">   18</a>  import Text.Ginger.Html (Html, htmlSource)
+<a href="#l19" class="line" id="l19">   19</a>  import Text.Ginger.Parse (ParserError (..), SourcePos, parseGingerFile)
+<a href="#l20" class="line" id="l20">   20</a>  import Text.Ginger.Run
+<a href="#l21" class="line" id="l21">   21</a>  
+<a href="#l22" class="line" id="l22">   22</a>  import Types
+<a href="#l23" class="line" id="l23">   23</a>  
+<a href="#l24" class="line" id="l24">   24</a>  data Template = Template
+<a href="#l25" class="line" id="l25">   25</a>      { templatePath :: Path Rel File
+<a href="#l26" class="line" id="l26">   26</a>      , templateGinger :: G.Template SourcePos
+<a href="#l27" class="line" id="l27">   27</a>      }
+<a href="#l28" class="line" id="l28">   28</a>  
+<a href="#l29" class="line" id="l29">   29</a>  {-
+<a href="#l30" class="line" id="l30">   30</a>  This tries to load a `Template` from the given file path.
+<a href="#l31" class="line" id="l31">   31</a>  -}
+<a href="#l32" class="line" id="l32">   32</a>  loadTemplate :: Path Abs File -&gt; IO (Maybe Template)
+<a href="#l33" class="line" id="l33">   33</a>  loadTemplate path =
+<a href="#l34" class="line" id="l34">   34</a>      parseGingerFile includeResolver (toFilePath path) &gt;&gt;= \case
+<a href="#l35" class="line" id="l35">   35</a>          Right parsed -&gt; return . Just . Template (filename path) $ parsed
+<a href="#l36" class="line" id="l36">   36</a>          Left err -&gt; do
+<a href="#l37" class="line" id="l37">   37</a>              informError (toFilePath path) err
+<a href="#l38" class="line" id="l38">   38</a>              return Nothing
+<a href="#l39" class="line" id="l39">   39</a>    where
+<a href="#l40" class="line" id="l40">   40</a>      -- An attempt at pretty printing the error message.
+<a href="#l41" class="line" id="l41">   41</a>      informError p (ParserError msg Nothing) =
+<a href="#l42" class="line" id="l42">   42</a>          putStr $ &quot;Template error: &quot; &lt;&gt; p &lt;&gt; &quot;\n&quot; &lt;&gt; indent msg
+<a href="#l43" class="line" id="l43">   43</a>      informError p (ParserError msg (Just pos)) =
+<a href="#l44" class="line" id="l44">   44</a>          putStrLn $ &quot;Template error: &quot; &lt;&gt; p &lt;&gt; &quot;\n&quot; &lt;&gt; indent (show pos &lt;&gt; &quot;\n&quot; &lt;&gt; msg)
+<a href="#l45" class="line" id="l45">   45</a>      indent = unlines . map (mappend &quot;    &quot;) . lines
+<a href="#l46" class="line" id="l46">   46</a>  
+<a href="#l47" class="line" id="l47">   47</a>      -- This resolves template &apos;includes&apos;.
+<a href="#l48" class="line" id="l48">   48</a>      includeResolver :: FilePath -&gt; IO (Maybe String)
+<a href="#l49" class="line" id="l49">   49</a>      includeResolver p = either (const Nothing) Just &lt;$&gt; tryIOError (readFile p)
+<a href="#l50" class="line" id="l50">   50</a>  
+<a href="#l51" class="line" id="l51">   51</a>  {-
+<a href="#l52" class="line" id="l52">   52</a>  This generator function uses Ginger to render templates into Text, using a provided
+<a href="#l53" class="line" id="l53">   53</a>  lookup function to request data from calling code.
+<a href="#l54" class="line" id="l54">   54</a>  -}
+<a href="#l55" class="line" id="l55">   55</a>  render ::
+<a href="#l56" class="line" id="l56">   56</a>      (T.Text -&gt; RunRepo (GVal RunRepo)) -&gt;
+<a href="#l57" class="line" id="l57">   57</a>      Template -&gt;
+<a href="#l58" class="line" id="l58">   58</a>      IO TL.Text
+<a href="#l59" class="line" id="l59">   59</a>  render scopeLookup template = do
+<a href="#l60" class="line" id="l60">   60</a>      ioref &lt;- newIORef . TB.fromText $ &quot;&quot;
+<a href="#l61" class="line" id="l61">   61</a>  
+<a href="#l62" class="line" id="l62">   62</a>      let emit :: Html -&gt; IO ()
+<a href="#l63" class="line" id="l63">   63</a>          emit = modifyIORef&apos; ioref . flip mappend . TB.fromText . htmlSource
+<a href="#l64" class="line" id="l64">   64</a>  
+<a href="#l65" class="line" id="l65">   65</a>      runGingerT
+<a href="#l66" class="line" id="l66">   66</a>          (makeContextHtmlM scopeLookup emit)
+<a href="#l67" class="line" id="l67">   67</a>          (templateGinger template)
+<a href="#l68" class="line" id="l68">   68</a>  
+<a href="#l69" class="line" id="l69">   69</a>      TB.toLazyText &lt;$&gt; readIORef ioref
+<a href="#l70" class="line" id="l70">   70</a>  
+</pre>
+      </div>
+  </body>
+</html>

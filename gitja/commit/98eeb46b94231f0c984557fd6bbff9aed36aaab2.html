@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - remove unnecessary let</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/98eeb46b94231f0c984557fd6bbff9aed36aaab2.html">98eeb46b94231f0c984557fd6bbff9aed36aaab2</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/349c410a30363bcadeaf82b2854af0ef8e595a9c.html">349c410a30363bcadeaf82b2854af0ef8e595a9c</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-04-06 21:39:11 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-04-06 21:39:11 +0100
+
+remove unnecessary let
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -194,8 +194,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> loadDiff :: Git.Commit LgRepo -&gt; ReaderT LgRepo IO Commit
+</span><span class="def"> loadDiff gitCommit = do
+</span><span class="sub">-    let tree = Git.commitTree gitCommit
+</span><span class="sub">-    newTree &lt;- Git.lookupTree tree
+</span><span class="add">+    newTree &lt;- Git.lookupTree . Git.commitTree $ gitCommit
+</span><span class="def">     oldTree &lt;-
+</span><span class="def">         case listToMaybe . Git.commitParents $ gitCommit of
+</span><span class="def">             Just parent -&gt;
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Complete base template</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/5a9057420818b8f976b25f7c87c6e63843ef5ff4.html">5a9057420818b8f976b25f7c87c6e63843ef5ff4</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ea59d71188bc5b580c8262045a1297f21247b0cf.html">ea59d71188bc5b580c8262045a1297f21247b0cf</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-30 23:22:01 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-30 23:22:01 +0000
+
+Complete base template
+</pre><div class="diff">
+  <p>
+    <b>templates/base/template.html.include</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,8 +1,4 @@
+
+
+  <pre><span class="sub">-{#-
+</span><span class="sub">-This file is being used as a base template by all other files.
+</span><span class="sub">-
+</span><span class="sub">-They just need to define a &apos;title&apos; block and a &apos;body&apos; block.
+</span><span class="sub">--#}
+</span><span class="add">+{# This file is being used as a base template by all other files. #}
+</span><span class="def"> 
+</span><span class="def"> &lt;!doctype html&gt;
+</span><span class="def"> &lt;html&gt;
+</span></pre>@@ -14,7 +10,28 @@
+
+
+  <pre><span class="def">   &lt;/head&gt;
+</span><span class="def"> 
+</span><span class="def">   &lt;body&gt;
+</span><span class="sub">-  {% block body %}
+</span><span class="sub">-  {% endblock %}
+</span><span class="add">+    {# This head only really applies to a specify repository, so the index page overrides it. #}
+</span><span class="add">+    {% block head %}
+</span><span class="add">+    &lt;span id=&quot;back&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;Back to index&lt;/a&gt;&lt;/span&gt;
+</span><span class="add">+    &lt;h1&gt;{{ name }}&lt;/h1&gt;
+</span><span class="add">+    &lt;p&gt;&lt;b&gt;{{ description }}&lt;/b&gt;&lt;/p&gt;
+</span><span class="add">+    &lt;p&gt;
+</span><span class="add">+    &lt;span id=&quot;clone&quot;&gt;&lt;b&gt;git clone &lt;a href=&quot;{{ host }}/{{ name }}&quot;&gt;{{ host }}/{{ name }}&lt;/a&gt;&lt;/b&gt;&lt;/span&gt;
+</span><span class="add">+    &lt;div class=&quot;links&quot;&gt;
+</span><span class="add">+      &lt;a href=&quot;{{ host }}/{{ name }}/index.html&quot;&gt;Log&lt;/a&gt; |
+</span><span class="add">+      &lt;a href=&quot;{{ host }}/{{ name }}/tree.html&quot;&gt;Files&lt;/a&gt; |
+</span><span class="add">+      &lt;a href=&quot;{{ host }}/{{ name }}/refs.html&quot;&gt;Refs&lt;/a&gt;
+</span><span class="add">+      {% if readme %}
+</span><span class="add">+      | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ readme.href }}&quot;&gt;{{ readme.path }}&lt;/a&gt;
+</span><span class="add">+      {% endif %}
+</span><span class="add">+      {% if license %}
+</span><span class="add">+      | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ license.href }}&quot;&gt;{{ license.path }}&lt;/a&gt;
+</span><span class="add">+      {% endif %}
+</span><span class="add">+    &lt;/div&gt;
+</span><span class="add">+    &lt;/p&gt;
+</span><span class="add">+    {% endblock %}
+</span><span class="add">+
+</span><span class="add">+    {% block content %}
+</span><span class="add">+    {% endblock %}
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/base/style.css</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,4 +15,9 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> html {
+</span><span class="def">     font-size: 1em;
+</span><span class="add">+    margin: 25px;
+</span><span class="add">+}
+</span><span class="add">+
+</span><span class="add">+#clone {
+</span><span class="add">+    float: right;
+</span><span class="def"> }
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/base/repo/tree.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,23 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title %}{{ name }} - Tree{% endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block content %}
+</span><span class="add">+&lt;table&gt;
+</span><span class="add">+  &lt;thead&gt;
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Mode&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+  &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;tbody&gt;
+</span><span class="add">+    {% for file in tree %}
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;{{ file.mode_symbolic }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ file.href }}&quot;&gt;{{ file.path }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+  &lt;/tbody&gt;
+</span><span class="add">+&lt;/table&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/base/repo/refs.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,49 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title %}{{ name }} - Refs{% endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block content %}
+</span><span class="add">+&lt;h2&gt;Branches&lt;/h2&gt;
+</span><span class="add">+&lt;table&gt;
+</span><span class="add">+  &lt;thead&gt;
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+  &lt;/thead&gt;
+</span><span class="add">+  &lt;tbody&gt;
+</span><span class="add">+    {% for branch in branches %}
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;{{ branch.name }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ branch.authored[:16] }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ branch.title }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ branch.author }}&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+  &lt;/tbody&gt;
+</span><span class="add">+&lt;/table&gt;
+</span><span class="add">+
+</span><span class="add">+&lt;br&gt;
+</span><span class="add">+
+</span><span class="add">+&lt;h2&gt;Tags&lt;/h2&gt;
+</span><span class="add">+&lt;table id=&quot;tags&quot;&gt;
+</span><span class="add">+  &lt;thead&gt;
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+  &lt;/thead&gt;
+</span><span class="add">+  &lt;tbody&gt;
+</span><span class="add">+    {% for tag in tags %}
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;{{ tag.name }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ tag.authored[:16] }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ tag.title }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ tag.author }}&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+  &lt;/tbody&gt;
+</span><span class="add">+&lt;/table&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/base/repo/index.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,31 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title %}{{ name }} - Log{% endblock -%}
+</span><span class="add">+
+</span><span class="add">+{% block content %}
+</span><span class="add">+&lt;table&gt;
+</span><span class="add">+  &lt;thead&gt;
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Date&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Commit message&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+  &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;tbody&gt;
+</span><span class="add">+    {% for commit in commits[:50] %}
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;{{ commit.authored[:16] }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.title }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ commit.author }}&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+
+</span><span class="add">+    {% if length(commits) &gt; 50 %}
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td colspan=&quot;3&quot;&gt;More commits not shown.&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+    {% endif %}
+</span><span class="add">+  &lt;/tbody&gt;
+</span><span class="add">+&lt;/table&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/base/repo/file.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,33 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title %}{{ name }} - {{ file }}{% endblock %}
+</span><span class="add">+
+</span><span class="add">+{%- block content %}
+</span><span class="add">+&lt;p&gt;{{ file.mode_symbolic }} {{ file }}&lt;/p&gt;&lt;hr&gt;
+</span><span class="add">+
+</span><span class="add">+{% if file.is_directory %}
+</span><span class="add">+&lt;table&gt;
+</span><span class="add">+  &lt;thead&gt;
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Mode&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+  &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;tbody&gt;
+</span><span class="add">+    {% for child in file.contents %}
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;{{ child.mode_symbolic }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ child.href }}&quot;&gt;{{ child.path }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+  &lt;/tbody&gt;
+</span><span class="add">+&lt;/table&gt;
+</span><span class="add">+{% else %}
+</span><span class="add">+  &lt;pre&gt;
+</span><span class="add">+{% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="add">+&lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%5v&quot;, loop.index) }}&lt;/a&gt;  {{ line }}
+</span><span class="add">+{% endfor %}
+</span><span class="add">+{% endif %}
+</span><span class="add">+&lt;/pre&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/base/repo/commit.html</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,15 @@
+
+
+  <pre><span class="add">+{% extends &quot;../template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title %}{{ name }} - {{ commit.title }}{% endblock %}
+</span><span class="add">+
+</span><span class="add">+{%- block content %}
+</span><span class="add">+&lt;pre&gt;&lt;b&gt;Commit&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.id }}&lt;/a&gt;
+</span><span class="add">+&lt;b&gt;Parent:&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.parent }}.html&quot;&gt;{{ commit.parent }}&lt;/a&gt;
+</span><span class="add">+&lt;b&gt;Author:&lt;/b&gt; {{ commit.author }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.author_email }}&quot;&gt;{{ commit.author_email }}&lt;/a&gt;&amp;gt;
+</span><span class="add">+&lt;b&gt;Date:&lt;/b&gt; {{ commit.authored }}
+</span><span class="add">+&lt;b&gt;Committer:&lt;/b&gt; {{ commit.committer }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.committer_email }}&quot;&gt;{{ commit.committer_email }}&lt;/a&gt;&amp;gt;
+</span><span class="add">+&lt;b&gt;Committed:&lt;/b&gt; {{ commit.committed }}
+</span><span class="add">+
+</span><span class="add">+{{ commit.message }}
+</span><span class="add">+&lt;/pre&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/base/index.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1 +1,40 @@
+
+
+  <pre><span class="sub">-TODO
+</span><span class="add">+{% extends &quot;template.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+{%- block title %}My git repositories{% endblock %}
+</span><span class="add">+
+</span><span class="add">+{%- block head %}
+</span><span class="add">+&lt;h1&gt;My git repositories&lt;/h1&gt;
+</span><span class="add">+
+</span><span class="add">+&lt;p&gt;
+</span><span class="add">+This is the base template for &lt;code&gt;gitserve&lt;/code&gt;.
+</span><span class="add">+&lt;/p&gt;
+</span><span class="add">+
+</span><span class="add">+&lt;p&gt;
+</span><span class="add">+The full documentation for &lt;code&gt;gitserve&lt;/code&gt;, including how templates need
+</span><span class="add">+to be organised and what variables are available within them, see &lt;a
+</span><span class="add">+href=&quot;https://gitserve.mcol.xyz&quot;&gt;https://gitserve.mcol.xyz&lt;/a&gt;.
+</span><span class="add">+&lt;/p&gt;
+</span><span class="add">+{% endblock %}
+</span><span class="add">+
+</span><span class="add">+{%- block content %}
+</span><span class="add">+&lt;table&gt;
+</span><span class="add">+  &lt;thead&gt;
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;&lt;b&gt;Description&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+  &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="add">+  &lt;tbody&gt;
+</span><span class="add">+    {% for repo in repositories %}
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ repo.name }}&quot;&gt;{{ repo.name }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ repo.description }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ repo.updated[:16] }}&lt;/td&gt;
+</span><span class="add">+      &lt;td&gt;{{ repo.head.title }}&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+    {% endfor %}
+</span><span class="add">+  &lt;/tbody&gt;
+</span><span class="add">+&lt;/table&gt;
+</span><span class="add">+{% endblock %}
+</span></pre></div>    </div>
+  </body>
+</html>

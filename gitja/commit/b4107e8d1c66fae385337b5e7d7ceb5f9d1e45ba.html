@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - simplify findFile using Data.List.find</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/b4107e8d1c66fae385337b5e7d7ceb5f9d1e45ba.html">b4107e8d1c66fae385337b5e7d7ceb5f9d1e45ba</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/f74439ab3c9e9a901879ebe1829af7bd76d451c0.html">f74439ab3c9e9a901879ebe1829af7bd76d451c0</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-04-24 20:05:01 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-04-24 20:05:01 +0100
+
+simplify findFile using Data.List.find
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -22,6 +22,7 @@
+
+
+  <pre><span class="def"> import Data.Either (isRight)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
+</span><span class="add">+import Data.List (find)
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, listToMaybe, mapMaybe)
+</span><span class="def"> import Data.Tagged (Tagged (..), untag)
+</span><span class="def"> import Data.Text (Text)
+</span></pre>@@ -184,10 +185,7 @@
+
+
+  <pre><span class="def">     -- Find a file in the tree starting with the specified prefix. The prefix is looked
+</span><span class="def">     -- for on the full path, so will only find files in the top level directory.
+</span><span class="def">     findFile :: Text -&gt; [TreeFile] -&gt; Maybe TreeFile
+</span><span class="sub">-    findFile _ [] = Nothing
+</span><span class="sub">-    findFile prefix (f : fs) = if isReadme f then Just f else findFile prefix fs
+</span><span class="sub">-      where
+</span><span class="sub">-        isReadme = T.isPrefixOf prefix . T.toLower . treeFilePath
+</span><span class="add">+    findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeFilePath)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Collect commit history up to a head.
+</span></pre></div>    </div>
+  </body>
+</html>

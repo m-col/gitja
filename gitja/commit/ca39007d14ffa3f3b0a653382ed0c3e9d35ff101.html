@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add host config and template variable</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ca39007d14ffa3f3b0a653382ed0c3e9d35ff101.html">ca39007d14ffa3f3b0a653382ed0c3e9d35ff101</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/d75a1ede4dcf34c7022b621afe3e9d238807e20a.html">d75a1ede4dcf34c7022b621afe3e9d238807e20a</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-19 21:53:31 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-19 21:53:31 +0100
+
+Add host config and template variable
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -57,6 +57,3 @@
+
+
+  <pre><span class="def">     case e of
+</span><span class="def">         Right contents -&gt; return $ Just contents
+</span><span class="def">         Left err -&gt; return Nothing
+</span><span class="sub">-
+</span><span class="sub">--- Variables:
+</span><span class="sub">---host = &quot;http://localhost&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,6 +14,7 @@
+
+
+  <pre><span class="def">     { repoPaths :: [FilePath]
+</span><span class="def">     , templateDirectory :: FilePath
+</span><span class="def">     , outputDirectory :: FilePath
+</span><span class="add">+    , host :: FilePath
+</span><span class="def">     }
+</span><span class="def">     deriving (Generic, Show)
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,6 +14,7 @@
+
+
+  <pre><span class="def">     { repoPaths = folders
+</span><span class="def">     , templateDirectory = &quot;./templates&quot;
+</span><span class="def">     , outputDirectory = &quot;./output&quot;
+</span><span class="add">+    , host = &quot;http://localhost&quot;
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> in config
+</span></pre></div>    </div>
+  </body>
+</html>

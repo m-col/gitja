@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - remove redundant -threaded</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/4952859082289144fbf3bb7f6b0bf0b16f5e938f.html">4952859082289144fbf3bb7f6b0bf0b16f5e938f</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/2c7f79c61d074d378ea675ccc8c18cfc356104c3.html">2c7f79c61d074d378ea675ccc8c18cfc356104c3</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-29 01:32:48 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-29 01:32:48 +0000
+
+remove redundant -threaded
+</pre><div class="diff">
+  <p>
+    <b>stack.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -8,12 +8,11 @@
+
+
+  <pre><span class="def"> - gitlib-3.1.3@sha256:7e8f940b380f6155be3bf20be9f363c3bfd3285bd26e0368f406a1c431994598,2935
+</span><span class="def"> - gitlib-libgit2-3.1.2.1@sha256:36bc92f117158440ca69e32051aabdf9df75be8a3fb5f45dff8828898e615a0a,2354
+</span><span class="def"> 
+</span><span class="sub">-# These options are from the Kowainik style guide.
+</span><span class="def"> ghc-options:
+</span><span class="def">   &quot;$locals&quot;: -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+</span><span class="def">     -Wincomplete-record-updates -Wredundant-constraints -Wpartial-fields
+</span><span class="def">     -Wmissing-deriving-strategies -Wunused-packages -fno-warn-unused-do-bind
+</span><span class="sub">-    -fno-warn-orphans -threaded
+</span><span class="add">+    -fno-warn-orphans
+</span><span class="def"> 
+</span><span class="def"> rebuild-ghc-options: true
+</span><span class="def"> allow-newer: true
+</span></pre></div>    </div>
+  </body>
+</html>

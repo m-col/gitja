@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add note about symbolic links to docs</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/bc32e5875aafedc7a724e9ed1a41a12de7f44807.html">bc32e5875aafedc7a724e9ed1a41a12de7f44807</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ba6e62a8f874cf41f14e338158c9a97431e28ec9.html">ba6e62a8f874cf41f14e338158c9a97431e28ec9</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-27 18:55:23 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-27 18:55:23 +0000
+
+Add note about symbolic links to docs
+</pre><div class="diff">
+  <p>
+    <b>DOCUMENTATION.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -116,6 +116,12 @@
+
+
+  <pre><span class="def">                 ...
+</span><span class="def">         ...
+</span><span class="def"> 
+</span><span class="add">+Note: symbolic links are considered static and will be copied unchanged and
+</span><span class="add">+unresolved from template to output. This means that, for example, a symlink at
+</span><span class="add">+``templateDirectory/index.html`` pointing to ``gitserve/index.html`` will
+</span><span class="add">+produce a symlink at ``outputDirectory/index.html`` with the same behaviour,
+</span><span class="add">+with the effect that the served root index page will actually be the index page
+</span><span class="add">+for the ``gitserve`` repository (if present).
+</span><span class="def"> 
+</span><span class="def"> Scopes
+</span><span class="def"> ------
+</span></pre></div>    </div>
+  </body>
+</html>

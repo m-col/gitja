@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - make parent commit sha available on commits</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/b264de6146955f6b4f9831bfc363afb61c35d72c.html">b264de6146955f6b4f9831bfc363afb61c35d72c</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/7a738442e31e91061f795d67a3b34014a096cf23.html">7a738442e31e91061f795d67a3b34014a096cf23</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-23 13:07:13 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-23 13:07:13 +0000
+
+make parent commit sha available on commits
+
+Closes #4
+</pre><div class="diff">
+  <p>
+    <b>templates/commit.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -8,7 +8,8 @@
+
+
+  <pre><span class="def"> {% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="def"> 
+</span><span class="def"> &lt;div id=&quot;content&quot;&gt;
+</span><span class="sub">-  &lt;pre&gt;&lt;b&gt;commit&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.id }}&lt;/a&gt;
+</span><span class="add">+  &lt;pre&gt;&lt;b&gt;Commit&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.id }}&lt;/a&gt;
+</span><span class="add">+&lt;b&gt;Parent:&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.parent }}.html&quot;&gt;{{ commit.parent }}&lt;/a&gt;
+</span><span class="def"> &lt;b&gt;Author:&lt;/b&gt; {{ commit.author }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.author_email }}&quot;&gt;{{ commit.author_email }}&lt;/a&gt;&amp;gt;
+</span><span class="def"> &lt;b&gt;Date:&lt;/b&gt; {{ commit.authored }}
+</span><span class="def"> &lt;b&gt;Committer:&lt;/b&gt; {{ commit.committer }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.committer_email }}&quot;&gt;{{ commit.committer_email }}&lt;/a&gt;&amp;gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -12,6 +12,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Data.ByteString.UTF8 (toString)
+</span><span class="def"> import Data.Default (def)
+</span><span class="add">+import Data.Maybe (listToMaybe)
+</span><span class="def"> import Data.Tagged (untag)
+</span><span class="def"> import Data.Text (Text, pack, strip)
+</span><span class="def"> import qualified Data.Text as T
+</span></pre>@@ -76,6 +77,7 @@
+
+
+  <pre><span class="def">     &quot;authored&quot; -&gt; Just . toGVal . show . signatureWhen . commitAuthor $ commit
+</span><span class="def">     &quot;committed&quot; -&gt; Just . toGVal . show . signatureWhen . commitCommitter $ commit
+</span><span class="def">     &quot;encoding&quot; -&gt; Just . toGVal . strip . commitEncoding $ commit
+</span><span class="add">+    &quot;parent&quot; -&gt; toGVal . show . untag &lt;$&gt; (listToMaybe . commitParents $ commit)
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div>    </div>
+  </body>
+</html>

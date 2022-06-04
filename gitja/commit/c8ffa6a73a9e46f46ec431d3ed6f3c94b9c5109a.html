@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - filter symlinks when finding template files</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/c8ffa6a73a9e46f46ec431d3ed6f3c94b9c5109a.html">c8ffa6a73a9e46f46ec431d3ed6f3c94b9c5109a</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/2e6d4647b33adc81472e633fbe299146c09757ea.html">2e6d4647b33adc81472e633fbe299146c09757ea</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-27 18:43:00 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-27 18:43:00 +0000
+
+filter symlinks when finding template files
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -9,10 +9,10 @@
+
+
+  <pre><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Control.Monad (filterM, join, void, (&lt;=&lt;))
+</span><span class="add">+import Control.Monad.Extra (findM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="sub">-import Data.List (find)
+</span><span class="def"> import Data.Maybe (catMaybes)
+</span><span class="def"> import Data.Text (Text, unpack)
+</span><span class="def"> import Git.Libgit2 (LgRepo)
+</span></pre>@@ -79,11 +79,14 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     -- Load files from template directory
+</span><span class="def">     indexT &lt;- collectTemplates files
+</span><span class="sub">-    commitT &lt;- fmap join . mapM loadTemplate . find ((==) &quot;commit.html&quot; . toFilePath . filename) $ filesRepo
+</span><span class="sub">-    fileT &lt;- fmap join . mapM loadTemplate . find ((==) &quot;file.html&quot; . toFilePath . filename) $ filesRepo
+</span><span class="sub">-    repoT &lt;- collectTemplates . filter (flip notElem [&quot;commit.html&quot;, &quot;file.html&quot;] . toFilePath . filename) $ filesRepo
+</span><span class="sub">-
+</span><span class="sub">-    -- Global environment
+</span><span class="add">+    commitT &lt;- findTemplate &quot;commit.html&quot; filesRepo
+</span><span class="add">+    fileT &lt;- findTemplate &quot;file.html&quot; filesRepo
+</span><span class="add">+    repoT &lt;-
+</span><span class="add">+        collectTemplates
+</span><span class="add">+            . filter (flip notElem [&quot;commit.html&quot;, &quot;file.html&quot;] . toFilePath . filename)
+</span><span class="add">+            $ filesRepo
+</span><span class="add">+
+</span><span class="add">+    -- App environment
+</span><span class="def">     return
+</span><span class="def">         Env
+</span><span class="def">             { envConfig = config
+</span></pre>@@ -98,9 +101,6 @@
+
+
+  <pre><span class="def">             , envForce = force
+</span><span class="def">             }
+</span><span class="def">   where
+</span><span class="sub">-    collectTemplates :: [Path Abs File] -&gt; IO [Template]
+</span><span class="sub">-    collectTemplates = fmap catMaybes . mapM loadTemplate . filter ((==) &quot;.html&quot; . FP.takeExtension . toFilePath)
+</span><span class="sub">-
+</span><span class="def">     ls :: FilePath -&gt; IO ([Path Abs Dir], [Path Abs File])
+</span><span class="def">     ls dir = do
+</span><span class="def">         canon &lt;- parseAbsDir =&lt;&lt; canonicalizePath dir
+</span></pre>@@ -109,6 +109,20 @@
+
+
+  <pre><span class="def">             then listDir canon
+</span><span class="def">             else return ([], [])
+</span><span class="def"> 
+</span><span class="add">+    collectTemplates :: [Path Abs File] -&gt; IO [Template]
+</span><span class="add">+    collectTemplates = fmap catMaybes . mapM loadTemplate &lt;=&lt; filterM isMatch
+</span><span class="add">+      where
+</span><span class="add">+        isMatch p = do
+</span><span class="add">+            ((FP.takeExtension . toFilePath $ p) == &quot;.html&quot; &amp;&amp;)
+</span><span class="add">+                &lt;$&gt; (fmap not . pathIsSymbolicLink . toFilePath $ p)
+</span><span class="add">+
+</span><span class="add">+    findTemplate :: FilePath -&gt; [Path Abs File] -&gt; IO (Maybe Template)
+</span><span class="add">+    findTemplate name = fmap join . mapM loadTemplate &lt;=&lt; findM isMatch
+</span><span class="add">+      where
+</span><span class="add">+        isMatch p =
+</span><span class="add">+            ((toFilePath . filename $ p) == name &amp;&amp;)
+</span><span class="add">+                &lt;$&gt; (fmap not . pathIsSymbolicLink . toFilePath $ p)
+</span><span class="add">+
+</span><span class="def"> {-
+</span><span class="def"> This is the generator function that receives repository-specific variables and uses
+</span><span class="def"> Ginger to render templates using them.
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -24,6 +24,7 @@
+
+
+  <pre><span class="def">                      , data-default
+</span><span class="def">                      , dhall
+</span><span class="def">                      , directory
+</span><span class="add">+                     , extra
+</span><span class="def">                      , filepath
+</span><span class="def">                      , ginger &gt;= 0.10.3.0
+</span><span class="def">                      , gitlib
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - remove annoying gen annotation</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/97fcd7e0a9a976e65e9f7fde460fd73fc334f6a3.html">97fcd7e0a9a976e65e9f7fde460fd73fc334f6a3</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/4e081e88d1349c88da3fb1cf62f973459502c54c.html">4e081e88d1349c88da3fb1cf62f973459502c54c</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-29 16:29:08 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-29 16:29:08 +0100
+
+remove annoying gen annotation
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,6 +4,7 @@
+
+
+  <pre><span class="def"> {-# LANGUAGE LambdaCase #-}
+</span><span class="def"> {-# LANGUAGE OverloadedStrings #-}
+</span><span class="def"> {-# LANGUAGE ScopedTypeVariables #-}
+</span><span class="add">+{-# LANGUAGE NoMonomorphismRestriction #-}
+</span><span class="def"> 
+</span><span class="def"> module Repositories (
+</span><span class="def">     run,
+</span></pre>@@ -138,17 +139,6 @@
+
+
+  <pre><span class="def">                     -- Run the generator --
+</span><span class="def">                     let quiet = envQuiet env
+</span><span class="def">                         force = envForce env
+</span><span class="sub">-
+</span><span class="sub">-                        -- This annotation blocks the first use of gen from making t concrete
+</span><span class="sub">-                        gen ::
+</span><span class="sub">-                            ToGVal RunRepo t =&gt;
+</span><span class="sub">-                            (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+</span><span class="sub">-                            Template -&gt;
+</span><span class="sub">-                            T.Text -&gt;
+</span><span class="sub">-                            Path Abs Dir -&gt;
+</span><span class="sub">-                            (t -&gt; FilePath) -&gt;
+</span><span class="sub">-                            t -&gt;
+</span><span class="sub">-                            IO ()
+</span><span class="def">                         gen = genTarget scope quiet force
+</span><span class="def"> 
+</span><span class="def">                     mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
+</span></pre></div>    </div>
+  </body>
+</html>

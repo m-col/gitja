@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add section to readme about template variable scopes</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/09f8f52648c2b4f141426296ce9377242391fba5.html">09f8f52648c2b4f141426296ce9377242391fba5</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/515e729ceeb5bbd0326ea2dd38a33b3df4db939c.html">515e729ceeb5bbd0326ea2dd38a33b3df4db939c</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-24 22:55:18 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-24 22:55:18 +0100
+
+Add section to readme about template variable scopes
+</pre><div class="diff">
+  <p>
+    <b>README.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,7 +3,8 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> This is all a work in progress and so nothing is implemented.
+</span><span class="def"> 
+</span><span class="sub">-gitserve generates pretty web pages from your git repositories.
+</span><span class="add">+gitserve generates pretty web pages from your git repositories using custom
+</span><span class="add">+HTML templates.
+</span><span class="def"> 
+</span><span class="def"> It has two modes of operations:
+</span><span class="def"> 
+</span></pre>@@ -28,3 +29,15 @@
+
+
+  <pre><span class="def"> - Log index + page per commit
+</span><span class="def"> - Refs + tags index
+</span><span class="def"> - atom xml for repository
+</span><span class="add">+
+</span><span class="add">+
+</span><span class="add">+Template variables
+</span><span class="add">+------------------
+</span><span class="add">+
+</span><span class="add">+There are two variable scopes. Only one is available in a given template:
+</span><span class="add">+
+</span><span class="add">+- *Repository scope*: This exposes information that pertains to a single
+</span><span class="add">+  repository. Most templates are rendered once per configured repository.
+</span><span class="add">+- *Index scope*: This exposes information about the whole set of repositories.
+</span><span class="add">+  The index template is rendered once in total and uses this scope. This
+</span><span class="add">+  template is specified in the ``indexTemplate`` setting.
+</span></pre></div>    </div>
+  </body>
+</html>

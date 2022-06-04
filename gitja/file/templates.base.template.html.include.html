@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - templates/base/template.html.include</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- templates/base/template.html.include</p><hr>
+
+  <pre id="blob"><a href="#l1" class="line" id="l1">    1</a>  {# This file is being used as a base template by all other files. #}
+<a href="#l2" class="line" id="l2">    2</a>  
+<a href="#l3" class="line" id="l3">    3</a>  &lt;!doctype html&gt;
+<a href="#l4" class="line" id="l4">    4</a>  &lt;html&gt;
+<a href="#l5" class="line" id="l5">    5</a>    &lt;head&gt;
+<a href="#l6" class="line" id="l6">    6</a>      &lt;meta charset=&quot;utf-8&quot;&gt;
+<a href="#l7" class="line" id="l7">    7</a>      &lt;title&gt;{% block title %}{% endblock %}&lt;/title&gt;
+<a href="#l8" class="line" id="l8">    8</a>      &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+<a href="#l9" class="line" id="l9">    9</a>      &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;{{ host }}/style.css&quot;/&gt;
+<a href="#l10" class="line" id="l10">   10</a>    &lt;/head&gt;
+<a href="#l11" class="line" id="l11">   11</a>  
+<a href="#l12" class="line" id="l12">   12</a>    &lt;body&gt;
+<a href="#l13" class="line" id="l13">   13</a>      {# This head only really applies to a specify repository, so the index page overrides it. #}
+<a href="#l14" class="line" id="l14">   14</a>      {% block head %}
+<a href="#l15" class="line" id="l15">   15</a>      &lt;span id=&quot;back&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;Back to index&lt;/a&gt;&lt;/span&gt;
+<a href="#l16" class="line" id="l16">   16</a>      &lt;h1&gt;{{ name }}&lt;/h1&gt;
+<a href="#l17" class="line" id="l17">   17</a>      &lt;p&gt;&lt;b&gt;{{ description }}&lt;/b&gt;&lt;/p&gt;
+<a href="#l18" class="line" id="l18">   18</a>      &lt;p&gt;
+<a href="#l19" class="line" id="l19">   19</a>      &lt;span id=&quot;clone&quot;&gt;&lt;b&gt;git clone &lt;a href=&quot;{{ host }}/{{ name }}&quot;&gt;{{ host }}/{{ name }}&lt;/a&gt;&lt;/b&gt;&lt;/span&gt;
+<a href="#l20" class="line" id="l20">   20</a>      &lt;div class=&quot;links&quot;&gt;
+<a href="#l21" class="line" id="l21">   21</a>        &lt;a href=&quot;{{ host }}/{{ name }}/index.html&quot;&gt;Log&lt;/a&gt; |
+<a href="#l22" class="line" id="l22">   22</a>        &lt;a href=&quot;{{ host }}/{{ name }}/tree.html&quot;&gt;Files&lt;/a&gt; |
+<a href="#l23" class="line" id="l23">   23</a>        &lt;a href=&quot;{{ host }}/{{ name }}/refs.html&quot;&gt;Refs&lt;/a&gt;
+<a href="#l24" class="line" id="l24">   24</a>        {% if readme %}
+<a href="#l25" class="line" id="l25">   25</a>        | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ readme.href }}&quot;&gt;{{ readme.name }}&lt;/a&gt;
+<a href="#l26" class="line" id="l26">   26</a>        {% endif %}
+<a href="#l27" class="line" id="l27">   27</a>        {% if license %}
+<a href="#l28" class="line" id="l28">   28</a>        | &lt;a href=&quot;{{ host }}/{{ name }}/file/{{ license.href }}&quot;&gt;{{ license.name }}&lt;/a&gt;
+<a href="#l29" class="line" id="l29">   29</a>        {% endif %}
+<a href="#l30" class="line" id="l30">   30</a>      &lt;/div&gt;
+<a href="#l31" class="line" id="l31">   31</a>      &lt;/p&gt;
+<a href="#l32" class="line" id="l32">   32</a>      {% endblock %}
+<a href="#l33" class="line" id="l33">   33</a>  
+<a href="#l34" class="line" id="l34">   34</a>      {% block content %}
+<a href="#l35" class="line" id="l35">   35</a>      {% endblock %}
+<a href="#l36" class="line" id="l36">   36</a>    &lt;/body&gt;
+<a href="#l37" class="line" id="l37">   37</a>  &lt;/html&gt;
+<a href="#l38" class="line" id="l38">   38</a>  
+</pre>
+      </div>
+  </body>
+</html>

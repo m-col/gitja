@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Pass config to `package` to make more variables available in templates</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/8690292adfbe3f9a36e2d65dea33176dd6f32a63.html">8690292adfbe3f9a36e2d65dea33176dd6f32a63</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/aa3f79e455c68bccdfddfa180ada0ce81b2cba61.html">aa3f79e455c68bccdfddfa180ada0ce81b2cba61</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-24 00:27:55 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-24 00:27:55 +0100
+
+Pass config to `package` to make more variables available in templates
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -20,7 +20,7 @@
+
+
+  <pre><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> 
+</span><span class="sub">-import Config (Config, repoPaths, outputDirectory)
+</span><span class="add">+import Config (Config, repoPaths, outputDirectory, host)
+</span><span class="def"> import Templates (Template, generate)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -29,7 +29,7 @@
+
+
+  <pre><span class="def"> templates.
+</span><span class="def"> -}
+</span><span class="def"> run :: Config -&gt; [Template] -&gt; IO ()
+</span><span class="sub">-run config templates = foldMap (processRepo templates $ outputDirectory config) . repoPaths $ config
+</span><span class="add">+run config templates = foldMap (processRepo templates config) . repoPaths $ config
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre>@@ -38,13 +38,13 @@
+
+
+  <pre><span class="def"> repository doesn&apos;t exist or is unreadable in any way we can forget about it and move on
+</span><span class="def"> (after informing the user of course).
+</span><span class="def"> -}
+</span><span class="sub">-processRepo :: [Template] -&gt; FilePath -&gt; FilePath -&gt; IO ()
+</span><span class="sub">-processRepo templates directory path = withRepository lgFactory path $
+</span><span class="sub">-    processRepo&apos; templates directory path
+</span><span class="add">+processRepo :: [Template] -&gt; Config -&gt; FilePath -&gt; IO ()
+</span><span class="add">+processRepo templates config path = withRepository lgFactory path $
+</span><span class="add">+    processRepo&apos; templates config path
+</span><span class="def"> 
+</span><span class="def"> -- This is split out to make type reasoning a bit easier.
+</span><span class="sub">-processRepo&apos; :: [Template] -&gt; FilePath -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="sub">-processRepo&apos; templates directory path = do
+</span><span class="add">+processRepo&apos; :: [Template] -&gt; Config -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="add">+processRepo&apos; templates config path = do
+</span><span class="def">     liftIO $ createDirectoryIfMissing True outPath
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span></pre>@@ -63,12 +63,12 @@
+
+
+  <pre><span class="def">             tree &lt;- getTree gitHead
+</span><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="sub">-            let repo = package description commits tree
+</span><span class="add">+            let repo = package config name description commits tree
+</span><span class="def">             liftIO . mapM (generate repo) $ templates
+</span><span class="def">             return ()
+</span><span class="def">   where
+</span><span class="def">     name = takeFileName path
+</span><span class="sub">-    outPath = directory &lt;/&gt; name
+</span><span class="add">+    outPath = outputDirectory config &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The role of the function above is to gather information about a git repository and
+</span></pre>@@ -77,13 +77,17 @@
+
+
+  <pre><span class="def"> hashmap which Ginger can use to look up variables.
+</span><span class="def"> -}
+</span><span class="def"> package
+</span><span class="sub">-    :: Text
+</span><span class="add">+    :: Config
+</span><span class="add">+    -&gt; FilePath
+</span><span class="add">+    -&gt; Text
+</span><span class="def">     -&gt; [Commit LgRepo]
+</span><span class="def">     -&gt; [(TreeFilePath, TreeEntry r)]
+</span><span class="def">     -&gt; HashMap.HashMap Text Text
+</span><span class="sub">-package description commits tree = HashMap.fromList
+</span><span class="sub">-    [ (&quot;commits&quot;, &quot;commits&quot;)
+</span><span class="add">+package config name description commits tree = HashMap.fromList
+</span><span class="add">+    [ (&quot;host&quot;, host config)
+</span><span class="add">+    , (&quot;name&quot;, pack name)
+</span><span class="def">     , (&quot;description&quot;, description)
+</span><span class="add">+    , (&quot;commits&quot;, &quot;commits&quot;)
+</span><span class="def">     , (&quot;tree&quot;, &quot;tree&quot;)
+</span><span class="def">     ]
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -6,7 +6,8 @@
+
+
+  <pre><span class="def">     repoPaths,
+</span><span class="def">     templateDirectory,
+</span><span class="def">     getConfig,
+</span><span class="sub">-    outputDirectory
+</span><span class="add">+    outputDirectory,
+</span><span class="add">+    host
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Dhall
+</span></pre>@@ -15,7 +16,7 @@
+
+
+  <pre><span class="def">     { repoPaths :: [FilePath]
+</span><span class="def">     , templateDirectory :: FilePath
+</span><span class="def">     , outputDirectory :: FilePath
+</span><span class="sub">-    , host :: FilePath
+</span><span class="add">+    , host :: Text
+</span><span class="def">     }
+</span><span class="def">     deriving stock (Generic, Show)
+</span><span class="def"> 
+</span></pre></div>    </div>
+  </body>
+</html>

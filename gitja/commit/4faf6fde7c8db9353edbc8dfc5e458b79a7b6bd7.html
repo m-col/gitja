@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add test for static files and folders</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/4faf6fde7c8db9353edbc8dfc5e458b79a7b6bd7.html">4faf6fde7c8db9353edbc8dfc5e458b79a7b6bd7</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/9a98af4184e9926753fbb880e9477fa691e096e4.html">9a98af4184e9926753fbb880e9477fa691e096e4</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-26 00:59:27 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-26 00:59:27 +0000
+
+Add test for static files and folders
+</pre><div class="diff">
+  <p>
+    <b>test/test.sh</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -30,6 +30,8 @@
+
+
+  <pre><span class="def"> declare -a TESTS
+</span><span class="def"> TESTS=(
+</span><span class="def">     &quot;index.html&quot;
+</span><span class="add">+    &quot;style.css&quot;
+</span><span class="add">+    &quot;static/a_nice_file&quot;
+</span><span class="def">     &quot;gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html&quot;
+</span><span class="def">     &quot;gitserve/file/test.templates.style.css.html&quot;
+</span><span class="def"> )
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/templates/static/a_nice_file</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1 @@
+
+
+  <pre><span class="add">+some nice words
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/style.css</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1 @@
+
+
+  <pre><span class="add">+👄
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/static/a_nice_file</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1 @@
+
+
+  <pre><span class="add">+some nice words
+</span></pre></div>    </div>
+  </body>
+</html>

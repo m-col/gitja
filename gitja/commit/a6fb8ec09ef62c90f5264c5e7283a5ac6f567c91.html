@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - sequence . fmap -&gt; mapM</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/a6fb8ec09ef62c90f5264c5e7283a5ac6f567c91.html">a6fb8ec09ef62c90f5264c5e7283a5ac6f567c91</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/149344e72e0f381a8cba9cebf02bcf30b106a3aa.html">149344e72e0f381a8cba9cebf02bcf30b106a3aa</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-10-04 21:42:55 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-10-04 21:42:55 +0100
+
+sequence . fmap -&gt; mapM
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -60,7 +60,7 @@
+
+
+  <pre><span class="def"> loadTemplates config = do
+</span><span class="def">     -- Custom templates
+</span><span class="def">     files &lt;- getFiles config
+</span><span class="sub">-    templates &lt;- sequence . fmap loadTemplate $ files
+</span><span class="add">+    templates &lt;- mapM loadTemplate files
+</span><span class="def">     -- Scoped templates
+</span><span class="def">     indexT &lt;- loadTemplate . indexTemplate $ config
+</span><span class="def">     commitT &lt;- loadTemplate . commitTemplate $ config
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -132,7 +132,7 @@
+
+
+  <pre><span class="def"> getTree :: CommitOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="def"> getTree commitID = do
+</span><span class="def">     entries &lt;- listTreeEntries =&lt;&lt; lookupTree . commitTree =&lt;&lt; lookupCommit commitID
+</span><span class="sub">-    contents &lt;- sequence . fmap (gvalTreeEntry . snd) $ entries
+</span><span class="add">+    contents &lt;- mapM (gvalTreeEntry . snd) entries
+</span><span class="def">     return $ zipWith TreeFile (fmap fst entries) contents
+</span><span class="def"> 
+</span><span class="def"> gvalTreeEntry :: TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeFileContents
+</span></pre></div>    </div>
+  </body>
+</html>

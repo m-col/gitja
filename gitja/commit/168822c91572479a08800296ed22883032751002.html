@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - minor tidy</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/168822c91572479a08800296ed22883032751002.html">168822c91572479a08800296ed22883032751002</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/587e74871afe3131b95237f7fe898be05087c072.html">587e74871afe3131b95237f7fe898be05087c072</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-29 16:23:23 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-29 16:23:23 +0100
+
+minor tidy
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -7,7 +7,6 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> module Repositories (
+</span><span class="def">     run,
+</span><span class="sub">-    getRefs,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import qualified Bindings.Libgit2 as LG
+</span></pre>@@ -70,7 +69,7 @@
+
+
+  <pre><span class="def">     mkRepo p = (\d -&gt; Repo p d Nothing) &lt;$&gt; getDescription p
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-Pass the repository&apos;s folder, get its description. The algorithm is:
+</span><span class="add">+Pass the repository&apos;s folder, get its description. The approach is:
+</span><span class="def"> 
+</span><span class="def">     1. Check for a description in repo/description
+</span><span class="def">     2. Check for a description in repo/.git/description
+</span></pre></div>    </div>
+  </body>
+</html>

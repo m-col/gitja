@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Only output information on last 50 commits to log example</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/8aefb19ecb8ffb756fea27a23513db72f7106e0b.html">8aefb19ecb8ffb756fea27a23513db72f7106e0b</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/4b1000726657b383af373898613a9c112b2b7845.html">4b1000726657b383af373898613a9c112b2b7845</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-25 18:55:43 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-25 18:55:43 +0100
+
+Only output information on last 50 commits to log example
+</pre><div class="diff">
+  <p>
+    <b>templates/log.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,7 +13,7 @@
+
+
+  <pre><span class="def">     &lt;hr&gt;
+</span><span class="def">     &lt;p&gt;{{- description }}&lt;/p&gt;
+</span><span class="def">     &lt;p&gt;git clone {{ host }}/{{- name }}&lt;/p&gt;
+</span><span class="sub">-    {% for commit in commits %}
+</span><span class="add">+    {% for commit in commits[:50] %}
+</span><span class="def">     &lt;p&gt;{{- commit.title }}&lt;/p&gt;
+</span><span class="def">     {% endfor %}
+</span><span class="def">   &lt;/body&gt;
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - lint long type signature</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/5fb5632025430b5e4dd9f126300c39d7f24492c6.html">5fb5632025430b5e4dd9f126300c39d7f24492c6</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/e7a9e4cb4460c64a723f9f15a715102e6c7a8b92.html">e7a9e4cb4460c64a723f9f15a715102e6c7a8b92</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-24 10:18:15 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-24 10:18:15 +0100
+
+lint long type signature
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -86,6 +86,8 @@
+
+
+  <pre><span class="def"> This is the generator function that receives repository-specific variables and uses
+</span><span class="def"> Ginger to render templates using them.
+</span><span class="def"> -}
+</span><span class="sub">-generate :: HashMap.HashMap Text Text -&gt; Template -&gt;
+</span><span class="sub">-    IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
+</span><span class="add">+generate
+</span><span class="add">+    :: HashMap.HashMap Text Text
+</span><span class="add">+    -&gt; Template
+</span><span class="add">+    -&gt; IO (Either (RuntimeError G.SourcePos) (GVal (Run G.SourcePos IO Html)))
+</span><span class="def"> generate context template = easyRenderM writeTo context (templateGinger template)
+</span></pre></div>    </div>
+  </body>
+</html>

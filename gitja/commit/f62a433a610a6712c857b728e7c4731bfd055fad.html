@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Only apply stack ghc options to gitserve</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/f62a433a610a6712c857b728e7c4731bfd055fad.html">f62a433a610a6712c857b728e7c4731bfd055fad</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/f04073e941fe891a93c4cf5982f3015a68d4a1f5.html">f04073e941fe891a93c4cf5982f3015a68d4a1f5</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-12-12 17:58:51 +0300
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-12-12 17:58:51 +0300
+
+Only apply stack ghc options to gitserve
+</pre><div class="diff">
+  <p>
+    <b>stack.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -11,7 +11,7 @@
+
+
+  <pre><span class="def"> - ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
+</span><span class="def"> 
+</span><span class="def"> ghc-options:
+</span><span class="sub">-  &quot;$targets&quot;: -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+</span><span class="add">+  &quot;gitserve&quot;: -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+</span><span class="def">     -Wincomplete-record-updates -Wredundant-constraints -Wpartial-fields
+</span><span class="def">     -Wmissing-deriving-strategies -Wunused-packages -fno-warn-unused-do-bind
+</span><span class="def">     -fno-warn-orphans
+</span></pre></div>    </div>
+  </body>
+</html>

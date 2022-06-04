@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - reformat readme tables</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/6b324fbc1d4e4fd116b76564e0485fcd0f6ec15e.html">6b324fbc1d4e4fd116b76564e0485fcd0f6ec15e</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/37b2a79d4f0bacf7c84671dc37273feefab13a16.html">37b2a79d4f0bacf7c84671dc37273feefab13a16</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-27 02:38:56 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-27 02:38:56 +0000
+
+reformat readme tables
+</pre><div class="diff">
+  <p>
+    <b>docs.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -9,21 +9,29 @@
+
+
+  <pre><span class="def"> Usage
+</span><span class="def"> =====
+</span><span class="def"> 
+</span><span class="add">+Configuration file
+</span><span class="add">+------------------
+</span><span class="add">+
+</span><span class="def"> gitserve is configured using a dhall_ config file. The `example config`_ is a
+</span><span class="sub">-good place to start. It requires the following settings:
+</span><span class="sub">-
+</span><span class="sub">-================= ==============================================
+</span><span class="sub">-Setting           Description
+</span><span class="sub">-================= ==============================================
+</span><span class="sub">-repoPaths         A list of folders containing your git repositories.
+</span><span class="sub">-templateDirectory The folder containing the &lt;a href=&quot;#Templates&quot;&gt;template&lt;/a&gt;.
+</span><span class="sub">-outputDirectory   Where to put the generated files.
+</span><span class="sub">-host              The host URL, which is needed for creating links.
+</span><span class="sub">-                  This can be a subdirectory.
+</span><span class="sub">-================= ==============================================
+</span><span class="add">+good place to start.
+</span><span class="add">+
+</span><span class="add">+It requires the following settings:
+</span><span class="add">+
+</span><span class="add">+===================== ==============================================
+</span><span class="add">+Setting               Description
+</span><span class="add">+===================== ==============================================
+</span><span class="add">+``repoPaths``         A list of folders containing your git repositories.
+</span><span class="add">+``templateDirectory`` The folder containing the template (see below).
+</span><span class="add">+``outputDirectory``   Where to put the generated files.
+</span><span class="add">+``host``              The host URL, which is needed for creating links.
+</span><span class="add">+                      This can be a subdirectory.
+</span><span class="add">+===================== ==============================================
+</span><span class="def"> 
+</span><span class="def"> Then, pass the config file to gitserve.
+</span><span class="def"> 
+</span><span class="add">+CLI
+</span><span class="add">+---
+</span><span class="add">+
+</span><span class="def"> See the CLI help message for usage::
+</span><span class="def"> 
+</span><span class="def">     Usage: gitserve [-c|--config CONFIG] [-q|--quiet] [-f|--force] [-v|--version]
+</span></pre>@@ -44,10 +52,13 @@
+
+
+  <pre><span class="def"> Templates
+</span><span class="def"> =========
+</span><span class="def"> 
+</span><span class="add">+Folder structure
+</span><span class="add">+----------------
+</span><span class="add">+
+</span><span class="def"> The files that gitserve outputs are generated using ginger_ template files,
+</span><span class="def"> which use the Jinja_ templating language. If these are new to you, it may be
+</span><span class="def"> enough to skim through some of the examples in the templates_ folder, otherwise
+</span><span class="sub">-the ginger_ docs can be very helpful to see what is supported.
+</span><span class="add">+the ginger docs can be very helpful to see what is supported.
+</span><span class="def"> 
+</span><span class="def"> Templates are a folder containing a number of ginger template files. There are
+</span><span class="def"> 4 &quot;scopes&quot;, each making available a unique set of variables storing information
+</span></pre>@@ -68,25 +79,24 @@
+
+
+  <pre><span class="def">             file.html
+</span><span class="def">             commit.html
+</span><span class="def"> 
+</span><span class="sub">-The top-level folder, here templateDirectory, is that which is specified in the
+</span><span class="sub">-config file.
+</span><span class="add">+The top-level folder, here ``templateDirectory``, is that which is specified in
+</span><span class="add">+the config file.
+</span><span class="def"> 
+</span><span class="def"> Files ending in &quot;.html&quot; directly within that folder have access to the *index
+</span><span class="def"> scope*, and are each parsed exactly once and output into the output directory
+</span><span class="def"> with the same name. &quot;include_&quot; files are never copied but can be used to assist
+</span><span class="sub">-in templating. They must be specified relative to the main template file ending
+</span><span class="sub">-in &quot;.html&quot;. The remaining files, and folders not called &quot;repo&quot; are copied as-is
+</span><span class="sub">-as static files, such as CSS, images, etc.
+</span><span class="add">+in templating. The remaining files, and any folders not called &quot;repo&quot;, are
+</span><span class="add">+copied as-is as static content, such as CSS, images, etc.
+</span><span class="def"> 
+</span><span class="def"> The special folder &quot;repo&quot; has access to the *repo scope*, which exposes
+</span><span class="sub">-information pertaining a single git repository. The template files contained
+</span><span class="add">+information pertaining to a single git repository. The template files contained
+</span><span class="def"> within this folder are parsed and output once per git repository.
+</span><span class="def"> 
+</span><span class="def"> The exceptions to this are the two special template files with the names
+</span><span class="def"> &quot;file.html&quot; and &quot;commit.html&quot;. These have access to the *file scope* and
+</span><span class="def"> *commit scope* respectively, and are parsed and output once per file or commit.
+</span><span class="def"> 
+</span><span class="sub">-The resulting folder structure found in the *outputDirectory* will look like
+</span><span class="add">+The resulting folder structure found in the ``outputDirectory`` will look like
+</span><span class="def"> this (if the only specified git repository is gitserve)::
+</span><span class="def"> 
+</span><span class="def">     outputDirectory/
+</span></pre>@@ -104,35 +114,48 @@
+
+
+  <pre><span class="def">                 0a18f38bb5c398bd192a6268281fc6abefaedd63.html
+</span><span class="def">                 0a7601059956d9c4d395f5d08e8cf48a515d080f.html
+</span><span class="def">                 ...
+</span><span class="add">+        ...
+</span><span class="def"> 
+</span><span class="def"> 
+</span><span class="sub">-Template scopes
+</span><span class="sub">-===============
+</span><span class="add">+Scopes
+</span><span class="add">+------
+</span><span class="def"> 
+</span><span class="def"> The variables available within each scope are listed here for reference:
+</span><span class="def"> 
+</span><span class="sub">-====== ============ ===========================================================
+</span><span class="sub">-Scope  Variable     Description
+</span><span class="sub">-====== ============ ===========================================================
+</span><span class="sub">-Index  host         The string from the ``host`` config option.
+</span><span class="sub">-       repositories A list of all of the git repositories.
+</span><span class="sub">-
+</span><span class="sub">-Repo   -            In addition to the variables from the index scope...
+</span><span class="sub">-       name         The repository name, taken from its folder name.
+</span><span class="sub">-       description  A description taken from a file called &quot;description&quot; in
+</span><span class="sub">-                    that folder.
+</span><span class="sub">-       commits      A list of the repository&apos;s commits.
+</span><span class="sub">-       tree         A list of the repository&apos;s files.
+</span><span class="sub">-       tags         A list of the refs corresponding to tags.
+</span><span class="sub">-       branches     A list of the refs corresponding to branches.
+</span><span class="sub">-       readme       The repository&apos;s readme file, if it has one.
+</span><span class="sub">-       license      The repository&apos;s license file, if it has one.
+</span><span class="sub">-
+</span><span class="sub">-File   -            In addition to the variables from the Repo scope...
+</span><span class="sub">-       file         A single file.
+</span><span class="sub">-Commit -            In addition to the variables from the Repo scope...
+</span><span class="sub">-       commit       A single commit.
+</span><span class="sub">-====== ============ ===========================================================
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+| Scope  | Variable     | Description                                         |
+</span><span class="add">++========+==============+=====================================================+
+</span><span class="add">+| Index  | host         | The string from the ``host`` config option.         |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | repositories | A list of all of the git repositories.              |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+| Repo   | In addition to the variables from the index scope...               |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | name         | The repository name, taken from its folder name.    |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | description  | A description taken from a file called &quot;description&quot;|
+</span><span class="add">+|        |              | in that folder.                                     |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | commits      | A list of the repository&apos;s commits.                 |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | tree         | A list of the repository&apos;s files.                   |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | tags         | A list of the refs corresponding to tags.           |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | branches     | A list of the refs corresponding to branches.       |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | readme       | The repository&apos;s readme file, if it has one.        |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | license      | The repository&apos;s license file, if it has one.       |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+| File   | In addition to the variables from the Repo scope...                |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | file         | A single file.                                      |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+| Commit | In addition to the variables from the Repo scope...                |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="add">+|        | commit       | A single commit.                                    |
+</span><span class="add">++--------+--------------+-----------------------------------------------------+
+</span><span class="def"> 
+</span><span class="def"> As in Jinja_, a list can be accessed with indexing, and attributes can be
+</span><span class="def"> accessed using a dot notation. For example, a ``repository`` exposes an
+</span></pre>@@ -141,47 +164,75 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> Here is the reference of attributes available on the variables that have them:
+</span><span class="def"> 
+</span><span class="sub">-========== =============== ====================================================
+</span><span class="sub">-Object     Attribute       Description
+</span><span class="sub">-========== =============== ====================================================
+</span><span class="sub">-repository name            The repository&apos;s name, taken from the folder name.
+</span><span class="sub">-           description     A description taken from a file called &quot;description&quot;
+</span><span class="sub">-                           in that folder.
+</span><span class="sub">-           head            The current git commit.
+</span><span class="sub">-           updated         The time when the current commit was committed.
+</span><span class="sub">-
+</span><span class="sub">-commit     id              The SHA of the given commit.
+</span><span class="sub">-           title           The commit message title.
+</span><span class="sub">-           body            The commit message body.
+</span><span class="sub">-           message         The entire message, including both title and body.
+</span><span class="sub">-           author          The commit author.
+</span><span class="sub">-           committer       The committer.
+</span><span class="sub">-           author_email    The email address of the author.
+</span><span class="sub">-           committer_email The email address of the committer.
+</span><span class="sub">-           authored        The timestamp from when it was written.
+</span><span class="sub">-           committed       The timestamp from when it was committed to this
+</span><span class="sub">-                           branch.
+</span><span class="sub">-           encoding        The commit encoding.
+</span><span class="sub">-           parent          The SHA of the parent commit.
+</span><span class="sub">-
+</span><span class="sub">-file       path            The path the file relative to the repository root.
+</span><span class="sub">-           href            The HTML output path relative to outputDirectory.
+</span><span class="sub">-           contents        The file&apos;s contents.
+</span><span class="sub">-           mode            Directory, Plain, Executable, Symlink or Submodule.
+</span><span class="sub">-           mode_octal      Mode in octal form e.g. &quot;00644&quot; for plain files.
+</span><span class="sub">-           mode_symbolic   Mode in symbolic form e.g. &quot;&quot;-rw-r--r--&quot; for plain
+</span><span class="sub">-                           files.
+</span><span class="sub">-           is_directory    A boolean, useful for ginger conditionals.
+</span><span class="sub">-
+</span><span class="sub">-ref        name            The tag or branch name.
+</span><span class="sub">-           commit          The commit pointed to by the tag or branch.
+</span><span class="sub">-========== =============== ==========================================
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+| Object     | Attribute       | Description                                  |
+</span><span class="add">++============+=================+==============================================+
+</span><span class="add">+| repository | name            | The repository&apos;s name, taken from the folder |
+</span><span class="add">+|            |                 | name.                                        |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | description     | A description taken from a file called       |
+</span><span class="add">+|            |                 | &quot;description&quot; in that folder.                |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | head            | The current git commit.                      |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | updated         | The time when the current commit was         |
+</span><span class="add">+|            |                 | committed.                                   |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+| commit     | id              | The SHA of the given commit.                 |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | title           | The commit message title.                    |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | body            | The commit message body.                     |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | message         | The entire message, including both title and |
+</span><span class="add">+|            |                 | body.                                        |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | author          | The commit author.                           |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | committer       | The committer.                               |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | author_email    | The email address of the author.             |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | committer_email | The email address of the committer.          |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | authored        | The timestamp from when it was written.      |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | committed       | The timestamp from when it was committed to  |
+</span><span class="add">+|            |                 | this branch.                                 |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | encoding        | The commit encoding.                         |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | parent          | The SHA of the parent commit.                |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+| file       | path            | The path the file relative to the repository |
+</span><span class="add">+|            |                 | root.                                        |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | href            | The HTML output path relative to             |
+</span><span class="add">+|            |                 | ``outputDirectory``.                         |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | contents        | The file&apos;s contents.                         |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | mode            | Directory, Plain, Executable, Symlink or     |
+</span><span class="add">+|            |                 | Submodule.                                   |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | mode_octal      | Mode in octal form e.g. &quot;00644&quot; for plain    |
+</span><span class="add">+|            |                 | files.                                       |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | mode_symbolic   | Mode in symbolic form e.g. &quot;&quot;-rw-r--r--&quot; for |
+</span><span class="add">+|            |                 | plain files.                                 |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | is_directory    | A boolean, useful for ginger conditionals.   |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+| ref        | name            | The tag or branch name.                      |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="add">+|            | commit          | The commit pointed to by the tag or branch.  |
+</span><span class="add">++------------+-----------------+----------------------------------------------+
+</span><span class="def"> 
+</span><span class="def"> Note that some attributes point to other objects that have attributes. For
+</span><span class="def"> example, ``branches[0].commit.parent`` will work as expected.
+</span><span class="def"> 
+</span><span class="def"> .. _dhall: https://dhall-lang.org
+</span><span class="sub">-.. _`example config`: https://gitserve.mcol.xyz
+</span><span class="add">+.. _`example config`: https://github.com/m-col/gitserve/blob/master/config.dhall
+</span><span class="def"> .. _Jinja: https://jinja.palletsprojects.com
+</span><span class="def"> .. _ginger: https://ginger.tobiasdammers.nl
+</span><span class="def"> .. _templates: https://github.com/m-col/gitserve/tree/master/templates
+</span></pre></div>    </div>
+  </body>
+</html>

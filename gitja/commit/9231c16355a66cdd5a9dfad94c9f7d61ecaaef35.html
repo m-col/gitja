@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Create base haskmap for all of a repo&apos;s variables</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/9231c16355a66cdd5a9dfad94c9f7d61ecaaef35.html">9231c16355a66cdd5a9dfad94c9f7d61ecaaef35</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/6b5407a36db1337cf9728f8e2c6560dcecfafd9d.html">6b5407a36db1337cf9728f8e2c6560dcecfafd9d</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-30 22:42:53 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-30 22:42:53 +0100
+
+Create base haskmap for all of a repo&apos;s variables
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -75,12 +75,10 @@
+
+
+  <pre><span class="def">             tree &lt;- getTree gitHead
+</span><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="sub">-            let repo = package env name description commits tree
+</span><span class="sub">-            liftIO . mapM (generate output repo) $ envTemplates env
+</span><span class="sub">-            let commitScope = packageCommit env name description
+</span><span class="sub">-            liftIO . mapM (generateCommit output commitScope $ envCommitTemplate env) $ commits
+</span><span class="sub">-            let fileScope = packageFile env name description
+</span><span class="sub">-            liftIO . mapM (generateFile output fileScope $ envFileTemplate env) $ tree
+</span><span class="add">+            let scope = package env name description commits tree
+</span><span class="add">+            liftIO . mapM (generate output scope) $ envTemplates env
+</span><span class="add">+            liftIO . mapM (generateCommit output scope $ envCommitTemplate env) $ commits
+</span><span class="add">+            liftIO . mapM (generateFile output scope $ envFileTemplate env) $ tree
+</span><span class="def">             return ()
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -228,7 +226,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> generateCommit
+</span><span class="def">     :: FilePath
+</span><span class="sub">-    -&gt; (Commit LgRepo -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html)))
+</span><span class="add">+    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="def">     -&gt; Maybe Template
+</span><span class="def">     -&gt; Commit LgRepo
+</span><span class="def">     -&gt; IO ()
+</span></pre>@@ -236,28 +234,16 @@
+
+
+  <pre><span class="def"> generateCommit output scope (Just template) commit = do
+</span><span class="def">     let hash = unpack . renderObjOid . commitOid $ commit
+</span><span class="def">     let template&apos; = template { templatePath = hash ++ &quot;.html&quot; }
+</span><span class="add">+    let scope&apos; = scope &lt;&gt; HashMap.fromList [(&quot;commit&quot;, toGVal commit)]
+</span><span class="def">     liftIO $ createDirectoryIfMissing True (output &lt;/&gt; &quot;commits&quot;)
+</span><span class="sub">-    generate (output &lt;/&gt; &quot;commits&quot;) (scope commit) template&apos;
+</span><span class="add">+    generate (output &lt;/&gt; &quot;commits&quot;) scope&apos; template&apos;
+</span><span class="def">     return ()
+</span><span class="def"> 
+</span><span class="sub">-packageCommit
+</span><span class="sub">-    :: Env
+</span><span class="sub">-    -&gt; FilePath
+</span><span class="sub">-    -&gt; Text
+</span><span class="sub">-    -&gt; Commit LgRepo
+</span><span class="sub">-    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-packageCommit env name description commit = HashMap.fromList
+</span><span class="sub">-    [ (&quot;host&quot;, toGVal . host . envConfig $ env)
+</span><span class="sub">-    , (&quot;name&quot;, toGVal . pack $ name)
+</span><span class="sub">-    , (&quot;description&quot;, toGVal description)
+</span><span class="sub">-    , (&quot;commit&quot;, toGVal commit)
+</span><span class="sub">-    ]
+</span><span class="sub">-
+</span><span class="def"> -- TODO: DRY
+</span><span class="def"> 
+</span><span class="def"> generateFile
+</span><span class="def">     :: FilePath
+</span><span class="sub">-    -&gt; (TreeFile -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html)))
+</span><span class="add">+    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="def">     -&gt; Maybe Template
+</span><span class="def">     -&gt; TreeFile
+</span><span class="def">     -&gt; IO ()
+</span></pre>@@ -265,19 +251,7 @@
+
+
+  <pre><span class="def"> generateFile output scope (Just template) file = do
+</span><span class="def">     let path = unpack . replace &quot;/&quot; &quot;.&quot; . decodeUtf8 . treeFilePath $ file
+</span><span class="def">     let template&apos; = template { templatePath = path ++ &quot;.html&quot; }
+</span><span class="add">+    let scope&apos; = scope &lt;&gt; HashMap.fromList [(&quot;file&quot;, toGVal file)]
+</span><span class="def">     liftIO $ createDirectoryIfMissing True (output &lt;/&gt; &quot;files&quot;)
+</span><span class="sub">-    generate (output &lt;/&gt; &quot;files&quot;) (scope file) template&apos;
+</span><span class="add">+    generate (output &lt;/&gt; &quot;files&quot;) scope&apos; template&apos;
+</span><span class="def">     return ()
+</span><span class="sub">-
+</span><span class="sub">-packageFile
+</span><span class="sub">-    :: Env
+</span><span class="sub">-    -&gt; FilePath
+</span><span class="sub">-    -&gt; Text
+</span><span class="sub">-    -&gt; TreeFile
+</span><span class="sub">-    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="sub">-packageFile env name description file = HashMap.fromList
+</span><span class="sub">-    [ (&quot;host&quot;, toGVal . host . envConfig $ env)
+</span><span class="sub">-    , (&quot;name&quot;, toGVal . pack $ name)
+</span><span class="sub">-    , (&quot;description&quot;, toGVal description)
+</span><span class="sub">-    , (&quot;file&quot;, toGVal file)
+</span><span class="sub">-    ]
+</span></pre></div>    </div>
+  </body>
+</html>

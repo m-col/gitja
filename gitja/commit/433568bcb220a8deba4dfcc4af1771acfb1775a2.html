@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Show in docs when log is not showing all commits</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/433568bcb220a8deba4dfcc4af1771acfb1775a2.html">433568bcb220a8deba4dfcc4af1771acfb1775a2</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/6ed2fcb20a29503806c01ab0b948705f1537a372.html">6ed2fcb20a29503806c01ab0b948705f1537a372</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-12-04 16:34:37 +0300
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-12-04 16:34:58 +0300
+
+Show in docs when log is not showing all commits
+</pre><div class="diff">
+  <p>
+    <b>templates/docs/repo/log.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -20,6 +20,13 @@
+
+
+  <pre><span class="def">       &lt;td&gt;{{ commit.author }}&lt;/td&gt;
+</span><span class="def">     &lt;/tr&gt;
+</span><span class="def">     {% endfor %}
+</span><span class="add">+
+</span><span class="add">+    {% if length(commits) &gt; 50 %}
+</span><span class="add">+    &lt;tr&gt;
+</span><span class="add">+      &lt;td&gt;&lt;/td&gt;
+</span><span class="add">+      &lt;td colspan=&quot;2&quot;&gt;More commits not shown.&lt;/td&gt;
+</span><span class="add">+    &lt;/tr&gt;
+</span><span class="add">+    {% endif %}
+</span><span class="def">   &lt;/tbody&gt;
+</span><span class="def"> &lt;/table&gt;
+</span><span class="def"> {% endblock %}
+</span></pre></div>    </div>
+  </body>
+</html>

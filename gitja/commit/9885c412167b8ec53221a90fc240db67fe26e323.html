@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Make Target.identify return FilePath</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/9885c412167b8ec53221a90fc240db67fe26e323.html">9885c412167b8ec53221a90fc240db67fe26e323</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/3d1fcf8e17a60adbb9f46350850773524ac8511c.html">3d1fcf8e17a60adbb9f46350850773524ac8511c</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-10-03 23:56:23 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-10-03 23:56:23 +0100
+
+Make Target.identify return FilePath
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -192,15 +192,15 @@
+
+
+  <pre><span class="def"> genTarget can work on any target type.
+</span><span class="def"> -}
+</span><span class="def"> class ToGVal (Run SourcePos IO Html) a =&gt; Target a where
+</span><span class="sub">-    identify :: a -&gt; String
+</span><span class="add">+    identify :: a -&gt; FilePath
+</span><span class="def">     category :: a -&gt; FilePath
+</span><span class="def"> 
+</span><span class="def"> instance Target (Commit LgRepo) where
+</span><span class="sub">-    identify = unpack . renderObjOid . commitOid 
+</span><span class="add">+    identify = (++ &quot;.html&quot;) . unpack . renderObjOid . commitOid 
+</span><span class="def">     category = const &quot;commit&quot;
+</span><span class="def"> 
+</span><span class="def"> instance Target (TreeFile) where
+</span><span class="sub">-    identify = unpack . replace &quot;/&quot; &quot;.&quot; . decodeUtf8 . treeFilePath
+</span><span class="add">+    identify = (++ &quot;.html&quot;) . unpack . replace &quot;/&quot; &quot;.&quot; . decodeUtf8 . treeFilePath
+</span><span class="def">     category = const &quot;file&quot;
+</span><span class="def"> 
+</span><span class="def"> genTarget
+</span></pre>@@ -212,7 +212,7 @@
+
+
+  <pre><span class="def">     -&gt; IO ()
+</span><span class="def"> genTarget _ _ Nothing _ = return ()
+</span><span class="def"> genTarget output scope (Just template) target = do
+</span><span class="sub">-    let template&apos; = template { templatePath = identify target ++ &quot;.html&quot; }
+</span><span class="add">+    let template&apos; = template { templatePath = identify target }
+</span><span class="def">     let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
+</span><span class="def">     liftIO $ createDirectoryIfMissing True (output &lt;/&gt; category target)
+</span><span class="def">     generate (output &lt;/&gt; category target) scope&apos; template&apos;
+</span></pre></div>    </div>
+  </body>
+</html>

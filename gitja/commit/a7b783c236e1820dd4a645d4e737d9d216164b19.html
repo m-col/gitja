@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Pass Env to runIndex rather than Config</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/a7b783c236e1820dd4a645d4e737d9d216164b19.html">a7b783c236e1820dd4a645d4e737d9d216164b19</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/39abe48f514e1a2fe26f91164e84cdfd9f72e4eb.html">39abe48f514e1a2fe26f91164e84cdfd9f72e4eb</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-30 00:50:16 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-30 00:50:16 +0100
+
+Pass Env to runIndex rather than Config
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -40,7 +40,7 @@
+
+
+  <pre><span class="def"> run :: Env -&gt; IO ()
+</span><span class="def"> run env = do
+</span><span class="def">     foldMap (processRepo env) . repoPaths . envConfig $ env  -- TODO: make concurrent
+</span><span class="sub">-    runIndex (envConfig env) (envIndexTemplate env)
+</span><span class="add">+    runIndex env
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Private -----------------------------------------------------------------------------
+</span></pre>@@ -177,15 +177,19 @@
+
+
+  <pre><span class="def"> This creates the main index file from the index template, using information from all
+</span><span class="def"> configured respositories.
+</span><span class="def"> -}
+</span><span class="sub">-runIndex :: Config -&gt; Maybe Template -&gt; IO ()
+</span><span class="sub">-runIndex _ Nothing = return ()
+</span><span class="sub">-runIndex config (Just template) = do
+</span><span class="sub">-    let paths = repoPaths config
+</span><span class="sub">-    descriptions &lt;- mapM getDescription paths
+</span><span class="sub">-    let repos = zipWith ($) (Repo . takeFileName &lt;$&gt; paths) descriptions
+</span><span class="sub">-    let indexScope = packageIndex config repos
+</span><span class="sub">-    generate (outputDirectory config) indexScope (template { templatePath = &quot;index.html&quot; })
+</span><span class="sub">-    return ()
+</span><span class="add">+runIndex :: Env -&gt; IO ()
+</span><span class="add">+runIndex env =
+</span><span class="add">+    case envIndexTemplate env of
+</span><span class="add">+        Nothing -&gt;
+</span><span class="add">+            return ()
+</span><span class="add">+        Just template -&gt; do
+</span><span class="add">+            let config = envConfig env
+</span><span class="add">+            let paths = repoPaths config
+</span><span class="add">+            descriptions &lt;- mapM getDescription paths
+</span><span class="add">+            let repos = zipWith ($) (Repo . takeFileName &lt;$&gt; paths) descriptions
+</span><span class="add">+            let indexScope = packageIndex config repos
+</span><span class="add">+            generate (outputDirectory config) indexScope (template { templatePath = &quot;index.html&quot; })
+</span><span class="add">+            return ()
+</span><span class="def"> 
+</span><span class="def"> packageIndex
+</span><span class="def">     :: Config
+</span></pre></div>    </div>
+  </body>
+</html>

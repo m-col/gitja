@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Hook config up with per-repo processing function</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/f134648414cc291f78794e65a281d77cb97141f5.html">f134648414cc291f78794e65a281d77cb97141f5</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/d3d59757eb803a9675c94109fb7de9755221cfa3.html">d3d59757eb803a9675c94109fb7de9755221cfa3</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-17 01:51:09 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-17 01:51:09 +0100
+
+Hook config up with per-repo processing function
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,7 +1,7 @@
+
+
+  <pre><span class="def"> {-# Language OverloadedStrings #-}  -- Needed for repository paths.
+</span><span class="def"> 
+</span><span class="def"> module Repositories (
+</span><span class="sub">-    getLog
+</span><span class="add">+    run
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span></pre>@@ -9,6 +9,9 @@
+
+
+  <pre><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (lgFactory)
+</span><span class="def"> 
+</span><span class="add">+import Config (Config, repoPaths)
+</span><span class="add">+
+</span><span class="add">+getLog :: FilePath -&gt; IO ()
+</span><span class="def"> getLog path = withRepository lgFactory path $ do
+</span><span class="def">     maybeObjID &lt;- resolveReference &quot;HEAD&quot;
+</span><span class="def">     case maybeObjID of
+</span></pre>@@ -16,3 +19,6 @@
+
+
+  <pre><span class="def">             headCommit &lt;- lookupCommit (Tagged commitID)
+</span><span class="def">             liftIO $ print $ commitLog headCommit
+</span><span class="def">         _ -&gt; liftIO (print &quot;Couldn&apos;t resolve HEAD&quot;)
+</span><span class="add">+
+</span><span class="add">+run :: Config -&gt; IO ()
+</span><span class="add">+run = mconcat . fmap getLog . repoPaths
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -2,10 +2,7 @@
+
+
+  <pre><span class="def"> module Main where
+</span><span class="def"> 
+</span><span class="def"> import Config (getConfig)
+</span><span class="sub">-import Repositories
+</span><span class="add">+import Repositories (run)
+</span><span class="def"> 
+</span><span class="def"> main :: IO ()
+</span><span class="sub">-main = do
+</span><span class="sub">-    config &lt;- getConfig &quot;./config.dhall&quot;
+</span><span class="sub">-    print config
+</span><span class="sub">-    getLog &quot;.&quot;
+</span><span class="add">+main = getConfig &quot;./config.dhall&quot; &gt;&gt;= run
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,6 +1,8 @@
+
+
+  <pre><span class="def"> {-# LANGUAGE DeriveGeneric #-}
+</span><span class="def"> 
+</span><span class="def"> module Config (
+</span><span class="add">+    Config,
+</span><span class="add">+    repoPaths,
+</span><span class="def">     getConfig
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span></pre></div>    </div>
+  </body>
+</html>

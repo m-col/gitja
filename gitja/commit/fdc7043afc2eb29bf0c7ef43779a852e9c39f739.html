@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add some git dependencies and basic function to get commit message</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/fdc7043afc2eb29bf0c7ef43779a852e9c39f739.html">fdc7043afc2eb29bf0c7ef43779a852e9c39f739</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/d0ffe9b7561ed14c2f8148b2c9c5c5e08d0ca48c.html">d0ffe9b7561ed14c2f8148b2c9c5c5e08d0ca48c</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-17 00:48:43 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-17 00:48:43 +0100
+
+Add some git dependencies and basic function to get commit message
+</pre><div class="diff">
+  <p>
+    <b>stack.yaml.lock</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,7 +3,21 @@
+
+
+  <pre><span class="def"> # For more information, please see the documentation at:
+</span><span class="def"> #   https://docs.haskellstack.org/en/stable/lock_files
+</span><span class="def"> 
+</span><span class="sub">-packages: []
+</span><span class="add">+packages:
+</span><span class="add">+- completed:
+</span><span class="add">+    hackage: gitlib-3.1.3@sha256:7e8f940b380f6155be3bf20be9f363c3bfd3285bd26e0368f406a1c431994598,2935
+</span><span class="add">+    pantry-tree:
+</span><span class="add">+      size: 982
+</span><span class="add">+      sha256: dd61ec3d4a2446b20609823c013abea02874c9ca8887f23e7ac05af4bbe5a4b4
+</span><span class="add">+  original:
+</span><span class="add">+    hackage: gitlib-3.1.3@sha256:7e8f940b380f6155be3bf20be9f363c3bfd3285bd26e0368f406a1c431994598,2935
+</span><span class="add">+- completed:
+</span><span class="add">+    hackage: gitlib-libgit2-3.1.2.1@sha256:36bc92f117158440ca69e32051aabdf9df75be8a3fb5f45dff8828898e615a0a,2354
+</span><span class="add">+    pantry-tree:
+</span><span class="add">+      size: 516
+</span><span class="add">+      sha256: 47695cdeb7c1fb95a5c4bfd21bf46014554ccdd1e5059d5558a0348042044f39
+</span><span class="add">+  original:
+</span><span class="add">+    hackage: gitlib-libgit2-3.1.2.1@sha256:36bc92f117158440ca69e32051aabdf9df75be8a3fb5f45dff8828898e615a0a,2354
+</span><span class="def"> snapshots:
+</span><span class="def"> - completed:
+</span><span class="def">     size: 587546
+</span></pre></div><div class="diff">
+  <p>
+    <b>stack.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,3 +3,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> packages:
+</span><span class="def"> - .
+</span><span class="add">+
+</span><span class="add">+extra-deps:
+</span><span class="add">+- gitlib-3.1.3@sha256:7e8f940b380f6155be3bf20be9f363c3bfd3285bd26e0368f406a1c431994598,2935
+</span><span class="add">+- gitlib-libgit2-3.1.2.1@sha256:36bc92f117158440ca69e32051aabdf9df75be8a3fb5f45dff8828898e615a0a,2354
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1,18 @@
+
+
+  <pre><span class="add">+{-# Language OverloadedStrings #-}  -- Needed for repository paths.
+</span><span class="add">+
+</span><span class="add">+module Repositories (
+</span><span class="add">+    getLog
+</span><span class="add">+) where
+</span><span class="add">+
+</span><span class="add">+import Control.Monad.IO.Class (liftIO)
+</span><span class="add">+import Data.Tagged
+</span><span class="add">+import Git
+</span><span class="add">+import Git.Libgit2 (lgFactory)
+</span><span class="add">+
+</span><span class="add">+getLog path = withRepository lgFactory path $ do
+</span><span class="add">+    maybeObjID &lt;- resolveReference &quot;HEAD&quot;
+</span><span class="add">+    case maybeObjID of
+</span><span class="add">+        Just commitID -&gt; do
+</span><span class="add">+            headCommit &lt;- lookupCommit (Tagged commitID)
+</span><span class="add">+            liftIO $ print $ commitLog headCommit
+</span><span class="add">+        _ -&gt; liftIO (print &quot;Couldn&apos;t resolve HEAD&quot;)
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,5 +1,7 @@
+
+
+  <pre><span class="def"> module Main where
+</span><span class="def"> 
+</span><span class="add">+import Repositories
+</span><span class="add">+
+</span><span class="def"> main :: IO ()
+</span><span class="def"> main = do
+</span><span class="sub">-  putStrLn &quot;hello world&quot;
+</span><span class="add">+  getLog &quot;.&quot;
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitserve.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -16,5 +16,9 @@
+
+
+  <pre><span class="def"> executable gitserve
+</span><span class="def">   hs-source-dirs:      src
+</span><span class="def">   main-is:             Main.hs
+</span><span class="add">+  other-modules:       Repositories
+</span><span class="def">   default-language:    Haskell2010
+</span><span class="def">   build-depends:       base &gt;= 4.7 &amp;&amp; &lt; 5
+</span><span class="add">+                     , gitlib
+</span><span class="add">+                     , gitlib-libgit2
+</span><span class="add">+                     , tagged
+</span></pre></div>    </div>
+  </body>
+</html>

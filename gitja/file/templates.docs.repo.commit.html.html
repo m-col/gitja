@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - templates/docs/repo/commit.html</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <p>-rw-r--r-- templates/docs/repo/commit.html</p><hr>
+
+  <pre id="blob"><a href="#l1" class="line" id="l1">    1</a>  {% extends &quot;../template.html.include&quot; %}
+<a href="#l2" class="line" id="l2">    2</a>  
+<a href="#l3" class="line" id="l3">    3</a>  {%- block title %}{{ commit.title }}{% endblock -%}
+<a href="#l4" class="line" id="l4">    4</a>  
+<a href="#l5" class="line" id="l5">    5</a>  {% block body %}
+<a href="#l6" class="line" id="l6">    6</a>  &lt;pre&gt;&lt;b&gt;Commit&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.id }}&lt;/a&gt;
+<a href="#l7" class="line" id="l7">    7</a>  &lt;b&gt;Parent:&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.parent }}.html&quot;&gt;{{ commit.parent }}&lt;/a&gt;
+<a href="#l8" class="line" id="l8">    8</a>  &lt;b&gt;Author:&lt;/b&gt; {{ commit.author }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.author_email }}&quot;&gt;{{ commit.author_email }}&lt;/a&gt;&amp;gt;
+<a href="#l9" class="line" id="l9">    9</a>  &lt;b&gt;Date:&lt;/b&gt; {{ commit.authored }}
+<a href="#l10" class="line" id="l10">   10</a>  &lt;b&gt;Committer:&lt;/b&gt; {{ commit.committer }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.committer_email }}&quot;&gt;{{ commit.committer_email }}&lt;/a&gt;&amp;gt;
+<a href="#l11" class="line" id="l11">   11</a>  &lt;b&gt;Committed:&lt;/b&gt; {{ commit.committed }}
+<a href="#l12" class="line" id="l12">   12</a>  
+<a href="#l13" class="line" id="l13">   13</a>  {{ commit.message }}
+<a href="#l14" class="line" id="l14">   14</a>  &lt;/pre&gt;
+<a href="#l15" class="line" id="l15">   15</a>  
+<a href="#l16" class="line" id="l16">   16</a>  {%- for diff in commit.diffs -%}
+<a href="#l17" class="line" id="l17">   17</a>  &lt;div class=&quot;diff&quot;&gt;
+<a href="#l18" class="line" id="l18">   18</a>    &lt;p&gt;
+<a href="#l19" class="line" id="l19">   19</a>      &lt;b&gt;{{ diff.new_file }}&lt;/b&gt;
+<a href="#l20" class="line" id="l20">   20</a>      &lt;span class=&quot;status&quot;&gt;{{ diff.status }}&lt;/span&gt;
+<a href="#l21" class="line" id="l21">   21</a>    &lt;/p&gt;
+<a href="#l22" class="line" id="l22">   22</a>  
+<a href="#l23" class="line" id="l23">   23</a>    {% if diff.newfile != diff.oldfile %}
+<a href="#l24" class="line" id="l24">   24</a>    &lt;p&gt;Renamed from {{ diff.old_file }}&lt;/p&gt;
+<a href="#l25" class="line" id="l25">   25</a>    {% endif %}
+<a href="#l26" class="line" id="l26">   26</a>  
+<a href="#l27" class="line" id="l27">   27</a>    {%- for hunk in diff.hunks -%}
+<a href="#l28" class="line" id="l28">   28</a>    {{ hunk.header }}
+<a href="#l29" class="line" id="l29">   29</a>  
+<a href="#l30" class="line" id="l30">   30</a>    &lt;pre&gt;
+<a href="#l31" class="line" id="l31">   31</a>      {%- for line in hunk.lines -%}
+<a href="#l32" class="line" id="l32">   32</a>        &lt;span class=&quot;{{ line.class }}&quot;&gt;{{ line.text }}&lt;/span&gt;
+<a href="#l33" class="line" id="l33">   33</a>      {%- endfor -%}
+<a href="#l34" class="line" id="l34">   34</a>    &lt;/pre&gt;
+<a href="#l35" class="line" id="l35">   35</a>  
+<a href="#l36" class="line" id="l36">   36</a>    {%- endfor -%}
+<a href="#l37" class="line" id="l37">   37</a>  &lt;/div&gt;
+<a href="#l38" class="line" id="l38">   38</a>  {%- endfor -%}
+<a href="#l39" class="line" id="l39">   39</a>  
+<a href="#l40" class="line" id="l40">   40</a>  {% endblock %}
+<a href="#l41" class="line" id="l41">   41</a>  
+</pre>
+      </div>
+  </body>
+</html>

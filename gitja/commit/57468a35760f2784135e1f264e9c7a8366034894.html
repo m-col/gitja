@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Source description from right path</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/57468a35760f2784135e1f264e9c7a8366034894.html">57468a35760f2784135e1f264e9c7a8366034894</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/7af0c2f1a5b4703f09e02d298c55152ec9ae5ae3.html">7af0c2f1a5b4703f09e02d298c55152ec9ae5ae3</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-24 17:05:23 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-24 17:05:23 +0100
+
+Source description from right path
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -53,7 +53,8 @@
+
+
+  <pre><span class="def"> -- This is split out to make type reasoning a bit easier.
+</span><span class="def"> processRepo&apos; :: [Template] -&gt; Config -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="def"> processRepo&apos; templates config path = do
+</span><span class="sub">-    liftIO $ createDirectoryIfMissing True outPath
+</span><span class="add">+    let name = takeFileName path
+</span><span class="add">+    liftIO $ createDirectoryIfMissing True $ outputDirectory config &lt;/&gt; name
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span></pre>@@ -62,7 +63,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">             -- description: The description of the repository from repo/description, if
+</span><span class="def">             -- it exists.
+</span><span class="sub">-            description &lt;- liftIO $ getDescription $ outPath &lt;/&gt; &quot;description&quot;
+</span><span class="add">+            description &lt;- liftIO $ getDescription $ path &lt;/&gt; &quot;description&quot;
+</span><span class="def"> 
+</span><span class="def">             -- commits: A list of `Git.Commit` objects to HEAD.
+</span><span class="def">             commits &lt;- getCommits gitHead
+</span></pre>@@ -74,9 +75,6 @@
+
+
+  <pre><span class="def">             let repo = package config name description commits tree
+</span><span class="def">             liftIO . mapM (generate repo) $ templates
+</span><span class="def">             return ()
+</span><span class="sub">-  where
+</span><span class="sub">-    name = takeFileName path
+</span><span class="sub">-    outPath = outputDirectory config &lt;/&gt; name
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> The role of the function above is to gather information about a git repository and
+</span></pre></div><div class="diff">
+  <p>
+    <b>description</b>
+    <span class="status">Added</span>
+  </p>
+
+  @@ -0,0 +1 @@
+
+
+  <pre><span class="add">+This is a placeholder respository description used for testing!
+</span></pre></div>    </div>
+  </body>
+</html>

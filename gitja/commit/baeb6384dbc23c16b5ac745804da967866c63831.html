@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Split processRepo into child function</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/baeb6384dbc23c16b5ac745804da967866c63831.html">baeb6384dbc23c16b5ac745804da967866c63831</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/58e95c809b927cfa3d03d71e178de9fd429e3a93.html">58e95c809b927cfa3d03d71e178de9fd429e3a93</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-18 23:09:29 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-18 23:09:40 +0100
+
+Split processRepo into child function
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -7,11 +7,14 @@
+
+
+  <pre><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Data.Foldable (foldMap)
+</span><span class="def"> import Data.Tagged
+</span><span class="add">+import Data.Text (unpack, Text)
+</span><span class="def"> import Git
+</span><span class="sub">-import Git.Libgit2 (lgFactory)
+</span><span class="add">+import Git.Types (RefTarget)
+</span><span class="add">+import Git.Libgit2 (lgFactory, LgRepo)
+</span><span class="def"> import System.Directory (createDirectoryIfMissing)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="sub">-import Text.Ginger (easyRender)
+</span><span class="add">+import Text.Ginger (runGingerT, makeContextHtmlM, toGVal, GVal)
+</span><span class="add">+import Text.Ginger.Html (htmlSource)
+</span><span class="def"> 
+</span><span class="def"> import Config (Config, repoPaths, outputDirectory)
+</span><span class="def"> import Templates (Template, templateGinger, templatePath)
+</span></pre>@@ -33,18 +36,24 @@
+
+
+  <pre><span class="def"> -}
+</span><span class="def"> processRepo :: [Template] -&gt; FilePath -&gt; FilePath -&gt; IO ()
+</span><span class="def"> processRepo templates outputDirectory path = withRepository lgFactory path $ do
+</span><span class="sub">-    return $ createDirectoryIfMissing True outPath
+</span><span class="sub">-    maybeObjID &lt;- resolveReference &quot;HEAD&quot;
+</span><span class="sub">-    case maybeObjID of
+</span><span class="sub">-        Just commitID -&gt; do
+</span><span class="sub">-            headCommit &lt;- lookupCommit (Tagged commitID)
+</span><span class="sub">-            liftIO $ print $ commitLog headCommit
+</span><span class="sub">-        _ -&gt; liftIO $ print $ &quot;gitserve: &quot; &lt;&gt; (takeFileName path) &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="add">+    liftIO $ createDirectoryIfMissing True outPath
+</span><span class="add">+    ref &lt;- lookupReference &quot;HEAD&quot;
+</span><span class="add">+    case ref of
+</span><span class="add">+        Just commitID -&gt; liftIO $ processRepo&apos; templates outPath commitID
+</span><span class="add">+        _ -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; (takeFileName path) &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">   where
+</span><span class="def">     outPath = outputDirectory &lt;/&gt; (takeFileName path)
+</span><span class="def"> 
+</span><span class="add">+processRepo&apos; :: [Template] -&gt; FilePath -&gt; RefTarget LgRepo -&gt; IO ()
+</span><span class="add">+processRepo&apos; templates outPath commitID = do
+</span><span class="add">+    --headCommit &lt;- lookupCommit (Tagged commitID)
+</span><span class="add">+    liftIO $ print &quot;hi&quot;
+</span><span class="add">+    return ()
+</span><span class="add">+
+</span><span class="add">+    --mconcat $ runGingerT (makeContextHtmlM (scopeLookup context) (putStr . unpack . htmlSource)) tpl
+</span><span class="add">+
+</span><span class="def"> -- Variables:
+</span><span class="sub">-title = &quot;gitserve&quot;
+</span><span class="sub">-description = &quot;&quot;
+</span><span class="sub">-host = &quot;http://localhost&quot;
+</span><span class="sub">-path = &quot;&quot;
+</span><span class="add">+--title = &quot;gitserve&quot;
+</span><span class="add">+--description = &quot;&quot;
+</span><span class="add">+--host = &quot;http://localhost&quot;
+</span><span class="add">+--path = &quot;&quot;
+</span></pre></div>    </div>
+  </body>
+</html>

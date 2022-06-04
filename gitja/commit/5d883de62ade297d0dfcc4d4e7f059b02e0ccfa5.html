@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - move file writing out of generate</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/5d883de62ade297d0dfcc4d4e7f059b02e0ccfa5.html">5d883de62ade297d0dfcc4d4e7f059b02e0ccfa5</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/a7298b6f4d3356e2209af616a14cabf1dccf8536.html">a7298b6f4d3356e2209af616a14cabf1dccf8536</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-28 21:12:08 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-28 21:12:08 +0100
+
+move file writing out of generate
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -12,12 +12,10 @@
+
+
+  <pre><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.IORef (modifyIORef&apos;, newIORef, readIORef)
+</span><span class="def"> import qualified Data.Text as T
+</span><span class="add">+import Data.Text.Internal.Lazy (Text)
+</span><span class="def"> import qualified Data.Text.Lazy.Builder as TB
+</span><span class="sub">-import qualified Data.Text.Lazy.IO as T
+</span><span class="def"> import Git.Libgit2 (LgRepo)
+</span><span class="def"> import Path (Abs, File, Path, Rel, filename, toFilePath)
+</span><span class="sub">-import Path.IO (ignoringAbsence)
+</span><span class="sub">-import System.Directory (removeFile)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import Text.Ginger.GVal (GVal)
+</span></pre>@@ -59,13 +57,10 @@
+
+
+  <pre><span class="def"> Ginger to render templates using them.
+</span><span class="def"> -}
+</span><span class="def"> generate ::
+</span><span class="sub">-    Path Abs File -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="def">     HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="sub">-    ReaderT LgRepo IO ()
+</span><span class="sub">-generate output template context = do
+</span><span class="sub">-    let output&apos; = toFilePath output
+</span><span class="sub">-    liftIO . ignoringAbsence . removeFile $ output&apos;
+</span><span class="add">+    ReaderT LgRepo IO Text
+</span><span class="add">+generate template context = do
+</span><span class="def">     content &lt;- liftIO . newIORef . TB.fromText $ &quot;&quot;
+</span><span class="def"> 
+</span><span class="def">     let emit :: Html -&gt; ReaderT LgRepo IO ()
+</span></pre>@@ -73,4 +68,4 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">     runGingerT (easyContext emit context) . templateGinger $ template
+</span><span class="def">     result &lt;- liftIO . readIORef $ content
+</span><span class="sub">-    liftIO . T.writeFile output&apos; . TB.toLazyText $ result
+</span><span class="add">+    return . TB.toLazyText $ result
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -3,6 +3,7 @@
+
+
+  <pre><span class="def"> {-# LANGUAGE FlexibleInstances #-}
+</span><span class="def"> {-# LANGUAGE LambdaCase #-}
+</span><span class="def"> {-# LANGUAGE OverloadedStrings #-}
+</span><span class="add">+{-# LANGUAGE ScopedTypeVariables #-}
+</span><span class="def"> 
+</span><span class="def"> module Repositories (
+</span><span class="def">     run,
+</span></pre>@@ -28,6 +29,7 @@
+
+
+  <pre><span class="def"> import qualified Data.Text as T
+</span><span class="def"> import qualified Data.Text.Encoding as T
+</span><span class="def"> import qualified Data.Text.Encoding.Error as T
+</span><span class="add">+import qualified Data.Text.Lazy.IO as TL
+</span><span class="def"> import Foreign.C.String (CString)
+</span><span class="def"> import Foreign.C.Types (CChar, CFloat, CInt, CSize)
+</span><span class="def"> import Foreign.Ptr (Ptr)
+</span></pre>@@ -35,7 +37,8 @@
+
+
+  <pre><span class="def"> import qualified Git
+</span><span class="def"> import Git.Libgit2 (LgRepo, lgDiffTreeToTree, lgFactory)
+</span><span class="def"> import Path (Abs, Dir, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
+</span><span class="sub">-import Path.IO (doesFileExist, ensureDir)
+</span><span class="add">+import Path.IO (doesFileExist, ensureDir, ignoringAbsence)
+</span><span class="add">+import System.Directory (removeFile)
+</span><span class="def"> import qualified System.Directory as D
+</span><span class="def"> import qualified System.FilePath as FP
+</span><span class="def"> import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+</span></pre>@@ -367,8 +370,10 @@
+
+
+  <pre><span class="def">     HashMap.HashMap Text (GVal RunRepo) -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="def">     ReaderT LgRepo IO ()
+</span><span class="sub">-genRepo output scope template =
+</span><span class="sub">-    generate (output &lt;/&gt; templatePath template) template scope
+</span><span class="add">+genRepo output scope template = do
+</span><span class="add">+    let output&apos; = toFilePath (output &lt;/&gt; templatePath template)
+</span><span class="add">+    result &lt;- generate template scope
+</span><span class="add">+    liftIO $ TL.writeFile output&apos; result
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> -- Targets -----------------------------------------------------------------------------
+</span></pre>@@ -401,5 +406,8 @@
+
+
+  <pre><span class="def">     output&apos; &lt;- liftIO . fmap (output &lt;/&gt;) . parseRelFile . href $ target
+</span><span class="def">     exists &lt;- liftIO . doesFileExist $ output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="sub">-        liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; toFilePath output&apos;
+</span><span class="sub">-        generate output&apos; template $ HashMap.insert category (toGVal target) scope
+</span><span class="add">+        let output&apos;&apos; = toFilePath output&apos;
+</span><span class="add">+        liftIO . unless quiet . putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;&apos;
+</span><span class="add">+        liftIO . ignoringAbsence . removeFile $ output&apos;&apos;
+</span><span class="add">+        result &lt;- generate template $ HashMap.insert category (toGVal target) scope
+</span><span class="add">+        liftIO $ TL.writeFile output&apos;&apos; result
+</span></pre></div>    </div>
+  </body>
+</html>

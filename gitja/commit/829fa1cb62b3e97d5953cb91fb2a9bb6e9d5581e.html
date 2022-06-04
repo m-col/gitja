@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - build with stackage nightly-2022-02-19</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/829fa1cb62b3e97d5953cb91fb2a9bb6e9d5581e.html">829fa1cb62b3e97d5953cb91fb2a9bb6e9d5581e</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/020ff03a5d5066c5a1f5e9d57751f13a6a07adcb.html">020ff03a5d5066c5a1f5e9d57751f13a6a07adcb</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-02-20 17:30:38 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-02-20 17:30:38 +0000
+
+build with stackage nightly-2022-02-19
+</pre><div class="diff">
+  <p>
+    <b>stack.yaml.lock</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -39,7 +39,7 @@
+
+
+  <pre><span class="def">     url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
+</span><span class="def"> snapshots:
+</span><span class="def"> - completed:
+</span><span class="sub">-    size: 586296
+</span><span class="sub">-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/18.yaml
+</span><span class="sub">-    sha256: 63539429076b7ebbab6daa7656cfb079393bf644971156dc349d7c0453694ac2
+</span><span class="sub">-  original: lts-18.18
+</span><span class="add">+    size: 609309
+</span><span class="add">+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/2/19.yaml
+</span><span class="add">+    sha256: d661d997c564c9dfd7391721335e0f8f1355a196d7f60037ae7c762d5bf127ed
+</span><span class="add">+  original: nightly-2022-02-19
+</span></pre></div><div class="diff">
+  <p>
+    <b>stack.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,4 +1,4 @@
+
+
+  <pre><span class="sub">-resolver: lts-18.18
+</span><span class="add">+resolver: nightly-2022-02-19
+</span><span class="def"> 
+</span><span class="def"> extra-deps:
+</span><span class="def"> - ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
+</span></pre></div><div class="diff">
+  <p>
+    <b>cabal.project</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,8 +0,0 @@
+
+
+  <pre><span class="sub">-packages: .
+</span><span class="sub">-
+</span><span class="sub">-
+</span><span class="sub">-source-repository-package
+</span><span class="sub">-    type: git
+</span><span class="sub">-    location: https://github.com/m-col/gitlib
+</span><span class="sub">-    tag: 7166ed78aa59734999fbc4bf92404d404756a9f9
+</span><span class="sub">-    subdir: gitlib gitlib-libgit2
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - move some helper functions into a where block</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/7ffff1509e31ac7dee1d9ff5ad97696711f17a69.html">7ffff1509e31ac7dee1d9ff5ad97696711f17a69</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/993107b3a773d6db4272c3db0d75a93d3df4c9de.html">993107b3a773d6db4272c3db0d75a93d3df4c9de</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-04-14 21:34:29 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-04-14 21:34:29 +0100
+
+move some helper functions into a where block
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -281,32 +281,33 @@
+
+
+  <pre><span class="def"> contents.
+</span><span class="def"> -}
+</span><span class="def"> getTree :: Git.CommitOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="sub">-getTree = getTree&apos; &quot;&quot; . Git.commitTree &lt;=&lt; Git.lookupCommit
+</span><span class="sub">-
+</span><span class="sub">-getTree&apos; :: Git.TreeFilePath -&gt; Git.TreeOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="sub">-getTree&apos; parent toid = do
+</span><span class="sub">-    entries &lt;- Git.listTreeEntries =&lt;&lt; Git.lookupTree toid
+</span><span class="sub">-    let entries&apos; = fmap (prependParent parent) entries
+</span><span class="sub">-    contents &lt;- mapM getEntryContents entries&apos;
+</span><span class="sub">-    modes &lt;- mapM (getEntryModes . snd) entries&apos;
+</span><span class="sub">-    return $ zipWith3 TreeFile (fmap treePaths entries&apos;) contents modes
+</span><span class="sub">-
+</span><span class="sub">-prependParent :: Git.TreeFilePath -&gt; (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; (Git.TreeFilePath, Git.TreeEntry LgRepo)
+</span><span class="sub">-prependParent &quot;&quot; pathentry = pathentry
+</span><span class="sub">-prependParent parent (path, entry) = (mconcat [parent, &quot;/&quot;, path], entry)
+</span><span class="sub">-
+</span><span class="sub">-getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="sub">-getEntryContents (_, Git.BlobEntry oid _) = getBlobContents oid
+</span><span class="sub">-getEntryContents (path, Git.TreeEntry oid) = FolderContents &lt;$&gt; getTree&apos; path oid
+</span><span class="sub">-getEntryContents (_, Git.CommitEntry oid) = return . FileContents . B.fromString . show . untag $ oid
+</span><span class="sub">-
+</span><span class="sub">-getEntryModes :: Git.TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeEntryMode
+</span><span class="sub">-getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
+</span><span class="sub">-getEntryModes (Git.TreeEntry _) = return ModeDirectory
+</span><span class="sub">-getEntryModes (Git.CommitEntry _) = return ModeSubmodule
+</span><span class="sub">-
+</span><span class="sub">-treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; Text
+</span><span class="sub">-treePaths = T.decodeUtf8With T.lenientDecode . fst
+</span><span class="add">+getTree = getTree&apos; &quot;&quot; 0 . Git.commitTree &lt;=&lt; Git.lookupCommit
+</span><span class="add">+  where
+</span><span class="add">+    getTree&apos; :: Git.TreeFilePath -&gt; Int -&gt; Git.TreeOid LgRepo -&gt; ReaderT LgRepo IO [TreeFile]
+</span><span class="add">+    getTree&apos; parent count toid = do
+</span><span class="add">+        one &lt;- Git.lookupTree toid
+</span><span class="add">+        entries &lt;- Git.listTreeEntries one
+</span><span class="add">+        let entries&apos; = fmap (prependParent parent) entries
+</span><span class="add">+        contents &lt;- mapM (\x -&gt; getEntryContents x (count + 1)) entries&apos;
+</span><span class="add">+        modes &lt;- mapM (getEntryModes . snd) entries&apos;
+</span><span class="add">+        return $ zipWith3 TreeFile (fmap treePaths entries&apos;) contents modes
+</span><span class="add">+
+</span><span class="add">+    prependParent :: Git.TreeFilePath -&gt; (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; (Git.TreeFilePath, Git.TreeEntry LgRepo)
+</span><span class="add">+    prependParent &quot;&quot; pathentry = pathentry
+</span><span class="add">+    prependParent parent (path, entry) = (mconcat [parent, &quot;/&quot;, path], entry)
+</span><span class="add">+
+</span><span class="add">+    getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; Int -&gt; ReaderT LgRepo IO TreeFileContents
+</span><span class="add">+    getEntryContents (_, Git.BlobEntry oid _) _ = getBlobContents oid
+</span><span class="add">+    getEntryContents (path, Git.TreeEntry oid) count = FolderContents &lt;$&gt; getTree&apos; path count oid
+</span><span class="add">+    getEntryContents (_, Git.CommitEntry oid) _ = return . FileContents . B.fromString . show . untag $ oid
+</span><span class="add">+
+</span><span class="add">+    getEntryModes :: Git.TreeEntry LgRepo -&gt; ReaderT LgRepo IO TreeEntryMode
+</span><span class="add">+    getEntryModes (Git.BlobEntry _ kind) = return . blobkindToMode $ kind
+</span><span class="add">+    getEntryModes (Git.TreeEntry _) = return ModeDirectory
+</span><span class="add">+    getEntryModes (Git.CommitEntry _) = return ModeSubmodule
+</span><span class="add">+
+</span><span class="add">+    treePaths :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -&gt; Text
+</span><span class="add">+    treePaths = T.decodeUtf8With T.lenientDecode . fst
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Find a file in the tree starting with the specified prefix. The prefix is looked for on
+</span></pre></div>    </div>
+  </body>
+</html>

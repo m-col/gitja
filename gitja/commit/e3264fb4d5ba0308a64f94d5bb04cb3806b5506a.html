@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Let for nested folders to also display contents non-recursively</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/e3264fb4d5ba0308a64f94d5bb04cb3806b5506a.html">e3264fb4d5ba0308a64f94d5bb04cb3806b5506a</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/f74a6a14a03425b91253f18e69ac2305fbc0c1dd.html">f74a6a14a03425b91253f18e69ac2305fbc0c1dd</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-12-05 01:51:17 +0300
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-12-05 01:51:17 +0300
+
+Let for nested folders to also display contents non-recursively
+</pre><div class="diff">
+  <p>
+    <b>templates/docs/repo/file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,7 +15,7 @@
+
+
+  <pre><span class="def">   &lt;/thead&gt;
+</span><span class="def"> 
+</span><span class="def">   &lt;tbody&gt;
+</span><span class="sub">-    {% for child in file.contents %}
+</span><span class="add">+    {% for child in file.tree %}
+</span><span class="def">     &lt;tr&gt;
+</span><span class="def">       &lt;td&gt;{{ child.mode_symbolic }}&lt;/td&gt;
+</span><span class="def">       &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ child.href }}&quot;&gt;{{ child.path }}&lt;/a&gt;&lt;/td&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/base/repo/file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,7 +15,7 @@
+
+
+  <pre><span class="def">   &lt;/thead&gt;
+</span><span class="def"> 
+</span><span class="def">   &lt;tbody&gt;
+</span><span class="sub">-    {% for child in file.contents %}
+</span><span class="add">+    {% for child in file.tree %}
+</span><span class="def">     &lt;tr&gt;
+</span><span class="def">       &lt;td&gt;{{ child.mode_symbolic }}&lt;/td&gt;
+</span><span class="def">       &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ child.href }}&quot;&gt;{{ child.path }}&lt;/a&gt;&lt;/td&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -16,7 +16,7 @@
+
+
+  <pre><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="def"> import Data.Default (def)
+</span><span class="sub">-import Data.Maybe (listToMaybe)
+</span><span class="add">+import Data.Maybe (fromMaybe, listToMaybe)
+</span><span class="def"> import Data.Tagged (untag)
+</span><span class="def"> import Data.Text (Text, pack, strip)
+</span><span class="def"> import qualified Data.Text as T
+</span></pre>@@ -27,7 +27,7 @@
+
+
+  <pre><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (LgRepo, getOid, repoObj)
+</span><span class="def"> import Path (Abs, Dir, Path, dirname, toFilePath)
+</span><span class="sub">-import System.FilePath (takeFileName)
+</span><span class="add">+import qualified System.FilePath as FP
+</span><span class="def"> import Text.Ginger.GVal (GVal, ToGVal, asBoolean, asHtml, asList, asLookup, asText, toGVal)
+</span><span class="def"> import Text.Ginger.Html (Html, html)
+</span><span class="def"> import Text.Ginger.Parse (SourcePos)
+</span></pre>@@ -187,9 +187,11 @@
+
+
+  <pre><span class="def"> treeAsLookup :: TreeFile -&gt; Text -&gt; Maybe (GVal RunRepo)
+</span><span class="def"> treeAsLookup treefile = \case
+</span><span class="def">     &quot;path&quot; -&gt; Just . toGVal . treeFilePath $ treefile
+</span><span class="sub">-    &quot;name&quot; -&gt; Just . toGVal . takeFileName . T.unpack . treeFilePath $ treefile
+</span><span class="add">+    &quot;name&quot; -&gt; Just . toGVal . FP.takeFileName . T.unpack . treeFilePath $ treefile
+</span><span class="def">     &quot;href&quot; -&gt; Just . toGVal . treePathToHref $ treefile
+</span><span class="def">     &quot;contents&quot; -&gt; Just . toGVal . treeFileContents $ treefile
+</span><span class="add">+    &quot;tree&quot; -&gt; Just . toGVal . treeFileGetTree (treeFilePath treefile) . treeFileContents $ treefile
+</span><span class="add">+    &quot;tree_recursive&quot; -&gt; Just . toGVal . treeFileGetTreeRecursive . treeFileContents $ treefile
+</span><span class="def">     &quot;mode&quot; -&gt; Just . toGVal . drop 4 . show . treeFileMode $ treefile
+</span><span class="def">     &quot;mode_octal&quot; -&gt; Just . toGVal . modeToOctal . treeFileMode $ treefile
+</span><span class="def">     &quot;mode_symbolic&quot; -&gt; Just . toGVal . modeToSymbolic . treeFileMode $ treefile
+</span></pre>@@ -197,6 +199,16 @@
+
+
+  <pre><span class="def">     &quot;is_directory&quot; -&gt; Just . toGVal . treeFileIsDirectory $ treefile
+</span><span class="def">     _ -&gt; Nothing
+</span><span class="def"> 
+</span><span class="add">+treeFileGetTree :: Text -&gt; TreeFileContents -&gt; [TreeFile]
+</span><span class="add">+treeFileGetTree parent (FolderContents fs) = filter atTop fs
+</span><span class="add">+  where
+</span><span class="add">+    atTop = notElem FP.pathSeparator . drop 1 . T.unpack . fromMaybe &quot;&quot; . T.stripPrefix parent . treeFilePath
+</span><span class="add">+treeFileGetTree _ _ = []
+</span><span class="add">+
+</span><span class="add">+treeFileGetTreeRecursive :: TreeFileContents -&gt; [TreeFile]
+</span><span class="add">+treeFileGetTreeRecursive (FolderContents fs) = fs
+</span><span class="add">+treeFileGetTreeRecursive _ = []
+</span><span class="add">+
+</span><span class="def"> treeFileIsBinary :: TreeFile -&gt; Bool
+</span><span class="def"> treeFileIsBinary treefile = case treeFileContents treefile of
+</span><span class="def">     BinaryContents -&gt; True
+</span></pre></div><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -191,6 +191,8 @@
+
+
+  <pre><span class="def"> |            | mode\_symbolic   | Mode in symbolic form e.g. &quot;&quot;-rw-r--r--&quot; for plain files.|
+</span><span class="def"> |            | is\_directory    | A boolean, useful for ginger conditionals.               |
+</span><span class="def"> |            | is\_binary       | A boolean, tells you if the contents can be rendered.    |
+</span><span class="add">+|            | tree             | A list of a directory&apos;s direct contents.                 |
+</span><span class="add">+|            | tree\_recursive  | A list of *all* of a directory&apos;s contents.               |
+</span><span class="def"> | ref        | name             | The tag or branch name.                                  |
+</span><span class="def"> |            | commit           | The commit pointed to by the tag or branch.              |
+</span><span class="def"> 
+</span></pre></div>    </div>
+  </body>
+</html>

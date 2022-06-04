@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add some docs about descriptions and allow use of .git/description</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/04be7bc2ef0df74aac86332bb6935c8e1c60a97f.html">04be7bc2ef0df74aac86332bb6935c8e1c60a97f</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/174d8aaaea29ef5cc1aecd98ab2cefe1d72aad5a.html">174d8aaaea29ef5cc1aecd98ab2cefe1d72aad5a</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-12-04 00:57:42 +0300
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-12-04 00:57:42 +0300
+
+Add some docs about descriptions and allow use of .git/description
+
+Closes #20
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -12,9 +12,10 @@
+
+
+  <pre><span class="def"> import Conduit (runConduit, sinkList, (.|))
+</span><span class="def"> import Control.Exception (try)
+</span><span class="def"> import Control.Monad (filterM, unless, when, (&lt;=&lt;))
+</span><span class="add">+import Control.Monad.Extra (ifM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="sub">-import Data.Either (fromRight, isRight)
+</span><span class="add">+import Data.Either (isRight)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, mapMaybe)
+</span><span class="def"> import Data.Tagged
+</span></pre>@@ -25,8 +26,8 @@
+
+
+  <pre><span class="def"> import Git.Libgit2 (LgRepo, lgFactory)
+</span><span class="def"> import Path (Abs, Dir, File, Path, Rel, dirname, parseRelDir, parseRelFile, toFilePath, (&lt;/&gt;))
+</span><span class="def"> import Path.IO (doesFileExist, ensureDir)
+</span><span class="add">+import qualified System.Directory as D
+</span><span class="def"> import qualified System.FilePath as FP
+</span><span class="sub">-import System.IO.Error (tryIOError)
+</span><span class="def"> import Text.Ginger.GVal (GVal, ToGVal, toGVal)
+</span><span class="def"> 
+</span><span class="def"> import Templates (Env (..), Template (..), generate)
+</span></pre>@@ -54,10 +55,31 @@
+
+
+  <pre><span class="def">     okRepo p = try . liftIO . openRepository lgFactory $ defaultRepositoryOptions{repoPath = toFilePath p}
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-Pass the repository&apos;s folder, get its description.
+</span><span class="add">+Pass the repository&apos;s folder, get its description. The algorithm is:
+</span><span class="add">+
+</span><span class="add">+    1. Check for a description in repo/description
+</span><span class="add">+    2. Check for a description in repo/.git/description
+</span><span class="add">+    3. Fallback to the repo folder&apos;s name.
+</span><span class="add">+
+</span><span class="def"> -}
+</span><span class="def"> getDescription :: Path Abs Dir -&gt; IO Text
+</span><span class="sub">-getDescription = fmap (fromRight &quot;&quot;) . tryIOError . fmap (strip . pack) . readFile . flip FP.combine &quot;description&quot; . toFilePath
+</span><span class="add">+getDescription dir =
+</span><span class="add">+    ifM
+</span><span class="add">+        (D.doesFileExist inTop)
+</span><span class="add">+        (return . Just $ inTop)
+</span><span class="add">+        ( ifM
+</span><span class="add">+            (D.doesFileExist inGit)
+</span><span class="add">+            (return . Just $ inGit)
+</span><span class="add">+            (return Nothing)
+</span><span class="add">+        )
+</span><span class="add">+        &gt;&gt;= \case
+</span><span class="add">+            Just file -&gt;
+</span><span class="add">+                strip . pack &lt;$&gt; readFile file
+</span><span class="add">+            Nothing -&gt;
+</span><span class="add">+                return . pack . toFilePath . dirname $ dir
+</span><span class="add">+  where
+</span><span class="add">+    inTop = toFilePath dir FP.&lt;/&gt; &quot;description&quot;
+</span><span class="add">+    inGit = toFilePath dir FP.&lt;/&gt; &quot;.git&quot; FP.&lt;/&gt; &quot;description&quot;
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This receives a file path to a single repository and tries to process it. If the
+</span></pre></div><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -140,7 +140,7 @@
+
+
+  <pre><span class="def"> |        | repositories | A list of all of the git repositories.                |
+</span><span class="def"> | Repo   |              | *In addition to the variables from the index scope...*|
+</span><span class="def"> |        | name         | The repository name, taken from its folder name.      |
+</span><span class="sub">-|        | description  | A description taken from a file called &quot;description&quot; in that folder.|
+</span><span class="add">+|        | description  | The repository&apos;s description (see below).             |
+</span><span class="def"> |        | commits      | A list of the repository&apos;s commits.                   |
+</span><span class="def"> |        | tree         | A list of the repository&apos;s files.                     |
+</span><span class="def"> |        | tags         | A list of the refs corresponding to tags.             |
+</span></pre>@@ -163,7 +163,7 @@
+
+
+  <pre><span class="def"> | Object     | Attribute        | Description                                              |
+</span><span class="def"> | ---------- | ---------------- | -------------------------------------------------------- |
+</span><span class="def"> | repository | name             | The repository&apos;s name, taken from the folder name.       |
+</span><span class="sub">-|            | description      | A description taken from a file called &quot;description&quot; in that folder.|
+</span><span class="add">+|            | description      | The repository&apos;s description (see below).                |
+</span><span class="def"> |            | head             | The current git commit.                                  |
+</span><span class="def"> |            | updated          | The time when the current commit was committed.          |
+</span><span class="def"> | commit     | id               | The SHA of the given commit.                             |
+</span></pre>@@ -197,6 +197,15 @@
+
+
+  <pre><span class="def">   `branches[0].commit.parent` will work as expected.
+</span><span class="def"> - &quot;file&quot; includes directories and symbolic links.
+</span><span class="def"> 
+</span><span class="add">+#### Descriptions
+</span><span class="add">+
+</span><span class="add">+Each repository can have a description that is available in the templates. This
+</span><span class="add">+is how the description for a given respository is determined:
+</span><span class="add">+
+</span><span class="add">+1. Look for a file at `repo/description`, and if found read from there.
+</span><span class="add">+2. Otherwise, look for a file at `repo/.git/description`, and if found read from there.
+</span><span class="add">+2. Otherwise, simply use the repository folder&apos;s name.
+</span><span class="add">+
+</span><span class="def"> Questions?
+</span><span class="def"> ----------
+</span><span class="def"> 
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add full set of stagit-styled templates</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/b9c7afc02f303a9c56054b596e364677b7f7c012.html">b9c7afc02f303a9c56054b596e364677b7f7c012</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/295e19ea90589f2b3bcb629f5eaffd0c2e5d6ecd.html">295e19ea90589f2b3bcb629f5eaffd0c2e5d6ecd</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-21 18:24:08 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-21 18:24:08 +0000
+
+Add full set of stagit-styled templates
+</pre><div class="diff">
+  <p>
+    <b>templates/tree.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,17 +4,32 @@
+
+
+  <pre><span class="def">     &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="def">     &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="def">     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-    &lt;title&gt;{{ name }} -- tree&lt;/title&gt;
+</span><span class="sub">-    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="add">+    &lt;title&gt;{{ name }} - Tree&lt;/title&gt;
+</span><span class="add">+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;{{ host }}/style.css&quot; /&gt;
+</span><span class="add">+    &lt;link rel=&quot;icon&quot; type=&quot;image/png&quot; href=&quot;/favicon.png&quot; /&gt;
+</span><span class="def">   &lt;/head&gt;
+</span><span class="def"> 
+</span><span class="def">   &lt;body&gt;
+</span><span class="sub">-    &lt;p&gt;{{- name }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-    &lt;p&gt;{{- description }}&lt;/p&gt;
+</span><span class="sub">-    &lt;p&gt;git clone {{ host }}/{{- name }}&lt;/p&gt;
+</span><span class="sub">-    {% for file in tree %}
+</span><span class="sub">-		&lt;p&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ file.href }}&quot;&gt;{{- file.path }}&lt;/a&gt;&lt;/p&gt;
+</span><span class="sub">-    {% endfor %}
+</span><span class="add">+    {% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+    &lt;div id=&quot;content&quot;&gt;
+</span><span class="add">+      &lt;table id=&quot;files&quot;&gt;
+</span><span class="add">+        &lt;thead&gt;
+</span><span class="add">+          &lt;tr&gt;
+</span><span class="add">+            &lt;td&gt;&lt;b&gt;Mode&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+            &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+          &lt;/tr&gt;
+</span><span class="add">+        &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="add">+        &lt;tbody&gt;
+</span><span class="add">+          {% for file in tree %}
+</span><span class="add">+          &lt;tr&gt;
+</span><span class="add">+            &lt;td&gt;{{ file.mode_symbolic }}&lt;/td&gt;
+</span><span class="add">+            &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ file.href }}&quot;&gt;{{ file.path }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+          &lt;/tr&gt;
+</span><span class="add">+          {% endfor %}
+</span><span class="add">+        &lt;/tbody&gt;
+</span><span class="add">+      &lt;/table&gt;
+</span><span class="add">+    &lt;/div&gt;
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/tags.html</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,21 +0,0 @@
+
+
+  <pre><span class="sub">-&lt;!doctype html&gt;
+</span><span class="sub">-&lt;html lang=&quot;en&quot;&gt;
+</span><span class="sub">-  &lt;head&gt;
+</span><span class="sub">-    &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="sub">-    &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="sub">-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-    &lt;title&gt;{{ name }} -- tags&lt;/title&gt;
+</span><span class="sub">-    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="sub">-  &lt;/head&gt;
+</span><span class="sub">-
+</span><span class="sub">-  &lt;body&gt;
+</span><span class="sub">-    &lt;p&gt;{{ name }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-    &lt;p&gt;{{ description }}&lt;/p&gt;
+</span><span class="sub">-    &lt;p&gt;git clone {{ host }}/{{ name }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-    {% for tag in tags %}
+</span><span class="sub">-		&lt;p&gt;&lt;b&gt;{{ tag.name }}&lt;/b&gt; {{ tag.id[:7] }} {{ tag.title }}&lt;/p&gt;
+</span><span class="sub">-    {% endfor %}
+</span><span class="sub">-  &lt;/body&gt;
+</span><span class="sub">-&lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/repo-table-header.html.include</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,7 +1,7 @@
+
+
+  <pre><span class="def"> &lt;table id=&quot;head&quot;&gt;
+</span><span class="def">   &lt;tr&gt;
+</span><span class="def">     &lt;td width=&quot;32px&quot; rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;&lt;img src=&quot;{{ host }}/avatar.png&quot; id=&quot;avatar&quot;/&gt;&lt;/a&gt;&lt;/td&gt;
+</span><span class="sub">-    &lt;td rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;{{ host }}&lt;/a&gt; / &lt;a href=&quot;{{ host }}/code&quot;&gt;code&lt;/a&gt; / &lt;a href=&quot;{{ host }}/code/{{ name }}&quot;&gt;{{ name }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+    &lt;td rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;{{ host }}&lt;/a&gt; / &lt;a href=&quot;{{ host }}&quot;&gt;code&lt;/a&gt; / &lt;a href=&quot;{{ host }}/{{ name }}&quot;&gt;{{ name }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="def">     &lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/posts.html&quot;&gt;posts&lt;/a&gt;&lt;/td&gt;
+</span><span class="def">   &lt;/tr&gt;
+</span><span class="def">   &lt;tr&gt;
+</span></pre>@@ -12,12 +12,11 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> &lt;table&gt;
+</span><span class="def">   &lt;tr&gt;&lt;td&gt;&lt;span class=&quot;desc&quot;&gt;{{ description }}&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-  &lt;tr class=&quot;url&quot;&gt;&lt;td&gt;git clone &lt;href=&quot;{{ host }}/code/{{ name }}&quot;&gt;{{ host }}/code/{{ name }}&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+  &lt;tr class=&quot;url&quot;&gt;&lt;td&gt;git clone &lt;a href=&quot;{{ host }}/{{ name }}&quot;&gt;{{ host }}/{{ name }}&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="def">   &lt;tr&gt;&lt;td&gt;
+</span><span class="sub">-    &lt;a href=&quot;tree.html&quot;&gt;Files&lt;/a&gt; | &lt;a href=&quot;refs.html&quot;&gt;Refs&lt;/a&gt;
+</span><span class="sub">-    {% if readme %} | &lt;a href=&quot;{{ readme.href }}&quot;&gt;Readme&lt;/a&gt;&lt;/td&gt;{% endif %}
+</span><span class="sub">-    %{ if license %} | &lt;a href=&quot;{{ license.href }}&quot;&gt;License&lt;/a&gt;{% endif %}
+</span><span class="add">+    &lt;a href=&quot;{{ host }}/{{ name }}/tree.html&quot;&gt;Files&lt;/a&gt; | &lt;a href=&quot;{{ host }}/{{ name }}/refs.html&quot;&gt;Refs&lt;/a&gt;
+</span><span class="add">+    {% if readme %} | &lt;a href=&quot;{{ readme.href }}&quot;&gt;Readme&lt;/a&gt;{% endif %}
+</span><span class="add">+    {% if license %} | &lt;a href=&quot;{{ license.href }}&quot;&gt;License&lt;/a&gt;{% endif %}
+</span><span class="def">   &lt;/td&gt;&lt;/tr&gt;
+</span><span class="def"> &lt;/table&gt;
+</span><span class="def"> &lt;hr&gt;
+</span><span class="sub">-
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/refs.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,40 +4,40 @@
+
+
+  <pre><span class="def">     &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="def">     &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="def">     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-		&lt;title&gt;Refs - {{ name }} - {{ description }}&lt;/title&gt;
+</span><span class="add">+    &lt;title&gt;Refs - {{ name }} - {{ description }}&lt;/title&gt;
+</span><span class="def">     &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;{{ host }}/style.css&quot; /&gt;
+</span><span class="def">     &lt;link rel=&quot;icon&quot; type=&quot;image/png&quot; href=&quot;/favicon.png&quot; /&gt;
+</span><span class="def">   &lt;/head&gt;
+</span><span class="def"> 
+</span><span class="def">   &lt;body&gt;
+</span><span class="sub">-    {% include repo-table-header.html.include %}
+</span><span class="add">+    {% include  &quot;repo-table-header.html.include&quot; %}
+</span><span class="def"> 
+</span><span class="def">     &lt;div id=&quot;content&quot;&gt;
+</span><span class="sub">-			&lt;h2&gt;Branches&lt;/h2&gt;
+</span><span class="sub">-			&lt;table id=&quot;branches&quot;&gt;
+</span><span class="sub">-				&lt;thead&gt;
+</span><span class="sub">-					&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit date&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-				&lt;/thead&gt;
+</span><span class="sub">-				&lt;tbody&gt;
+</span><span class="sub">-					{% for branch in branches %}
+</span><span class="sub">-					&lt;tr&gt;&lt;td&gt;{{ branch.name }}&lt;/td&gt;&lt;td&gt;{{ branch.authored }}&lt;/td&gt;&lt;td&gt;{{ branch.title }}&lt;/td&gt;&lt;td&gt;{{ branch.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-					{% endfor %}
+</span><span class="sub">-				&lt;/tbody&gt;
+</span><span class="sub">-			&lt;/table&gt;
+</span><span class="add">+      &lt;h2&gt;Branches&lt;/h2&gt;
+</span><span class="add">+      &lt;table id=&quot;branches&quot;&gt;
+</span><span class="add">+        &lt;thead&gt;
+</span><span class="add">+          &lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit date&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+        &lt;/thead&gt;
+</span><span class="add">+        &lt;tbody&gt;
+</span><span class="add">+          {% for branch in branches %}
+</span><span class="add">+          &lt;tr&gt;&lt;td&gt;{{ branch.name }}&lt;/td&gt;&lt;td&gt;{{ branch.authored }}&lt;/td&gt;&lt;td&gt;{{ branch.title }}&lt;/td&gt;&lt;td&gt;{{ branch.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+          {% endfor %}
+</span><span class="add">+        &lt;/tbody&gt;
+</span><span class="add">+      &lt;/table&gt;
+</span><span class="def"> 
+</span><span class="sub">-			&lt;br&gt;
+</span><span class="add">+      &lt;br&gt;
+</span><span class="def"> 
+</span><span class="sub">-			&lt;h2&gt;Tags&lt;/h2&gt;
+</span><span class="sub">-			&lt;table id=&quot;tags&quot;&gt;
+</span><span class="sub">-				&lt;thead&gt;
+</span><span class="sub">-					&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit date&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-				&lt;/thead&gt;
+</span><span class="sub">-				&lt;tbody&gt;
+</span><span class="sub">-					{% for tag in tags %}
+</span><span class="sub">-					&lt;tr&gt;&lt;td&gt;{{ tag.name }}&lt;/td&gt;&lt;td&gt;{{ tag.authored }}&lt;/td&gt;&lt;td&gt;{{ tag.title }}&lt;/td&gt;&lt;td&gt;{{ tag.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="sub">-					{% endfor %}
+</span><span class="sub">-				&lt;/tbody&gt;
+</span><span class="sub">-			&lt;/table&gt;
+</span><span class="add">+      &lt;h2&gt;Tags&lt;/h2&gt;
+</span><span class="add">+      &lt;table id=&quot;tags&quot;&gt;
+</span><span class="add">+        &lt;thead&gt;
+</span><span class="add">+          &lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit date&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+        &lt;/thead&gt;
+</span><span class="add">+        &lt;tbody&gt;
+</span><span class="add">+          {% for tag in tags %}
+</span><span class="add">+          &lt;tr&gt;&lt;td&gt;{{ tag.name }}&lt;/td&gt;&lt;td&gt;{{ tag.authored }}&lt;/td&gt;&lt;td&gt;{{ tag.title }}&lt;/td&gt;&lt;td&gt;{{ tag.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+          {% endfor %}
+</span><span class="add">+        &lt;/tbody&gt;
+</span><span class="add">+      &lt;/table&gt;
+</span><span class="def">     &lt;/div&gt;
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/log.html</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,20 +0,0 @@
+
+
+  <pre><span class="sub">-&lt;!doctype html&gt;
+</span><span class="sub">-&lt;html lang=&quot;en&quot;&gt;
+</span><span class="sub">-  &lt;head&gt;
+</span><span class="sub">-    &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="sub">-    &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="sub">-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-    &lt;title&gt;{{ name }} -- log&lt;/title&gt;
+</span><span class="sub">-    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="sub">-  &lt;/head&gt;
+</span><span class="sub">-
+</span><span class="sub">-  &lt;body&gt;
+</span><span class="sub">-    &lt;p&gt;{{- name }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-    &lt;p&gt;{{- description }}&lt;/p&gt;
+</span><span class="sub">-    &lt;p&gt;git clone {{ host }}/{{- name }}&lt;/p&gt;
+</span><span class="sub">-    {% for commit in commits[:50] %}
+</span><span class="sub">-    &lt;p&gt;&lt;b&gt;&lt;a href=&quot;{{ host }}/{{ name }}/commit/{{ commit.id }}.html&quot;&gt;{{ commit.id[:7] }}&lt;/a&gt;&lt;/b&gt; {{ commit.title }}&lt;/p&gt;
+</span><span class="sub">-    {% endfor %}
+</span><span class="sub">-  &lt;/body&gt;
+</span><span class="sub">-&lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/index.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,27 +4,30 @@
+
+
+  <pre><span class="def">     &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="def">     &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="def">     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-    &lt;title&gt;{{ name }}&lt;/title&gt;
+</span><span class="sub">-    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="add">+    &lt;title&gt;{{ name }} - {{ description }}&lt;/title&gt;
+</span><span class="add">+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;{{ host }}/style.css&quot; /&gt;
+</span><span class="add">+    &lt;link rel=&quot;icon&quot; type=&quot;image/png&quot; href=&quot;/favicon.png&quot; /&gt;
+</span><span class="def">   &lt;/head&gt;
+</span><span class="def"> 
+</span><span class="def">   &lt;body&gt;
+</span><span class="sub">-    &lt;p&gt;{{- name }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-    &lt;p&gt;{{- description }}&lt;/p&gt;
+</span><span class="sub">-    &lt;p&gt;git clone {{ host }}/{{- name }}&lt;/p&gt;
+</span><span class="sub">-		&lt;p&gt;&lt;a href=&quot;./log.html&quot;&gt;Log&lt;/a&gt;&lt;/p&gt;
+</span><span class="sub">-		&lt;p&gt;&lt;a href=&quot;./tree.html&quot;&gt;Tree&lt;/a&gt;&lt;/p&gt;
+</span><span class="sub">-		&lt;p&gt;&lt;a href=&quot;./tags.html&quot;&gt;Tags&lt;/a&gt;&lt;/p&gt;
+</span><span class="sub">-		&lt;p&gt;&lt;a href=&quot;./branches.html&quot;&gt;Branches&lt;/a&gt;&lt;/p&gt;
+</span><span class="sub">-		{% if license %}
+</span><span class="sub">-		&lt;p&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ license.href }}&quot;&gt;License&lt;/a&gt;&lt;/p&gt;
+</span><span class="sub">-		{% endif %}
+</span><span class="sub">-		{% if readme %}
+</span><span class="sub">-		&lt;p&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ readme.href }}&quot;&gt;Readme&lt;/a&gt;&lt;/p&gt;
+</span><span class="sub">-		&lt;pre&gt;
+</span><span class="sub">-		{{ readme.contents }}
+</span><span class="sub">-		&lt;/pre&gt;
+</span><span class="sub">-		{% endif %}
+</span><span class="add">+    {% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+    &lt;div id=&quot;content&quot;&gt;
+</span><span class="add">+      &lt;table id=&quot;log&quot;&gt;
+</span><span class="add">+        &lt;thead&gt;
+</span><span class="add">+          &lt;tr&gt;
+</span><span class="add">+            &lt;td&gt;&lt;b&gt;Date&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+            &lt;td&gt;&lt;b&gt;Commit message&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+            &lt;td&gt;&lt;b&gt;Author&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+          &lt;/tr&gt;
+</span><span class="add">+        &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="add">+        &lt;tbody&gt;
+</span><span class="add">+          {% for commit in commits[:50] %}
+</span><span class="add">+          &lt;tr&gt;&lt;td&gt;{{ commit.authored[:16] }}&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;commits/{{ commit.id }}.html&quot;&gt;{{ commit.title }}&lt;/a&gt;&lt;/td&gt;&lt;td&gt;{{ commit.author }}&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+          {% endfor %}
+</span><span class="add">+        &lt;/tbody&gt;
+</span><span class="add">+      &lt;/table&gt;
+</span><span class="add">+    &lt;/div&gt;
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/index-main.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -11,8 +11,8 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">   &lt;body&gt;
+</span><span class="def">     &lt;table id=&quot;head&quot;&gt;
+</span><span class="sub">-			&lt;tr&gt;&lt;td width=&quot;32px&quot; rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;&lt;img src=&quot;/avatar.png&quot; id=&quot;avatar&quot;/&gt;&lt;/a&gt;&lt;/td&gt;
+</span><span class="sub">-      &lt;td rowspan=&quot;2&quot;&gt;&lt;a href=&quot;/&quot;&gt;{{ host }}&lt;/a&gt; / &lt;a href=&quot;/code&quot;&gt;code&lt;/a&gt;&lt;/td&gt;&lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;/posts.html&quot;&gt;posts&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;/about.html&quot;&gt;about&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+			&lt;tr&gt;&lt;td width=&quot;32px&quot; rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;&lt;img src=&quot;{{ host }}/avatar.png&quot; id=&quot;avatar&quot;/&gt;&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+				&lt;td rowspan=&quot;2&quot;&gt;&lt;a href=&quot;{{ host }}&quot;&gt;{{ host }}&lt;/a&gt; / &lt;a href=&quot;{{ host }}&quot;&gt;code&lt;/a&gt;&lt;/td&gt;&lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/posts.html&quot;&gt;posts&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td class=&quot;link&quot;&gt;&lt;a href=&quot;{{ host }}/about.html&quot;&gt;about&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="def">     &lt;/table&gt;
+</span><span class="def"> 
+</span><span class="def">     &lt;hr&gt;
+</span></pre>@@ -20,8 +20,9 @@
+
+
+  <pre><span class="def">     &lt;div id=&quot;content&quot;&gt;
+</span><span class="def">       &lt;table id=&quot;index&quot;&gt;
+</span><span class="def">         &lt;thead&gt;
+</span><span class="sub">-          &lt;tr&gt;&lt;td&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;b&gt;Description&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="add">+					&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Description&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Last commit&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+</span><span class="def">         &lt;/thead&gt;
+</span><span class="add">+
+</span><span class="def">         &lt;tbody&gt;
+</span><span class="def">           {% for repo in repositories %}
+</span><span class="def">           &lt;tr&gt;&lt;td&gt;&lt;a href=&quot;{{ repo.name }}&quot;&gt;{{ repo.name }}&lt;/a&gt;&lt;/td&gt;&lt;td&gt;{{ repo.description }}&lt;/td&gt;&lt;td&gt;{{ repo.updated }}&lt;/td&gt;&lt;/tr&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/file.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,34 +4,44 @@
+
+
+  <pre><span class="def">     &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="def">     &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="def">     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-    &lt;title&gt;{{ name }} -- {{ file }}&lt;/title&gt;
+</span><span class="sub">-    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{ host }}/style.css&quot; /&gt;
+</span><span class="add">+    &lt;title&gt;{{ name }} - {{ file }}&lt;/title&gt;
+</span><span class="add">+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;{{ host }}/style.css&quot;/&gt;
+</span><span class="add">+    &lt;link rel=&quot;icon&quot; type=&quot;image/png&quot; href=&quot;/favicon.png&quot;/&gt;
+</span><span class="def">   &lt;/head&gt;
+</span><span class="def"> 
+</span><span class="def">   &lt;body&gt;
+</span><span class="sub">-    &lt;p&gt;&lt;a href=&quot;{{ host }}&quot;&gt;{{ host }} -- gitserve&lt;/a&gt;&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-    &lt;p&gt;&lt;a href=&quot;{{ host }}/{{ name }}&quot;&gt;{{ name }}&lt;/a&gt;&lt;/p&gt;
+</span><span class="sub">-    &lt;p&gt;{{ description }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-    &lt;p&gt;{{ file.mode }} &lt;b&gt;{{ file.path }}&lt;/b&gt;&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="add">+    {% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+    &lt;div id=&quot;content&quot;&gt;
+</span><span class="add">+      &lt;p&gt;{{ file }} {{ file.mode_symbolic }}&lt;/p&gt;
+</span><span class="add">+
+</span><span class="add">+      &lt;hr&gt;
+</span><span class="def"> 
+</span><span class="def"> {% if file.is_directory %}
+</span><span class="sub">-    &lt;table&gt;
+</span><span class="sub">-{% for item in file.contents %}
+</span><span class="sub">-      &lt;tr&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ file }}.{{ item }}.html&quot;&gt;{{ item }}&lt;/a&gt;&lt;/tr&gt;
+</span><span class="sub">-{% endfor %}
+</span><span class="sub">-    &lt;/table&gt;
+</span><span class="add">+      &lt;table id=&quot;files&quot;&gt;
+</span><span class="add">+        &lt;thead&gt;
+</span><span class="add">+          &lt;tr&gt;
+</span><span class="add">+            &lt;td&gt;&lt;b&gt;Mode&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+            &lt;td&gt;&lt;b&gt;Name&lt;/b&gt;&lt;/td&gt;
+</span><span class="add">+          &lt;/tr&gt;
+</span><span class="add">+        &lt;/thead&gt;
+</span><span class="def"> 
+</span><span class="add">+        &lt;tbody&gt;
+</span><span class="add">+          {% for child in file.contents %}
+</span><span class="add">+          &lt;tr&gt;
+</span><span class="add">+            &lt;td&gt;{{ child.mode_symbolic }}&lt;/td&gt;
+</span><span class="add">+            &lt;td&gt;&lt;a href=&quot;{{ host }}/{{ name }}/file/{{ child.href }}&quot;&gt;{{ child.path }}&lt;/a&gt;&lt;/td&gt;
+</span><span class="add">+          &lt;/tr&gt;
+</span><span class="add">+          {% endfor %}
+</span><span class="add">+        &lt;/tbody&gt;
+</span><span class="add">+      &lt;/table&gt;
+</span><span class="def"> {% else %}
+</span><span class="sub">-&lt;pre&gt;
+</span><span class="add">+      &lt;pre id=&quot;blob&quot;&gt;
+</span><span class="def"> {% for line in split(file.contents, &apos;\n&apos;) %}
+</span><span class="sub">-&lt;a href=&quot;#l{{ loop.index }}&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%7v&quot;, loop.index) }}&lt;/a&gt; {{ line }}
+</span><span class="add">+&lt;a href=&quot;#l{{ loop.index }}&quot; class=&quot;line&quot; id=&quot;l{{ loop.index }}&quot;&gt;{{ printf(&quot;%7v&quot;, loop.index) }}&lt;/a&gt; {{ line }}
+</span><span class="def"> {% endfor %}
+</span><span class="sub">-&lt;/pre&gt;
+</span><span class="def"> {% endif %}
+</span><span class="sub">-
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="add">+      &lt;/pre&gt;
+</span><span class="add">+    &lt;/div&gt;
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/commit.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -4,19 +4,23 @@
+
+
+  <pre><span class="def">     &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="def">     &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="def">     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-		&lt;title&gt;{{ name }} -- {{ commit.id[:7] }}&lt;/title&gt;
+</span><span class="sub">-    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="add">+    &lt;title&gt;{{ name }} - {{ commit.title }}&lt;/title&gt;
+</span><span class="add">+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;{{ host }}/style.css&quot; /&gt;
+</span><span class="add">+    &lt;link rel=&quot;icon&quot; type=&quot;image/png&quot; href=&quot;/favicon.png&quot; /&gt;
+</span><span class="def">   &lt;/head&gt;
+</span><span class="def"> 
+</span><span class="def">   &lt;body&gt;
+</span><span class="sub">-    &lt;p&gt;{{- name }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-		&lt;p&gt;Commit &lt;b&gt;{{ commit.id }}&lt;/b&gt;&lt;/p&gt;
+</span><span class="sub">-		&lt;p&gt;&lt;b&gt;{{ commit.title }}&lt;/b&gt;&lt;/p&gt;
+</span><span class="sub">-    &lt;p&gt;{{ commit.body }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-		&lt;p&gt;Authored {{ commit.authored }} by: {{ commit.author }} ({{ commit.author_email }})&lt;/p&gt;
+</span><span class="sub">-		&lt;p&gt;Committed {{ commit.committed }} by: {{ commit.committer }} ({{ commit.committer_email }})&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="add">+    {% include &quot;repo-table-header.html.include&quot; %}
+</span><span class="add">+
+</span><span class="add">+    &lt;div id=&quot;content&quot;&gt;
+</span><span class="add">+      &lt;pre&gt;&lt;b&gt;commit&lt;/b&gt; &lt;a href=&quot;{{ host }}/{{ name }}/commits/{{ commit.href }}&quot;&gt;{{ commit.id }}&lt;/a&gt;
+</span><span class="add">+      &lt;b&gt;Author:&lt;/b&gt; {{ commit.author }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.author_email }}&quot;&gt;{{ commit.author_email }}&lt;/a&gt;&amp;gt;
+</span><span class="add">+      &lt;b&gt;Date:&lt;/b&gt; {{ commit.authored }}
+</span><span class="add">+      &lt;b&gt;Committer:&lt;/b&gt; {{ commit.committer }} &amp;lt;&lt;a href=&quot;mailto:{{ commit.committer_email }}&quot;&gt;{{ commit.committer_email }}&lt;/a&gt;&amp;gt;
+</span><span class="add">+      &lt;b&gt;Committed:&lt;/b&gt; {{ commit.committed }}
+</span><span class="add">+
+</span><span class="add">+      {{ commit.message }}
+</span><span class="add">+      &lt;/pre&gt;
+</span><span class="add">+    &lt;/div&gt;
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>templates/branches.html</b>
+    <span class="status">Deleted</span>
+  </p>
+
+  @@ -1,21 +0,0 @@
+
+
+  <pre><span class="sub">-&lt;!doctype html&gt;
+</span><span class="sub">-&lt;html lang=&quot;en&quot;&gt;
+</span><span class="sub">-  &lt;head&gt;
+</span><span class="sub">-    &lt;meta charset=&quot;utf-8&quot;&gt;
+</span><span class="sub">-    &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</span><span class="sub">-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</span><span class="sub">-    &lt;title&gt;{{ name }} -- tags&lt;/title&gt;
+</span><span class="sub">-    &lt;link rel=&quot;stylesheet&quot; href=&quot;{{- host }}/style.css&quot; /&gt;
+</span><span class="sub">-  &lt;/head&gt;
+</span><span class="sub">-
+</span><span class="sub">-  &lt;body&gt;
+</span><span class="sub">-    &lt;p&gt;{{ name }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-    &lt;p&gt;{{ description }}&lt;/p&gt;
+</span><span class="sub">-    &lt;p&gt;git clone {{ host }}/{{ name }}&lt;/p&gt;
+</span><span class="sub">-    &lt;hr&gt;
+</span><span class="sub">-    {% for branch in branches %}
+</span><span class="sub">-		&lt;p&gt;&lt;b&gt;{{ branch.name }}&lt;/b&gt; {{ branch.id[:7] }} {{ branch.title }}&lt;/p&gt;
+</span><span class="sub">-    {% endfor %}
+</span><span class="sub">-  &lt;/body&gt;
+</span><span class="sub">-&lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>config.dhall</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -18,7 +18,7 @@
+
+
+  <pre><span class="def">     , commitTemplate = &quot;./templates/commit.html&quot;
+</span><span class="def">     , fileTemplate = &quot;./templates/file.html&quot;
+</span><span class="def">     , outputDirectory = &quot;./output&quot;
+</span><span class="sub">-    , host = &quot;http://localhost&quot;
+</span><span class="add">+    , host = &quot;http://localhost:8000&quot;
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> in config
+</span></pre></div>    </div>
+  </body>
+</html>

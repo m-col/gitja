@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - bump stack version down to support nix</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ebfb8b9ea84e5080699f575722631100343d59ce.html">ebfb8b9ea84e5080699f575722631100343d59ce</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/829fa1cb62b3e97d5953cb91fb2a9bb6e9d5581e.html">829fa1cb62b3e97d5953cb91fb2a9bb6e9d5581e</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-02-20 18:28:51 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-02-20 18:28:51 +0000
+
+bump stack version down to support nix
+</pre><div class="diff">
+  <p>
+    <b>stack.yaml.lock</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -39,7 +39,7 @@
+
+
+  <pre><span class="def">     url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
+</span><span class="def"> snapshots:
+</span><span class="def"> - completed:
+</span><span class="sub">-    size: 609309
+</span><span class="sub">-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/2/19.yaml
+</span><span class="sub">-    sha256: d661d997c564c9dfd7391721335e0f8f1355a196d7f60037ae7c762d5bf127ed
+</span><span class="sub">-  original: nightly-2022-02-19
+</span><span class="add">+    size: 623654
+</span><span class="add">+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/1/6.yaml
+</span><span class="add">+    sha256: efba441fbb0fff82c5be10ccda625e25b38f6673588ed5ddb8ef9239ec130d39
+</span><span class="add">+  original: nightly-2022-01-06
+</span></pre></div><div class="diff">
+  <p>
+    <b>stack.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,4 +1,4 @@
+
+
+  <pre><span class="sub">-resolver: nightly-2022-02-19
+</span><span class="add">+resolver: nightly-2022-01-06
+</span><span class="def"> 
+</span><span class="def"> extra-deps:
+</span><span class="def"> - ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
+</span></pre></div>    </div>
+  </body>
+</html>

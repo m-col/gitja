@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Print what&apos;s going on more nicely</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ce319c22b4b0fc4a4504591061d8053d21049d92.html">ce319c22b4b0fc4a4504591061d8053d21049d92</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/a275813b2d96a63cd91a32e162afc7148606386a.html">a275813b2d96a63cd91a32e162afc7148606386a</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-21 12:04:32 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-21 12:04:32 +0000
+
+Print what&apos;s going on more nicely
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -212,6 +212,6 @@
+
+
+  <pre><span class="def">     let output&apos; = output &lt;/&gt; category target &lt;/&gt; identify target
+</span><span class="def">     exists &lt;- doesFileExist output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span><span class="sub">-        print output&apos;
+</span><span class="add">+        putStrLn $ &quot;Writing &quot; &lt;&gt; output&apos;
+</span><span class="def">         let scope&apos; = scope &lt;&gt; HashMap.fromList [(pack . category $ target, toGVal target)]
+</span><span class="def">         generate output&apos; scope&apos; template
+</span></pre></div>    </div>
+  </body>
+</html>

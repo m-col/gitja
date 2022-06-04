@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - add make run</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/77f1d1b672b8039e69a4941941c861948abee47e.html">77f1d1b672b8039e69a4941941c861948abee47e</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/3aa05611b5515fb20c35dc72429c0eeecb73b6ce.html">3aa05611b5515fb20c35dc72429c0eeecb73b6ce</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-24 22:32:34 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-24 22:32:34 +0000
+
+add make run
+</pre><div class="diff">
+  <p>
+    <b>Makefile</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -28,3 +28,8 @@
+
+
+  <pre><span class="def"> rebuild: ## Clean and then build
+</span><span class="def"> 	@stack clean
+</span><span class="def"> 	@stack build
+</span><span class="add">+
+</span><span class="add">+.PHONY: run
+</span><span class="add">+run: ## Run gitserve on this repository into ./output/
+</span><span class="add">+	rm -rf output
+</span><span class="add">+	stack run
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - add runInIO to gen</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/1e6f1f2da531d2e44bbb9f49b3d0484d705066ee.html">1e6f1f2da531d2e44bbb9f49b3d0484d705066ee</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/97fcd7e0a9a976e65e9f7fde460fd73fc334f6a3.html">97fcd7e0a9a976e65e9f7fde460fd73fc334f6a3</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2022-05-29 16:42:51 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2022-05-29 16:42:51 +0100
+
+add runInIO to gen
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -139,17 +139,17 @@
+
+
+  <pre><span class="def">                     -- Run the generator --
+</span><span class="def">                     let quiet = envQuiet env
+</span><span class="def">                         force = envForce env
+</span><span class="sub">-                        gen = genTarget scope quiet force
+</span><span class="add">+                        gen = genTarget scope runInIO quiet force
+</span><span class="def"> 
+</span><span class="def">                     mapM_ (genRepo scope runInIO output) (envRepoTemplates env)
+</span><span class="def"> 
+</span><span class="def">                     whenJust (envCommitTemplate env) \commitT -&gt; do
+</span><span class="def">                         output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelDir $ &quot;commit&quot;
+</span><span class="sub">-                        mapM_ (gen runInIO commitT &quot;commit&quot; output&apos; commitHref) commits
+</span><span class="add">+                        mapM_ (gen commitT &quot;commit&quot; output&apos; commitHref) commits
+</span><span class="def"> 
+</span><span class="def">                     whenJust (envFileTemplate env) \fileT -&gt; do
+</span><span class="def">                         output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelDir $ &quot;file&quot;
+</span><span class="sub">-                        mapM_ (gen runInIO fileT &quot;file&quot; output&apos; fileHref) tree -- TODO: detect file changes
+</span><span class="add">+                        mapM_ (gen fileT &quot;file&quot; output&apos; fileHref) tree -- TODO: detect file changes
+</span><span class="def"> 
+</span><span class="def">                     -- Copy any static files/folders into the output folder --
+</span><span class="def">                     envRepoCopyStatics env output
+</span></pre>@@ -378,16 +378,16 @@
+
+
+  <pre><span class="def"> genTarget ::
+</span><span class="def">     ToGVal RunRepo t =&gt;
+</span><span class="def">     HashMap.HashMap T.Text (GVal RunRepo) -&gt;
+</span><span class="add">+    (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+</span><span class="def">     Bool -&gt;
+</span><span class="def">     Bool -&gt;
+</span><span class="sub">-    (ReaderT LgRepo IO (GVal RunRepo) -&gt; IO (GVal RunRepo)) -&gt;
+</span><span class="def">     Template -&gt;
+</span><span class="def">     T.Text -&gt;
+</span><span class="def">     Path Abs Dir -&gt;
+</span><span class="def">     (t -&gt; FilePath) -&gt;
+</span><span class="def">     t -&gt;
+</span><span class="def">     IO ()
+</span><span class="sub">-genTarget scope quiet force runInIO template category output href target = do
+</span><span class="add">+genTarget scope runInIO quiet force template category output href target = do
+</span><span class="def">     output&apos; &lt;- fmap (output &lt;/&gt;) . parseRelFile . href $ target
+</span><span class="def">     exists &lt;- doesFileExist output&apos;
+</span><span class="def">     when (force || not exists) $ do
+</span></pre></div>    </div>
+  </body>
+</html>

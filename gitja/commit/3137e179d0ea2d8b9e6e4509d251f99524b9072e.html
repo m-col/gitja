@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - mapM -&gt; mapM_ where appropriate</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/3137e179d0ea2d8b9e6e4509d251f99524b9072e.html">3137e179d0ea2d8b9e6e4509d251f99524b9072e</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/15fe645cbfacce1f81678e412625472f01b2ca62.html">15fe645cbfacce1f81678e412625472f01b2ca62</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-10-07 18:46:34 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-10-07 18:46:34 +0100
+
+mapM -&gt; mapM_ where appropriate
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -39,9 +39,7 @@
+
+
+  <pre><span class="def"> templates.
+</span><span class="def"> -}
+</span><span class="def"> run :: Env -&gt; IO ()
+</span><span class="sub">-run env = do
+</span><span class="sub">-    foldMap (processRepo env) . repoPaths . envConfig $ env  -- TODO: make concurrent
+</span><span class="sub">-    return ()
+</span><span class="add">+run env = mapM_ (processRepo env) (repoPaths . envConfig $ env)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> Pass the repository&apos;s folder, get its description. This is exported so that Index.hs can
+</span></pre>@@ -90,9 +88,9 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="def">             let scope = package env name description commits tree tags branches
+</span><span class="sub">-            liftIO . mapM (generate output scope) $ envTemplates env
+</span><span class="sub">-            liftIO . mapM (genTarget output scope $ envCommitTemplate env) $ commits
+</span><span class="sub">-            liftIO . mapM (genTarget output scope $ envFileTemplate env) $ tree
+</span><span class="add">+            liftIO . mapM_ (generate output scope) $ envTemplates env
+</span><span class="add">+            liftIO . mapM_ (genTarget output scope $ envCommitTemplate env) $ commits
+</span><span class="add">+            liftIO . mapM_ (genTarget output scope $ envFileTemplate env) $ tree
+</span><span class="def">             return ()
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div>    </div>
+  </body>
+</html>

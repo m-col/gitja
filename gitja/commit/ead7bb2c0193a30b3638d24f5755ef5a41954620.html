@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - remove existing file before creating symlink</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ead7bb2c0193a30b3638d24f5755ef5a41954620.html">ead7bb2c0193a30b3638d24f5755ef5a41954620</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/bc32e5875aafedc7a724e9ed1a41a12de7f44807.html">bc32e5875aafedc7a724e9ed1a41a12de7f44807</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-27 19:22:01 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-27 19:22:01 +0000
+
+remove existing file before creating symlink
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -8,7 +8,7 @@
+
+
+  <pre><span class="def">     generate,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="sub">-import Control.Monad (filterM, join, void, (&lt;=&lt;))
+</span><span class="add">+import Control.Monad (filterM, join, void, when, (&lt;=&lt;))
+</span><span class="def"> import Control.Monad.Extra (findM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span></pre>@@ -22,8 +22,10 @@
+
+
+  <pre><span class="def">     canonicalizePath,
+</span><span class="def">     createDirectoryLink,
+</span><span class="def">     createFileLink,
+</span><span class="add">+    doesPathExist,
+</span><span class="def">     getSymbolicLinkTarget,
+</span><span class="def">     pathIsSymbolicLink,
+</span><span class="add">+    removeFile,
+</span><span class="def">  )
+</span><span class="def"> import qualified System.FilePath as FP
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span></pre>@@ -213,5 +215,7 @@
+
+
+  <pre><span class="def">         if isLink
+</span><span class="def">             then do
+</span><span class="def">                 target &lt;- getSymbolicLinkTarget fp
+</span><span class="add">+                exists &lt;- doesPathExist . toFilePath $ output&apos;
+</span><span class="add">+                when exists . removeFile . toFilePath $ output&apos;
+</span><span class="def">                 createFileLink target . toFilePath $ output&apos;
+</span><span class="def">             else copyFile p output&apos;
+</span></pre></div>    </div>
+  </body>
+</html>

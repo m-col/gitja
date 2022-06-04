@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Read templates in using Ginger</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/cd4445b62184f9e779e1a4ab5855c53a0a67ad52.html">cd4445b62184f9e779e1a4ab5855c53a0a67ad52</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/244316a3583c67556840c5bc30fa8d3d1e178b5e.html">244316a3583c67556840c5bc30fa8d3d1e178b5e</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-18 19:53:19 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-18 19:53:19 +0100
+
+Read templates in using Ginger
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,22 +1,26 @@
+
+
+  <pre><span class="def"> module Templates (
+</span><span class="def">     Template,
+</span><span class="add">+    templateGinger,
+</span><span class="def">     templatePath,
+</span><span class="sub">-    templateContents,
+</span><span class="def">     loadTemplates,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="def"> import Control.Monad (filterM, (&lt;=&lt;))
+</span><span class="def"> import Data.Char (toLower)
+</span><span class="add">+import Data.Either (rights)
+</span><span class="def"> import Data.List (isSuffixOf)
+</span><span class="add">+import Data.Maybe (catMaybes)
+</span><span class="def"> import System.Directory (doesFileExist, getDirectoryContents)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;), FilePath)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="add">+import qualified Text.Ginger.AST as G
+</span><span class="add">+import qualified Text.Ginger.Parse as G
+</span><span class="def"> 
+</span><span class="def"> import Config (Config, templateDirectory)
+</span><span class="def"> 
+</span><span class="def"> data Template = Template
+</span><span class="def">     { templatePath :: FilePath
+</span><span class="sub">-    , templateContents :: String
+</span><span class="add">+    , templateGinger :: G.Template G.SourcePos
+</span><span class="def">     }
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre>@@ -26,17 +30,22 @@
+
+
+  <pre><span class="def"> loadTemplates :: Config -&gt; IO [Template]
+</span><span class="def"> loadTemplates config = do
+</span><span class="def">     files &lt;- getFiles config
+</span><span class="sub">-    sequence $ loadTemplate &lt;$&gt; files
+</span><span class="add">+    parsed &lt;- sequence $ G.parseGingerFile resolver &lt;$&gt; files 
+</span><span class="add">+    return $ Template &lt;$&gt; files &lt;*&gt; rights parsed
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="sub">-This reads the contents of a file and stores it within a `Template` object.
+</span><span class="add">+This is a Ginger `IncludeResolver` that will eventually be extended to enable caching of
+</span><span class="add">+templates.
+</span><span class="def"> -}
+</span><span class="sub">-loadTemplate :: FilePath -&gt; IO Template
+</span><span class="sub">-loadTemplate path = do
+</span><span class="sub">-    contents &lt;- readFile path
+</span><span class="sub">-    return $ Template path contents
+</span><span class="add">+resolver :: FilePath -&gt; IO (Maybe String)
+</span><span class="add">+resolver path = tryIOError (readFile path) &gt;&gt;= \e -&gt;
+</span><span class="add">+    case e of
+</span><span class="add">+        Right contents -&gt; return $ Just contents
+</span><span class="add">+        Left err -&gt; do
+</span><span class="add">+            print err
+</span><span class="add">+            return Nothing
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is used to filter files in the template directory so that we only try to load
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -11,7 +11,7 @@
+
+
+  <pre><span class="def"> import Git.Libgit2 (lgFactory)
+</span><span class="def"> 
+</span><span class="def"> import Config (Config, repoPaths)
+</span><span class="sub">-import Templates (Template, templatePath, templateContents)
+</span><span class="add">+import Templates (Template, templateGinger, templatePath)
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the entrypoint that receives the ``Config`` and uses it to map over our
+</span></pre></div>    </div>
+  </body>
+</html>

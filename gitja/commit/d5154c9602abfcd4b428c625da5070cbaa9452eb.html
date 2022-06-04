@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Make config path absolute so dhall doesn&apos;t complain</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/d5154c9602abfcd4b428c625da5070cbaa9452eb.html">d5154c9602abfcd4b428c625da5070cbaa9452eb</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ac9ae73aefafc904fbc7bfb74bb222ae3dcc71f3.html">ac9ae73aefafc904fbc7bfb74bb222ae3dcc71f3</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-21 01:19:20 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-21 01:19:20 +0000
+
+Make config path absolute so dhall doesn&apos;t complain
+</pre><div class="diff">
+  <p>
+    <b>src/Main.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -6,7 +6,6 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> import Paths_gitserve (version)
+</span><span class="def"> 
+</span><span class="sub">-import Data.Text (Text)
+</span><span class="def"> import Data.Version (showVersion)
+</span><span class="def"> import qualified Options.Applicative as O
+</span><span class="def"> 
+</span></pre>@@ -19,7 +18,7 @@
+
+
+  <pre><span class="def"> Command line options
+</span><span class="def"> -}
+</span><span class="def"> data Options = Options
+</span><span class="sub">-    { config :: Text
+</span><span class="add">+    { config :: FilePath
+</span><span class="def">     , force :: Bool
+</span><span class="def">     , printVersion :: Bool
+</span><span class="def">     }
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Config.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,7 +14,10 @@
+
+
+  <pre><span class="def">     host,
+</span><span class="def"> ) where
+</span><span class="def"> 
+</span><span class="add">+import Control.Monad ((&lt;=&lt;))
+</span><span class="add">+import Data.Text (pack)
+</span><span class="def"> import Dhall
+</span><span class="add">+import System.Directory (makeAbsolute)
+</span><span class="def"> 
+</span><span class="def"> data Config = Config
+</span><span class="def">     { repoPaths :: [FilePath]
+</span></pre>@@ -29,5 +32,5 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> instance FromDhall Config
+</span><span class="def"> 
+</span><span class="sub">-getConfig :: Text -&gt; IO Config
+</span><span class="sub">-getConfig = input auto
+</span><span class="add">+getConfig :: String -&gt; IO Config
+</span><span class="add">+getConfig = input auto . pack &lt;=&lt; makeAbsolute
+</span></pre></div>    </div>
+  </body>
+</html>

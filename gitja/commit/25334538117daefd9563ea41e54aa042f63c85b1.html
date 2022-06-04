@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add `gitserve -t` to readme and docs</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/25334538117daefd9563ea41e54aa042f63c85b1.html">25334538117daefd9563ea41e54aa042f63c85b1</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/507b1d812396dd5a14c7e6bf2dc4038a5626c9a5.html">507b1d812396dd5a14c7e6bf2dc4038a5626c9a5</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-30 20:16:22 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-30 20:16:22 +0000
+
+Add `gitserve -t` to readme and docs
+</pre><div class="diff">
+  <p>
+    <b>README.rst</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -31,6 +31,10 @@
+
+
+  <pre><span class="def"> Documentation and a preview of the kind of pages ``gitserve`` can generate is
+</span><span class="def"> available here_.
+</span><span class="def"> 
+</span><span class="add">+If you like skipping the manual, running ``gitserve --template`` will create a
+</span><span class="add">+base template and config in the current folder from which you can create your
+</span><span class="add">+own.
+</span><span class="add">+
+</span><span class="def"> Contributing
+</span><span class="def"> ------------
+</span><span class="def"> 
+</span></pre></div><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -11,7 +11,8 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> gitserve is configured using a [dhall](https://dhall-lang.org) config file. The
+</span><span class="def"> [example config](https://github.com/m-col/gitserve/blob/master/config.dhall) is
+</span><span class="sub">-a good place to start.
+</span><span class="add">+a good place to start, or alternatively create one in the current folder by
+</span><span class="add">+running `gitserve -t`.
+</span><span class="def"> 
+</span><span class="def"> It requires the following settings:
+</span><span class="def"> 
+</span></pre>@@ -28,13 +29,15 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> See the CLI help message for usage:
+</span><span class="def"> 
+</span><span class="sub">-    Usage: gitserve [-c|--config CONFIG] [-q|--quiet] [-f|--force] [-v|--version]
+</span><span class="add">+    Usage: gitserve [-c|--config CONFIG] [-q|--quiet] [-f|--force] [-t|--template] 
+</span><span class="add">+                    [-v|--version]
+</span><span class="def">       🐙 Templated web page generator for your git repositories
+</span><span class="def"> 
+</span><span class="def">     Available options:
+</span><span class="def">       -c,--config CONFIG       Configuration file to use (Default: ./config.dhall).
+</span><span class="def">       -q,--quiet               Suppress non-error output.
+</span><span class="def">       -f,--force               Force regeneration of all files.
+</span><span class="add">+      -t,--template            Create a template and config in the current folder.
+</span><span class="def">       -v,--version             Print the gitserve&apos;s version.
+</span><span class="def">       -h,--help                Show this help text
+</span><span class="def"> 
+</span></pre>@@ -45,6 +48,9 @@
+
+
+  <pre><span class="def"> Templates
+</span><span class="def"> ---------
+</span><span class="def"> 
+</span><span class="add">+A base template can be created in the current folder by running `gitserve -t`.
+</span><span class="add">+This can be used as a starting point to creating your own template.
+</span><span class="add">+
+</span><span class="def"> ### Folder structure
+</span><span class="def"> 
+</span><span class="def"> The files that gitserve outputs are generated using
+</span></pre></div>    </div>
+  </body>
+</html>

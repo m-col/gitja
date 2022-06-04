@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Output to file</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/cfdb7417a77b558368a7b8d2ea9ec6004e35ffad.html">cfdb7417a77b558368a7b8d2ea9ec6004e35ffad</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/b21f7c1c42e1086cadaf89aae83f52443c297505.html">b21f7c1c42e1086cadaf89aae83f52443c297505</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-25 00:43:20 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-25 00:43:20 +0100
+
+Output to file
+</pre><div class="diff">
+  <p>
+    <b>src/Templates.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,7 +15,7 @@
+
+
+  <pre><span class="def"> import Data.Text (unpack, Text)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import System.Directory (doesFileExist, getDirectoryContents)
+</span><span class="sub">-import System.FilePath ((&lt;/&gt;))
+</span><span class="add">+import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="def"> import qualified Text.Ginger.AST as G
+</span><span class="def"> import Text.Ginger.Parse (SourcePos, parseGingerFile, peErrorMessage)
+</span></pre>@@ -91,15 +91,18 @@
+
+
+  <pre><span class="def"> {-
+</span><span class="def"> This function gets the output HTML data and is responsible for saving it to file.
+</span><span class="def"> -}
+</span><span class="sub">-writeTo :: Html -&gt; IO ()
+</span><span class="sub">-writeTo = putStr . unpack . htmlSource
+</span><span class="add">+writeTo :: FilePath -&gt; Html -&gt; IO ()
+</span><span class="add">+writeTo path html = appendFile path . unpack . htmlSource $ html
+</span><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the generator function that receives repository-specific variables and uses
+</span><span class="def"> Ginger to render templates using them.
+</span><span class="def"> -}
+</span><span class="def"> generate
+</span><span class="sub">-    :: HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="add">+    :: FilePath
+</span><span class="add">+    -&gt; HashMap.HashMap Text (GVal (Run SourcePos IO Html))
+</span><span class="def">     -&gt; Template
+</span><span class="def">     -&gt; IO (Either (RuntimeError SourcePos) (GVal (Run SourcePos IO Html)))
+</span><span class="sub">-generate context template = easyRenderM writeTo context (templateGinger template)
+</span><span class="add">+generate output context template = easyRenderM writeToPath context (templateGinger template)
+</span><span class="add">+  where
+</span><span class="add">+    writeToPath = writeTo $ output &lt;/&gt; (takeFileName . templatePath $ template)
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -54,7 +54,8 @@
+
+
+  <pre><span class="def"> processRepo&apos; :: [Template] -&gt; Config -&gt; FilePath -&gt; ReaderT LgRepo IO ()
+</span><span class="def"> processRepo&apos; templates config path = do
+</span><span class="def">     let name = takeFileName path
+</span><span class="sub">-    liftIO $ createDirectoryIfMissing True $ outputDirectory config &lt;/&gt; name
+</span><span class="add">+    let output = outputDirectory config &lt;/&gt; name
+</span><span class="add">+    liftIO $ createDirectoryIfMissing True output
+</span><span class="def">     resolveReference &quot;HEAD&quot; &gt;&gt;= \case
+</span><span class="def">         Nothing -&gt; liftIO . print $ &quot;gitserve: &quot; &lt;&gt; name &lt;&gt; &quot;: Failed to resolve HEAD.&quot;
+</span><span class="def">         Just commitID -&gt; do
+</span></pre>@@ -73,7 +74,7 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def">             -- Run the generator --
+</span><span class="def">             let repo = package config name description commits tree
+</span><span class="sub">-            liftIO . mapM (generate repo) $ templates
+</span><span class="add">+            liftIO . mapM (generate output repo) $ templates
+</span><span class="def">             return ()
+</span><span class="def"> 
+</span><span class="def"> {-
+</span></pre></div>    </div>
+  </body>
+</html>

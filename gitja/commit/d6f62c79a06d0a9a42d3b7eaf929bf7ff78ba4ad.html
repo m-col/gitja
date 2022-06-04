@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Don&apos;t bind unncessary varibale</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/d6f62c79a06d0a9a42d3b7eaf929bf7ff78ba4ad.html">d6f62c79a06d0a9a42d3b7eaf929bf7ff78ba4ad</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/8aefb19ecb8ffb756fea27a23513db72f7106e0b.html">8aefb19ecb8ffb756fea27a23513db72f7106e0b</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-25 18:55:53 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-25 18:55:53 +0100
+
+Don&apos;t bind unncessary varibale
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -171,7 +171,7 @@
+
+
+  <pre><span class="def"> configured respositories.
+</span><span class="def"> -}
+</span><span class="def"> runIndex :: Config -&gt; Maybe Template -&gt; IO ()
+</span><span class="sub">-runIndex config Nothing = return ()
+</span><span class="add">+runIndex _ Nothing = return ()
+</span><span class="def"> runIndex config (Just template) = do
+</span><span class="def">     let paths = repoPaths config
+</span><span class="def">     descriptions &lt;- sequence . fmap (getDescription . flip (&lt;/&gt;) &quot;description&quot;) $ paths
+</span></pre></div>    </div>
+  </body>
+</html>

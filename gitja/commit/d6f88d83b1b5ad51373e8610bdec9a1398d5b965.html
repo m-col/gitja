@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - remove redundant brackets</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/d6f88d83b1b5ad51373e8610bdec9a1398d5b965.html">d6f88d83b1b5ad51373e8610bdec9a1398d5b965</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/46118e62f0c18d9b5dbcb92f3095fd9fe9a69f1d.html">46118e62f0c18d9b5dbcb92f3095fd9fe9a69f1d</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-10-04 22:06:13 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-10-04 22:06:13 +0100
+
+remove redundant brackets
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -224,7 +224,7 @@
+
+
+  <pre><span class="def">     identify = (++ &quot;.html&quot;) . show . commitOid
+</span><span class="def">     category = const &quot;commit&quot;
+</span><span class="def"> 
+</span><span class="sub">-instance Target (TreeFile) where
+</span><span class="add">+instance Target TreeFile where
+</span><span class="def">     identify = unpack . treePathToHref . treeFilePath
+</span><span class="def">     category = const &quot;file&quot;
+</span><span class="def"> 
+</span></pre></div>    </div>
+  </body>
+</html>

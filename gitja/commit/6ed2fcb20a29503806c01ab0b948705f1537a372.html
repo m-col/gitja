@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add template variable to list tree non-recursively</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/6ed2fcb20a29503806c01ab0b948705f1537a372.html">6ed2fcb20a29503806c01ab0b948705f1537a372</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/310fc1dcf24ecfdd5740e4f97fa72253cf032a5f.html">310fc1dcf24ecfdd5740e4f97fa72253cf032a5f</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-12-04 16:30:13 +0300
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-12-04 16:34:51 +0300
+
+Add template variable to list tree non-recursively
+
+Closes #19
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,6 +15,7 @@
+
+
+  <pre><span class="def"> import Control.Monad.Extra (ifM)
+</span><span class="def"> import Control.Monad.IO.Class (liftIO)
+</span><span class="def"> import Control.Monad.Trans.Reader (ReaderT)
+</span><span class="add">+import Data.ByteString.UTF8 (toString)
+</span><span class="def"> import Data.Either (isRight)
+</span><span class="def"> import qualified Data.HashMap.Strict as HashMap
+</span><span class="def"> import Data.Maybe (catMaybes, fromJust, mapMaybe)
+</span></pre>@@ -153,7 +154,8 @@
+
+
+  <pre><span class="def">         , (&quot;name&quot;, toGVal . pack . init . toFilePath $ name)
+</span><span class="def">         , (&quot;description&quot;, toGVal description)
+</span><span class="def">         , (&quot;commits&quot;, toGVal commits)
+</span><span class="sub">-        , (&quot;tree&quot;, toGVal tree)
+</span><span class="add">+        , (&quot;tree&quot;, toGVal . filter (notElem FP.pathSeparator . toString . treeFilePath) $ tree)
+</span><span class="add">+        , (&quot;tree_recursive&quot;, toGVal tree)
+</span><span class="def">         , (&quot;tags&quot;, toGVal tags)
+</span><span class="def">         , (&quot;branches&quot;, toGVal branches)
+</span><span class="def">         , (&quot;readme&quot;, toGVal . findFile &quot;readme&quot; $ tree)
+</span></pre></div><div class="diff">
+  <p>
+    <b>DOCUMENTATION.md</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -136,23 +136,24 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> The variables available within each scope are listed here for reference:
+</span><span class="def"> 
+</span><span class="sub">-| Scope  | Variable     | Description                                           |
+</span><span class="sub">-| ------ | ------------ | ----------------------------------------------------- |
+</span><span class="sub">-| Index  | host         | The string from the `host` config option.             |
+</span><span class="sub">-|        | repositories | A list of all of the git repositories.                |
+</span><span class="sub">-| Repo   |              | *In addition to the variables from the index scope...*|
+</span><span class="sub">-|        | name         | The repository name, taken from its folder name.      |
+</span><span class="sub">-|        | description  | The repository&apos;s description (see below).             |
+</span><span class="sub">-|        | commits      | A list of the repository&apos;s commits.                   |
+</span><span class="sub">-|        | tree         | A list of the repository&apos;s files.                     |
+</span><span class="sub">-|        | tags         | A list of the refs corresponding to tags.             |
+</span><span class="sub">-|        | branches     | A list of the refs corresponding to branches.         |
+</span><span class="sub">-|        | readme       | The repository&apos;s readme file, if it has one.          |
+</span><span class="sub">-|        | license      | The repository&apos;s license file, if it has one.         |
+</span><span class="sub">-| File   |              | *In addition to the variables from the Repo scope...* |
+</span><span class="sub">-|        | file         | A single file.                                        |
+</span><span class="sub">-| Commit |              | *In addition to the variables from the Repo scope...* |
+</span><span class="sub">-|        | commit       | A single commit.                                      |
+</span><span class="add">+| Scope  | Variable        | Description                                           |
+</span><span class="add">+| ------ | --------------- | ----------------------------------------------------- |
+</span><span class="add">+| Index  | host            | The string from the `host` config option.             |
+</span><span class="add">+|        | repositories    | A list of all of the git repositories.                |
+</span><span class="add">+| Repo   |                 | *In addition to the variables from the index scope...*|
+</span><span class="add">+|        | name            | The repository name, taken from its folder name.      |
+</span><span class="add">+|        | description     | The repository&apos;s description (see below).             |
+</span><span class="add">+|        | commits         | A list of the repository&apos;s commits.                   |
+</span><span class="add">+|        | tree            | A list of the top-level folder&apos;s contents.            |
+</span><span class="add">+|        | tree\_recursive | A list of *all* of the repository&apos;s contents.         |
+</span><span class="add">+|        | tags            | A list of the refs corresponding to tags.             |
+</span><span class="add">+|        | branches        | A list of the refs corresponding to branches.         |
+</span><span class="add">+|        | readme          | The repository&apos;s readme file, if it has one.          |
+</span><span class="add">+|        | license         | The repository&apos;s license file, if it has one.         |
+</span><span class="add">+| File   |                 | *In addition to the variables from the Repo scope...* |
+</span><span class="add">+|        | file            | A single file.                                        |
+</span><span class="add">+| Commit |                 | *In addition to the variables from the Repo scope...* |
+</span><span class="add">+|        | commit          | A single commit.                                      |
+</span><span class="def"> 
+</span><span class="def"> As in [Jinja](https://jinja.palletsprojects.com), a list can be accessed with
+</span><span class="def"> indexing, and attributes can be accessed using a dot notation. For example, a
+</span></pre></div>    </div>
+  </body>
+</html>

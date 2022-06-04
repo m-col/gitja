@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Complete test for commits</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/7ca3544ae3822ff6cac221e7c064884cbf9fb5ab.html">7ca3544ae3822ff6cac221e7c064884cbf9fb5ab</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/4faf6fde7c8db9353edbc8dfc5e458b79a7b6bd7.html">4faf6fde7c8db9353edbc8dfc5e458b79a7b6bd7</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-11-26 01:09:22 +0000
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-11-26 01:09:22 +0000
+
+Complete test for commits
+</pre><div class="diff">
+  <p>
+    <b>test/templates/repo/commit.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,6 +1,19 @@
+
+
+  <pre><span class="def"> {% extends &quot;../title.html.include&quot; -%}
+</span><span class="sub">-{%- block title -%}{{ commit.id }}{%- endblock -%}
+</span><span class="add">+{%- block title -%}{{ commit }}{%- endblock -%}
+</span><span class="def"> 
+</span><span class="def"> {% block body %}
+</span><span class="sub">-commit
+</span><span class="add">+scope: commit
+</span><span class="add">+commit: {{ commit }}
+</span><span class="add">+commit.id: {{ commit.id }}
+</span><span class="add">+commit.title: {{ commit.title }}
+</span><span class="add">+commit.body: {{ commit.body }}
+</span><span class="add">+commit.message: {{ commit.message }}
+</span><span class="add">+commit.author: {{ commit.author }}
+</span><span class="add">+commit.committer: {{ commit.committer }}
+</span><span class="add">+commit.author_email: {{ commit.author_email }}
+</span><span class="add">+commit.committer_email: {{ commit.committer_email }}
+</span><span class="add">+commit.authored: {{ commit.authored }}
+</span><span class="add">+commit.committed: {{ commit.committed }}
+</span><span class="add">+commit.encoding: {{ commit.encoding }}
+</span><span class="add">+commit.parent: {{ commit.parent }}
+</span><span class="def"> {% endblock %}
+</span></pre></div><div class="diff">
+  <p>
+    <b>test/expected/gitserve/commit/0292014748caae952bbc8dd6225680d83c0a5135.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,2 +1,15 @@
+
+
+  <pre><span class="sub">-0292014748caae952bbc8dd6225680d83c0a5135
+</span><span class="sub">-commit
+</span><span class="add">+Printy print template error messages
+</span><span class="add">+scope: commit
+</span><span class="add">+commit: Printy print template error messages
+</span><span class="add">+commit.id: 0292014748caae952bbc8dd6225680d83c0a5135
+</span><span class="add">+commit.title: Printy print template error messages
+</span><span class="add">+commit.body: 
+</span><span class="add">+commit.message: Printy print template error messages
+</span><span class="add">+commit.author: mcol
+</span><span class="add">+commit.committer: mcol
+</span><span class="add">+commit.author_email: mcol@posteo.net
+</span><span class="add">+commit.committer_email: mcol@posteo.net
+</span><span class="add">+commit.authored: 2021-11-25 00:05:26 +0000
+</span><span class="add">+commit.committed: 2021-11-25 00:05:26 +0000
+</span><span class="add">+commit.encoding: utf-8
+</span><span class="add">+commit.parent: 143fdb3b66c85512696406fab8d3ba525bffc675
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Types.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -74,7 +74,7 @@
+
+
+  <pre><span class="def">     toGVal :: Commit LgRepo -&gt; GVal m
+</span><span class="def">     toGVal commit =
+</span><span class="def">         def
+</span><span class="sub">-            { asHtml = html . pack . show . commitLog $ commit
+</span><span class="add">+            { asHtml = html . strip . T.takeWhile (/= &apos;\n&apos;) . commitLog $ commit
+</span><span class="def">             , asText = pack . show . commitLog $ commit
+</span><span class="def">             , asLookup = Just . commitAsLookup $ commit
+</span><span class="def">             }
+</span></pre></div>    </div>
+  </body>
+</html>

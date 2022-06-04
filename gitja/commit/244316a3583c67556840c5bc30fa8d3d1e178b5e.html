@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Pass templates to processRepo</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/244316a3583c67556840c5bc30fa8d3d1e178b5e.html">244316a3583c67556840c5bc30fa8d3d1e178b5e</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/ce512267067055e0e77d85262f973030bde79a4e.html">ce512267067055e0e77d85262f973030bde79a4e</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-18 18:40:19 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-18 18:40:19 +0100
+
+Pass templates to processRepo
+</pre><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -15,10 +15,11 @@
+
+
+  <pre><span class="def"> 
+</span><span class="def"> {-
+</span><span class="def"> This is the entrypoint that receives the ``Config`` and uses it to map over our
+</span><span class="sub">-repositories, reading from them and writing out their web pages.
+</span><span class="add">+repositories, reading from them and writing out their web pages using the given
+</span><span class="add">+templates.
+</span><span class="def"> -}
+</span><span class="def"> run :: Config -&gt; [Template] -&gt; IO ()
+</span><span class="sub">-run config templates = foldMap processRepo . repoPaths $ config
+</span><span class="add">+run config templates = foldMap (processRepo templates) . repoPaths $ config
+</span><span class="def"> 
+</span><span class="def"> ----------------------------------------------------------------------------------------
+</span><span class="def"> 
+</span></pre>@@ -27,8 +28,8 @@
+
+
+  <pre><span class="def"> repository doesn&apos;t exist or is unreadable in any way we can forget about it and move on
+</span><span class="def"> (after informing the user of course).
+</span><span class="def"> -}
+</span><span class="sub">-processRepo :: FilePath -&gt; IO ()
+</span><span class="sub">-processRepo path = withRepository lgFactory path $ do
+</span><span class="add">+processRepo :: [Template] -&gt; FilePath -&gt; IO ()
+</span><span class="add">+processRepo templates path = withRepository lgFactory path $ do
+</span><span class="def">     maybeObjID &lt;- resolveReference &quot;HEAD&quot;
+</span><span class="def">     case maybeObjID of
+</span><span class="def">         Just commitID -&gt; do
+</span></pre></div>    </div>
+  </body>
+</html>

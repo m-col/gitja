@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Add way to lookup properties on commits in templates</title>
+    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitserve.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitserve.mcol.xyz">Home</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitserve.mcol.xyz/gitja/commit/577b81cc825d587456c0f6cdc73a96bf6c40c8f0.html">577b81cc825d587456c0f6cdc73a96bf6c40c8f0</a>
+<b>Parent:</b> <a href="https://gitserve.mcol.xyz/gitja/commit/67f2596e606f0059150c81cc2a83da015710ad4c.html">67f2596e606f0059150c81cc2a83da015710ad4c</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2021-09-24 12:29:06 +0100
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2021-09-24 12:29:06 +0100
+
+Add way to lookup properties on commits in templates
+
+And add a `message` property.
+
+Also, let&apos;s accept the orphan instance of toGVal on Commit r.
+</pre><div class="diff">
+  <p>
+    <b>templates/log.html</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -14,7 +14,7 @@
+
+
+  <pre><span class="def">     &lt;p&gt;{{- description }}&lt;/p&gt;
+</span><span class="def">     &lt;p&gt;git clone {{ host }}/{{- name }}&lt;/p&gt;
+</span><span class="def">     {% for commit in commits %}
+</span><span class="sub">-    &lt;p&gt;{{- commit }}&lt;/p&gt;
+</span><span class="add">+    &lt;p&gt;{{- commit.message }}&lt;/p&gt;
+</span><span class="def">     {% endfor %}
+</span><span class="def">   &lt;/body&gt;
+</span><span class="def"> &lt;/html&gt;
+</span></pre></div><div class="diff">
+  <p>
+    <b>stack.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -13,4 +13,4 @@
+
+
+  <pre><span class="def">   &quot;$locals&quot;: -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+</span><span class="def">     -Wincomplete-record-updates -Wredundant-constraints -Wmissing-export-lists
+</span><span class="def">     -Wpartial-fields -Wmissing-deriving-strategies -Wunused-packages
+</span><span class="sub">-    -fno-warn-unused-do-bind
+</span><span class="add">+    -fno-warn-unused-do-bind -fno-warn-orphans
+</span></pre></div><div class="diff">
+  <p>
+    <b>src/Repositories.hs</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -2,6 +2,7 @@
+
+
+  <pre><span class="def"> {-# Language OverloadedStrings #-}  -- Needed for resolveReference
+</span><span class="def"> {-# Language FlexibleInstances #-}  -- Needed for `instance ToGVal`
+</span><span class="def"> {-# Language MultiParamTypeClasses #-}  -- Needed for `instance ToGVal`
+</span><span class="add">+{-# Language InstanceSigs #-}  -- Needed for toGVal type signature
+</span><span class="def"> 
+</span><span class="def"> module Repositories (
+</span><span class="def">     run
+</span></pre>@@ -14,14 +15,14 @@
+
+
+  <pre><span class="def"> import Data.Default (def)
+</span><span class="def"> import Data.Either (fromRight)
+</span><span class="def"> import Data.Tagged
+</span><span class="sub">-import Data.Text (pack, Text)
+</span><span class="add">+import Data.Text (pack, Text, strip)
+</span><span class="def"> import Data.Maybe (mapMaybe)
+</span><span class="def"> import Git
+</span><span class="def"> import Git.Libgit2 (lgFactory, LgRepo)
+</span><span class="def"> import System.Directory (createDirectoryIfMissing)
+</span><span class="def"> import System.FilePath ((&lt;/&gt;), takeFileName)
+</span><span class="def"> import System.IO.Error (tryIOError)
+</span><span class="sub">-import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml)
+</span><span class="add">+import Text.Ginger.GVal (GVal, toGVal, ToGVal, asText, asHtml, asLookup)
+</span><span class="def"> import Text.Ginger.Html (Html, html)
+</span><span class="def"> import Text.Ginger.Run (Run)
+</span><span class="def"> import Text.Ginger.Parse (SourcePos)
+</span></pre>@@ -113,8 +114,20 @@
+
+
+  <pre><span class="def"> getDescription :: FilePath -&gt; IO Text
+</span><span class="def"> getDescription path = fromRight &quot;&quot; &lt;$&gt; tryIOError (pack &lt;$&gt; readFile path)
+</span><span class="def"> 
+</span><span class="add">+{-
+</span><span class="add">+Here we define how commits can be accessed and represented in Ginger templates.
+</span><span class="add">+
+</span><span class="add">+This is an orphan instance but we can let it slide.
+</span><span class="add">+-}
+</span><span class="def"> instance ToGVal m (Commit LgRepo) where
+</span><span class="sub">-    toGVal x = def
+</span><span class="sub">-        { asHtml = html . pack . show . commitLog $ x
+</span><span class="sub">-        , asText = pack . show . commitLog $ x
+</span><span class="add">+    toGVal :: Commit LgRepo -&gt; GVal m
+</span><span class="add">+    toGVal commit = def
+</span><span class="add">+        { asHtml = html . pack . show . commitLog $ commit
+</span><span class="add">+        , asText = pack . show . commitLog $ commit
+</span><span class="add">+        , asLookup = Just . commitAsLookup $ commit
+</span><span class="def">         }
+</span><span class="add">+
+</span><span class="add">+commitAsLookup :: Commit LgRepo -&gt; Text -&gt; Maybe (GVal m)
+</span><span class="add">+commitAsLookup commit = \case
+</span><span class="add">+    &quot;message&quot; -&gt; Just . toGVal . strip . commitLog $ commit
+</span><span class="add">+    _ -&gt; Nothing
+</span></pre></div>    </div>
+  </body>
+</html>
