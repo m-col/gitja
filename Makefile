@@ -2,7 +2,7 @@
 
 .PHONY: build
 build: ## Compile the binary (Default)
-	@stack build
+	@stack build --keep-going
 
 .PHONY: help
 help: ## Show this help
@@ -38,16 +38,31 @@ run: ## Run gitja on this repository into ./output/
 test: ## Run the "tests"
 	bash ./test/test.sh
 
+.PHONY: all
+all: format lint rebuild run test ## Lint, format, rebuild, run, test
+
 .PHONY: prod
 prod: ## Build with optimise flags
 	@stack build --ghc-options="-O2"
 
-.PHONY: prof
-prof: ## Build with profiling enabled
-	@stack build --profile
-	@rm -r output
-	@stack exec --profile -- gitja -q +RTS -p
-	@head -n 6 gitja.prof
+.PHONY: dot
+dot: ## Visualise dependencies
+	stack dot --external --depth 1 --prune base,text,bytestring,transformers \
+		|  twopi -Goverlap=false -Tpng -o deps.png
 
-.PHONY: all
-all: format lint rebuild run test ## Lint, format, rebuild, run, test
+PROF ?= fprof-auto
+# other options: fno-prof-auto fprof-auto-top
+
+.PHONY: prof
+prof: _prof_build ## Build with profiling enabled
+	stack exec --profile -- gitja -q +RTS -p -po${PROF}
+	ghc-prof-flamegraph ${PROF}.prof -o ${PROF}.svg
+
+.PHONY: prof_speedscope
+prof_speedscope: _prof_build ## Build with profiling enabled (JSON output with speedscope)
+	stack exec --profile -- gitja -q +RTS -p -po${PROF} -pj
+	speedscope ${PROF}.prof
+
+_prof_build:
+	stack build --profile --ghc-options="-${PROF}"
+	rm -fr output
