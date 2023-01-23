@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>🐙 gitja - .github/workflows/ci.yaml</title>
-    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
-    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="https://gitja.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitja.mcol.xyz/favicon.png"/>
   </head>
 
   <body>
-    <a id="heada" href="https://gitserve.mcol.xyz">
+    <a id="heada" href="https://gitja.mcol.xyz">
       <header>
         <h1 id="title">gitja</h1>
         <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
@@ -20,16 +20,16 @@
       <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
 
       <span id="links">
-        <a href="https://gitserve.mcol.xyz">Home</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+        <a href="https://gitja.mcol.xyz">Home</a> |
+        <a href="https://gitja.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitja.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitja.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/LICENSE.html">License</a>
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+        Docs built @ <a href="https://gitja.mcol.xyz/gitja/commit/3140f07b47a7e7b2fa277f3a05df876f2162f510.html">3140f07</a>
       </p>
     </div>
 
@@ -77,7 +77,7 @@
 <a href="#l39" class="line" id="l39">   39</a>      - name: Generate docs
 <a href="#l40" class="line" id="l40">   40</a>        if: matrix.os == &apos;ubuntu-latest&apos; &amp;&amp; github.event_name == &apos;push&apos;
 <a href="#l41" class="line" id="l41">   41</a>        run: |
-<a href="#l42" class="line" id="l42">   42</a>          sed -i &apos;s*http://localhost:8000*https://gitserve.mcol.xyz*&apos; config.dhall
+<a href="#l42" class="line" id="l42">   42</a>          sed -i &apos;s*http://localhost:8000*https://gitja.mcol.xyz*&apos; config.dhall
 <a href="#l43" class="line" id="l43">   43</a>          stack run -- -c ./config.dhall -q
 <a href="#l44" class="line" id="l44">   44</a>  
 <a href="#l45" class="line" id="l45">   45</a>      - name: Deploy docs

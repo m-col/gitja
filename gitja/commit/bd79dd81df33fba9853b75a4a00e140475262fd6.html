@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - add minimum conduit version</title>
+    <link rel="stylesheet" type="text/css" href="https://gitja.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitja.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitja.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitja.mcol.xyz">Home</a> |
+        <a href="https://gitja.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitja.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitja.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitja.mcol.xyz/gitja/commit/3140f07b47a7e7b2fa277f3a05df876f2162f510.html">3140f07</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitja.mcol.xyz/gitja/commit/bd79dd81df33fba9853b75a4a00e140475262fd6.html">bd79dd81df33fba9853b75a4a00e140475262fd6</a>
+<b>Parent:</b> <a href="https://gitja.mcol.xyz/gitja/commit/2407e33da498218686fb61f159391086ac51f1d4.html">2407e33da498218686fb61f159391086ac51f1d4</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2023-01-22 22:45:57 -0600
+<b>Committer:</b> Matt Colligan &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2023-01-23 00:03:01 +0000
+
+add minimum conduit version
+</pre><div class="diff">
+  <p>
+    <b>gitja.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -20,7 +20,7 @@
+
+
+  <pre><span class="def">   other-modules:       Index, Env, Repositories, Templates, Types, Paths_gitja
+</span><span class="def">   default-language:    Haskell2010
+</span><span class="def">   build-depends:       base &gt;= 4.7 &amp;&amp; &lt; 5
+</span><span class="sub">-                     , conduit
+</span><span class="add">+                     , conduit &gt;= 1.1.0
+</span><span class="def">                      , bytestring
+</span><span class="def">                      , data-default
+</span><span class="def">                      , dhall
+</span></pre></div>    </div>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - github CI gitserve -? gitja</title>
+    <link rel="stylesheet" type="text/css" href="https://gitja.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitja.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitja.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitja.mcol.xyz">Home</a> |
+        <a href="https://gitja.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitja.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitja.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitja.mcol.xyz/gitja/commit/3140f07b47a7e7b2fa277f3a05df876f2162f510.html">3140f07</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitja.mcol.xyz/gitja/commit/2e150e2e1c1d46109c657c8a57872e7c7b50410e.html">2e150e2e1c1d46109c657c8a57872e7c7b50410e</a>
+<b>Parent:</b> <a href="https://gitja.mcol.xyz/gitja/commit/05bf1c1636be72f8ce13da2a340ea305cce7f2fa.html">05bf1c1636be72f8ce13da2a340ea305cce7f2fa</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2023-01-22 22:38:37 -0600
+<b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2023-01-22 22:38:37 -0600
+
+github CI gitserve -? gitja
+</pre><div class="diff">
+  <p>
+    <b>.github/workflows/ci.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -39,7 +39,7 @@
+
+
+  <pre><span class="def">     - name: Generate docs
+</span><span class="def">       if: matrix.os == &apos;ubuntu-latest&apos; &amp;&amp; github.event_name == &apos;push&apos;
+</span><span class="def">       run: |
+</span><span class="sub">-        sed -i &apos;s*http://localhost:8000*https://gitserve.mcol.xyz*&apos; config.dhall
+</span><span class="add">+        sed -i &apos;s*http://localhost:8000*https://gitja.mcol.xyz*&apos; config.dhall
+</span><span class="def">         stack run -- -c ./config.dhall -q
+</span><span class="def"> 
+</span><span class="def">     - name: Deploy docs
+</span></pre></div>    </div>
+  </body>
+</html>

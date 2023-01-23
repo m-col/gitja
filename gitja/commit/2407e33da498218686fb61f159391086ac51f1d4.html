@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🐙 gitja - Revert &quot;update build info&quot;</title>
+    <link rel="stylesheet" type="text/css" href="https://gitja.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitja.mcol.xyz/favicon.png"/>
+  </head>
+
+  <body>
+    <a id="heada" href="https://gitja.mcol.xyz">
+      <header>
+        <h1 id="title">gitja</h1>
+        <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
+      </header>
+    </a>
+
+    <div id="nav">
+      <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
+
+      <span id="links">
+        <a href="https://gitja.mcol.xyz">Home</a> |
+        <a href="https://gitja.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitja.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitja.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/LICENSE.html">License</a>
+      </span>
+
+      <p id="tag">
+        Docs built @ <a href="https://gitja.mcol.xyz/gitja/commit/3140f07b47a7e7b2fa277f3a05df876f2162f510.html">3140f07</a>
+      </p>
+    </div>
+
+    <div id="content">
+      <pre><b>Commit</b> <a href="https://gitja.mcol.xyz/gitja/commit/2407e33da498218686fb61f159391086ac51f1d4.html">2407e33da498218686fb61f159391086ac51f1d4</a>
+<b>Parent:</b> <a href="https://gitja.mcol.xyz/gitja/commit/2e150e2e1c1d46109c657c8a57872e7c7b50410e.html">2e150e2e1c1d46109c657c8a57872e7c7b50410e</a>
+<b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Date:</b> 2023-01-22 22:45:29 -0600
+<b>Committer:</b> Matt Colligan &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
+<b>Committed:</b> 2023-01-23 00:03:01 +0000
+
+Revert &quot;update build info&quot;
+
+This reverts commit 05bf1c1636be72f8ce13da2a340ea305cce7f2fa.
+</pre><div class="diff">
+  <p>
+    <b>stack.yaml.lock</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -7,13 +7,39 @@
+
+
+  <pre><span class="def"> - completed:
+</span><span class="def">     hackage: ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
+</span><span class="def">     pantry-tree:
+</span><span class="sub">-      sha256: c3d93b51ba0e76853b217debb662cdcf5eca78288d49c809f823be27a072bfbf
+</span><span class="def">       size: 1430
+</span><span class="add">+      sha256: c3d93b51ba0e76853b217debb662cdcf5eca78288d49c809f823be27a072bfbf
+</span><span class="def">   original:
+</span><span class="def">     hackage: ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
+</span><span class="add">+- completed:
+</span><span class="add">+    size: 86208
+</span><span class="add">+    subdir: gitlib
+</span><span class="add">+    url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
+</span><span class="add">+    name: gitlib
+</span><span class="add">+    version: 3.1.3
+</span><span class="add">+    sha256: 8d5ed307dee32837a8d2fe92358e1060090a4b47bcb17579fdf8498bc7d10ecc
+</span><span class="add">+    pantry-tree:
+</span><span class="add">+      size: 1137
+</span><span class="add">+      sha256: 54c4748a607013867118457910708381ec413a35f901e53ecce204c8ef2eafb5
+</span><span class="add">+  original:
+</span><span class="add">+    subdir: gitlib
+</span><span class="add">+    url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
+</span><span class="add">+- completed:
+</span><span class="add">+    size: 86208
+</span><span class="add">+    subdir: gitlib-libgit2
+</span><span class="add">+    url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
+</span><span class="add">+    name: gitlib-libgit2
+</span><span class="add">+    version: 3.1.2.1
+</span><span class="add">+    sha256: 8d5ed307dee32837a8d2fe92358e1060090a4b47bcb17579fdf8498bc7d10ecc
+</span><span class="add">+    pantry-tree:
+</span><span class="add">+      size: 615
+</span><span class="add">+      sha256: 0a99f56fcf841f14c353e32a5e66ae3e6212e2958331060ab511c049b862c2b9
+</span><span class="add">+  original:
+</span><span class="add">+    subdir: gitlib-libgit2
+</span><span class="add">+    url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
+</span><span class="def"> snapshots:
+</span><span class="def"> - completed:
+</span><span class="sub">-    sha256: b73b2b116143aea728c70e65c3239188998bac5bc3be56465813dacd74215dc5
+</span><span class="sub">-    size: 648424
+</span><span class="sub">-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/20/1.yaml
+</span><span class="sub">-  original: lts-20.1
+</span><span class="add">+    size: 619093
+</span><span class="add">+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/5.yaml
+</span><span class="add">+    sha256: b936d27d647a31a8834d3efec126e2a07dee9c9bd6dd401d9bdac77e7b278f1e
+</span><span class="add">+  original: lts-19.5
+</span></pre></div><div class="diff">
+  <p>
+    <b>stack.yaml</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -1,19 +1,11 @@
+
+
+  <pre><span class="sub">-resolver: lts-20.1
+</span><span class="sub">-
+</span><span class="sub">-packages:
+</span><span class="sub">-- .
+</span><span class="sub">-- ../gitlib/gitlib
+</span><span class="sub">-- ../gitlib/gitlib-libgit2
+</span><span class="sub">-
+</span><span class="add">+resolver: lts-19.5
+</span><span class="def"> 
+</span><span class="def"> extra-deps:
+</span><span class="def"> - ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
+</span><span class="sub">-  #- github: jwiegley/gitlib
+</span><span class="sub">-  #  commit: 1965ed8c198d3c03c43fa0beef2dda67fa3e5d7f
+</span><span class="sub">-  #  subdirs:
+</span><span class="sub">-  #    - gitlib
+</span><span class="sub">-  #    - gitlib-libgit2
+</span><span class="sub">-
+</span><span class="add">+- url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
+</span><span class="add">+  subdirs:
+</span><span class="add">+    - gitlib
+</span><span class="add">+    - gitlib-libgit2
+</span><span class="def"> 
+</span><span class="def"> ghc-options:
+</span><span class="def">   &quot;gitja&quot;: -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+</span></pre>@@ -22,4 +14,4 @@
+
+
+  <pre><span class="def">     -fno-warn-orphans
+</span><span class="def"> 
+</span><span class="def"> rebuild-ghc-options: true
+</span><span class="sub">-allow-newer: true
+</span><span class="add">+allow-newer: false
+</span></pre></div><div class="diff">
+  <p>
+    <b>gitja.cabal</b>
+    <span class="status">Modified</span>
+  </p>
+
+  @@ -20,7 +20,7 @@
+
+
+  <pre><span class="def">   other-modules:       Index, Env, Repositories, Templates, Types, Paths_gitja
+</span><span class="def">   default-language:    Haskell2010
+</span><span class="def">   build-depends:       base &gt;= 4.7 &amp;&amp; &lt; 5
+</span><span class="sub">-                     , conduit &gt;= 1.1.0
+</span><span class="add">+                     , conduit
+</span><span class="def">                      , bytestring
+</span><span class="def">                      , data-default
+</span><span class="def">                      , dhall
+</span></pre></div>    </div>
+  </body>
+</html>

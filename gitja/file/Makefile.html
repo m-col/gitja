@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>🐙 gitja - Makefile</title>
-    <link rel="stylesheet" type="text/css" href="https://gitserve.mcol.xyz/style.css"/>
-    <link rel="icon" type="image/png" href="https://gitserve.mcol.xyz/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="https://gitja.mcol.xyz/style.css"/>
+    <link rel="icon" type="image/png" href="https://gitja.mcol.xyz/favicon.png"/>
   </head>
 
   <body>
-    <a id="heada" href="https://gitserve.mcol.xyz">
+    <a id="heada" href="https://gitja.mcol.xyz">
       <header>
         <h1 id="title">gitja</h1>
         <h2 id="desc">🐙 Templated web page generator for your git repositories</h2>
@@ -20,16 +20,16 @@
       <span id="url">git clone <a href="https://github.com/m-col/gitja">https://github.com/m-col/gitja</a></span>
 
       <span id="links">
-        <a href="https://gitserve.mcol.xyz">Home</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/log.html">Log</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/tree.html">Files</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/refs.html">Refs</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
-        <a href="https://gitserve.mcol.xyz/gitja/file/LICENSE.html">License</a>
+        <a href="https://gitja.mcol.xyz">Home</a> |
+        <a href="https://gitja.mcol.xyz/gitja/log.html">Log</a> |
+        <a href="https://gitja.mcol.xyz/gitja/tree.html">Files</a> |
+        <a href="https://gitja.mcol.xyz/gitja/refs.html">Refs</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/README.rst.html">Readme</a> |
+        <a href="https://gitja.mcol.xyz/gitja/file/LICENSE.html">License</a>
       </span>
 
       <p id="tag">
-        Docs built @ <a href="https://gitserve.mcol.xyz/gitja/commit/dd887ab4dff2f47110b7f584e357e86826b76369.html">dd887ab</a>
+        Docs built @ <a href="https://gitja.mcol.xyz/gitja/commit/3140f07b47a7e7b2fa277f3a05df876f2162f510.html">3140f07</a>
       </p>
     </div>
 
@@ -40,7 +40,7 @@
 <a href="#l2" class="line" id="l2">    2</a>  
 <a href="#l3" class="line" id="l3">    3</a>  .PHONY: build
 <a href="#l4" class="line" id="l4">    4</a>  build: ## Compile the binary (Default)
-<a href="#l5" class="line" id="l5">    5</a>  	@stack build
+<a href="#l5" class="line" id="l5">    5</a>  	@stack build --keep-going
 <a href="#l6" class="line" id="l6">    6</a>  
 <a href="#l7" class="line" id="l7">    7</a>  .PHONY: help
 <a href="#l8" class="line" id="l8">    8</a>  help: ## Show this help
@@ -76,20 +76,35 @@
 <a href="#l38" class="line" id="l38">   38</a>  test: ## Run the &quot;tests&quot;
 <a href="#l39" class="line" id="l39">   39</a>  	bash ./test/test.sh
 <a href="#l40" class="line" id="l40">   40</a>  
-<a href="#l41" class="line" id="l41">   41</a>  .PHONY: prod
-<a href="#l42" class="line" id="l42">   42</a>  prod: ## Build with optimise flags
-<a href="#l43" class="line" id="l43">   43</a>  	@stack build --ghc-options=&quot;-O2&quot;
-<a href="#l44" class="line" id="l44">   44</a>  
-<a href="#l45" class="line" id="l45">   45</a>  .PHONY: prof
-<a href="#l46" class="line" id="l46">   46</a>  prof: ## Build with profiling enabled
-<a href="#l47" class="line" id="l47">   47</a>  	@stack build --profile
-<a href="#l48" class="line" id="l48">   48</a>  	@rm -r output
-<a href="#l49" class="line" id="l49">   49</a>  	@stack exec --profile -- gitja -q +RTS -p
-<a href="#l50" class="line" id="l50">   50</a>  	@head -n 6 gitja.prof
-<a href="#l51" class="line" id="l51">   51</a>  
-<a href="#l52" class="line" id="l52">   52</a>  .PHONY: all
-<a href="#l53" class="line" id="l53">   53</a>  all: format lint rebuild run test ## Lint, format, rebuild, run, test
-<a href="#l54" class="line" id="l54">   54</a>  
+<a href="#l41" class="line" id="l41">   41</a>  .PHONY: all
+<a href="#l42" class="line" id="l42">   42</a>  all: format lint rebuild run test ## Lint, format, rebuild, run, test
+<a href="#l43" class="line" id="l43">   43</a>  
+<a href="#l44" class="line" id="l44">   44</a>  .PHONY: prod
+<a href="#l45" class="line" id="l45">   45</a>  prod: ## Build with optimise flags
+<a href="#l46" class="line" id="l46">   46</a>  	@stack build --ghc-options=&quot;-O2&quot;
+<a href="#l47" class="line" id="l47">   47</a>  
+<a href="#l48" class="line" id="l48">   48</a>  .PHONY: dot
+<a href="#l49" class="line" id="l49">   49</a>  dot: ## Visualise dependencies
+<a href="#l50" class="line" id="l50">   50</a>  	stack dot --external --depth 1 --prune base,text,bytestring,transformers \
+<a href="#l51" class="line" id="l51">   51</a>  		|  twopi -Goverlap=false -Tpng -o deps.png
+<a href="#l52" class="line" id="l52">   52</a>  
+<a href="#l53" class="line" id="l53">   53</a>  PROF ?= fprof-auto
+<a href="#l54" class="line" id="l54">   54</a>  # other options: fno-prof-auto fprof-auto-top
+<a href="#l55" class="line" id="l55">   55</a>  
+<a href="#l56" class="line" id="l56">   56</a>  .PHONY: prof
+<a href="#l57" class="line" id="l57">   57</a>  prof: _prof_build ## Build with profiling enabled
+<a href="#l58" class="line" id="l58">   58</a>  	stack exec --profile -- gitja -q +RTS -p -po${PROF}
+<a href="#l59" class="line" id="l59">   59</a>  	ghc-prof-flamegraph ${PROF}.prof -o ${PROF}.svg
+<a href="#l60" class="line" id="l60">   60</a>  
+<a href="#l61" class="line" id="l61">   61</a>  .PHONY: prof_speedscope
+<a href="#l62" class="line" id="l62">   62</a>  prof_speedscope: _prof_build ## Build with profiling enabled (JSON output with speedscope)
+<a href="#l63" class="line" id="l63">   63</a>  	stack exec --profile -- gitja -q +RTS -p -po${PROF} -pj
+<a href="#l64" class="line" id="l64">   64</a>  	speedscope ${PROF}.prof
+<a href="#l65" class="line" id="l65">   65</a>  
+<a href="#l66" class="line" id="l66">   66</a>  _prof_build:
+<a href="#l67" class="line" id="l67">   67</a>  	stack build --profile --ghc-options=&quot;-${PROF}&quot;
+<a href="#l68" class="line" id="l68">   68</a>  	rm -fr output
+<a href="#l69" class="line" id="l69">   69</a>  
 </pre>
       </div>
   </body>
