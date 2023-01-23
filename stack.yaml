@@ -1,19 +1,11 @@
-resolver: lts-20.1
-
-packages:
-- .
-- ../gitlib/gitlib
-- ../gitlib/gitlib-libgit2
-
+resolver: lts-19.5
 
 extra-deps:
 - ginger-0.10.4.0@sha256:7ca26896395fda951443ed3bba5f24fd6036c44167d424e744d1e0c8c6b138fd,3855
-  #- github: jwiegley/gitlib
-  #  commit: 1965ed8c198d3c03c43fa0beef2dda67fa3e5d7f
-  #  subdirs:
-  #    - gitlib
-  #    - gitlib-libgit2
-
+- url: https://github.com/m-col/gitlib/archive/1fb5d534e22d7aa6be858bb7b2075cd60c0606d8.tar.gz
+  subdirs:
+    - gitlib
+    - gitlib-libgit2
 
 ghc-options:
   "gitja": -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
@@ -22,4 +14,4 @@ ghc-options:
     -fno-warn-orphans
 
 rebuild-ghc-options: true
-allow-newer: true
+allow-newer: false
