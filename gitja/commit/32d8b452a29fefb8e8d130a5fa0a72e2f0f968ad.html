@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>🐙 gitja - 0.3.0 release</title>
+    <title>🐙 gitja - clean before gh-pages action</title>
     <link rel="stylesheet" type="text/css" href="https://gitja.mcol.xyz/style.css"/>
     <link rel="icon" type="image/png" href="https://gitja.mcol.xyz/favicon.png"/>
   </head>
@@ -34,29 +34,28 @@
     </div>
 
     <div id="content">
-      <pre><b>Commit</b> <a href="https://gitja.mcol.xyz/gitja/commit/e0394349274a466de41423ffd8007d03c70ae606.html">e0394349274a466de41423ffd8007d03c70ae606</a>
-<b>Parent:</b> <a href="https://gitja.mcol.xyz/gitja/commit/921d3584d704caadbe91f06eea7d1a83bb4f9ad0.html">921d3584d704caadbe91f06eea7d1a83bb4f9ad0</a>
+      <pre><b>Commit</b> <a href="https://gitja.mcol.xyz/gitja/commit/32d8b452a29fefb8e8d130a5fa0a72e2f0f968ad.html">32d8b452a29fefb8e8d130a5fa0a72e2f0f968ad</a>
+<b>Parent:</b> <a href="https://gitja.mcol.xyz/gitja/commit/3140f07b47a7e7b2fa277f3a05df876f2162f510.html">3140f07b47a7e7b2fa277f3a05df876f2162f510</a>
 <b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Date:</b> 2021-11-29 00:17:27 +0000
+<b>Date:</b> 2023-01-23 01:26:13 -0600
 <b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Committed:</b> 2021-11-29 00:17:27 +0000
+<b>Committed:</b> 2023-01-23 01:26:13 -0600
 
-0.3.0 release
+clean before gh-pages action
 </pre><div class="diff">
   <p>
-    <b>gitserve.cabal</b>
+    <b>.github/workflows/ci.yaml</b>
     <span class="status">Modified</span>
   </p>
 
-  @@ -1,5 +1,5 @@
+  @@ -48,4 +48,4 @@
 
 
-  <pre><span class="def"> name:                gitserve
-</span><span class="sub">-version:             0.2.0.0
-</span><span class="add">+version:             0.3.0.0
-</span><span class="def"> synopsis:            🐙 Templated web page generator for your git repositories
-</span><span class="def"> description:         🐙 Templated web page generator for your git repositories
-</span><span class="def"> homepage:            https://github.com/m-col/gitserve#readme
+  <pre><span class="def">       with:
+</span><span class="def">         branch: gh-pages
+</span><span class="def">         folder: output
+</span><span class="sub">-        clean: false
+</span><span class="add">+          #clean: false
 </span></pre></div>    </div>
   </body>
 </html>
