@@ -44,7 +44,7 @@ jobs:
 
     - name: Deploy docs
       if: matrix.os == 'ubuntu-latest' && github.event_name == 'push'
-      uses: JamesIves/github-pages-deploy-action@4.1.7
+      uses: JamesIves/github-pages-deploy-action@4.4.1
       with:
         branch: gh-pages
         folder: output
