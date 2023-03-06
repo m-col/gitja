@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>🐙 gitja - add make run</title>
+    <title>🐙 gitja - add v in github-pages-deploy-action version</title>
     <link rel="stylesheet" type="text/css" href="https://gitja.mcol.xyz/style.css"/>
     <link rel="icon" type="image/png" href="https://gitja.mcol.xyz/favicon.png"/>
   </head>
@@ -34,31 +34,31 @@
     </div>
 
     <div id="content">
-      <pre><b>Commit</b> <a href="https://gitja.mcol.xyz/gitja/commit/77f1d1b672b8039e69a4941941c861948abee47e.html">77f1d1b672b8039e69a4941941c861948abee47e</a>
-<b>Parent:</b> <a href="https://gitja.mcol.xyz/gitja/commit/3aa05611b5515fb20c35dc72429c0eeecb73b6ce.html">3aa05611b5515fb20c35dc72429c0eeecb73b6ce</a>
+      <pre><b>Commit</b> <a href="https://gitja.mcol.xyz/gitja/commit/098a0ef6759de72d427b0fd0f090d3291a7a3407.html">098a0ef6759de72d427b0fd0f090d3291a7a3407</a>
+<b>Parent:</b> <a href="https://gitja.mcol.xyz/gitja/commit/a71abc9ffbe3c7acb8092561daf4f1454499a2d7.html">a71abc9ffbe3c7acb8092561daf4f1454499a2d7</a>
 <b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Date:</b> 2021-11-24 22:32:34 +0000
+<b>Date:</b> 2023-03-06 22:59:51 +0000
 <b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Committed:</b> 2021-11-24 22:32:34 +0000
+<b>Committed:</b> 2023-03-06 22:59:51 +0000
 
-add make run
+add v in github-pages-deploy-action version
 </pre><div class="diff">
   <p>
-    <b>Makefile</b>
+    <b>.github/workflows/ci.yaml</b>
     <span class="status">Modified</span>
   </p>
 
-  @@ -28,3 +28,8 @@
+  @@ -44,7 +44,7 @@
 
 
-  <pre><span class="def"> rebuild: ## Clean and then build
-</span><span class="def"> 	@stack clean
-</span><span class="def"> 	@stack build
-</span><span class="add">+
-</span><span class="add">+.PHONY: run
-</span><span class="add">+run: ## Run gitserve on this repository into ./output/
-</span><span class="add">+	rm -rf output
-</span><span class="add">+	stack run
+  <pre><span class="def"> 
+</span><span class="def">     - name: Deploy docs
+</span><span class="def">       if: matrix.os == &apos;ubuntu-latest&apos; &amp;&amp; github.event_name == &apos;push&apos;
+</span><span class="sub">-      uses: JamesIves/github-pages-deploy-action@4.4.1
+</span><span class="add">+      uses: JamesIves/github-pages-deploy-action@v4.4.1
+</span><span class="def">       with:
+</span><span class="def">         branch: gh-pages
+</span><span class="def">         folder: output
 </span></pre></div>    </div>
   </body>
 </html>
