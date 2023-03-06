@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>🐙 gitja - fix ginger version problem in deps</title>
+    <title>🐙 gitja - quick commit to test github pages</title>
     <link rel="stylesheet" type="text/css" href="https://gitja.mcol.xyz/style.css"/>
     <link rel="icon" type="image/png" href="https://gitja.mcol.xyz/favicon.png"/>
   </head>
@@ -34,45 +34,30 @@
     </div>
 
     <div id="content">
-      <pre><b>Commit</b> <a href="https://gitja.mcol.xyz/gitja/commit/b7b3a0cd59d9d14b5ed0f328e53e7a390b1d77b5.html">b7b3a0cd59d9d14b5ed0f328e53e7a390b1d77b5</a>
-<b>Parent:</b> <a href="https://gitja.mcol.xyz/gitja/commit/06c5d6d4860ff86bb8717d367eecae4fad730cb1.html">06c5d6d4860ff86bb8717d367eecae4fad730cb1</a>
+      <pre><b>Commit</b> <a href="https://gitja.mcol.xyz/gitja/commit/301db50959861248665a050dd147689b0af475d5.html">301db50959861248665a050dd147689b0af475d5</a>
+<b>Parent:</b> <a href="https://gitja.mcol.xyz/gitja/commit/32d8b452a29fefb8e8d130a5fa0a72e2f0f968ad.html">32d8b452a29fefb8e8d130a5fa0a72e2f0f968ad</a>
 <b>Author:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Date:</b> 2021-11-25 21:17:10 +0000
+<b>Date:</b> 2023-03-06 21:36:28 +0000
 <b>Committer:</b> mcol &lt;<a href="mailto:mcol@posteo.net">mcol@posteo.net</a>&gt;
-<b>Committed:</b> 2021-11-25 21:17:10 +0000
+<b>Committed:</b> 2023-03-06 21:36:28 +0000
 
-fix ginger version problem in deps
+quick commit to test github pages
 </pre><div class="diff">
   <p>
-    <b>stack.yaml</b>
+    <b>README.rst</b>
     <span class="status">Modified</span>
   </p>
 
-  @@ -14,3 +14,5 @@
+  @@ -4,7 +4,6 @@
 
 
-  <pre><span class="def">     -Wincomplete-record-updates -Wredundant-constraints -Wpartial-fields
-</span><span class="def">     -Wmissing-deriving-strategies -Wunused-packages -fno-warn-unused-do-bind
-</span><span class="def">     -fno-warn-orphans
-</span><span class="add">+
-</span><span class="add">+allow-newer: true
-</span></pre></div><div class="diff">
-  <p>
-    <b>gitserve.cabal</b>
-    <span class="status">Modified</span>
-  </p>
-
-  @@ -25,7 +25,7 @@
-
-
-  <pre><span class="def">                      , dhall
-</span><span class="def">                      , directory
-</span><span class="def">                      , filepath
-</span><span class="sub">-                     , ginger &gt;= 0.10.3
-</span><span class="add">+                     , ginger &gt;= 0.10.3.0
-</span><span class="def">                      , gitlib
-</span><span class="def">                      , gitlib-libgit2
-</span><span class="def">                      , optparse-applicative
+  <pre><span class="def"> .. image:: https://img.shields.io/github/v/release/m-col/gitja?color=904ff0
+</span><span class="def">    :alt: GitHub release (latest SemVer)
+</span><span class="def"> 
+</span><span class="sub">-
+</span><span class="def"> ``gitja`` generates pretty web pages from your git repositories using custom
+</span><span class="def"> Jinja_\* HTML templates.
+</span><span class="def"> 
 </span></pre></div>    </div>
   </body>
 </html>
