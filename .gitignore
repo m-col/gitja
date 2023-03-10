@@ -5,3 +5,4 @@ test/result
 dist-newstyle
 *.prof
 *.svg
+/target

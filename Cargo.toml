@@ -1,0 +1,15 @@
+[package]
+name = "gitja"
+version = "0.3.0"
+edition = "2021"
+authors = ["Matt Colligan <mcol@posteo.net>"]
+description = "🐙 Templated web page generator for your git repositories"
+documentation = "https://gitja.mcol.xyz"
+homepage = "https://gitja.mcol.xyz"
+readme = "README.rst"
+repository = "https://github.com/m-col/gitja"
+license = "MIT"
+
+# TODO: Add keywords & categories
+
+[dependencies]

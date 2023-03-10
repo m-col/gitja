@@ -1,6 +1,0 @@
-{#- This tests using include files. -#}
-{#- This file should not appear in the outputfolder. -#}
-
-{% block title %}{% endblock %}
-
-{% block body %}{% endblock %}
