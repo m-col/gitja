@@ -13,3 +13,4 @@ license = "MIT"
 # TODO: Add keywords & categories
 
 [dependencies]
+clap = { version = "4.1.8", features = ["derive"] }
