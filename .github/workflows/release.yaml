@@ -3,8 +3,6 @@ name: Release
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
   release:
@@ -46,7 +44,6 @@ jobs:
         echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
 
     - name: Create or update release
-      if: github.event_name == 'push'
       env:
         GH_TOKEN: ${{ github.token }}
         TAG: ${{ steps.version.outputs.tag }}
