@@ -14,16 +14,16 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         # Fetch all branches and tags so the tests can see them.
         fetch-depth: 0
 
-    - uses: haskell/actions/setup@v1
+    - uses: haskell-actions/setup@v2
       with:
         enable-stack: true
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       with:
         path: ~/.stack/
         key: ${{ runner.os }}-${{ hashFiles('**/stack.yaml.lock') }}

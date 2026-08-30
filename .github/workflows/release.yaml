@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - uses: haskell-actions/setup@v2
+      with:
+        enable-stack: true
+
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.stack
+          .stack-work
+        key: ${{ runner.os }}-stack-release-${{ hashFiles('stack.yaml.lock', 'gitja.cabal') }}
+        restore-keys: |
+          ${{ runner.os }}-stack-release-
+
+    - name: Build release binary
+      run: |
+        stack build --ghc-options="-O2" --copy-bins --local-bin-path ./dist
+
+    - name: Strip binary
+      run: |
+        strip ./dist/gitja
+        mv ./dist/gitja ./dist/gitja-linux-x86_64
+
+    - name: Determine version
+      id: version
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        VERSION=$(grep -m1 '^version:' gitja.cabal | awk '{print $2}')
+        TAG="v${VERSION}"
+        if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          # Version wasn't bumped since the last release: disambiguate with
+          # the short SHA so this commit still gets its own release.
+          TAG="${TAG}-$(git rev-parse --short HEAD)"
+        fi
+        echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+    - name: Create release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ steps.version.outputs.tag }}
+      run: |
+        gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+          --title "$TAG" --generate-notes
+        gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" \
+          ./dist/gitja-linux-x86_64
