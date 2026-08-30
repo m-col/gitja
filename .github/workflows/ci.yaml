@@ -35,3 +35,7 @@ jobs:
     - name: Run tests
       run: |
         bash test/test.sh
+
+    - name: Check doc generation works
+      run: |
+        stack run -- -c ./config.dhall -q
