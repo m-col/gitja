@@ -82,9 +82,9 @@ To illustrate, this is the expected structure:
         repo/
             inside_this_folder.html
             two_names_are_special.html
-            blob.html
-            commit.html
-            tree.html
+            foreach.blob.html
+            foreach.commit.html
+            foreach.tree.html
 
 The top-level folder, here `template`, is that which is specified in the config
 file.
@@ -100,11 +100,13 @@ information pertaining to a single git repository. The template files contained
 within this folder are parsed and output once per git repository.
 
 The exceptions to this are the three special template files with the names
-"blob.html", "commit.html" and "tree.html". These have access to the *blob
-scope*, *commit scope* and *tree scope* respectively, and are parsed and
-output once per blob, commit or tree found anywhere in the repository, at any
-depth (a submodule reference is currently treated as a blob whose content is
-its target commit hash, rather than as its own scope).
+"foreach.blob.html", "foreach.commit.html" and "foreach.tree.html" - named to
+make clear that, unlike everything else in "repo/", these are parsed and
+output once *per* blob, commit or tree found anywhere in the repository, at
+any depth, rather than once per repository. These have access to the *blob
+scope*, *commit scope* and *tree scope* respectively (a submodule reference
+is currently treated as a blob whose content is its target commit hash,
+rather than as its own scope).
 
 The resulting folder structure found in `output` will look like this (if
 `repos` only contains gitja):

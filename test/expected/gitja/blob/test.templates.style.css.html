@@ -1,0 +1,21 @@
+test/templates/style.css
+scope: blob
+blob: test/templates/style.css
+blob.path: test/templates/style.css
+blob.href: test.templates.style.css.html
+blob.contents: html
+blob.mode: Plain
+blob.mode_octal: 00644
+blob.mode_symbolic: -rw-r--r--
+if blob.is_directory then "directory" else "file": "file"
+
+blob scope also should have data from repo scope available:
+host: https://github.com/m-col/gitja
+repos: gitja
+name: gitja
+description: 🐙 Templated web page generator for your git repositories
+commits: (skipped)
+tree: (skipped)
+tags: 1
+readme.path: README.rst
+license.path: LICENSE

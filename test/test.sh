@@ -36,10 +36,10 @@ TESTS=(
     "static/a_nice_file"  # Static folder at top level
     "gitja/index.html"  # Repo scope
     "gitja/commit/0292014748caae952bbc8dd6225680d83c0a5135.html"  # A commit
-    "gitja/file/test.templates.style.css.html"  # A plain text file
+    "gitja/blob/test.templates.style.css.html"  # A plain text file
     "so_called_binary_file"  # Static file at top level that git considers binary
-    "gitja/file/test.templates.so_called_binary_file.html"  # The binary file
-    "gitja/file/github.FUNDING.yml.html"  # HREF drops leading period
+    "gitja/blob/test.templates.so_called_binary_file.html"  # The binary file
+    "gitja/blob/github.FUNDING.yml.html"  # HREF drops leading period
     "gitja/log.html"  # Symbolic link inside repo/
     "gitja/static/another_file"  # Static folder inside repo/
 )

@@ -1,0 +1,28 @@
+{% extends "../title.html.include" -%}
+{%- block title -%}{{ blob }}{%- endblock -%}
+
+{% block body %}
+scope: blob
+blob: {{ blob }}
+blob.path: {{ blob.path }}
+blob.href: {{ blob.href }}
+blob.contents: {% if blob.is_binary %}(binary)
+{% else %}{{ blob.contents }}{% endif %}
+blob.mode: {{ blob.mode }}
+blob.mode_octal: {{ blob.mode_octal }}
+blob.mode_symbolic: {{ blob.mode_symbolic }}
+if blob.is_directory then "directory" else "file":
+	{%- if blob.is_directory %} "directory"{% else %} "file"{% endif %}
+
+
+blob scope also should have data from repo scope available:
+host: {{ host }}
+repos: {{ repositories }}
+name: {{ name }}
+description: {{ description }}
+commits: (skipped)
+tree: (skipped)
+tags: {{ length(filter(tags, (t) -> t.name == "0.2.0")) }}
+readme.path: {{ readme.path }}
+license.path: {{ license.path }}
+{% endblock %}

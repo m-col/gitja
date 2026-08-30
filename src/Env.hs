@@ -105,12 +105,12 @@ loadEnv quiet force config = do
 
     -- Load files from template directory
     indexT <- collectTemplates files
-    commitT <- findTemplate "commit.html" filesRepo
-    blobT <- findTemplate "blob.html" filesRepo
-    treeT <- findTemplate "tree.html" filesRepo
+    commitT <- findTemplate "foreach.commit.html" filesRepo
+    blobT <- findTemplate "foreach.blob.html" filesRepo
+    treeT <- findTemplate "foreach.tree.html" filesRepo
     repoT <-
         collectTemplates
-            . filter (flip notElem ["commit.html", "blob.html", "tree.html"] . toFilePath . filename)
+            . filter (flip notElem ["foreach.commit.html", "foreach.blob.html", "foreach.tree.html"] . toFilePath . filename)
             $ filesRepo
 
     -- Exit early if we didn't find any templates
