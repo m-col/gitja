@@ -19,7 +19,7 @@ jobs:
         # Fetch all branches and tags so the tests can see them.
         fetch-depth: 0
 
-    - uses: haskell-actions/setup@v4
+    - uses: haskell-actions/setup@v2
       with:
         enable-stack: true
 
