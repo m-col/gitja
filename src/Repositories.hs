@@ -150,9 +150,6 @@ processRepo' env repos repo = do
                         mapM_ (gen force commitT "commit" commitDir commitHref) newCommits
 
                     whenJust (envFileTemplate env) \fileT -> do
-                        -- `tree` only holds the top level, with nested files reachable
-                        -- via each directory entry's FolderContents - flatten it so
-                        -- files at any depth actually get a page generated for them.
                         let allFiles = concatMap flattenFiles tree
                         if force
                             then mapM_ (gen True fileT "file" fileDir fileHref) allFiles
