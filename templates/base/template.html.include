@@ -19,13 +19,13 @@
     <span id="clone"><b>git clone <a href="{{ host }}/{{ name }}">{{ host }}/{{ name }}</a></b></span>
     <div class="links">
       <a href="{{ host }}/{{ name }}/index.html">Log</a> |
-      <a href="{{ host }}/{{ name }}/tree.html">Files</a> |
+      <a href="{{ host }}/{{ name }}/files.html">Files</a> |
       <a href="{{ host }}/{{ name }}/refs.html">Refs</a>
       {% if readme %}
-      | <a href="{{ host }}/{{ name }}/file/{{ readme.href }}">{{ readme.name }}</a>
+      | <a href="{{ host }}/{{ name }}/blob/{{ readme.href }}">{{ readme.name }}</a>
       {% endif %}
       {% if license %}
-      | <a href="{{ host }}/{{ name }}/file/{{ license.href }}">{{ license.name }}</a>
+      | <a href="{{ host }}/{{ name }}/blob/{{ license.href }}">{{ license.name }}</a>
       {% endif %}
     </div>
     </p>

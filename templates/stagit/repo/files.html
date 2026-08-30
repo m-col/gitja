@@ -1,15 +1,13 @@
 {% extends "../template.html.include" %}
 
 {%- block title -%}
-{{ name }} - {{ tree }}
+{{ name }} - files
 {%- endblock -%}
 
 {% block body %}
 {% include "repo-table-header.html.include" %}
 
 <div id="content">
-  <p>{{ tree.mode_symbolic }} {{ tree }}</p><hr>
-
   <table id="files">
     <thead>
       <tr>
@@ -19,13 +17,13 @@
     </thead>
 
     <tbody>
-      {% for child in tree.tree %}
+      {% for file in tree %}
       <tr>
-        <td>{{ child.mode_symbolic }}</td>
-        {% if child.is_directory %}
-        <td><a href="{{ host }}/{{ name }}/tree/{{ child.href }}">{{ child.path }}</a></td>
+        <td>{{ file.mode_symbolic }}</td>
+        {% if file.is_directory %}
+        <td><a href="{{ host }}/{{ name }}/tree/{{ file.href }}">{{ file.path }}</a></td>
         {% else %}
-        <td><a href="{{ host }}/{{ name }}/blob/{{ child.href }}">{{ child.path }}</a></td>
+        <td><a href="{{ host }}/{{ name }}/blob/{{ file.href }}">{{ file.path }}</a></td>
         {% endif %}
       </tr>
       {% endfor %}

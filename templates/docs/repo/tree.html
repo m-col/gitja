@@ -1,8 +1,10 @@
 {% extends "../template.html.include" %}
 
-{%- block title %}tree{% endblock -%}
+{%- block title %}{{ tree }}{% endblock -%}
 
 {% block body %}
+<p>{{ tree.mode_symbolic }} {{ tree }}</p><hr>
+
 <table id="files">
   <thead>
     <tr>
@@ -12,10 +14,14 @@
   </thead>
 
   <tbody>
-    {% for file in tree %}
+    {% for child in tree.tree %}
     <tr>
-      <td>{{ file.mode_symbolic }}</td>
-      <td><a href="{{ host }}/{{ name }}/file/{{ file.href }}">{{ file.path }}</a></td>
+      <td>{{ child.mode_symbolic }}</td>
+      {% if child.is_directory %}
+      <td><a href="{{ host }}/{{ name }}/tree/{{ child.href }}">{{ child.path }}</a></td>
+      {% else %}
+      <td><a href="{{ host }}/{{ name }}/blob/{{ child.href }}">{{ child.path }}</a></td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>

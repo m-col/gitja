@@ -67,7 +67,7 @@ new to you, it may be enough to skim through some of the examples in the
 otherwise the ginger docs can be very helpful to see what is supported.
 
 Templates are a folder containing a number of ginger template files.  There are
-4 "scopes", each making available a unique set of variables storing information
+5 "scopes", each making available a unique set of variables storing information
 about the git repositories. Each template file has access to a single one of
 these scopes. The structure of the template folder determines the scopes of the
 files contained therein.
@@ -82,8 +82,9 @@ To illustrate, this is the expected structure:
         repo/
             inside_this_folder.html
             two_names_are_special.html
-            file.html
+            blob.html
             commit.html
+            tree.html
 
 The top-level folder, here `template`, is that which is specified in the config
 file.
@@ -98,9 +99,12 @@ The special folder "repo" has access to the *repo scope*, which exposes
 information pertaining to a single git repository. The template files contained
 within this folder are parsed and output once per git repository.
 
-The exceptions to this are the two special template files with the names
-"file.html" and "commit.html". These have access to the *file scope* and
-*commit scope* respectively, and are parsed and output once per file or commit.
+The exceptions to this are the three special template files with the names
+"blob.html", "commit.html" and "tree.html". These have access to the *blob
+scope*, *commit scope* and *tree scope* respectively, and are parsed and
+output once per blob, commit or tree found anywhere in the repository, at any
+depth (a submodule reference is currently treated as a blob whose content is
+its target commit hash, rather than as its own scope).
 
 The resulting folder structure found in `output` will look like this (if
 `repos` only contains gitja):
@@ -112,13 +116,16 @@ The resulting folder structure found in `output` will look like this (if
         gitja/
             inside_this_folder.html
             two_names_are_special.html
-            file/
+            blob/
                 LICENSE.html
                 Makefile.html
                 ...
             commit/
                 0a18f38bb5c398bd192a6268281fc6abefaedd63.html
                 0a7601059956d9c4d395f5d08e8cf48a515d080f.html
+                ...
+            tree/
+                src.html
                 ...
         ...
 
@@ -152,10 +159,12 @@ The variables available within each scope are listed here for reference:
 |        | branches        | A list of the refs corresponding to branches.         |
 |        | readme          | The repository's readme file, if it has one.          |
 |        | license         | The repository's license file, if it has one.         |
-| File   |                 | *In addition to the variables from the Repo scope...* |
-|        | file            | A single file.                                        |
+| Blob   |                 | *In addition to the variables from the Repo scope...* |
+|        | blob            | A single blob (file).                                 |
 | Commit |                 | *In addition to the variables from the Repo scope...* |
 |        | commit          | A single commit.                                      |
+| Tree   |                 | *In addition to the variables from the Repo scope...* |
+|        | tree            | A single tree (directory) - shadows the repo-scope `tree`, since a tree page is itself scoped to one tree. |
 
 As in [Jinja](https://jinja.palletsprojects.com), a list can be accessed with
 indexing, and attributes can be accessed using a dot notation. For example, a
@@ -171,17 +180,17 @@ Here is the reference of attributes available on the variables that have them:
 |            | description      | The repository's description (see below).                |
 |            | head             | The current git commit.                                  |
 |            | updated          | The time when the current commit was committed.          |
-| file       | path             | The path the file relative to the repository root.       |
-|            | name             | The name of the file.                                    |
-|            | href             | The name of the HTML file for this file.                 |
-|            | contents         | The file's contents.                                     |
+| blob/tree  | path             | The path relative to the repository root.                |
+|            | name             | The name of the blob or tree.                             |
+|            | href             | The name of the HTML file for this blob or tree.          |
+|            | contents         | The blob's contents (n/a for a tree).                      |
 |            | mode             | Directory, Plain, Executable, Symlink or Submodule.      |
 |            | mode\_octal      | Mode in octal form e.g. "00644" for plain files.         |
 |            | mode\_symbolic   | Mode in symbolic form e.g. ""-rw-r--r--" for plain files.|
 |            | is\_directory    | A boolean, useful for ginger conditionals.               |
 |            | is\_binary       | A boolean, tells you if the contents can be rendered.    |
-|            | tree             | A list of a directory's direct contents.                 |
-|            | tree\_recursive  | A flat list of *every* entry (blob or tree) at any depth under this directory. |
+|            | tree             | This tree's direct contents (n/a for a blob).             |
+|            | tree\_recursive  | A flat list of *every* entry (blob or tree) at any depth under this tree (n/a for a blob). |
 | ref        | name             | The tag or branch name.                                  |
 |            | commit           | The commit pointed to by the tag or branch.              |
 | commit     | id               | The SHA of the given commit.                             |

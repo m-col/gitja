@@ -132,9 +132,11 @@ processRepo' env repos repo = do
                 withRunInIO \runInIO -> do
                     -- Create the destination folders --
                     commitDir <- (directory </>) <$> parseRelDir "commit"
-                    fileDir <- (directory </>) <$> parseRelDir "file"
+                    blobDir <- (directory </>) <$> parseRelDir "blob"
+                    treeDir <- (directory </>) <$> parseRelDir "tree"
                     ensureDir commitDir
-                    ensureDir fileDir
+                    ensureDir blobDir
+                    ensureDir treeDir
 
                     -- Check which commits are new since the last run --
                     newCommits <- getUpdates commitDir commits
@@ -149,13 +151,21 @@ processRepo' env repos repo = do
                     whenJust (envCommitTemplate env) \commitT -> do
                         mapM_ (gen force commitT "commit" commitDir commitHref) newCommits
 
-                    whenJust (envFileTemplate env) \fileT -> do
-                        let allFiles = concatMap flattenFiles tree
+                    whenJust (envBlobTemplate env) \blobT -> do
+                        let allBlobs = concatMap flattenFiles tree
                         if force
-                            then mapM_ (gen True fileT "file" fileDir fileHref) allFiles
+                            then mapM_ (gen True blobT "blob" blobDir blobHref) allBlobs
                             else
-                                let updatedFiles = getUpdatedFiles allFiles newCommits
-                                 in mapM_ (gen True fileT "file" fileDir fileHref) updatedFiles
+                                let updatedBlobs = getUpdatedFiles allBlobs newCommits
+                                 in mapM_ (gen True blobT "blob" blobDir blobHref) updatedBlobs
+
+                    whenJust (envTreeTemplate env) \treeT -> do
+                        -- A tree's own path never appears in a commit's diff (only
+                        -- the blobs within it do), so unlike blobs, staleness can't
+                        -- be judged by newCommits/getUpdatedFiles - always
+                        -- regenerate every tree page.
+                        let allTrees = concatMap flattenTrees tree
+                        mapM_ (gen True treeT "tree" treeDir treeHref) allTrees
 
                     -- Copy any static files/folders into the output directory --
                     envRepoCopyStatics env directory
@@ -379,6 +389,11 @@ flattenFiles treefile = case treeFileContents treefile of
     FolderContents files -> concatMap flattenFiles files
     _ -> [treefile]
 
+flattenTrees :: TreeFile -> [TreeFile]
+flattenTrees treefile = case treeFileContents treefile of
+    FolderContents files -> treefile : concatMap flattenTrees files
+    _ -> []
+
 getUpdatedFiles :: [TreeFile] -> [Commit] -> [TreeFile]
 getUpdatedFiles [] _ = []
 getUpdatedFiles _ [] = []
@@ -432,8 +447,11 @@ genTarget scope runInIO quiet force template category directory href target = do
 commitHref :: Commit -> FilePath
 commitHref = (++ ".html") . commitHash
 
-fileHref :: TreeFile -> FilePath
-fileHref = T.unpack . treePathToHref
+blobHref :: TreeFile -> FilePath
+blobHref = T.unpack . treePathToHref
+
+treeHref :: TreeFile -> FilePath
+treeHref = T.unpack . treePathToHref
 
 {-
 With a dictionary of preloaded values and a function to access additional data, create a

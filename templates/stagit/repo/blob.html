@@ -1,0 +1,21 @@
+{% extends "../template.html.include" %}
+
+{%- block title -%}
+{{ name }} - {{ blob }}
+{%- endblock -%}
+
+{% block body %}
+{% include "repo-table-header.html.include" %}
+
+<div id="content">
+  <p>{{ blob.mode_symbolic }} {{ blob }}</p><hr>
+
+  {% if blob.is_binary %}
+  (File is binary)
+  {% else %}
+<pre id="blob">{% for line in split(blob.contents, '\n') %}
+<a href="#l{{ loop.index }}" class="line" id="l{{ loop.index }}">{{ printf("%7v", loop.index) }}</a> {{ line }}
+{% endfor %}</pre>
+  {% endif %}
+</div>
+{% endblock %}
