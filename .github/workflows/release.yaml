@@ -1,0 +1,67 @@
+name: Release
+
+# This project uses Stack (see stack.yaml / stack.yaml.lock), not cabal, so
+# the build steps below use haskell/actions/setup with enable-stack and
+# `stack build` rather than a plain cabal build.
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - uses: haskell/actions/setup@v4
+      with:
+        enable-stack: true
+
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.stack
+          .stack-work
+        key: ${{ runner.os }}-stack-release-${{ hashFiles('stack.yaml.lock', 'gitja.cabal') }}
+        restore-keys: |
+          ${{ runner.os }}-stack-release-
+
+    - name: Build release binary
+      run: |
+        stack build --ghc-options="-O2" --copy-bins --local-bin-path ./dist
+
+    - name: Strip binary
+      run: |
+        strip ./dist/gitja
+        mv ./dist/gitja ./dist/gitja-linux-x86_64
+
+    - name: Determine version
+      id: version
+      run: |
+        VERSION=$(grep -m1 '^version:' gitja.cabal | awk '{print $2}')
+        echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+
+    - name: Create or update release
+      if: github.event_name == 'push'
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ steps.version.outputs.tag }}
+      run: |
+        if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          # Version wasn't bumped since the last release: move the existing
+          # tag/release to point at this commit and replace its asset.
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA"
+        else
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$TAG" --generate-notes
+        fi
+        gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" \
+          ./dist/gitja-linux-x86_64 --clobber
