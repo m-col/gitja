@@ -1,0 +1,21 @@
+test/templates/so_called_binary_file
+scope: blob
+blob: test/templates/so_called_binary_file
+blob.path: test/templates/so_called_binary_file
+blob.href: test.templates.so_called_binary_file.html
+blob.contents: (binary)
+blob.mode: Plain
+blob.mode_octal: 00644
+blob.mode_symbolic: -rw-r--r--
+if blob.is_directory then "directory" else "file": "file"
+
+blob scope also should have data from repo scope available:
+host: https://github.com/m-col/gitja
+repos: gitja
+name: gitja
+description: 🐙 Templated web page generator for your git repositories
+commits: (skipped)
+tree: (skipped)
+tags: 1
+readme.path: README.rst
+license.path: LICENSE

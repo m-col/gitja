@@ -132,9 +132,11 @@ processRepo' env repos repo = do
                 withRunInIO \runInIO -> do
                     -- Create the destination folders --
                     commitDir <- (directory </>) <$> parseRelDir "commit"
-                    fileDir <- (directory </>) <$> parseRelDir "file"
+                    blobDir <- (directory </>) <$> parseRelDir "blob"
+                    treeDir <- (directory </>) <$> parseRelDir "tree"
                     ensureDir commitDir
-                    ensureDir fileDir
+                    ensureDir blobDir
+                    ensureDir treeDir
 
                     -- Check which commits are new since the last run --
                     newCommits <- getUpdates commitDir commits
@@ -149,12 +151,21 @@ processRepo' env repos repo = do
                     whenJust (envCommitTemplate env) \commitT -> do
                         mapM_ (gen force commitT "commit" commitDir commitHref) newCommits
 
-                    whenJust (envFileTemplate env) \fileT -> do
+                    whenJust (envBlobTemplate env) \blobT -> do
+                        let allBlobs = concatMap flattenFiles tree
                         if force
-                            then mapM_ (gen True fileT "file" fileDir fileHref) tree
+                            then mapM_ (gen True blobT "blob" blobDir blobHref) allBlobs
                             else
-                                let updatedFiles = getUpdatedFiles tree newCommits
-                                 in mapM_ (gen True fileT "file" fileDir fileHref) updatedFiles
+                                let updatedBlobs = getUpdatedFiles allBlobs newCommits
+                                 in mapM_ (gen True blobT "blob" blobDir blobHref) updatedBlobs
+
+                    whenJust (envTreeTemplate env) \treeT -> do
+                        -- A tree's own path never appears in a commit's diff (only
+                        -- the blobs within it do), so unlike blobs, staleness can't
+                        -- be judged by newCommits/getUpdatedFiles - always
+                        -- regenerate every tree page.
+                        let allTrees = concatMap flattenTrees tree
+                        mapM_ (gen True treeT "tree" treeDir treeHref) allTrees
 
                     -- Copy any static files/folders into the output directory --
                     envRepoCopyStatics env directory
@@ -174,7 +185,7 @@ package ::
     Path Rel Dir ->
     T.Text ->
     [Commit] ->
-    [TreeFile] ->
+    [TreeEntry] ->
     HashMap.HashMap T.Text (GVal RunRepo)
 package env repos name description commits tree =
     HashMap.fromList
@@ -183,16 +194,18 @@ package env repos name description commits tree =
         , ("name", toGVal . T.pack . init . toFilePath $ name)
         , ("description", toGVal description)
         , ("commits", toGVal commits)
-        , ("tree", toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
-        , ("tree_recursive", toGVal tree)
+        , ("tree", toGVal tree)
+        , ("entries", toGVal . concatMap flattenTree $ tree)
+        , ("blobs", toGVal . concatMap flattenFiles $ tree)
+        , ("trees", toGVal . concatMap flattenTrees $ tree)
         , ("readme", toGVal . findFile "readme" $ tree)
         , ("license", toGVal . findFile "license" $ tree)
         ]
   where
     -- Find a file in the tree starting with the specified prefix. The prefix is looked
     -- for on the full path, so will only find files in the top level directory.
-    findFile :: T.Text -> [TreeFile] -> Maybe TreeFile
-    findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeFilePath)
+    findFile :: T.Text -> [TreeEntry] -> Maybe TreeEntry
+    findFile prefix = find (T.isPrefixOf prefix . T.toLower . treeEntryPath)
 
 {-
 Collect commit history up to a head.
@@ -298,17 +311,17 @@ loadDiff gitCommit = do
 Collect tree information for the given commit. Recurses on directories to list their
 contents.
 -}
-getTree :: Git.CommitOid LgRepo -> ReaderT LgRepo IO [TreeFile]
+getTree :: Git.CommitOid LgRepo -> ReaderT LgRepo IO [TreeEntry]
 getTree = getTree' "" 0 . Git.commitTree <=< Git.lookupCommit
   where
-    getTree' :: Git.TreeFilePath -> Int -> Git.TreeOid LgRepo -> ReaderT LgRepo IO [TreeFile]
+    getTree' :: Git.TreeFilePath -> Int -> Git.TreeOid LgRepo -> ReaderT LgRepo IO [TreeEntry]
     getTree' parent count toid = do
         one <- Git.lookupTree toid
         entries <- Git.listTreeEntries one
         let entries' = fmap (prependParent parent) entries
         contents <- mapM (\x -> getEntryContents x (count + 1)) entries'
         modes <- mapM (getEntryModes . snd) entries'
-        return $ zipWith3 TreeFile (fmap treePaths entries') contents modes
+        return $ zipWith3 TreeEntry (fmap treePaths entries') contents modes
 
     prependParent ::
         Git.TreeFilePath ->
@@ -317,7 +330,7 @@ getTree = getTree' "" 0 . Git.commitTree <=< Git.lookupCommit
     prependParent "" pathentry = pathentry
     prependParent parent (path, entry) = (mconcat [parent, "/", path], entry)
 
-    getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> Int -> ReaderT LgRepo IO TreeFileContents
+    getEntryContents :: (Git.TreeFilePath, Git.TreeEntry LgRepo) -> Int -> ReaderT LgRepo IO TreeEntryContents
     getEntryContents (_, Git.BlobEntry oid _) _ = getBlobContents oid
     getEntryContents (path, Git.TreeEntry oid) count = FolderContents <$> getTree' path count oid
     getEntryContents (_, Git.CommitEntry oid) _ = return . FileContents . B.fromString . show . untag $ oid
@@ -372,10 +385,20 @@ getUpdates directory cs = go cs
             (return [])
             ((x :) <$> go xs)
 
-getUpdatedFiles :: [TreeFile] -> [Commit] -> [TreeFile]
+flattenFiles :: TreeEntry -> [TreeEntry]
+flattenFiles treeentry = case treeEntryContents treeentry of
+    FolderContents files -> concatMap flattenFiles files
+    _ -> [treeentry]
+
+flattenTrees :: TreeEntry -> [TreeEntry]
+flattenTrees treeentry = case treeEntryContents treeentry of
+    FolderContents files -> treeentry : concatMap flattenTrees files
+    _ -> []
+
+getUpdatedFiles :: [TreeEntry] -> [Commit] -> [TreeEntry]
 getUpdatedFiles [] _ = []
 getUpdatedFiles _ [] = []
-getUpdatedFiles files commits = filter ((`elem` updated) . treeFilePath) files
+getUpdatedFiles files commits = filter ((`elem` updated) . treeEntryPath) files
   where
     updated :: [T.Text]
     updated = fmap (bsToText . diffNewFile) . concatMap commitDiffs $ commits
@@ -425,8 +448,11 @@ genTarget scope runInIO quiet force template category directory href target = do
 commitHref :: Commit -> FilePath
 commitHref = (++ ".html") . commitHash
 
-fileHref :: TreeFile -> FilePath
-fileHref = T.unpack . treePathToHref
+blobHref :: TreeEntry -> FilePath
+blobHref = T.unpack . treePathToHref
+
+treeHref :: TreeEntry -> FilePath
+treeHref = T.unpack . treePathToHref
 
 {-
 With a dictionary of preloaded values and a function to access additional data, create a

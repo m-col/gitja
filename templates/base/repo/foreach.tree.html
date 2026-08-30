@@ -1,0 +1,29 @@
+{% extends "../template.html.include" %}
+
+{%- block title %}{{ name }} - {{ tree }}{% endblock %}
+
+{%- block content %}
+<p>{{ tree.mode_symbolic }} {{ tree }}</p><hr>
+
+<table>
+  <thead>
+    <tr>
+      <td><b>Mode</b></td>
+      <td><b>Name</b></td>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for child in tree.tree %}
+    <tr>
+      <td>{{ child.mode_symbolic }}</td>
+      {% if child.is_directory %}
+      <td><a href="{{ host }}/{{ name }}/tree/{{ child.href }}">{{ child.path }}</a></td>
+      {% else %}
+      <td><a href="{{ host }}/{{ name }}/blob/{{ child.href }}">{{ child.path }}</a></td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
