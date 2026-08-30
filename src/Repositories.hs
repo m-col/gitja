@@ -374,6 +374,11 @@ getUpdates directory cs = go cs
             (return [])
             ((x :) <$> go xs)
 
+flattenFiles :: TreeFile -> [TreeFile]
+flattenFiles treefile = case treeFileContents treefile of
+    FolderContents files -> concatMap flattenFiles files
+    _ -> [treefile]
+
 getUpdatedFiles :: [TreeFile] -> [Commit] -> [TreeFile]
 getUpdatedFiles [] _ = []
 getUpdatedFiles _ [] = []
