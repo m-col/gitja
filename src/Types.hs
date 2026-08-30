@@ -214,15 +214,16 @@ lineAsLookup line = \case
 
 {-
 Next we have some data used to represent a repository's tree and the different kinds of
-objects contained therein.
+objects contained therein. A TreeEntry is any single entry found in a git tree object -
+a blob, a nested tree, or a commit (submodule reference).
 -}
-data TreeFile = TreeFile
-    { treeFilePath :: T.Text
-    , treeFileContents :: TreeFileContents
-    , treeFileMode :: TreeEntryMode
+data TreeEntry = TreeEntry
+    { treeEntryPath :: T.Text
+    , treeEntryContents :: TreeEntryContents
+    , treeEntryMode :: TreeEntryMode
     }
 
-data TreeFileContents = BinaryContents | FileContents ByteString | FolderContents [TreeFile]
+data TreeEntryContents = BinaryContents | FileContents ByteString | FolderContents [TreeEntry]
 
 data TreeEntryMode = ModeDirectory | ModePlain | ModeExecutable | ModeSymlink | ModeSubmodule
     deriving stock (Show)
@@ -240,7 +241,7 @@ blobkindToMode Git.SymlinkBlob = ModeSymlink
 {-
 This
 -}
-getBlobContents :: Git.BlobOid LgRepo -> ReaderT LgRepo IO TreeFileContents
+getBlobContents :: Git.BlobOid LgRepo -> ReaderT LgRepo IO TreeEntryContents
 getBlobContents oid = do
     repo <- Git.getRepository
     blobPtr <- liftIO mallocForeignPtr
@@ -259,63 +260,63 @@ getBlobContents oid = do
 GVal implementations for data definitions above, allowing commits to be rendered in
 Ginger templates.
 -}
-instance ToGVal m TreeFile where
-    toGVal :: TreeFile -> GVal m
-    toGVal treefile =
+instance ToGVal m TreeEntry where
+    toGVal :: TreeEntry -> GVal m
+    toGVal treeentry =
         def
-            { asHtml = html . treeFilePath $ treefile
-            , asText = treeFilePath treefile
-            , asLookup = Just . treeAsLookup $ treefile
+            { asHtml = html . treeEntryPath $ treeentry
+            , asText = treeEntryPath treeentry
+            , asLookup = Just . treeAsLookup $ treeentry
             , asBoolean = True -- Used for conditionally checking readme/license template variables.
             }
 
-instance ToGVal m TreeFileContents where
-    toGVal :: TreeFileContents -> GVal m
+instance ToGVal m TreeEntryContents where
+    toGVal :: TreeEntryContents -> GVal m
     toGVal BinaryContents = def
     toGVal (FileContents bytestring) = toGVal bytestring
-    toGVal (FolderContents treeFiles) =
+    toGVal (FolderContents treeEntries) =
         def
-            { asHtml = html . T.pack . show . fmap treeFilePath $ treeFiles
-            , asText = T.pack . show . fmap treeFilePath $ treeFiles
-            , asList = Just . fmap toGVal $ treeFiles
+            { asHtml = html . T.pack . show . fmap treeEntryPath $ treeEntries
+            , asText = T.pack . show . fmap treeEntryPath $ treeEntries
+            , asList = Just . fmap toGVal $ treeEntries
             }
 
 {-
 Recursively descend into a tree, keeping every entry along the way - blobs and trees
 alike - as a single flat list. Equivalent to `git ls-tree -r -t`.
 -}
-flattenTree :: TreeFile -> [TreeFile]
-flattenTree treefile = case treeFileContents treefile of
-    FolderContents files -> treefile : concatMap flattenTree files
-    _ -> [treefile]
+flattenTree :: TreeEntry -> [TreeEntry]
+flattenTree treeentry = case treeEntryContents treeentry of
+    FolderContents entries -> treeentry : concatMap flattenTree entries
+    _ -> [treeentry]
 
-treeAsLookup :: TreeFile -> T.Text -> Maybe (GVal m)
-treeAsLookup treefile = \case
-    "path" -> Just . toGVal . treeFilePath $ treefile
-    "name" -> Just . toGVal . FP.takeFileName . T.unpack . treeFilePath $ treefile
-    "href" -> Just . toGVal . treePathToHref $ treefile
-    "contents" -> Just . toGVal . treeFileContents $ treefile
-    "tree" -> Just . toGVal . treeFileGetTree . treeFileContents $ treefile
-    "tree_recursive" -> Just . toGVal . concatMap flattenTree . treeFileGetTree . treeFileContents $ treefile
-    "mode" -> Just . toGVal . drop 4 . show . treeFileMode $ treefile
-    "mode_octal" -> Just . toGVal . modeToOctal . treeFileMode $ treefile
-    "mode_symbolic" -> Just . toGVal . modeToSymbolic . treeFileMode $ treefile
-    "is_binary" -> Just . toGVal . treeFileIsBinary $ treefile
-    "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile
+treeAsLookup :: TreeEntry -> T.Text -> Maybe (GVal m)
+treeAsLookup treeentry = \case
+    "path" -> Just . toGVal . treeEntryPath $ treeentry
+    "name" -> Just . toGVal . FP.takeFileName . T.unpack . treeEntryPath $ treeentry
+    "href" -> Just . toGVal . treePathToHref $ treeentry
+    "contents" -> Just . toGVal . treeEntryContents $ treeentry
+    "tree" -> Just . toGVal . treeEntryGetTree . treeEntryContents $ treeentry
+    "entries" -> Just . toGVal . concatMap flattenTree . treeEntryGetTree . treeEntryContents $ treeentry
+    "mode" -> Just . toGVal . drop 4 . show . treeEntryMode $ treeentry
+    "mode_octal" -> Just . toGVal . modeToOctal . treeEntryMode $ treeentry
+    "mode_symbolic" -> Just . toGVal . modeToSymbolic . treeEntryMode $ treeentry
+    "is_binary" -> Just . toGVal . treeEntryIsBinary $ treeentry
+    "is_directory" -> Just . toGVal . treeEntryIsDirectory $ treeentry
     _ -> Nothing
   where
     -- The entries of this tree object - i.e. this directory's immediate children.
-    treeFileGetTree :: TreeFileContents -> [TreeFile]
-    treeFileGetTree (FolderContents fs) = fs
-    treeFileGetTree _ = []
+    treeEntryGetTree :: TreeEntryContents -> [TreeEntry]
+    treeEntryGetTree (FolderContents fs) = fs
+    treeEntryGetTree _ = []
 
-    treeFileIsBinary :: TreeFile -> Bool
-    treeFileIsBinary treefile' = case treeFileContents treefile' of
+    treeEntryIsBinary :: TreeEntry -> Bool
+    treeEntryIsBinary treeentry' = case treeEntryContents treeentry' of
         BinaryContents -> True
         _ -> False
 
-    treeFileIsDirectory :: TreeFile -> Bool
-    treeFileIsDirectory treefile' = case treeFileContents treefile' of
+    treeEntryIsDirectory :: TreeEntry -> Bool
+    treeEntryIsDirectory treeentry' = case treeEntryContents treeentry' of
         FolderContents _ -> True
         _ -> False
 
@@ -334,10 +335,10 @@ treeAsLookup treefile = \case
     modeToSymbolic ModeSubmodule = "git-module"
 
 {-
-Get the name of a tree file path's HTML file. Leading periods are dropped.
+Get the name of a tree entry path's HTML file. Leading periods are dropped.
 -}
-treePathToHref :: TreeFile -> T.Text
-treePathToHref = T.dropWhile (== '.') . flip T.append ".html" . T.replace "/" "." . treeFilePath
+treePathToHref :: TreeEntry -> T.Text
+treePathToHref = T.dropWhile (== '.') . flip T.append ".html" . T.replace "/" "." . treeEntryPath
 
 {-
 Data to store information about references: tags and branches.
