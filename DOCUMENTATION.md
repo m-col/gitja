@@ -146,6 +146,7 @@ The variables available within each scope are listed here for reference:
 |        | description     | The repository's description (see below).             |
 |        | commits         | A list of the repository's commits.                   |
 |        | tree            | A list of the repository root tree's entries.         |
+|        | tree\_recursive | A flat list of *every* entry (blob or tree) at any depth in the repository, like `git ls-tree -r -t`. |
 |        | blobs           | A flat list of *every* blob (file) in the repository. |
 |        | tags            | A list of the refs corresponding to tags.             |
 |        | branches        | A list of the refs corresponding to branches.         |
@@ -180,6 +181,7 @@ Here is the reference of attributes available on the variables that have them:
 |            | is\_directory    | A boolean, useful for ginger conditionals.               |
 |            | is\_binary       | A boolean, tells you if the contents can be rendered.    |
 |            | tree             | A list of a directory's direct contents.                 |
+|            | tree\_recursive  | A flat list of *every* entry (blob or tree) at any depth under this directory. |
 | ref        | name             | The tag or branch name.                                  |
 |            | commit           | The commit pointed to by the tag or branch.              |
 | commit     | id               | The SHA of the given commit.                             |

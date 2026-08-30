@@ -185,6 +185,7 @@ package env repos name description commits tree =
         , ("description", toGVal description)
         , ("commits", toGVal commits)
         , ("tree", toGVal tree)
+        , ("tree_recursive", toGVal . concatMap flattenTree $ tree)
         , ("blobs", toGVal . concatMap flattenFiles $ tree)
         , ("readme", toGVal . findFile "readme" $ tree)
         , ("license", toGVal . findFile "license" $ tree)

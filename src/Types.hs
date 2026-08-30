@@ -280,6 +280,15 @@ instance ToGVal m TreeFileContents where
             , asList = Just . fmap toGVal $ treeFiles
             }
 
+{-
+Recursively descend into a tree, keeping every entry along the way - blobs and trees
+alike - as a single flat list. Equivalent to `git ls-tree -r -t`.
+-}
+flattenTree :: TreeFile -> [TreeFile]
+flattenTree treefile = case treeFileContents treefile of
+    FolderContents files -> treefile : concatMap flattenTree files
+    _ -> [treefile]
+
 treeAsLookup :: TreeFile -> T.Text -> Maybe (GVal m)
 treeAsLookup treefile = \case
     "path" -> Just . toGVal . treeFilePath $ treefile
@@ -287,6 +296,7 @@ treeAsLookup treefile = \case
     "href" -> Just . toGVal . treePathToHref $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
     "tree" -> Just . toGVal . treeFileGetTree . treeFileContents $ treefile
+    "tree_recursive" -> Just . toGVal . concatMap flattenTree . treeFileGetTree . treeFileContents $ treefile
     "mode" -> Just . toGVal . drop 4 . show . treeFileMode $ treefile
     "mode_octal" -> Just . toGVal . modeToOctal . treeFileMode $ treefile
     "mode_symbolic" -> Just . toGVal . modeToSymbolic . treeFileMode $ treefile
