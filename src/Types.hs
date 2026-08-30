@@ -14,7 +14,7 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Data.ByteString (ByteString)
 import Data.Default (def)
-import Data.Maybe (fromMaybe, listToMaybe)
+import Data.Maybe (listToMaybe)
 import Data.Tagged (untag)
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8With)
@@ -286,8 +286,7 @@ treeAsLookup treefile = \case
     "name" -> Just . toGVal . FP.takeFileName . T.unpack . treeFilePath $ treefile
     "href" -> Just . toGVal . treePathToHref $ treefile
     "contents" -> Just . toGVal . treeFileContents $ treefile
-    "tree" -> Just . toGVal . treeFileGetTree (treeFilePath treefile) . treeFileContents $ treefile
-    "tree_recursive" -> Just . toGVal . treeFileGetTreeRecursive . treeFileContents $ treefile
+    "tree" -> Just . toGVal . treeFileGetTree . treeFileContents $ treefile
     "mode" -> Just . toGVal . drop 4 . show . treeFileMode $ treefile
     "mode_octal" -> Just . toGVal . modeToOctal . treeFileMode $ treefile
     "mode_symbolic" -> Just . toGVal . modeToSymbolic . treeFileMode $ treefile
@@ -295,15 +294,10 @@ treeAsLookup treefile = \case
     "is_directory" -> Just . toGVal . treeFileIsDirectory $ treefile
     _ -> Nothing
   where
-    treeFileGetTree :: T.Text -> TreeFileContents -> [TreeFile]
-    treeFileGetTree parent (FolderContents fs) = filter atTop fs
-      where
-        atTop = notElem FP.pathSeparator . drop 1 . T.unpack . fromMaybe "" . T.stripPrefix parent . treeFilePath
-    treeFileGetTree _ _ = []
-
-    treeFileGetTreeRecursive :: TreeFileContents -> [TreeFile]
-    treeFileGetTreeRecursive (FolderContents fs) = fs
-    treeFileGetTreeRecursive _ = []
+    -- The entries of this tree object - i.e. this directory's immediate children.
+    treeFileGetTree :: TreeFileContents -> [TreeFile]
+    treeFileGetTree (FolderContents fs) = fs
+    treeFileGetTree _ = []
 
     treeFileIsBinary :: TreeFile -> Bool
     treeFileIsBinary treefile' = case treeFileContents treefile' of
