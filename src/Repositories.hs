@@ -185,6 +185,7 @@ package env repos name description commits tree =
         , ("commits", toGVal commits)
         , ("tree", toGVal . filter (notElem FP.pathSeparator . T.unpack . treeFilePath) $ tree)
         , ("tree_recursive", toGVal tree)
+        , ("blobs", toGVal . concatMap flattenFiles $ tree)
         , ("readme", toGVal . findFile "readme" $ tree)
         , ("license", toGVal . findFile "license" $ tree)
         ]

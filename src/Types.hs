@@ -256,6 +256,17 @@ getBlobContents oid = do
         else FileContents <$> Git.catBlob oid
 
 {-
+Recursively descend into a tree, discarding directories and returning a flat list of
+every file (blob) reachable from it, in depth-first order. Each file's `path` is already
+the full path relative to the repo root, since that's accumulated during the tree walk in
+Repositories.hs.
+-}
+flattenFiles :: TreeFile -> [TreeFile]
+flattenFiles treefile = case treeFileContents treefile of
+    FolderContents files -> concatMap flattenFiles files
+    _ -> [treefile]
+
+{-
 GVal implementations for data definitions above, allowing commits to be rendered in
 Ginger templates.
 -}
