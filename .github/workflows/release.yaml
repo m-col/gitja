@@ -39,22 +39,24 @@ jobs:
 
     - name: Determine version
       id: version
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         VERSION=$(grep -m1 '^version:' gitja.cabal | awk '{print $2}')
-        echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+        TAG="v${VERSION}"
+        if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          # Version wasn't bumped since the last release: disambiguate with
+          # the short SHA so this commit still gets its own release.
+          TAG="${TAG}-$(git rev-parse --short HEAD)"
+        fi
+        echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-    - name: Create or update release
+    - name: Create release
       env:
         GH_TOKEN: ${{ github.token }}
         TAG: ${{ steps.version.outputs.tag }}
       run: |
-        if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-          # Version wasn't bumped since the last release: move the existing
-          # tag/release to point at this commit and replace its asset.
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA"
-        else
-          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "$TAG" --generate-notes
-        fi
+        gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+          --title "$TAG" --generate-notes
         gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" \
-          ./dist/gitja-linux-x86_64 --clobber
+          ./dist/gitja-linux-x86_64
