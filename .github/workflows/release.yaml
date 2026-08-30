@@ -1,9 +1,5 @@
 name: Release
 
-# This project uses Stack (see stack.yaml / stack.yaml.lock), not cabal, so
-# the build steps below use haskell/actions/setup with enable-stack and
-# `stack build` rather than a plain cabal build.
-
 on:
   push:
     branches: [ master ]
